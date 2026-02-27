@@ -1,0 +1,418 @@
+
+/* ========================================================= */
+/* SERVICE LETTER TEMPLATE (ERP Accurate – 3 Column Layout)    */
+/* ========================================================= */
+
+/* ---------- GLOBAL FIX (VERTICAL SHAKE) ---------- */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: none;
+  scroll-behavior: smooth;
+}
+
+/* Body style when modal is open - prevents scrolling */
+body.modal-open {
+  overflow: hidden !important;
+}
+
+/* REDUCED BLUR: Changed from 8px to 3px for less intense blur */
+body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
+  filter: blur(3px); /* Reduced from 8px to 3px */
+  pointer-events: none;
+  transition: filter 0.3s ease;
+}
+
+/* Clear any blur from within the modal */
+.pdf-modal-backdrop,
+.pdf-modal-backdrop *,
+.pdf-modal-overlay,
+.pdf-modal-container,
+.pdf-modal,
+.pdf-content,
+.pdf-content img,
+.pdf-close-btn,
+.pdf-download-btn {
+  filter: blur(0) !important;
+  pointer-events: auto !important;
+}
+
+/* ---------- Wrapper ---------- */
+.service-template-wrapper {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px 28px;
+  width: 100%;
+  max-width: 3000px;
+  box-sizing: border-box;
+}
+
+/* ---------- Form ---------- */
+.service-template-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- Grid ---------- */
+.service-grid {
+  display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px 24px;
+}
+
+.service-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.service-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.service-group input,
+.service-group select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+/* ---------- Responsibilities ---------- */
+.responsibilities-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.resp-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.service-responsibilities textarea {
+  /* match key-contribution input width visually by subtracting icon/gap space */
+  width: calc(100% - 57px);
+  box-sizing: border-box;
+  min-height: 120px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  resize: none;
+}
+
+/* ---------- Key Contributions ---------- */
+.service-key-contributions {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.key-contribution-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 71px;
+  
+}
+
+.options-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.key-contribution-item input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.delete-icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.delete-icon-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+.add-achievement-btn {
+  width: 98%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #03962b;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 71px;
+}
+
+.add-achievement-btn:hover {
+  background: #027a22;
+}
+
+.service-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.download-btn,
+.preview-btn,
+.email-btn,
+.save-btn {
+  width: 160px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: #347e45;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+/* ---------- PDF Modal ---------- */
+.pdf-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999; /* Extremely high z-index to cover everything */
+}
+
+/* Dark overlay that covers entire screen - slightly lighter for less blur effect */
+.pdf-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Reduced from 0.6 to 0.5 */
+}
+
+.pdf-modal-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100000;
+}
+
+.pdf-modal {
+  background: transparent;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 100001;
+}
+
+.pdf-close-btn {
+  position: absolute;
+  top: -45px;
+  right: -10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100002;
+  transition: all 0.3s ease;
+}
+
+.pdf-close-btn:hover {
+  background: rgba(0, 0, 0, 1);
+  transform: scale(1.1);
+}
+
+.pdf-content {
+  display: flex;
+  justify-content: center;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: transparent;
+  position: relative;
+}
+
+.pdf-content img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Download button positioned at bottom-left */
+.pdf-modal-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  justify-content: flex-start;
+  z-index: 100003;
+}
+
+.pdf-download-btn {
+  background-color: #347e45;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  min-width: 160px;
+}
+
+.pdf-download-btn:hover {
+  background-color: #2a6437;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+
+.textarea-with-icon {
+  display: flex;
+  align-items: flex-start; /* align icon with top of textarea */
+  gap: 8px;                /* space between icon and textarea */
+}
+
+.textarea-with-icon .options-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0; /* keep icon size fixed */
+  margin-top: 6px; /* align vertically with textarea content */
+}
+
+.textarea-with-icon textarea {
+  flex: 1;
+  min-height: 120px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  resize: none;
+  /* constrain width so textarea + icon visually match key-contribution inputs */
+  box-sizing: border-box;
+  max-width: calc(100% - 57px);
+}
+
+
+
+/* ---------- Responsive ---------- */
+@media (max-width: 992px) {
+  .service-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .pdf-modal {
+    width: 95%;
+    max-width: 95%;
+  }
+}
+
+
+/* ------------------ Mobile Fix: right side gap (slightly bigger buttons) ------------------ */
+@media (max-width: 768px) {
+  .service-buttons {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    padding: 0;
+    align-items: center; /* center buttons */
+  }
+
+  .download-btn,
+  .preview-btn,
+  .email-btn,
+  .save-btn {
+    width: auto;           
+    min-width: 200px;       /* slightly bigger */
+    max-width: 280px;       /* slightly bigger */
+    padding: 14px 28px;     /* more padding for larger feel */
+    height: 55px;           /* slightly taller */
+    border-radius: 10px;
+    font-size: 10px;    /* keep rounded corners */
+  }
+}
+
+
+@media (max-width: 480px) {
+  .pdf-modal {
+    max-height: 80vh;
+  }
+  
+  .pdf-close-btn {
+    top: -35px;
+    right: 5px;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  
+  .pdf-modal-footer {
+    bottom: 10px;
+    left: 10px;
+  }
+  
+  .pdf-download-btn {
+    padding: 10px 15px;
+    font-size: 14px;
+    min-width: 120px;
+  }
+}
+
+/* ---------- Error Message Styling ---------- */
+.offer-input-error {
+  color: #b91c1c;
+  font-size: 12px;
+  margin-top: 4px;
+}

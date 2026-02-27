@@ -1,0 +1,1065 @@
+/* ---------- overlay & popup (existing) ---------- */
+.h-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 18, 21, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 24px;
+  box-sizing: border-box;
+  font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.h-popup {
+  width: 920px;
+  height: 600px;
+  max-height: 650px;
+  max-width: calc(100% - 48px);
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 40px 48px 48px 48px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(20, 30, 40, 0.07);
+}
+
+/* close button */
+.h-close-btn {
+  position: absolute;
+  right: 20px;
+  top: 36px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.h-close-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  box-shadow: none;
+}
+.h-close-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+/* header */
+.h-title {
+  font-size: 28px;
+  margin: 0 0 1px 0;
+  color: #111827;
+  font-weight: 700;
+  margin-top: 0%;
+}
+
+.h-form {
+  padding-top: 1px;
+  display: block;
+}
+
+.h-label {
+  display: block;
+  font-size: 16px;
+  color: #1e293b;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* shared input wrapper styles */
+.h-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  box-sizing: border-box;
+  min-height: 44px;
+  margin-bottom: 16px;
+  max-height: 50px;
+  overflow: hidden;
+}
+
+/* visible text / file / date style normalization */
+.h-input input[type="date"],
+.h-input input[type="text"],
+.h-input input[type="file"],
+.h-input input[readonly],
+.h-input select,
+.h-input textarea {
+  max-height: 50px;
+  border: 0;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+  background: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  color: #1f2937;
+}
+
+/* small explicit class for textual inputs */
+.h-input-text {
+  max-height: 50px;
+}
+
+/* textarea tweaks */
+.h-input textarea {
+  font-size: 14px;
+  color: #243245;
+  resize: vertical;
+  max-height: 50px;
+  overflow: auto;
+}
+
+/* Date input */
+.h-date {
+  padding-right: 56px;
+  max-width: 300px;
+  position: relative;
+}
+.h-date input[type="date"] {
+  padding-right: 6px;
+  max-width: 333px;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+}
+.h-date input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+.h-date input[type="date"]::-webkit-clear-button,
+.h-date input[type="date"]::-webkit-inner-spin-button {
+  display: none;
+  -webkit-appearance: none;
+}
+
+/* custom calendar icon */
+.h-date-icon-wrapper {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8fbef;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.h-date-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
+}
+
+/* visually hidden native date input */
+.h-hidden-date {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  background: transparent !important;
+}
+
+/* grid row */
+.h-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* time select specifics (wrapper) */
+.h-time {
+  overflow: visible;
+  z-index: 1300;
+}
+
+/* old native select styles (harmless now) */
+.h-time select {
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* select icon base for normal inputs (category etc.) */
+.h-select-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.8;
+}
+.h-select-icon-rot {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* upload row */
+.h-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.h-info-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  opacity: 0.9;
+}
+.h-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 8px 14px;
+  background: #f2f2f3;
+  color: #7a7a7a;
+  font-size: 13px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.h-pill::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #f2f2f3;
+  border-left: 0;
+}
+
+/* fake upload field */
+.h-upload {
+  padding-right: 48px;
+}
+.h-upload-fake {
+  width: 100%;
+  display: inline-block;
+  font-size: 14px;
+  color: #7d8a95;
+  cursor: pointer;
+  user-select: none;
+}
+.h-upload-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* error styling */
+.h-error {
+  color: white;
+  font-size: 13px;
+  margin-top: 6px;
+  margin-bottom: 8px;
+}
+.h-input-invalid {
+  box-shadow: none !important;
+}
+
+/* ensure aria-invalid inputs have visible border (no inset) */
+.h-input input[aria-invalid="true"],
+.h-input textarea[aria-invalid="true"],
+.h-input select[aria-invalid="true"] {
+  border-color: transparent;
+}
+
+/* ---------- Custom Time Dropdown Styles ---------- */
+
+.h-time-select {
+  position: relative;
+  width: 100%;
+}
+
+.h-time-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 4px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1f2937;
+  min-height: 32px;
+  text-align: left;
+}
+
+.h-time-label {
+  flex: 1;
+}
+
+.h-time-placeholder {
+  color: #9aa4ad;
+}
+
+/* override base .h-select-icon when inside the time button */
+.h-time-button .h-select-icon {
+  position: static;
+  right: auto;
+  top: auto;
+  transform: none;
+  margin-left: 6px;
+}
+
+/* Ensure proper positioning for start/end time icons */
+.h-time-button .h-select-icon-start,
+.h-time-button .h-select-icon-end {
+  position: static;
+  right: auto;
+  top: auto;
+  transform: none;
+  margin-left: 6px;
+  pointer-events: auto;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.h-time-button .h-select-icon-start.open,
+.h-time-button .h-select-icon-end.open {
+  transform: rotate(180deg);
+}
+.h-time-button .h-select-icon.open {
+  transform: rotate(180deg);
+}
+
+/* floating list */
+.h-time-list {
+  
+  position: absolute;
+  top: calc(100% + 8px);
+  min-width: 265px !important;
+  max-width: 300px;
+  background: #ffffff;
+  border: 1px solid #f0eeee;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(20, 30, 40, 0.08);
+  transform: translateX(-17px);
+  z-index: 1400;
+  list-style: none;
+
+  overflow: auto;
+  max-height: 280px;
+}
+
+.h-time-list li {
+  padding: 12px 16px;
+  margin: 4px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  color: #111827;
+  white-space: nowrap;
+}
+
+.h-time-list li:hover,
+.h-time-list li:focus {
+  background: #f8fafc;
+  outline: none;
+}
+
+.h-time-list li.selected {
+  background: #eef6ff;
+}
+
+/* ----- Reason select: reuse time styles for consistent look ----- */
+.h-reason-select {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+
+/* .h-time-button, .h-time-list, .h-time-label, etc are already present.
+   We rely on those styles for visual consistency. */
+
+/* Small spacing tweak so the custom textarea lines up */
+
+.h-reason-input {
+  overflow: visible !important;
+
+}
+.h-reason-select .h-input {
+  
+  max-width: 100%;
+  margin-top: 8px;
+  padding: 8px 12px; /* will be overridden by .h-input default, but keep safe */
+}
+
+/* ensure the custom text area uses same look as form textarea */
+.h-reason-select textarea.h-input-text {
+  min-height: 60px;
+
+  max-height: 150px;
+  resize: vertical;
+  padding: 8px 10px;
+  font-size: 14px;
+  color: #243245;
+  border: 0;
+  outline: none;
+  background: transparent;
+}
+
+.h-reason-select > .h-time-list {
+  left: 0 !important;            /* align to left edge of the parent */
+  right: 0 !important;           /* stretch to the right edge of the parent */
+  min-width: 820px;
+  /*min-width: 100% !important;    /* at least full width of parent */
+  max-width: 100% !important;    /* don't exceed parent width */
+  width: 700px;
+  transform: none !important;    /* remove the translateX offset */
+  box-sizing: border-box;
+  padding-left: 0px;             /* optional: keep small inner spacing */
+  padding-right: 0px;
+  z-index: 5500;   
+}
+
+/* disabled option appearance for time/reason lists */
+.h-time-list li.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none; /* also prevents mouse clicks */
+  background: transparent;
+  color: #9aa4ad;
+}
+
+.h-reason-input {
+  position: relative;
+  overflow: visible !important;
+  padding: 0 !important; /* remove left/right padding that shifts dropdown */
+}
+
+.h-reason-select > .h-time-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0 !important;       /* hard left align */
+  right: auto !important;
+  width: 100% !important;  /* EXACT width of reason input */
+  min-width: 100% !important;
+  max-width: 100% !important;
+
+  transform: none !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+
+  z-index: 6000;
+}
+
+.h-reason-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 4px;
+  box-sizing: border-box;
+}
+
+/* make the inline input visually match .h-input-text while placed inside the button */
+.h-reason-inline-input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  color: #243245;
+  padding: 6px 4px;
+  min-height: 32px;
+  max-height: 120px;
+  width: 100%;
+}
+
+/* ensure the icon stays aligned inside the inline area */
+.h-reason-inline .h-select-icon {
+  position: static;
+  transform: none;
+  margin-left: 6px;
+  pointer-events: auto; /* allow toggling list with the icon */
+  cursor: pointer;
+}
+
+/* small visual focus hint for the inline input */
+.h-reason-inline-input:focus {
+  box-shadow: none;
+  outline: 2px solid rgba(34,158,255,0.14);
+  border-radius: 6px;
+}
+/* differentiate start/end icons */
+.h-select-icon.start {
+  /* example: move a bit left on start */
+  transform: translateY(-50%) translateX(-4px);
+   max-width: 18px;
+  max-height: 18px;
+}
+
+.h-select-icon.end {
+  /* example: rotate slightly for end */
+  transform: translateY(-50%) rotate(5deg);
+  max-width: 18px;
+  max-height: 18px;
+
+}
+
+
+.h-select-icon-start,
+.h-select-icon-end,
+.h-time-button .h-select-icon-start,
+.h-time-button .h-select-icon-end {
+  position: static;
+
+  transform: none;
+  margin-left: 6px;
+  pointer-events: auto;
+  cursor: pointer;
+
+  /* match sizing & rendering used by reason icon */
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.h-select-icon-start.open,
+.h-select-icon-end.open {
+  transform: rotate(180deg);
+}
+
+ 
+
+/* Keep a fallback when the generic .h-select-icon rules attempt
+   absolute positioning inside .h-time-button (higher specificity). */
+.h-time-button .h-select-icon-start,
+.h-time-button .h-select-icon-end {
+  position: static;
+  right: auto;
+  top: auto;
+}
+
+/* small visual hint when time input invalid (already used) */
+.h-input.h-time.h-time-open { z-index: 4000; }
+
+/* make sure selected + disabled combination still looks right */
+.h-time-list li.selected.disabled {
+  /* in case selection logic or accessibility focuses a disabled selected item */
+  background: #eef6ff;
+  opacity: 0.7;
+  color: #111827;
+}
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1024px) {
+  .h-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(12, 18, 21, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+    padding: 24px;
+    box-sizing: border-box;
+    font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding-bottom: 720px;
+  }
+  .h-form {
+    padding-top: 1px;
+    display: block;
+  }
+  .h-popup {
+    width: 920px;
+    height: 620px;
+    max-width: calc(100% - 48px);
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 40px 48px 48px 48px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(20, 30, 40, 0.07);
+  }
+  .h-title {
+    font-size: 28px;
+    margin: 0 0 0px 0;
+    color: #111827;
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 480px) {
+  .h-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(12, 18, 21, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+    padding: 24px;
+    box-sizing: border-box;
+    font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding-bottom: 330px;
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
+  .h-popup {
+    width: 450px;
+    height: 625px;
+    min-width: 400px;
+    background: #ffffff;
+    padding-top: 10px;
+    border-radius: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(20, 30, 40, 0.07);
+  }
+  .h-close-btn {
+    position: absolute;
+    right: 20px;
+    top: 8px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+  }
+  .h-close-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    box-shadow: none;
+  }
+  .h-close-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
+
+  /* header */
+  .h-title {
+    font-size: 18px;
+    margin: 0 0 18px 0;
+    color: #111827;
+    font-weight: 700;
+  }
+
+  .h-form {
+    padding-top: 2px;
+    display: block;
+  }
+
+  .h-label {
+    display: block;
+    font-size: 12px;
+    color: #1e293b;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .h-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 1px solid #e6e6e6;
+    border-radius: 10px;
+    padding: 12px 16px;
+    background: #fff;
+    box-sizing: border-box;
+    min-height: 33px;
+    margin-bottom: 16px;
+    max-height: 35px;
+    overflow: hidden;
+  }
+
+  .h-input input[type="text"],
+  .h-input input[type="file"],
+  .h-input input[readonly],
+  .h-input select,
+  .h-input textarea {
+    min-height: 33px;
+    max-height: 35px;
+    border: 0;
+    outline: none;
+    font-size: 12px;
+    width: 100%;
+    background: transparent;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    color: #1f2937;
+  }
+
+  /* STACK the 3-column row into one column */
+  .h-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    align-items: start;
+  }
+
+  .h-row > div {
+    width: 200px;
+    max-width: 200px;
+  }
+
+  .h-date,
+  .h-time {
+    max-width: 200px;
+    padding-right: 56px;
+  }
+
+  .h-input.h-time {
+    overflow: visible;
+    z-index: 1;
+    position: relative;
+  }
+  .h-input.h-time.h-time-open {
+  z-index: 4000;
+}
+
+
+  .h-time-button {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+
+  .h-time-list {
+    min-width: 200px;
+     left: 0;
+    right: auto;
+    z-index: 5000;
+    max-width: 220px;
+    top: calc(100% + 6px);
+  }
+
+  .h-time-list li {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .h-input-text {
+    max-height: 35px;
+  }
+
+  .h-input textarea {
+    font-size: 12px;
+    color: #243245;
+    min-height: 33px;
+    resize: vertical;
+    max-height: 35px;
+    overflow: auto;
+    padding-top: 10px;
+  }
+
+  .h-upload-fake {
+    font-size: 12px;
+  }
+  .h-upload-icon {
+    right: 10px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .h-date-icon-wrapper {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8fbef;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .h-date-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    display: block;
+  }
+  .h-upload-label {
+    font-size: 12px;
+  }
+  .h-error {
+    color: #d32f2f;
+    font-size: 13px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+  .h-pill {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    max-height: 30px;
+    padding: 8px 14px;
+    background: #f2f2f3;
+    color: #7a7a7a;
+    font-size: 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .h-select-icon {
+  position: static;
+  transform: none;
+  margin-left: 46px;
+}
+
+  /* .h-time-button {
+    padding: 8px 4px;
+    font-size: 12px;
+  }*/
+
+  .h-time-list {
+    min-width: 202px!important;
+    z-index: 5000;
+    max-width: 220px ;
+    top: calc(100% + 6px);
+  }
+
+  .h-time-list li {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .h-input-text {
+    max-height: 35px;
+  }
+
+  .h-input textarea {
+    font-size: 12px;
+    color: #243245;
+    min-height: 33px;
+    resize: vertical;
+    max-height: 35px;
+    overflow: auto;
+    padding-top: 10px;
+  }
+
+  .h-upload-fake {
+    font-size: 12px;
+  }
+  .h-upload-icon {
+    right: 10px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .h-date-icon-wrapper {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8fbef;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .h-date-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    display: block;
+  }
+  .h-upload-label {
+    font-size: 12px;
+  }
+  .h-error {
+    color: white;
+    font-size: 9px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+  .h-pill {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    max-height: 30px;
+    padding: 8px 14px;
+    background: #f2f2f3;
+    color: #7a7a7a;
+    font-size: 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .h-select-icon {
+  position: static;
+  transform: none;
+  margin-left: 46px;
+}
+
+  /* make sure the select/button are positioning contexts */
+  .h-time-select,
+  .h-time-button {
+    position: relative;
+  }
+
+  /* reserve space on the right so the icon doesn't overlap content */
+  .h-time-button {
+     position: relative;
+  }
+
+  /* prevent clipping of the absolutely positioned icon */
+  .h-input.h-time {
+    overflow: visible  !important;
+    z-index: 1 ;
+  }
+    .h-time-select.open { z-index: 5000; }
+  .h-time-list { z-index: 5000 !important; } 
+
+  .h-reason-inline{
+     position: relative;          /* enable absolute positioning of the icon */
+  padding-right: 10px;         /* space for the icon */
+  box-sizing: border-box;
+  } 
+  .h-reason-inline-input {
+  padding-right: 10px;         /* avoid input text overlapping the icon */
+}
+.h-select-icon-start{
+  position: absolute !important;
+  padding-right: 0px;
+  
+  padding-left: 6px !important;
+  top: 30% !important;
+ 
+}
+
+  .h-reason-inline .h-select-icon {
+  position: absolute !important;
+    right: 10px !important;
+    left: auto !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    pointer-events: auto !important;
+    width: 18px !important;
+    height: 18px !important;
+    z-index: 9999 !important; /* keep it on top of the input */
+}
+  .h-reason-input,
+  .h-reason-select {
+    overflow: visible !important;
+    z-index: 9998 !important;
+  }
+
+  /* Neutralize the conflicting rule that sets left:150px for other selects */
+  .h-time-button .h-select-icon {
+    left: auto !important;
+  }
+
+/* small visual focus hint for the inline input */
+.h-reason-inline-input:focus {
+  box-shadow: none;
+  outline: 2px solid rgba(34,158,255,0.14);
+  border-radius: 6px;
+}
+/* ==== mobile z-index fix (add inside your @media (max-width: 480px)) ==== */
+
+/* make time dropdown and its open container the topmost layer on mobile */
+.h-time-select.open,
+.h-time-select.open .h-time-list,
+.h-input.h-time.h-time-open {
+  z-index: 10010 !important;
+}
+
+/* in case some rules override, ensure the list itself is higher */
+.h-time-list {
+  z-index: 10010 !important;
+}
+
+/* optionally reduce reason's z-index if you prefer explicit ordering */
+.h-reason-select,
+.h-reason-input {
+  z-index: 9000 !important;
+}
+ .h-time-button .h-select-icon.open,
+  .h-select-icon-start.open,
+  .h-select-icon-end.open {
+    transform: translateY(-50%) rotate(180deg) !important;
+  }
+
+  /* pin the icon to the right edge — don't use padding-left on the icon */
+  .h-time-button .h-select-icon {
+    position: absolute !important;
+    right: 10px !important;        /* move it more/less by changing this */
+    top: 50% !important;
+    
+    transform: translateY(-50%);
+    width: 18px;                   /* explicit size stops unexpected scaling */
+    height: 18px;
+    max-width: none;               /* override any max-width:100% rules */
+    margin: 0;
+    padding: 0;                     /* no padding to move the element */
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .h-time-button .h-select-icon.open {
+    transform: translateY(-50%) rotate(180deg);
+  }
+  .h-input.h-time.h-time-open {
+    z-index: 4000 !important;
+  }
+   .h-time-button .h-select-icon,
+  .h-time-button .h-select-icon-start,
+  .h-time-button .h-select-icon-end,
+  .h-select-icon-start,
+  .h-select-icon-end {
+    position: absolute !important;
+    right: 12px !important;               /* distance from right edge of button */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;                 /* cancel earlier margin-left:46px rules */
+    pointer-events: none;                 /* icon is decorative for screen readers; click handled by button */
+    width: 18px;
+    height: 18px;
+    max-width: none;
+  }
+
+}

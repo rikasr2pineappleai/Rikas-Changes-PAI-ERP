@@ -1,0 +1,70 @@
+/* CancelButton.css */
+/* Layout & sizing */
+.submit-button {
+  position: absolute;
+  
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  width: 200px;
+  height: 50px;
+  padding: 10px 20px; /* padding-top/right/bottom/left as requested */
+  box-sizing: border-box;
+
+  /* Visuals */
+  background: #2F7A44;
+  border: 1px solid #DADADA;
+  border-radius: 10px;
+  opacity: 1;
+
+  /* rotation / angle */
+  transform: rotate(0deg);
+
+  /* Text */
+  font: Roboto;
+  font-style: Regular;
+  font-size: 14px;
+  line-height: 1;
+  color: #FFFFFF;
+
+  /* Pointer */
+  cursor: pointer;
+
+  /* allow smooth focus/hover visuals */
+  transition: box-shadow 120ms ease, transform 120ms ease;
+}
+
+/* Text inside the button (label) */
+.submit-button .submit-btn-text {
+  display: inline-block;
+  vertical-align: middle;
+  /* keep text from shrinking if an icon is present */
+  white-space: nowrap;
+}
+
+/* Hover / active / focus states */
+.submit-button:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+}
+
+.submit-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34, 122, 255, 0.12);
+}
+
+/* If you use an icon as children, make sure it matches the button height 
+.cancel-button img,
+.cancel-button svg {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}*/

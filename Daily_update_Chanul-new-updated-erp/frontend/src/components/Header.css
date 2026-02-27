@@ -1,0 +1,264 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  height: 108px; /* Figma */
+  width: 100%; /* equals 1448px when viewport is 1728px and sidebar is 280px */
+  background: #FFFFFF; /* Figma */
+  border-bottom: 0.5px solid #DADADA; /* Figma */
+  box-sizing: border-box;
+}
+.hamburger-btn{display:none}
+.hamburger-btn .bar{display:block}
+
+
+
+/* Left title/subtitle block */
+.header-title {
+  position: absolute;
+  width: max-content;
+  min-height: 45px; /* Increased to accommodate db-info */
+  left: 20px; /* Figma */
+  top: calc(50% - 45px/2 + 0.5px); /* Adjusted for new height */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+}
+.header-title .title {
+  width: max-content;
+  height: 23px;
+  font-family: 'Roboto', ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 23px;
+  color: #1E293B;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.header-title .subtitle {
+  width: 100px;
+  height: 16px;
+  font-family: 'Roboto', ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 16px;
+  color: #979494;
+  margin: 0;
+}
+.header-title .title .wave {
+  margin-left: 8px;
+  font-size: 20px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.db-info {
+  font-family: 'Roboto', ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: #64748b;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+
+/* Notification square and inner glyph */
+.notification-box {
+  box-sizing: border-box;
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  /* In Figma: left: 1140px. To keep it responsive relative to the right edge, we place it 248px from right (1448 - 1140 - 60) */
+  right: 248px;
+  top: calc(50% - 60px/2);
+  border: 1px solid #347E45;
+  border-radius: 10px;
+}
+.notification-icon-img {
+  position: absolute;
+  width: 32px; /* Figma frame */
+  height: 32px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+}
+
+/* User card (Group 266) */
+.user-card {
+  box-sizing: border-box;
+  position: absolute;
+  width: 206px;
+  height: 60px;
+  /* In Figma: left: 1210px => right: 32px (1448 - 1210 - 206) */
+  right: 32px;
+  top: 24px;
+  border: 1px solid #DADADA;
+  border-radius: 8px;
+}
+.avatar-box {
+  box-sizing: border-box;
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  left: 18px; /* 1228 - 1210 */
+  top: 10px; /* 34 - 24 */
+  border: 1px solid #DADADA;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+.avatar-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.user-info {
+  position: absolute;
+  width: 93px;
+  height: 31px;
+  left: 68px; /* 1278 - 1210 */
+  top: 10px; /* 34 - 24 */
+  display: flex;
+  flex-direction: column;
+}
+.user-info .name {
+  width: 93px;
+  height: 19px;
+  font-family: 'Roboto', ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  color: #1E293B;
+  margin: 0 0 -2px 0; /* match figma spacing */
+}
+.user-info .role {
+  width: 66px;
+  height: 14px;
+  font-family: 'Roboto', ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 14px;
+  color: #979494;
+  margin: 0;
+}
+
+
+
+
+
+/* Tablet layout overrides */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .header {
+    height: 80px;
+    padding: 0 16px;
+  }
+
+  /* Adjust header title positioning */
+  .header-title {
+    left: 16px;
+    min-height: 35px;
+    top: calc(50% - 35px/2 + 0.5px);
+  }
+
+  .header-title .title {
+    font-size: 18px;
+    line-height: 21px;
+  }
+
+  .header-title .subtitle {
+    font-size: 12px;
+    line-height: 14px;
+  }
+
+  .db-info {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  /* Adjust notification box position */
+  .notification-box {
+    width: 50px;
+    height: 50px;
+    right: 200px; /* Adjusted from 248px */
+    top: calc(50% - 50px/2);
+  }
+
+  .notification-icon-img {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Adjust user card position */
+  .user-card {
+    width: 180px;
+    height: 50px;
+    right: 16px;
+    top: 15px;
+  }
+
+  .avatar-box {
+    width: 32px;
+    height: 32px;
+    left: 12px;
+    top: 9px;
+  }
+
+  .user-info {
+    width: 80px;
+    height: 25px;
+    left: 50px;
+    top: 9px;
+  }
+
+  .user-info .name {
+    font-size: 14px;
+    line-height: 16px;
+  }
+
+  .user-info .role {
+    font-size: 10px;
+    line-height: 12px;
+  }
+}
+
+/* Mobile layout overrides */
+@media (max-width:768px){
+  /* Single compact row */
+  .header{display:flex;align-items:center;gap:8px;height:64px;padding:0 12px; justify-content: flex-start;}
+
+  /* Hide desktop title/subtitle, and also hide db-info to prevent overlap */
+  .header-title{display:flex !important; flex-direction: column; align-items: flex-start; justify-content: center; margin-right: auto; padding-right: 10px;}
+  .header-title .title, .header-title .subtitle, .header-title .db-info{display:none !important;}
+
+  /* Hamburger */
+  .hamburger-btn{display:block;position:relative;width:36px;height:36px;border:1px solid #DADADA;border-radius:6px;background:#fff;}
+  .hamburger-btn .bar{position:absolute;left:8px;right:8px;height:2px;background:#1E293B}
+  .hamburger-btn .bar:nth-child(1){top:11px}
+  .hamburger-btn .bar:nth-child(2){top:17px}
+  .hamburger-btn .bar:nth-child(3){top:23px}
+
+  /* Notification (second) */
+  .notification-box{position:static;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+  .notification-icon-img{position:static;width:20px;height:20px;object-fit:contain;transform:none;display:block;}
+
+  /* User card (right) */
+  .user-card{position:static;display:flex;align-items:center;justify-content:flex-start;height:40px;width:auto;padding:0 10px;margin-left:auto;border:1px solid #DADADA;border-radius:8px;}
+  .avatar-box{position:static;width:28px;height:28px;border:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .user-info{position:static;display:flex;flex-direction:column;justify-content:center;margin-left:8px;}
+  .user-info .name{font-size:14px;line-height:16px;}
+  .user-info .role{font-size:10px;line-height:12px;}
+  .avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

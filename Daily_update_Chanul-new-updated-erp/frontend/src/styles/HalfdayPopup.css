@@ -1,0 +1,825 @@
+/* HalfdayPopup.css (updated) */
+/* Popup container */
+.hd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 22, 34, 0.06);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 36px;
+  z-index: 9999;
+  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+}
+.hd-popup {
+  width: 800px;
+  height: 600px;
+  max-width: calc(100% - 48px);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 36px 56px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(8, 30, 40, 0.08);
+  color: #12202b;
+  z-index: 10000;
+}
+/* Title */
+.hd-title {
+  font-size: 24px;
+  color: #1E293B;
+  margin-bottom: 24px;
+  font-weight: 600;
+  font-style: SemiBold;
+}
+/* Close button */
+.hd-close-btn {
+  position: absolute;
+  right: 20px;
+  top: 36px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+/* Grey circle around close icon */
+.hd-close-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  box-shadow: none;
+}
+/* Close icon */
+.hd-close-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+/* Form wrapper: includes labels, inputs and buttons (excludes title & close button) */
+.hd-form {
+  padding-top: 30px;
+  width: 100%;
+}
+/* Label (used for all labels) */
+.hd-label {
+  display: block;
+  font-size: 16px; /* slightly smaller so layout feels balanced */
+  color: #1E293B;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+/* Shared input wrapper styles */
+.hd-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  box-sizing: border-box;
+  min-height: 44px;
+  max-height: 50px;
+  margin-bottom: 0; /* field-level spacing handled by .hd-field */
+  width: 100%;
+}
+/* Ensure the field container is the positioned ancestor for dropdowns */
+.hd-field {
+  flex: 1;
+  min-width: 0; /* important so long text doesn't force overflow */
+  position: relative; /* <- important so absolute menus align to the field width */
+}
+/* Visible text / file / date style normalization */
+.hd-input input[type="date"],
+.hd-input input[type="text"],
+.hd-input input[type="file"],
+.hd-input input[readonly] {
+  border: 0;
+  
+  font-size: 14px;
+  width: 100%;
+  background: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+/* Select icon (for dropdowns) */
+.hd-select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  transition: transform 180ms ease;
+  pointer-events: none; /* icon itself doesn't capture clicks */
+}
+/* rotated state (180deg). Use this class when the dropdown is open */
+.hd-select-icon.hd-rotated {
+  transform: translateY(-50%) rotate(180deg);
+}
+/* Date input: date input + icon to the right */
+.hd-date {
+  padding-right: 56px;
+  position: relative;
+}
+.hd-date input[type="date"] {
+  padding-right: 6px;
+  /* ensure the browser default UI is suppressed so only our icon shows */
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+}
+/* hide webkit calendar picker indicator */
+.hd-date input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+/* additional vendor hides (best-effort) */
+.hd-date input[type="date"]::-webkit-clear-button,
+.hd-date input[type="date"]::-webkit-inner-spin-button {
+  display: none;
+  -webkit-appearance: none;
+}
+/* custom date icon wrapper */
+.hd-date-icon-wrapper {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px; /* clickable area */
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8fbef;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.hd-date-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
+}
+/* Visually hide native date input but keep it in DOM & usable programmatically */
+.hd-hidden-date {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  background: transparent !important;
+}
+/* Ensure visible input uses monospace-ish spacing for digits (optional) */
+.hd-input.hd-date input[type="text"] {
+  font-variant-numeric: tabular-nums;
+}
+/* Small visual cue for disabled/readonly fake control (optional) */
+.hd-input input[readonly] {
+  cursor: pointer;
+}
+/* Textarea for reason */
+.hd-textarea {
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  width: 100%;
+  min-height: 44px;
+  max-height: 50px;
+  resize: none;
+  margin-bottom: 16px;
+  outline: none;
+  box-shadow: none;
+  border-color: #e6e6e6;
+}
+
+/* Upload row label + pill */
+.hd-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.hd-info-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  opacity: 0.9;
+}
+
+/* Pill container */
+.hd-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 8px 14px;
+  background: #f2f2f3;
+  color: #7a7a7a;
+  font-size: 13px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Left-pointing tail */
+.hd-pill::before {
+  content: "";
+  position: absolute;
+  left: -5px; /* Adjusted to match the triangle "width" for flush alignment */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #f2f2f3; /* Solid on right = points left */
+  border-left: 0;
+}
+
+
+/* Upload field (fake input) */
+
+.hd-upload-fake {
+  width: 100%;
+  display: inline-block;
+  font-size: 14px;
+  color: #7d8a95;
+  cursor: pointer;
+  user-select: none;
+}
+/* Upload icon on the right */
+.hd-upload-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+/* Inline input placed inside the select toggle for "Others" */
+.hd-inline-input {
+  border: 0;
+  background: transparent;
+  width: 100%;
+  font-size: 14px;
+  color: #12202b;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  caret-color: auto;
+  box-sizing: border-box;
+}
+
+/* Keep placeholder style consistent with the select placeholder */
+.hd-inline-input::placeholder {
+  color: #7d8a95;
+}
+
+/* If invalid show subtle visual (you already have .hd-invalid styling elsewhere) */
+.hd-inline-input.hd-invalid {
+  /* optional: use same invalid appearance */
+}
+
+/* Error messages */
+.hd-error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 2px;
+  margin-bottom: 0%;
+  display: block;
+}
+
+.hd-input input[aria-invalid="true"],
+.hd-textarea[aria-invalid="true"] {
+ outline: none;
+  box-shadow: none;
+  border-color: #e6e6e6;
+}
+/* Submit row */
+.hdsubmit-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+/* ===== New layout: side-by-side fields wrapper =====
+   Use --hd-field-gap to easily adjust horizontal spacing between the two fields.
+*/
+.hd-fields-row {
+  display: flex;
+  gap: var(--hd-field-gap, 32px);
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 12px; /* keep overall spacing consistent */
+}
+/* Each field (e.g. Date or Start Time) gets its own column */
+.hd-field {
+  /* flex and positioning already declared above */
+}
+/* Make label a little less tall for compactness inside the row */
+.hd-field .hd-label {
+  margin-bottom: 8px;
+}
+/* On small screens, stack the fields */
+@media (max-width: 680px) {
+  .hd-fields-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+/* ---------- Start Time select dropdown specific styles ---------- */
+/* Make the toggle look like the other hd-input controls */
+.hd-select-toggle {
+  display: flex;
+  align-items: center;
+  /*justify-content: space-between;*/
+  width : 360px; /* changed from 120% -> 100% to match parent input width */
+  background: transparent;
+  border: 0;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+  font-size: 14px;
+  color: #979494;
+}
+/* Dropdown menu container
+   Position relative to .hd-field (so its width == visible field width) */
+.hd-select-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 2px; /* align with hd-input inner padding */
+  right: 12px;
+  width: 325px;
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(8, 30, 40, 0.06);
+  z-index: 11000;
+  padding: 8px 0;
+  max-height: 220px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+/* Individual option */
+.hd-select-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hd-select-item:hover,
+.hd-select-item[aria-selected="true"] {
+  background: #f4f6f8;
+}
+/* Small muted placeholder */
+.hd-select-placeholder {
+  color: #7d8a95;
+  font-size: 14px;
+}
+/* When the dropdown is open, ensure the input border sits above overlay by increasing z */
+.hd-field .hd-input {
+  z-index: 1;
+}
+/* Prevent long words from breaking the layout */
+.hd-select-item,
+.hd-select-toggle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hd-reason-select .hd-select-toggle {
+  width: 560px; /* match the start-time toggle default width */
+}
+.hd-reason-select .hd-select-menu {
+  width: 700px;
+  max-width: 100%;
+  left: 0;
+  right: 12px;
+}
+
+@media (max-width: 1024px){
+  .hd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 22, 34, 0.06);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 36px;
+  z-index: 9999;
+  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+}
+.hd-popup {
+  width: 800px;
+  height: 560px;
+  max-height: 560px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 36px 56px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(8, 30, 40, 0.08);
+  color: #12202b;
+  z-index: 10000;
+}
+/* Title */
+.hd-title {
+  font-size: 18px;
+  color: #1E293B;
+  margin-bottom: 24px;
+  font-weight: 600;
+  font-style: SemiBold;
+}
+.hd-form {
+  padding-top: 1px;
+  width: 100%;
+}
+/* Label (used for all labels) */
+.hd-label {
+  display: block;
+  font-size: 12px; /* slightly smaller so layout feels balanced */
+  color: #1E293B;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+
+}
+
+@media (max-width: 480px){
+  .hd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 22, 34, 0.06);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6px;
+  z-index: 9999;
+  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+}
+.hd-popup {
+  width: 800px;
+  height: 600px;
+  max-height: 600px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding-right: 20px;
+ padding-left: 20px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(8, 30, 40, 0.08);
+  color: #12202b;
+  z-index: 10000;
+}
+/* Title */
+.hd-title {
+  font-size: 18px;
+  color: #1E293B;
+  margin-bottom: 24px;
+  font-weight: 600;
+  font-style: SemiBold;
+}
+.hd-form {
+  padding-top: 1px;
+  width: 100%;
+}
+/* Label (used for all labels) */
+.hd-label {
+  display: block;
+  font-size: 12px; /* slightly smaller so layout feels balanced */
+  color: #1E293B;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.hd-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  box-sizing: border-box;
+  min-height: 30px;
+  max-height: 35px;
+  margin-bottom: 0; /* field-level spacing handled by .hd-field */
+  width: 350px;
+}
+.hd-date-icon-wrapper {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px; /* clickable area */
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8fbef;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.hd-textarea {
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding-bottom: 0px;
+  padding-top: 12px;
+  font-size: 14px;
+  width: 350px;
+  min-height: 30px;
+  max-height: 35px;
+  resize: none;
+  
+  outline: none;
+  box-shadow: none;
+  border-color: #e6e6e6;
+}
+.hd-pill {
+  margin-left: 2%;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  width: 150px;
+  padding: 8px 14px;
+  background: #f2f2f3;
+  color: #7a7a7a;
+  font-size: 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.hd-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.hd-info-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  opacity: 0.9;
+  margin-left: 2%;
+}
+
+.hd-input input[type="text"],
+.hd-input input[type="file"],
+.hd-input input[readonly] {
+  border: 0;
+  
+  font-size: 14px;
+  width: 350px;
+  background: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+.hd-select{
+  max-width: 200px;
+
+}
+.hd-date{
+  max-width: 200px;
+}
+.hd-select-toggle{
+
+  max-width: 200px;
+}
+.hd-select-menu{
+  max-width: 200px;
+ 
+
+}
+ .hd-form > .hd-input.hd-select {
+    width: 350px !important;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Target the Start Time control inside the side-by-side row (2nd field)
+     and reduce it to ~200px so it doesn't affect Leave Category. */
+  .hd-fields-row .hd-field:nth-child(2) .hd-input.hd-select,
+  .hd-fields-row .hd-field:nth-child(2) .hd-select-toggle {
+    width: 200px !important;
+    max-width: 200px !important;
+    box-sizing: border-box;
+  }
+
+  /* Make the dropdown menu match the reduced width and align it to the right
+     (so it doesn't overflow the popup on small screens). */
+  .hd-fields-row .hd-field:nth-child(2) .hd-select-menu {
+    width: 200px !important;
+    max-width: 200px !important;
+    left: 0px !important;
+    right: 12px !important;
+  }
+
+  /* Also make sure date/select/textarea inputs don't stretch unexpectedly */
+  
+  /* Remove the default black outline/border on focus for inputs and the select-toggle.
+     Keep a subtle focus-visible for keyboard users for accessibility. */
+  .hd-input:focus-within,
+  .hd-input:focus,
+  .hd-select-toggle:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: #e6e6e6;
+  }
+
+  /* Subtle, accessible focus-visible ring for keyboard users */
+  .hd-input:focus-visible,
+  .hd-select-toggle:focus-visible {
+    outline: 3px solid rgba(34,197,94,0.12); /* light green ring */
+    outline-offset: 2px;
+  }
+}
+
+.hd-select-menu--match-toggle{
+  margin-left: 0%;
+  padding-left: 0px;
+  width: auto !important;
+  min-width: 300px;
+  max-width: 680px;
+  /*max-width: calc(100% - 24px);*/
+  box-sizing: border-box;
+   transform: translateX(-17px);
+}
+
+.hd-time-select-menu {
+  /* sensible defaults for a compact time menu */
+  min-width: 326px;
+  max-width: 328px;
+  box-sizing: border-box;
+  /* keep other visual styles consistent with other select menus */
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(8, 30, 40, 0.06);
+  padding: 8px 0;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-left: 0px;
+  margin-left: 0%;
+}
+
+/* Time items — same spacing but separate class for future customisations */
+.hd-time-select-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 0px;
+  margin-left: 0%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hd-time-select-item:hover,
+.hd-time-select-item[aria-selected="true"] {
+  background: #f4f6f8;
+}
+
+/* Time toggle (the button that opens the time menu) — narrow by default */
+.hd-time-toggle {
+  /* override the generic width (hd-select-toggle had 360px in your CSS) */
+  width: 200px !important;
+  max-width: 200px !important;
+  box-sizing: border-box;
+}
+
+.hd-reason-menu {
+  /* sensible minimum so tiny toggles still look ok */
+     min-width: 1000px;
+  /* never exceed viewport width (fallback) */
+   transform: translateX(-12px);
+  box-sizing: border-box;
+  /* leave left/top positioning to inline styles computed in JS */
+  left: 0px;
+  right: 0px;
+}
+
+@media (max-width: 1024px){
+/* ===== Reason dropdown: mobile alignment fix (<=1024px) ===== */
+/* Override the large desktop-only widths so the reason menu lines up with the inline input */
+.hd-reason-select .hd-select-toggle {
+  min-width: 0;            /* remove forced huge min */
+  max-width: 700px;        /* reasonable max for mobile/tablet */
+  width: 100%;             /* let the toggle be responsive inside its container */
+  box-sizing: border-box;
+}
+
+/* Force the menu to be a compact width and align its right edge with the toggle.
+   Use !important to override earlier desktop rules (min-width:1000px / left:0). */
+.hd-reason-select .hd-select-menu,
+.hd-reason-menu {
+  min-width: 690px !important;   /* small sensible min for touch */
+  max-width: 691px !important;
+  margin-right: 15%;
+  width: auto !important;
+  left: auto !important;         /* we'll position with JS; this prevents CSS forcing left:0 */
+  right: 12px !important;        /* fallback alignment if JS doesn't apply */
+  transform: none !important;
+  box-sizing: border-box;
+}
+
+/* Make sure the inline text input uses the available space */
+.hd-reason-select .hd-inline-input {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+}
+
+@media (max-width: 480px){
+  .hd-fields-row {
+    flex-direction: column;
+    gap: 12px;             /* vertical gap between fields */
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .hd-fields-row .hd-field {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* make the visible input/select/toggle fill the field */
+  .hd-fields-row .hd-field .hd-input,
+  .hd-fields-row .hd-field .hd-select-toggle,
+  .hd-fields-row .hd-field  {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+  .hd-time-toggle{
+  width: 140px !important;
+  max-width: 140px !important;
+  box-sizing: border-box;
+  }
+  .hd-time-select-menu {
+  /* reduce the options box width on mobile */
+  min-width: 200px !important;
+  max-width: 240px !important;
+  width: 200px !important;         /* forces a smaller width even if JS injected a larger inline width */
+  padding-left: 0px !important;
+  margin-left: 0% !important;
+  left: 9% !important;
+  transform: none !important;
+  box-sizing: border-box;
+}
+
+  /* ensure text inputs/textareas don't stay at the old 350px */
+  .hd-input input[type="text"],
+  .hd-input input[type="file"],
+  .hd-input input[readonly],
+  .hd-textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* override any earlier nth-child sizing used for desktop */
+  .hd-fields-row .hd-field:nth-child(2) .hd-input.hd-select,
+  .hd-fields-row .hd-field:nth-child(2) .hd-select-toggle,
+  .hd-fields-row .hd-field:nth-child(2) .hd-select-menu {
+    width: 100% !important;
+    max-width: 100% !important;
+    left: auto !important;
+    right: 12px !important;
+  }
+  
+.hd-reason-select .hd-select-menu,
+.hd-reason-menu {
+  min-width: 196px !important;   /* small sensible min for touch */
+  max-width: 198px !important;
+  margin-right: 0%;
+  margin-left: 0%;
+  width: auto !important;
+  left: 10% !important;         /* we'll position with JS; this prevents CSS forcing left:0 */
+       /* fallback alignment if JS doesn't apply */
+  transform: none !important;
+  box-sizing: border-box;
+}
+
+}

@@ -1,0 +1,183 @@
+/* ---------- PAGE ---------- */
+.rules-page {
+  padding: 24px;
+  background: #ffff;
+}
+
+/* ---------- HEADER ---------- */
+.rules-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+/* Align section content with heading text (not icon) */
+.rules-grid,
+.badge-row {
+  padding-left: 26px; /* icon width (16px) + gap (10px) */
+}
+
+/* Content text typography */
+.overview-text,
+.rule-item p {
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;        /* Medium */
+  font-size: 18px;
+  line-height: 1;          /* 100% */
+  letter-spacing: 0px;
+  text-align: justify;
+  color: #8A7C7C;
+}
+
+
+
+.back-icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.rules-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ---------- MAIN CARD ---------- */
+.rules-card {
+  font-family: 'Roboto', sans-serif;
+  max-width: 1253px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 15px;
+  border: 1px solid #e5e7eb;
+  padding: 28px;
+}
+
+.rules-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ---------- OVERVIEW ---------- */
+.rules-overview-card {
+  background: rgba(235, 253, 241, 0.28);
+  border: 1px solid #e5e7eb;
+  padding: 24px 28px;
+  border-radius: 15px;
+}
+
+.overview-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.overview-text {
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ---------- SECTIONS ---------- */
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/*  DEFAULT GREEN RECTANGLE */
+.section-icon {
+  width: 14px;
+  height: 14px;
+  background-color: #22c55e;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/*  DATA-DRIVEN ICONS (Clock / Group) */
+.section-icon-img {
+  width: 16px;          /* visually matches green rectangle */
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+/* ========================================================= */
+/*  SPACE-OPTIMIZED POLICY LAYOUT (NO SHRINK ISSUE) */
+/* ========================================================= */
+
+.rules-grid {
+  column-count: 3;
+  column-gap: 40px;
+  margin-top: 16px;
+}
+
+/* prevent column breaks */
+.rule-item {
+  break-inside: avoid;
+  margin-bottom: 18px;
+}
+
+.rule-item h5 {
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.rule-item p {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---------- BADGES ---------- */
+.badge-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.rules-badge {
+  background: #ecfdf5;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1024px) {
+  .rules-grid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .rules-card {
+    padding: 20px;
+  }
+
+  .rules-title {
+    font-size: 18px;
+  }
+
+  .overview-title {
+    font-size: 16px;
+  }
+
+  .rules-grid {
+    column-count: 1;
+  }
+}

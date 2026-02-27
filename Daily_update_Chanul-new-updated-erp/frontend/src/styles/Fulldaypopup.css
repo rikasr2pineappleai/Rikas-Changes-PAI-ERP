@@ -1,0 +1,570 @@
+/* Overlay */
+.lp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 18, 21, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 24px;
+  box-sizing: border-box;
+  font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Card */
+.lp-card {
+  width: 720px;
+  height: 719px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px 44px 36px 44px;
+  box-shadow: 0 18px 40px rgba(32, 45, 56, 0.12);
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Close button (grey circle) */
+.lp-card .lp-close-btn {
+  position: absolute;
+  right: 20px;
+  top: 36px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.lp-card .lp-close-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  box-shadow: none;
+}
+
+.lp-card .lp-close-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+/* Title */
+.lp-card .lp-title {
+  margin: 0 0 26px 0;
+  font-size: 22px;
+  color: #1E293B;
+  font-weight: 700;
+  font-style: semi-bold;
+}
+
+/* Form layout */
+.lp-card .lp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 3px;
+}
+
+/* Label */
+.lp-card .lp-label {
+  display: block;
+  font-size: 20px;
+  color: #1E293B;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-style: Medium;
+}
+
+/* Inputs common */
+.lp-card .lp-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  box-sizing: border-box;
+  max-height: 48px;
+  min-height: 24px;
+}
+
+.lp-card .lp-input input[type="date"],
+.lp-card .lp-input input[type="text"],
+.lp-card .lp-input input[type="file"],
+.lp-card .lp-input input[readonly] {
+  border: 0;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+  background: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* hide native file control */
+.lp-card .lp-input input[type="file"] {
+  display: none;
+}
+
+/* Select fake control with icon on right */
+.lp-card .lp-select {
+  cursor: pointer;
+  position: relative;
+}
+
+.lp-card .lp-select input[readonly] {
+  cursor: pointer;
+}
+
+/* select icon */
+.lp-card .lp-select-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  margin-left: 8px;
+}
+
+/* Dropdown menu */
+.lp-card .lp-select-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(32, 45, 56, 0.08);
+  z-index: 40;
+  box-sizing: border-box;
+  padding: 6px 6px;
+}
+
+.lp-card .lp-select-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1f2937;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lp-card .lp-select-item:hover,
+.lp-card .lp-select-item[aria-selected="true"] {
+  background: #f5f7fa;
+}
+
+/* Date input wrapper */
+.lp-card .lp-date {
+  padding-right: 56px;
+  position: relative;   /* prefer relative unless you must absolutely position it */
+  width: 300px;         /* explicit desktop width */
+  box-sizing: border-box;
+}
+.lp-date-pair {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* === IMPORTANT: visually hide native date input but keep it usable ===
+   This keeps the input available to JavaScript (showPicker/focus) while
+   removing the browser-rendered 'mm/dd/yyyy' label.
+*/
+.lp-card .lp-hidden-date {
+  /* visually hide but keep in DOM and programmatically focusable */
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  background: transparent !important;
+}
+
+/* Put the green circular background back on the custom icon wrapper */
+.lp-card .lp-date-icon-wrapper {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8fbef;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+   pointer-events: auto;
+}
+
+.lp-card .lp-date-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
+}
+
+.lp-card .lp-error {
+  color: white;
+  font-size: 12px;
+  margin-top: 0px;
+  margin-bottom: -4px;
+  padding-left: 4px;
+}
+
+/* Make sure invalid inputs are slightly highlighted (accessible) */
+.lp-card .lp-input input[aria-invalid="true"],
+.lp-card .lp-textarea[aria-invalid="true"] {
+  /*box-shadow: inset 0 0 0 1px rgba(211, 47, 47, 0.15);*/
+}
+
+/* Textarea */
+.lp-card .lp-textarea {
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #243245;
+  resize: vertical;
+  max-height: 30px;
+  box-sizing: border-box;
+  outline: none;
+  box-shadow: none;
+  border-color: #e6e6e6;
+}
+
+/* Upload row label + pill */
+.lp-card .lp-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+/* ---- Pill with left "speech-tail" ---- */
+.lp-card .lp-info-icon {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;
+   padding: 3px;          /* gives icon some breathing room */
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  margin-left: 0px;      /* small offset so icon sits slightly away from label */
+  z-index: 2;       
+ 
+}
+
+/* Pill: speech-bubble with tail pointing left */
+.lp-card .lp-pill-wrapper {
+  display: inline-block;
+  max-width:150px; 
+  height: 30px;       /* limit width so it doesn't span whole form */
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #DADADA;
+  color: #6b6b6b;          /* readable grey */
+        /* normal text size */
+  line-height: 1.25;
+  white-space: normal;     /* allow wrapping */
+  word-break: break-word;  /* break long words/URLs if needed */
+  position: relative;
+  vertical-align: middle;
+   z-index: 1;    
+   margin-left: 0px;
+}
+
+/* left-pointing triangular tail: ensure same color as pill */
+.lp-card .lp-pill-wrapper::before {
+  content: "";
+  position: absolute;
+  left: -5px;              /* position the tail just outside the pill */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #DADADA; /* same as pill background */
+  z-index: 0;
+  margin-left: 0px;
+}
+
+/* neutralize any leftover/old styles on the inner element */
+.lp-card .lp-pill {
+  display: block;
+  margin-top: 2%;
+  padding: 0;
+  font-size: 10px;   /* follow wrapper font size */
+  line-height: inherit;
+  width: auto;
+  height: auto;
+}
+
+/* Upload field (fake input) */
+.lp-card .lp-upload {
+  padding-right: 48px;
+}
+
+.lp-card .lp-upload-fake {
+  width: 100%;
+  display: inline-block;
+  font-size: 14px;
+  color: #7d8a95;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* upload icon on the right */
+.lp-card .lp-upload-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* Submit button wrapper */
+.lp-card .lp-submit-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+/* Reason dropdown wrapper adjustments */
+.lp-reason-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #e6e6e6;
+  min-height: 44px;
+  background: #fff;
+  box-sizing: border-box;
+  position: relative;
+  gap: 8px;
+}
+
+/* Input used for reason (single-line) */
+.lp-reason-input {
+  font-size: 14px;
+  color: #243245;
+  outline: none;
+  box-shadow: none;
+  max-height: 30px;
+  overflow: hidden;
+  padding-right: 40px; /* space for icon */
+  width: 100%;
+  background: transparent;
+  border: none;
+  caret-color: #111827;
+}
+
+/* When input is readOnly show pointer (so wrapper opens) */
+.lp-reason-input[readonly] {
+ 
+  max-height: 30px;
+  cursor: default;
+  color: #243245;
+  opacity: 0.95;
+}
+.lp-reason-input:not([readonly]) {
+  cursor: text;
+  max-height: 30px;
+}
+
+
+/* Ensure the internal textarea inherits needed spacing 
+.lp-reason-wrapper .lp-reason-textarea {
+  font-size: 14px;
+  color: #243245;
+  outline: none;
+  box-shadow: none;
+  min-height: 44px;
+  max-height: 120px;
+  overflow: auto;
+  padding-right: 44px; 
+  line-height: 1.25;
+}*/
+
+/* Dropdown toggle icon */
+.lp-dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Icon rotates when open */
+.lp-dropdown-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  transition: transform 180ms ease-in-out;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* optional class if you want 180deg rotation */
+.lp-dropdown-icon.rotated {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* dropdown panel for reason */
+.lp-reason-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(32, 45, 56, 0.08);
+  z-index: 60;
+  padding: 8px 6px;
+  max-height: 220px;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+/* reason items */
+.lp-reason-item {
+  padding: 12px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1f2937;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* hover & selected */
+.lp-reason-item:hover,
+.lp-reason-item[aria-selected="true"] {
+  background: #f5f7fa;
+}
+
+/* small tweak for readOnly textarea visual cue */
+.lp-reason-textarea[readonly] {
+  cursor: default;
+  color: #243245;
+  opacity: 0.95;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .lp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 18, 21, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 14px;
+  padding-bottom: 730px;
+  box-sizing: border-box;
+  font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.lp-card .lp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 0px;
+}
+
+.lp-card {
+  width: 720px;
+  height: 530px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px 44px 36px 44px;
+  box-shadow: 0 18px 40px rgba(32, 45, 56, 0.12);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.lp-card .lp-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  box-sizing: border-box;
+  max-height: 34px;
+}
+
+.lp-card .lp-label {
+  display: block;
+  font-size: 15px;
+  color: #1E293B;
+  margin-bottom: 0px;
+  font-weight: 600;
+  font-style: Medium;
+}
+
+.lp-card .lp-error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 0px;
+  margin-bottom: -9px;
+  padding-left: 4px;
+}
+
+}
+
+@media (max-width: 480px) {
+ 
+.lp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 18, 21, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 14px;
+  padding-bottom: 270px;
+  box-sizing: border-box;
+}
+
+.lp-card {
+  width: 620px;
+  height: 640px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px 44px 36px 44px;
+  box-shadow: 0 18px 40px rgba(32, 45, 56, 0.12);
+  position: relative;
+  box-sizing: border-box;
+}
+
+}

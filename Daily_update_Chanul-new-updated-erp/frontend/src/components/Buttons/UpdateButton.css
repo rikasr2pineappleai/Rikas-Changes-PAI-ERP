@@ -1,0 +1,72 @@
+.update-btn-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+  /* vertical spacing around the button (adjust if needed) */
+  padding: 8px 0;
+  box-sizing: border-box;
+}
+
+/* The button itself */
+.update-btn {
+  /* fixed design size from your spec */
+  width: 456px;
+  height: 50px;
+
+  /* make padding included in the height */
+  box-sizing: border-box;
+  padding: 20px; /* your requested padding; included in the 56px due to box-sizing */
+
+  background: #347E45; /* main color */
+  border: none;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* requested gap */
+
+  /* typography */
+  color: #ffffff;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-size: 20px;    /* adjust to taste (image looks around 20–26px) */
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  text-align: center;
+
+  /* appearance + affordance */
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  /* subtle shadow to match the visual depth in the image */
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12), inset 0 -2px 0 rgba(0,0,0,0.03);
+
+  /* smooth interactions */
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+
+/* Hover / focus / active states */
+.update-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(0.98);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.14), inset 0 -2px 0 rgba(0,0,0,0.03);
+}
+
+.update-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12), inset 0 -1px 0 rgba(0,0,0,0.02);
+}
+
+.update-btn:focus {
+  outline: none;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12),
+              0 0 0 4px rgba(52,126,69,0.14); /* subtle focus ring*/
+}
+
+/* Make sure the button's text can't wrap unexpectedly */
+.update-btn > * {
+  white-space: nowrap;
+}

@@ -1,0 +1,221 @@
+.holiday-container {
+  width: clamp(220px, 22vw, 320px);
+  max-width: 320px;
+  min-width: 210px;
+  background: #FFFFFF;
+  border: 1px solid #DADADA;
+  border-radius: clamp(12px, 2vw, 20px);
+  padding: clamp(12px, 1.6vh, 18px);
+  box-sizing: border-box;
+  flex: 0 0 clamp(220px, 22vw, 320px);
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.holiday-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: clamp(12px, 2vh, 16px);
+}
+
+.holiday-title {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: clamp(16px, 3vw, 20px);
+  color: #1E293B;
+  margin: 0;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Desktop: Vertical list */
+.holidays-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2vh, 16px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: clamp(4px, 1vw, 6px);
+  min-width: 0;
+}
+
+.holidays-list::-webkit-scrollbar { width: 6px; }
+.holidays-list::-webkit-scrollbar-track { background: transparent; }
+.holidays-list::-webkit-scrollbar-thumb { background: #DADADA; border-radius: 3px; }
+
+/* FULL-WIDTH MODE (zoom, tablet, mobile, or stacked under other cards) */
+@media (max-width: 1200px) {
+  .holiday-container {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .holidays-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: clamp(16px, 3vw, 24px);
+    justify-content: center;
+    align-items: stretch;
+    overflow: hidden;
+    padding: clamp(8px, 1.5vh, 12px) 0;
+  }
+
+  .holiday-item {
+    background: #F8FAFC;
+    border: 1px solid #EBEBEB;
+    border-radius: clamp(14px, 2.5vw, 18px);
+    padding: clamp(14px, 2.5vh, 18px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: clamp(10px, 2vh, 14px);
+    min-height: 120px;
+  }
+
+  .holiday-date-box {
+    width: clamp(56px, 14vw, 72px);
+    height: clamp(56px, 14vw, 72px);
+    border-radius: clamp(14px, 2.5vw, 18px);
+  }
+
+  .holiday-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .holiday-name {
+    font-weight: 600;
+    font-size: clamp(13.5px, 2.3vw, 16px);
+    line-height: 1.35;
+  }
+
+  .holiday-day {
+    font-size: clamp(11.5px, 1.8vw, 13px);
+    color: #64748B;
+  }
+}
+
+/* LARGE PHONES (S23 Ultra, iPhone 15 Pro Max, Pixel 8 Pro, etc.) → FORCE EXACTLY 2 CARDS PER ROW */
+@media (max-width: 768px) and (min-width: 481px) {
+  .holidays-list {
+    grid-template-columns: 1fr 1fr !important;   /* EXACTLY 2 CARDS */
+    gap: clamp(20px, 5.5vw, 32px);
+    justify-content: center;
+  }
+
+  .holiday-item {
+    padding: clamp(16px, 3.5vh, 22px);
+    min-height: 135px;
+  }
+
+  .holiday-date-box {
+    width: clamp(66px, 17vw, 80px);
+    height: clamp(66px, 17vw, 80px);
+  }
+
+  .holiday-name {
+    font-size: clamp(14.5px, 2.6vw, 17.5px);
+  }
+
+  .holiday-day {
+    font-size: clamp(12px, 1.9vw, 14px);
+  }
+}
+
+/* Small phones (≤480px) → still try for 2, fallback to 1 if truly tiny */
+@media (max-width: 480px) {
+  .holiday-container {
+    padding: clamp(16px, 4vh, 20px);
+  }
+
+  .holidays-list {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: clamp(14px, 5vw, 20px);
+  }
+
+  .holiday-item {
+    padding: clamp(12px, 3vh, 16px);
+    min-height: 115px;
+  }
+
+  .holiday-date-box {
+    width: clamp(58px, 16vw, 70px);
+    height: clamp(58px, 16vw, 70px);
+  }
+}
+
+@media (max-width: 360px) {
+  .holidays-list {
+    grid-template-columns: 1fr 1fr;   /* Force 2 even on smallest phones */
+    gap: clamp(12px, 4.5vw, 16px);
+  }
+}
+
+/* ORIGINAL DESKTOP ITEM STYLES (100% unchanged) */
+.holiday-item {
+  display: flex;
+  gap: clamp(10px, 1.5vw, 14px);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.holiday-date-box {
+  width: clamp(44px, 7vw, 56px);
+  height: clamp(44px, 7vw, 56px);
+  border-radius: clamp(12px, 2vw, 15px);
+  background: #DADADA;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1px, 0.5vh, 2px);
+}
+
+.holiday-date-number {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: clamp(13px, 2vw, 15px);
+  color: #1E293B;
+}
+
+.holiday-date-month {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: clamp(11px, 1.5vw, 15px);
+  color: #1E293B;
+  text-transform: uppercase;
+}
+
+.holiday-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.holiday-name {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: clamp(13px, 2.2vw, 18px);
+  color: #1E293B;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.holiday-day {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  font-size: clamp(12px, 2vw, 15px);
+  color: #979494;
+  margin-top: clamp(3px, 0.5vh, 5px);
+}

@@ -1,0 +1,433 @@
+/* ==========================================================
+   ADD EMPLOYEE — STEP 3 (Documents + Work Information)
+   ========================================================== */
+
+.add-employee-step3 {
+  background: #ffffff;
+  font-family: "Roboto", sans-serif;
+  color: #1e293b;
+  padding: 0 20px 60px;
+}
+
+/* ---------- Header ---------- */
+.employee-header {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  height: 80px;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.header-left h2 {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.back-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* ---------- Pagination (Step Indicator - Figma Specification) ---------- */
+.pagination {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 21px;
+  border: 2px solid #979494;
+  background: #DADADA;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 18px;
+  text-align: center;
+  color: #1e293b;
+  box-sizing: border-box;
+  z-index: 2;
+  position: relative;
+  transition: all 0.3s ease;
+  animation: circlePop 0.3s ease;
+}
+
+.circle.active {
+  border: 2px solid #347E45;
+  background: #347E45;
+  color: #FFFFFF;
+  transform: scale(1.1);
+}
+
+.circle.done {
+  border: 2px solid #347E45;
+  background: #347E45;
+  color: #FFFFFF;
+}
+
+.line {
+  width: 117px;
+  height: 5px;
+  background: #DADADA;
+  z-index: 1;
+  margin: 0 -15px;
+  transition: all 0.3s ease;
+}
+
+.line.active {
+  background: #347E45;
+  animation: lineFill 0.3s ease;
+}
+
+/* ---------- White boxes ---------- */
+.info-box {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  margin-top: 24px;
+  padding: 24px;
+}
+
+.info-header h3 {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+hr {
+  border: 1px solid #dadada;
+  margin: 12px 0 24px;
+}
+
+/* ---------- Upload grid ---------- */
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.upload-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.upload-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+/* NIC header row - puts label and mandatory row on same line */
+.nic-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* Mandatory pill like your Figma (“! + Both sides required…”) */
+.mandatory-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.mandatory-pill {
+  background: #dadada;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 10px;
+  line-height: 100%;
+  color: #979494;
+  white-space: nowrap;
+}
+
+/* Upload field */
+.upload-field {
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  cursor: pointer;
+  color: #979494;
+  font-size: 16px;
+}
+
+.upload-field img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.pdf-note {
+  font-size: 11px;
+  color: #347e45;
+  margin-top: 6px;
+}
+
+/* ---------- Errors ---------- */
+.error {
+  color: red;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* ---------- Work Information ---------- */
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.input-icon {
+  position: relative;
+}
+
+.input-icon input[type="date"],
+.select-box select {
+  width: 100%;
+  height: 50px;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-size: 16px;
+  color: #1e293b;
+  background: #ffffff;
+}
+
+/* Calendar icon */
+.calendar-icon {
+  position: absolute;
+  right: 12px;
+  top: 13px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.calendar-icon:hover {
+  transform: scale(1.06);
+}
+
+/* Select + dropdown icon */
+.select-box {
+  position: relative;
+}
+
+.select-box select {
+  appearance: none;
+}
+
+.dropdown-icon {
+  position: absolute;
+  right: 16px;
+  top: 13px;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+}
+
+/* ---------- Buttons ---------- */
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.cancel-btn,
+.save-btn {
+  width: 160px;
+  height: 50px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #dadada;
+}
+
+.save-btn {
+  background: #347e45;
+  color: #ffffff;
+  border: none;
+}
+
+/* ---------- Success popup ---------- */
+.success-popup {
+  width: 591px;
+  height: 90px;
+  border: 1px solid #347e45;
+  background: #ffffff;
+  border-radius: 12px;
+  position: fixed;
+  bottom: 40px;
+  right: 80px;
+  display: flex;
+  align-items: center;
+  padding-left: 26px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 999;
+}
+
+.left-bar {
+  width: 26px;
+  height: 100%;
+  background: #347e45;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.success-icon {
+  width: 24px;
+  height: 24px;
+  margin-left: 48px;
+}
+
+.success-popup span {
+  margin-left: 16px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #347e45;
+}
+
+.close-popup {
+  margin-left: auto;
+  margin-right: 12px;
+  width: 26px;
+  height: 26px;
+  background: #dadada;
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+}
+
+/* Animation keyframes */
+@keyframes circlePop {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes lineFill {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 117px;
+  }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1200px) {
+  .upload-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .work-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .line {
+    width: 80px;
+    margin: 0 -10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .add-employee-step3 {
+    padding: 0 16px 80px;
+  }
+
+  .employee-header {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    gap: 10px;
+  }
+
+  .upload-grid,
+  .work-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .success-popup {
+    width: calc(100% - 32px);
+    right: 16px;
+    left: 16px;
+  }
+  
+  /* Adjust NIC header row for mobile */
+  .nic-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-left h2 {
+    font-size: 20px;
+  }
+  .info-header h3 {
+    font-size: 20px;
+  }
+  .circle {
+    width: 26px;
+    height: 26px;
+    font-size: 14px;
+  }
+  .line {
+    width: 50px;
+    margin: 0 -8px;
+  }
+}

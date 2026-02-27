@@ -1,0 +1,96 @@
+.success-modal {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 591px;
+  max-width: calc(100vw - 40px);
+  height: 70px;
+  box-sizing: border-box;
+  background: #FFFFFF;
+  border: 1px solid #347E45;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px 0 0; /* right padding; left accent covers left */
+  z-index: 3000;
+}
+
+.success-modal .accent {
+  width: 26px;
+  height: 100%;
+  background: #347E45;
+  border: 1px solid #347E45;
+  border-radius: 12px 0 0 12px;
+  flex: 0 0 26px;
+}
+
+.success-modal .check-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.success-modal .message {
+  font-family: 'Roboto', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 23px;
+  color: #347E45;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.success-modal .close-btn {
+  width: 26px;
+  height: 26px;
+  background: #DADADA;
+  border: none;
+  border-radius: 29px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 26px;
+}
+
+.success-modal .close-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* Tablet responsive */
+@media (max-width: 1024px) {
+  .success-modal {
+    width: calc(100% - 40px);
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    height: 65px;
+    gap: 12px;
+  }
+  .success-modal .message {
+    font-size: 16px;
+    line-height: 19px;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .success-modal {
+    width: calc(100% - 24px);
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    height: 60px;
+  }
+  .success-modal .message {
+    font-size: 14px;
+    line-height: 17px;
+  }
+}

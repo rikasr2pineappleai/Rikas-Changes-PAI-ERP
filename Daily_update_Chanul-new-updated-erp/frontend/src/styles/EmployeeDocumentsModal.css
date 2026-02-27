@@ -1,0 +1,152 @@
+.emp-docs-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.emp-docs-modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.emp-docs-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.emp-docs-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.emp-docs-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.emp-docs-modal-close:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.emp-docs-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.emp-docs-no-data {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px 20px;
+  font-size: 14px;
+}
+
+.emp-docs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.emp-docs-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+
+.emp-docs-item:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.emp-docs-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.emp-docs-item-type {
+  font-weight: 500;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.emp-docs-item-date {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.emp-docs-item-btn {
+  padding: 8px 16px;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.emp-docs-item-btn:hover {
+  background-color: #b91c1c;
+}
+
+@media (max-width: 640px) {
+  .emp-docs-modal-content {
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .emp-docs-modal-header {
+    padding: 16px;
+  }
+
+  .emp-docs-modal-body {
+    padding: 16px;
+  }
+
+  .emp-docs-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .emp-docs-item-btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,370 @@
+/* ===============================
+   PROJECTS MODULE STYLES
+   =============================== */
+
+.prj-page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.prj-topCard,
+.prj-statsCard,
+.prj-sectionCard {
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 14px;
+}
+
+.prj-topCard {
+  padding: 18px;
+}
+
+.prj-topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prj-pageTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1b1f2a;
+}
+
+/* Primary button */
+.prj-primaryBtn {
+  border: none;
+  background: #2f7d3e;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0 18px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.prj-primaryBtn:hover {
+  filter: brightness(0.97);
+}
+
+/* PNG button (New Project / New Task) */
+.prj-newProjectBtn,
+.prj-newTaskBtn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.prj-newProjectImg,
+.prj-newTaskImg {
+  height: 44px;
+  display: block;
+}
+
+/* ===============================
+   STATS
+   =============================== */
+
+.prj-statsCard {
+  padding: 12px 18px;
+}
+
+.prj-statsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
+}
+
+.prj-statLabel {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.prj-statValue {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+/* ===============================
+   SEARCH + FILTER
+   =============================== */
+
+.prj-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prj-filterBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.prj-searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.prj-searchInput {
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+/* ===============================
+   PROJECT CARDS
+   =============================== */
+
+.prj-grid {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.prj-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.prj-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.prj-cardTitle {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.prj-cardSub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ===============================
+   MODAL (BaseModal)
+   =============================== */
+
+.prj-modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prj-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: min(860px, 94vw);
+  overflow: hidden;
+}
+
+.prj-modalHeader {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.prj-modalTitle {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.prj-iconBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background: #f1f5f9;
+  cursor: pointer;
+}
+
+.prj-modalBody {
+  padding: 18px;
+}
+
+/* ===============================
+   FORM
+   =============================== */
+
+.prj-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prj-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.prj-input,
+.prj-textarea {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.prj-input {
+  height: 46px;
+}
+
+/* 🔽 Reduced description height */
+.prj-textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+/* ===============================
+   TABLE
+   =============================== */
+
+.prj-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.prj-table th {
+  background: #0f1b2d;
+  color: #fff;
+  font-size: 12px;
+  padding: 12px;
+}
+
+.prj-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #eef1f5;
+}
+
+/* ===============================
+   TOAST (DELETE STYLE like Figma)
+   =============================== */
+
+.toast-modal {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 3200;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px 18px;
+  min-height: 52px;
+  min-width: 340px;
+  max-width: min(520px, calc(100vw - 56px));
+
+  border-radius: 12px;
+  background: #ffffff;
+  border: 2px solid #ee4b3c;
+
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.12);
+  animation: toastIn 0.18s ease;
+
+  position: fixed;
+}
+
+/* left red bar */
+.toast-modal::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 14px;
+  background: #ee4b3c;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+/* icon */
+.toast-icon {
+  width: 22px;
+  height: 22px;
+  margin-left: 10px; /* because left bar */
+  opacity: 0.95;
+}
+
+/* message text (RED) */
+.toast-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ee4b3c;
+}
+
+/* close button right */
+.toast-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: #f3f4f6;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-close img {
+  width: 12px;
+  height: 12px;
+  filter: none;
+  opacity: 0.75;
+}
+
+.toast-close:hover {
+  background: #e5e7eb;
+}
+
+/* only error style needed */
+.toast-modal.error {
+  background: #ffffff;
+  border-color: #ee4b3c;
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .toast-modal {
+    right: 16px;
+    left: 16px;
+    bottom: 16px;
+    min-width: 0;
+  }
+}

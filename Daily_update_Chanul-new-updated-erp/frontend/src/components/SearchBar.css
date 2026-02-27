@@ -1,0 +1,70 @@
+/* ---------- CONTAINER ---------- */
+.search-bar {
+  position: relative;
+  width: 100%;
+  max-width: 250px;          /* keep your original max-width */
+  height: 50px;              /* same height as before */
+}
+
+/* ---------- INPUT ---------- */
+.search-dummy {
+  /* this invisible element forces the placeholder to inherit the exact Figma style */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+  color: #979494;
+  display: flex;
+  align-items: center;
+  padding-left: 46px;          /* icon width + left padding */
+}
+
+/* real input – inherits placeholder style via ::placeholder */
+.search-input {
+  width: 100%;
+  height: 100%;
+  padding: 0 40px 0 46px;       /* left = icon + spacing, right = clear icon area */
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: transparent;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+  color: #DADADA;                 /* typed text colour (you can adjust) */
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+/* ---- placeholder styling (exact Figma) ---- */
+.search-input::placeholder {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+  color: #979494;
+  opacity: 1;                  /* some browsers dim it otherwise */
+}
+
+/* focus state – blue border from your original design */
+.search-input:focus {
+  border-color: #3498db;
+}
+
+/* ---------- ICON ---------- */
+.search-icon {
+  position: absolute;
+  left: 17px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;        /* let clicks go to the input */
+}

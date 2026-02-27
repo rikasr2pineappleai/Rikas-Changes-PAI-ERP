@@ -1,0 +1,632 @@
+/* former_emp_list.css - Scoped to EmployeesPage */
+
+.emppage-container .femp-section {
+  background-color: #ffffff;
+  padding: 20px;
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+  /* Improve zoom responsiveness */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.emppage-container .femp-header-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.emppage-container .femp-title-section {
+  flex: 1;
+}
+
+.emppage-container .femp-title-section h2 {
+  font-size: 24px;
+  margin: 0;
+  color: #333;
+}
+
+.emppage-container .femp-controls {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.emppage-container .femp-filter-icon {
+  width: 48px;
+  height: 48px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.emppage-container .femp-search-bar {
+  position: relative;
+  height: 50px;
+  min-width: 150px;
+  width: 200px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.emppage-container .femp-search-bar input {
+  height: 100%;
+  width: 100%;
+  padding: 0 15px 0 40px;
+  font-size: 16px;
+  border: 1px solid #979494;
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+
+.emppage-container .femp-search-bar .femp-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+}
+
+/* Table container */
+.emppage-container .femp-table-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Table */
+.emppage-container .femp-form-table {
+  width: 100%;
+  max-width: 100%;
+  background-color: #ffffff;
+  border-collapse: collapse;
+  table-layout: auto;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  /* Ensure proper scaling on zoom */
+  min-width: 600px;
+}
+
+/* header */
+.emppage-container .femp-form-table thead {
+  background-color: #0b1739;
+  color: #ffffff;
+}
+
+.emppage-container .femp-form-table th,
+.emppage-container .femp-form-table td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.emppage-container .femp-form-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.emppage-container .femp-form-table th {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Management Role column - increased width and prevent text wrapping */
+.emppage-container .femp-form-table th:nth-child(5),
+.emppage-container .femp-form-table td:nth-child(5) {
+  min-width: 120px;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+/* avatar + name layout */
+.emppage-container .femp-name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.emppage-container .femp-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  vertical-align: middle;
+  flex-shrink: 0;
+  object-fit: cover;
+  display: inline-block;
+}
+
+/* action buttons */
+.emppage-container .femp-action-btn {
+  border: none;
+  background: transparent;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.emppage-container .femp-action-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.emppage-container .femp-action-btn img {
+  width: 25px;
+  height: 25px;
+}
+
+/* Ensure buttons are displayed horizontally in action cell */
+.emppage-container .femp-form-table tbody td > .femp-action-btn {
+  display: inline-flex;
+  margin-right: 0;
+  flex-shrink: 0;
+}
+
+.emppage-container .femp-form-table tbody td > .femp-action-btn:last-child {
+  margin-right: 0;
+}
+
+/* small text spans for better control */
+.emppage-container .femp-name-text {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 14px;
+  color: #222;
+}
+
+/* Action cell container to align buttons horizontally */
+.emppage-container .femp-form-table tbody td:nth-child(6) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* ----------------------------
+   Responsive: max-width 1440px
+   ---------------------------- */
+
+/* ----------------------------
+   Responsive: max-width 1024px
+   (convert table -> cards like mobile)
+   ---------------------------- */
+@media (max-width: 1024px) {
+  .emppage-container .femp-section {
+    padding: 18px;
+    width: 100%;
+  }
+
+  .emppage-container .femp-filter-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .emppage-container .femp-search-bar {
+    width: 280px;
+    height: 44px;
+  }
+
+  .emppage-container .femp-search-bar input {
+    padding: 0 12px 0 38px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  /* Make the table area act as a responsive card grid */
+  .emppage-container .femp-form-table {
+    width: 100%;
+    height: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    box-sizing: border-box;
+    overflow: hidden;
+    min-width: unset;
+  }
+
+  /* hide the original table header (we will show labels per cell/card) */
+  .emppage-container .femp-form-table thead {
+    display: none;
+  }
+
+  /* Use a responsive grid to layout cards (1 or 2 columns depending on space) */
+  .emppage-container .femp-form-table tbody {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /* each row becomes a card */
+  .emppage-container .femp-form-table tbody tr {
+    display: block;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 14px;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  /* last row should not have border */
+  .emppage-container .femp-form-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  /* cells inside the card: label (left) | value (right) */
+  .emppage-container .femp-form-table td {
+    display: flex;
+    /*justify-content: space-between;*/ 
+    align-items: center;
+    padding: 8px 6px;
+    border: none;
+    white-space: normal;
+    gap: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+  }
+
+  /* small label on the left (acts like the table head) */
+  .emppage-container .femp-form-table td::before {
+    content: "";
+    display: inline-block;
+    font-weight: 600;
+    margin-right: 8px;
+    color: #374151;
+    min-width: 140px; /* reserve space for the label column */
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+
+  /* Map each column to a label using nth-child (matches table column order) */
+  .emppage-container .femp-form-table tbody tr td:nth-child(1)::before { content: "Emp ID:"; }
+  .emppage-container .femp-form-table tbody tr td:nth-child(2)::before { content: "Employee Name:"; }
+  .emppage-container .femp-form-table tbody tr td:nth-child(3)::before { content: "Designation:"; }
+  .emppage-container .femp-form-table tbody tr td:nth-child(4)::before { content: "Role:"; }
+  .emppage-container .femp-form-table tbody tr td:nth-child(5)::before { content: "Management Role:"; }
+  .emppage-container .femp-form-table tbody tr td:nth-child(6)::before { content: "Action:"; }
+
+  /* avatar + name cell - keep avatar left of name */
+  .emppage-container .femp-form-table tbody td:nth-child(2) {
+    align-items: center;
+  }
+
+  .emppage-container .femp-form-table tbody td:nth-child(2) .femp-avatar {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+  }
+
+  /* make values flexible so long contents wrap nicely */
+  .emppage-container .femp-form-table tbody td > * {
+    max-width: calc(100% - 160px); /* subtract label width + gap */
+    overflow-wrap: anywhere;
+  }
+
+  /* action buttons: inline and left-aligned for cards */
+  .emppage-container .femp-form-table tbody td:nth-child(6) {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .emppage-container .femp-form-table tbody td:nth-child(6) .femp-action-btn {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 6px;
+    border-radius: 8px;
+    background: transparent;
+    justify-content: left;
+  }
+
+  .emppage-container .femp-form-table tbody td:nth-child(6) .femp-action-btn img {
+    width: 100%;
+    height: 100%;
+    max-width: 28px;
+    max-height: 28px;
+  }
+
+  /* adjust spacing & font sizes for this breakpoint */
+  .emppage-container .femp-form-table th,
+  .emppage-container .femp-form-table td {
+    font-size: 15px;
+  }
+
+  .emppage-container .femp-action-btn img {
+    width: 100%;
+    height: 100%;
+    max-width: 25px;
+    max-height: 25px;
+  }
+
+  .emppage-container .femp-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .emppage-container .femp-header-box {
+    gap: 12px;
+  }
+
+  .emppage-container .femp-controls {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* compact adjustments for narrower screens under this breakpoint */
+}
+
+/* Commented out - using newer responsive design */
+/* ----------------------------
+   Responsive: max-width 480px
+   (mobile optimizations: table -> cards)
+   ---------------------------- */
+@media (max-width: 480px) {
+  .emppage-container .femp-section {
+     padding-left: 0px;
+    padding-right: 0px;
+  }
+
+  .emppage-container .femp-header-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .emppage-container .femp-title-section h2 {
+    font-size: 18px;
+  }
+
+  .emppage-container .femp-controls {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .emppage-container .femp-filter-icon {
+    width: 34px;
+    height: 34px;
+    margin-right: 3px;
+  }
+
+  .emppage-container .femp-search-bar {
+    width: 100%;
+    height: 44px;
+    order: 2;
+  }
+
+  .emppage-container .femp-search-bar input {
+    padding: 0 12px 0 36px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .emppage-container .femp-search-bar .femp-search-icon {
+    left: 8px;
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Hide original table header on mobile */
+  .emppage-container .femp-form-table thead {
+    display: none;
+  }
+
+  /* make the table scrollable but visually card-like */
+  .emppage-container .femp-form-table {
+    width: 100%;
+    min-width: unset;
+    height: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  .emppage-container .femp-form-table tbody {
+    display: block;
+  }
+
+  .emppage-container .femp-form-table tbody tr {
+    display: block;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  /* last row should not have border */
+  .emppage-container .femp-form-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  /* each cell becomes a single row inside card: label (left) | value (right) */
+  .emppage-container .femp-form-table td {
+    display: flex;
+    /*justify-content: space-between;*/
+    align-items: center;
+    padding: 6px 8px;
+    border: none;
+    white-space: normal; /* allow wrapping of long values */
+    gap: 6px; /* very small gap between label and value */
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+
+  /* small label on the left (acts like the table head) */
+  .emppage-container .femp-form-table td::before {
+    /* default fallback label if not matched below */
+    content: "";
+    display: inline-block;
+    min-width: 1px;
+  }
+
+  /* Map each column to a label using nth-child (matches table column order) */
+  /* 1 -> Emp ID */
+  .emppage-container .femp-form-table tbody tr td:nth-child(1)::before {
+    content: "Emp ID:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 2 -> Employee Name */
+  .emppage-container .femp-form-table tbody tr td:nth-child(2)::before {
+    content: "Employee Name:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 3 -> Designation */
+  .emppage-container .femp-form-table tbody tr td:nth-child(3)::before {
+    content: "Designation:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 4 -> Role */
+  .emppage-container .femp-form-table tbody tr td:nth-child(4)::before {
+    content: "Role:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 5 -> Management Role */
+  .emppage-container .femp-form-table tbody tr td:nth-child(5)::before {
+    content: "Management Role:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 6 -> Action */
+  .emppage-container .femp-form-table tbody tr td:nth-child(6)::before {
+    content: "Action:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* style for name cell where avatar may exist: keep avatar left of name */
+  .emppage-container .femp-form-table tbody tr td .femp-name-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start; /* avatar left, text right */
+  }
+
+  .emppage-container .femp-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* keep consistent small paddings */
+  .emppage-container .femp-form-table td img {
+    vertical-align: middle;
+  }
+}
+
+/* Additional responsive improvements for zoom levels */
+@media screen and (-webkit-min-device-pixel-ratio: 1.25),
+       screen and (min-resolution: 120dpi) {
+  .emppage-container .femp-form-table th,
+  .emppage-container .femp-form-table td {
+    padding: 12px;
+  }
+  
+  .emppage-container .femp-avatar {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 1.5),
+       screen and (min-resolution: 144dpi) {
+  .emppage-container .femp-form-table th,
+  .emppage-container .femp-form-table td {
+    padding: 10px;
+  }
+  
+  .emppage-container .femp-avatar {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 2),
+       screen and (min-resolution: 192dpi) {
+  .emppage-container .femp-form-table th,
+  .emppage-container .femp-form-table td {
+    padding: 8px;
+  }
+  
+  .emppage-container .femp-avatar {
+    width: 20px;
+    height: 20px;
+  }
+
+
+  /* make values flexible (so long names wrap cleanly) */
+  .emppage-container .femp-form-table tbody td > * {
+    max-width: calc(100% - 140px); /* subtract label width + gap */
+    overflow-wrap: anywhere;
+  }
+
+  /* action buttons: right aligned and horizontally inline */
+  .emppage-container .femp-form-table tbody td:nth-child(6) {
+    justify-content: left;
+  }
+
+  .emppage-container .femp-form-table tbody td:nth-child(6) .femp-action-btn {
+    margin-left: 0px; /* space between buttons */
+    margin-right: 0;
+    padding: 6px;
+    border-radius: 8px;
+    background: transparent;
+    justify-content: left;
+  }
+
+  .emppage-container .femp-form-table tbody td:nth-child(6) .femp-action-btn img {
+    width: 100%;
+    height: 100%;
+    max-width: 22px;
+    max-height: 22px;
+  }
+
+  /* ensure the action cell's direct children are laid out inline */
+  .emppage-container .femp-form-table tbody td:nth-child(6) {
+    gap: 8px;
+  }
+
+  /* tweak font sizes on mobile */
+  .emppage-container .femp-form-table th,
+  .emppage-container .femp-form-table td {
+    font-size: 14px;
+  }
+
+  /* compact adjustments for very small screens */
+  @media (max-width: 360px) {
+    .emppage-container .femp-form-table tbody td::before {
+      min-width: 100px;
+      font-size: 13px;
+    }
+    .emppage-container .femp-form-table tbody td > * {
+      max-width: calc(100% - 110px);
+    }
+    .emppage-container .femp-form-table tbody td:nth-child(7) .femp-action-btn img {
+      width: 28px;
+      height: 28px;
+    }
+  }
+}

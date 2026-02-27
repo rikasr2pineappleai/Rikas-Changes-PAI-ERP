@@ -1,0 +1,267 @@
+/* DashboardWidgets.css - place next to the component */
+/* Version: 1.0.9 */
+
+:root{
+  --outer-bg: #DADADA;
+  --card-bg: #ffffff;
+  --muted: #979494; /* Updated to match Figma */
+  --title-color: #1E293B; /* Updated to match Figma */
+  --value-color: #1E293B; /* Updated to match Figma */
+  --green-pill: #e8ffea; /* light green behind icon */
+  --border-light: #DADADA; /* Match Figma border color */
+  --widget-padding: 20px; /* Match the padding of Dashboard Overview */
+  --attendance-padding: 20px; /* Same as in DashboardOverview.css */
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+/* Reset default margins and padding for dashboard widgets components only */
+.widget-section,
+.widget-grid,
+.widget-box {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Outer widget section (the large box that contains the 4 widgets) */
+.widget-section {
+  /* Changed from absolute to relative positioning to fix spacing issues */
+  position: relative;
+  width: 100%;
+  height: auto;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: var(--widget-padding); /* Match Dashboard Overview padding */
+  margin-bottom: 10px; /* Reduced spacing below widgets */
+  /* Ensure left alignment matches Dashboard Overview */
+  margin-left: 0;
+  margin-right: 0;
+  max-width: 100%; /* Allow full width on wider screens */
+  /* Explicitly align to the start */
+  align-self: flex-start;
+  /* Ensure proper box sizing */
+  box-sizing: border-box;
+  /* Remove any default browser styles that might affect alignment */
+  margin: 0;
+  /* Force consistent rendering */
+  display: block;
+  /* Prevent internal scrolling */
+  overflow: visible;
+}
+
+/* Grid that holds four widgets in two columns x two rows */
+.widget-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* Ensures exactly 2 columns that can expand */
+  grid-template-rows: auto auto;
+  gap: 15px; /* Reduced gap */
+  justify-content: space-between;
+  align-content: start;
+}
+
+/* Individual widget box - Updated to match Figma */
+.widget-box {
+  width: 100%;
+  min-height: 187.34px; /* Changed from fixed height to min-height to prevent overflow */
+  background: var(--card-bg);
+  border-radius: 10px; /* Match Figma border radius */
+  border: 1px solid var(--border-light); /* Match Figma border */
+  padding: 18px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative; /* Needed for absolute positioning */
+  height: auto; /* Allow flexible height to prevent internal scrolling */
+}
+
+/* top row of a widget: icon and title */
+.widget-top {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* icon image */
+.icon-wrap img {
+  width: 82px;
+  height: 49px;
+  object-fit: contain;
+}
+
+/* widget title text - Updated to match Figma */
+.widget-title {
+  font-family: 'Roboto'; /* Match Figma font family */
+  font-style: normal; /* Match Figma font style */
+  font-weight: 400; /* Match Figma font weight */
+  font-size: 14px; /* Match Figma font size */
+  line-height: 16px; /* Match Figma line height */
+  display: flex;
+  align-items: center;
+  color: #1E293B; /* Match Figma color */
+  margin: 0; /* Remove default margins */
+  padding: 0; /* Remove default padding */
+}
+
+/* big numeric value in widget - Updated to match Figma */
+.widget-value {
+  font-family: 'Roboto'; /* Match Figma font family */
+  font-style: normal; /* Match Figma font style */
+  font-weight: 600; /* Match Figma font weight */
+  font-size: 32px; /* Match Figma font size */
+  line-height: 38px; /* Match Figma line height */
+  display: flex;
+  align-items: center;
+  color: #1E293B; /* Match Figma color */
+  margin: 0; /* Remove default margins */
+  padding: 0; /* Remove default padding */
+  margin-top: 8px; /* Keep existing top margin */
+}
+
+/* Divider line - Made thinner to appear more subtle */
+.divider {
+  height: 0.5px; /* Reduced thickness for a more subtle appearance */
+  background: #DADADA; /* Same as widget border color */
+  margin: 8px -28px; /* Negative horizontal margins to span full container including padding */
+  width: calc(100% + 56px); /* Extend to full width including padding (28px * 2) */
+  position: relative;
+  border: none; /* Ensure no border conflicts */
+  opacity: 0.8; /* Slightly reduce opacity for a lighter appearance */
+  box-sizing: content-box; /* Include padding in width calculations */
+}
+
+/* update text at the bottom left - Updated to match Figma */
+.widget-update {
+  font-family: 'Roboto'; /* Match Figma font family */
+  font-style: normal; /* Match Figma font style */
+  font-weight: 300; /* Match Figma font weight */
+  font-size: 12px; /* Match Figma font size */
+  line-height: 14px; /* Match Figma line height */
+  display: flex;
+  align-items: center;
+  color: #979494; /* Match Figma color */
+  margin: 0; /* Remove default margins */
+  padding: 0; /* Remove default padding */
+  padding-bottom: 2px; /* Keep existing padding */
+}
+
+/* Responsive helpers for larger screens */
+@media (min-width: 1401px) {
+  .widget-section {
+    width: 100%;
+    padding: 25px; /* Increase padding on larger screens */
+    overflow: visible; /* Prevent internal scrolling */
+  }
+
+  .widget-grid {
+    gap: 20px; /* Increase gap on larger screens for better spacing */
+  }
+
+  .widget-box {
+    width: 100%;
+    min-height: 200px; /* Increase height on larger screens */
+    padding: 25px 35px; /* Increase padding on larger screens */
+  }
+  
+  /* Adjust divider for larger screens */
+  .divider {
+    width: calc(100% + 70px); /* Extend to full width including padding (35px * 2) */
+    margin: 8px -35px; /* Negative horizontal margins to span full container including padding */
+    height: 0.5px; /* Maintain thinner appearance */
+    box-sizing: content-box; /* Include padding in width calculations */
+  }
+  
+  /* Adjust font sizes for larger screens */
+  .widget-value {
+    font-size: 36px; /* Slightly larger on larger screens */
+  }
+  
+  .widget-update {
+    font-size: 13px; /* Slightly larger on larger screens */
+  }
+}
+
+@media (max-width: 1400px) {
+  .widget-section {
+    width: 100%;
+    padding: 15px; /* Reduced padding for smaller screens but still consistent */
+    overflow: visible; /* Prevent internal scrolling */
+  }
+
+  .widget-grid {
+    gap: 12px; /* Reduced gap for smaller screens */
+  }
+
+  .widget-box {
+    width: 100%;
+    height: auto; /* Allow flexibility on smaller screens */
+    min-height: 160px;
+    padding: 15px 20px;
+  }
+  
+  /* Adjust divider for smaller screens */
+  .divider {
+    width: calc(100% + 40px); /* Extend to full width including padding (20px * 2) */
+    margin: 8px -20px; /* Negative horizontal margins to span full container including padding */
+    height: 0.5px; /* Maintain thinner appearance */
+    box-sizing: content-box; /* Include padding in width calculations */
+  }
+  
+  /* Adjust font sizes for smaller screens */
+  .widget-value {
+    font-size: 28px; /* Slightly smaller on smaller screens */
+  }
+  
+  .widget-update {
+    font-size: 11px; /* Slightly smaller on smaller screens */
+  }
+}
+
+@media (max-width: 1024px) {
+  .widget-grid {
+    grid-template-columns: 1fr; /* Single column on tablet */
+  }
+  
+  .widget-box {
+    height: auto; /* Allow flexibility on tablet */
+    min-height: 150px;
+  }
+}
+
+@media (max-width: 768px) {
+  .widget-grid {
+    gap: 10px; /* Even smaller gap for mobile */
+    grid-template-columns: 1fr; /* Single column on mobile */
+  }
+  
+  .widget-box {
+    height: auto; /* Allow flexibility on mobile */
+    min-height: 150px;
+    padding: 15px;
+  }
+  
+  /* Adjust divider for mobile */
+  .divider {
+    width: calc(100% + 30px); /* Extend to full width including padding (15px * 2) */
+    margin: 8px -15px; /* Negative horizontal margins to span full container including padding */
+    height: 0.5px; /* Maintain thinner appearance */
+    box-sizing: content-box; /* Include padding in width calculations */
+  }
+  
+  .widget-section {
+    padding: 10px;
+    overflow: visible; /* Prevent internal scrolling */
+  }
+  
+  /* Adjust font sizes for mobile */
+  .widget-value {
+    font-size: 24px; /* Smaller on mobile */
+  }
+  
+  .widget-update {
+    font-size: 10px; /* Smaller on mobile */
+  }
+}

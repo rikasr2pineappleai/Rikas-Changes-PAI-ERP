@@ -1,0 +1,54 @@
+.add-achievment-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  width: 100%;                 /* same width as contribution row */
+  padding: 10px 12px;          /* SAME as input field */
+  
+  background: #ffffff;
+  border: 1px solid #d1d5db;   /* SAME border as input */
+  border-radius: 4px;          /* SAME radius as input */
+  cursor: pointer;
+
+  font-family: 'Roboto', sans-serif;
+  font-weight: 800;            /* ExtraBold */
+  font-size: 16px;             /* exact size */
+  font-style: normal;          /* ExtraBold is a weight, style normal */
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #347E45;              /* text color */
+  
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+}
+
+.add-achievment-btn:hover {
+  background-color: #f9fafb;
+}
+
+/* Icon aligned like contribution row icons */
+.add-achievment-icon {
+  width: 20px;                 
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.add-achievment-text {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 800;             /* ExtraBold */
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #347E45;
+  white-space: nowrap;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+  .add-achievment-btn {
+    width: 100%;
+  }
+}

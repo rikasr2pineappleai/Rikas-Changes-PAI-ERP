@@ -1,0 +1,84 @@
+/* ViewmoreButton.css */
+
+.vm-button {
+  /* Layout & sizing */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;                 /* spacing between icon and text */
+  width: 147px;              /* provided layout width */
+  height: 44px;              /* provided layout height */
+  padding: 10px 16px;        /* top/right/bottom/left per your values */
+  box-sizing: border-box;
+
+  /* Border / background */
+  background: transparent;
+  border: 1px solid #347E45; /* green border color */
+  border-radius: 10px;
+  opacity: 1;
+
+  /* Typography defaults for contained text */
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 100%;         /* 16px line-height (100% of font-size) */
+  letter-spacing: 0em;
+  color: #347E45;
+
+  /* Interaction */
+  cursor: pointer;
+  transition: background-color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+}
+
+/* Slight hover/focus affordance while keeping the border look */
+.vm-button:hover {
+  background-color: rgba(52, 126, 69, 0.06); /* subtle green tint on hover */
+  transform: translateY(-1px);
+}
+
+.vm-button:active {
+  transform: translateY(0);
+}
+
+.vm-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 126, 69, 0.12);
+}
+
+/* Text span inside the button */
+.vm-btn-text {
+  display: inline-block;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+/* Icon styling */
+.vm-icon {
+  display: inline-block;
+  width: 20px;   /* icon size — adjust to taste (20-24px works well here) */
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+  padding-right: 0px;
+}
+
+/* If you want the text to always be centered while the icon sits visually on the left:
+   Use this only if you place the img AFTER the text in JSX (current order in your component).
+   It flips visual order without changing DOM order. If you prefer not to use it, remove it. */
+.vm-button.vm-icon-left {
+  flex-direction: row-reverse; /* flips order so the <img> appears on the left visually */
+}
+
+/* Small responsive fallback: let button grow a little on small screens */
+@media (max-width: 360px) {
+  .vm-button {
+    width: auto;
+    padding: 10px 12px;
+  }
+}

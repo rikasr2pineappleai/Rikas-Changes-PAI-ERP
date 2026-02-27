@@ -1,0 +1,1921 @@
+/* --------------------------------------------------------------
+   ROOT
+   -------------------------------------------------------------- */
+.login-root {
+  display: flex;
+  justify-content: flex-start; /* anchor canvas to left edge */
+  align-items: center; /* center vertically as we scale the canvas */
+  height: 100vh; /* lock to viewport to avoid vertical scroll */
+  min-height: 100vh;
+  overflow: hidden;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Stage: physical box that matches scaled size so centering works */
+.login-stage {
+  width: calc(1728px * var(--scale, 1));
+  height: calc(1117px * var(--scale, 1));
+  display: flex;
+}
+
+/* Canvas: fixed Figma size; visual scaling via transform */
+.login-canvas {
+  width: 1728px;
+  height: 1117px;
+  display: flex;
+  transform: scale(var(--scale, 1));
+  transform-origin: top left;
+}
+
+/* --------------------------------------------------------------
+   LEFT SIDE – HERO
+   -------------------------------------------------------------- */
+.login-left {
+  flex: 0 0 914px;
+  width: 914px;
+  height: 1117px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background image as actual img to avoid cropping */
+.hero-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 762px;
+  object-fit: contain; /* show full image without zoom/crop */
+  object-position: left top;
+  display: block;
+  pointer-events: none;
+}
+
+/* Dark overlay + content (Rectangle 11) */
+.hero-overlay {
+  position: absolute;
+  top: 762px; /* sits just below hero image */
+  left: 0;
+  width: 100%;
+  height: 355px;
+  background: #1E293B;
+  border-top: 6px solid #347E45;
+  padding: 0; /* absolute child positions; bottom space derives from Figma coordinates */
+  display: block;
+  overflow: hidden;
+}
+
+/* Brand container (children are absolutely positioned) */
+.hero-brand { position: static; margin: 0; }
+
+/* Logo – Untitled-1-01 */
+.hero-logo {
+  width: 71px;
+  height: 71px;
+  margin: 0;
+}
+
+/* PAI ERP */
+.hero-title {
+  margin: 0 0 0 -10px; /* overlap with logo invisible padding */
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 100%;               /* Figma: 100% line-height = 24px */
+  letter-spacing: 0%;
+  vertical-align: middle;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color: #FFFFFF;
+  width: 200%;
+}
+
+/* Subtitle – Let’s empower… */
+.hero-subtitle {
+  margin: 0;
+  margin-top: 8px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;               /* Figma: 600 (SemiBold) */
+  font-size: 48px;
+  line-height: 56px;              /* Figma: 56px line-height */
+  letter-spacing: 0%;
+  vertical-align: middle;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color: #FFFFFF;
+  width: 431px;
+}
+
+/* Description */
+.hero-desc {
+  margin: 0;
+  margin-top: 12px;               /* Reduced spacing between subtitle and description */
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 23px;
+  color: #FFFFFF;
+  width: 493px;                    /* Figma width */
+}
+
+/* --------------------------------------------------------------
+   RIGHT SIDE – FORMS
+   -------------------------------------------------------------- */
+.login-right {
+  flex: 0 0 814px;
+  width: 814px;
+  height: 1117px;
+  position: relative; /* ensure absolute children anchor here */
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 80px 24px 40px; /* layout within right panel follows Figma spacing */
+  overflow: hidden; /* prevent inner scrollbars */
+  background: #FFFFFF;
+}
+
+/* Keep all forms inside a max-width box */
+.auth-right-inner {
+  width: 100%;
+  max-width: 612px; /* match Figma field/button width */
+}
+
+/* Common titles */
+.auth-title {
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 34px;
+  color: #1E293B;
+  margin-bottom: 8px;
+}
+.auth-subtitle {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #64748B;
+  margin-bottom: 20px;
+}
+
+/* --------------------------------------------------------------
+   RESPONSIVE
+   -------------------------------------------------------------- */
+/* All responsiveness is handled via uniform scaling based on viewport
+   size. No additional media overrides are required here. */
+
+/* --------------------------------------------------------------
+   FLUID MODE (Option 3): fill full viewport width/height using ratios
+   Reversible: remove .mode-fluid from Login root to go back to fixed canvas
+   -------------------------------------------------------------- */
+.mode-fluid .login-stage{width:100vw;height:100vh}
+.mode-fluid .login-canvas{width:100vw;height:100vh;display:flex;transform:none}
+.mode-fluid .login-left{flex:0 0 52.8935%;width:52.8935%;height:100%;position:relative;overflow:hidden}
+.mode-fluid .hero-img{width:100%;height:calc(100% * 0.682168);object-fit:cover;object-position:left top}
+.mode-fluid .hero-overlay{top:calc(100% * 0.682168);left:0;width:100%;height:calc(100% * 0.317832);overflow-y:hidden;padding:0}
+.mode-fluid .login-right{flex:0 0 47.1065%;width:47.1065%;height:100%;box-sizing:border-box;display:flex;align-items:flex-start;justify-content:flex-start;overflow:hidden}
+
+/* Tablet stacking for fluid mode (1024px and below) */
+@media (max-width:1024px){
+  .mode-fluid .login-left{flex:0 0 45%;width:45%}
+  .mode-fluid .login-right{flex:0 0 55%;width:55%}
+}
+
+/* Mobile stacking for fluid mode - Hide left panel */
+@media (max-width:768px){
+  .mode-fluid .login-canvas{width:100vw;height:auto;flex-direction:column}
+  .mode-fluid .login-left{display:none;width:0;flex:0 0 0}
+  .mode-fluid .login-right{width:100%;flex:0 0 auto;height:auto}
+}
+
+/* Tighten overlay typography/gaps on short heights (no scroll) */
+@media (max-height: 900px){
+  .mode-fluid .hero-brand{ margin-top:16px; }
+  .mode-fluid .hero-subtitle{ font-size:44px; line-height:52px; font-weight:600; }
+  .mode-fluid .hero-desc{ font-size:18px; line-height:22px; margin-top:16px;  }
+}
+@media (max-height: 780px){
+  .mode-fluid .hero-brand{ margin-top:12px; }
+  .mode-fluid .hero-subtitle{ font-size:40px; line-height:47px; font-weight:600; }
+  .mode-fluid .hero-desc{ font-size:16px; line-height:20px; margin-top:12px; }
+}
+
+/* --------------------------------------------------------------
+   Welcome Back (Right Panel) – absolute layout per Figma
+   Applies when right container has .welcome-context
+   -------------------------------------------------------------- */
+.login-right.welcome-context{ position:relative; padding:0; }
+.welcome-layer{ position:absolute; inset:0; }
+
+/* Base styles */
+.welcome-title,.welcome-subtitle,.welcome-label,.welcome-remember-text,.welcome-forgot,.welcome-footer{ position:absolute; font-family:'Roboto',sans-serif; }
+.welcome-input{ position:absolute; box-sizing:border-box; background:#FFFFFF; border:1px solid #DADADA; border-radius:0.895vh; height:55px; }
+.welcome-input input{ width:100%; height:100%; border:none; outline:none; background:transparent; padding:16px 44px 16px 20px; font-family:'Roboto',sans-serif; font-size:16px; line-height:19px; color:#1E293B; }
+/* Ensure placeholder text matches Figma for all fields */
+.welcome-input input::placeholder{ font-family:'Roboto',sans-serif; font-weight:400; font-size:16px; line-height:19px; color:#1E293B; opacity:1; }
+
+.welcome-eye{ position:absolute; right:8px; top:50%; transform:translateY(-50%); background:transparent; border:0; padding:0; cursor:pointer; width:24px; height:24px; }
+.welcome-eye img{ width:100%; height:100%; object-fit:contain; }
+.welcome-field-icon{ position:absolute; right:1.43vh; top:50%; transform:translateY(-50%); width:1.43vh; height:1.43vh; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.welcome-field-icon img{ width:100%; height:100%; object-fit:contain; }
+.welcome-checkbox{ position:absolute; background:transparent; border:1px solid #1E293B; border-radius:4px; width:18px; height:18px; }
+.welcome-checkbox.checked{ background:#347E45; border-color:#347E45; }
+.welcome-logo-mark,.welcome-logo-text{ position:absolute; }
+
+.welcome-login-btn{ position:absolute; }
+
+/* Desktop/Global: custom checkbox primitives so native box is hidden */
+.welcome-remember-label{ display:flex; align-items:center; gap:8px; }
+.welcome-checkbox-input{ position:absolute; opacity:0; width:0; height:0; }
+.welcome-checkbox-box{ width:18px; height:18px; border:2px solid #347E45; border-radius:4px; background:transparent; box-sizing:border-box; position:relative; }
+.welcome-checkbox-box::after{ content:""; position:absolute; left:37.5%; top:15%; width:25%; height:50%; border-right:2px solid #347E45; border-bottom:2px solid #347E45; transform:rotate(45deg); opacity:0; }
+.welcome-checkbox-input:checked + .welcome-checkbox-box::after{ opacity:1; }
+
+
+/* --------------------------------------------------------------
+   Validation states (Login → Welcome)
+   -------------------------------------------------------------- */
+.welcome-input[data-invalid="true"]{ border-color:#F45B69; }
+.welcome-login-btn:disabled{ opacity:0.6; cursor:not-allowed; }
+/* Hidden by default on desktop (absolute layout); shown on mobile */
+.welcome-error{ display:none; }
+.welcome-error-icon, .forgot-error-icon, .otp-error-icon, .update-error-icon{ width:12px; height:12px; flex-shrink:0; }
+
+/* Fixed-canvas positions (mode-fixed scales via transform) */
+.mode-fixed .welcome-title{ left:90px; top:250px; width:724px; height:56px; font-weight:600; font-size:48px; line-height:56px; color:#1E293B; }
+.mode-fixed .welcome-subtitle{ left:90px; top:314px; width:736px; height:19px; font-weight:300; font-size:16px; line-height:19px; color:#979494; }
+.mode-fixed .welcome-label-id{ left:90px; top:365px; width:213px; height:23px; font-weight:600; font-size:20px; line-height:23px; color:#1E293B; }
+.mode-fixed .welcome-input-id{ left:90px; top:398px; width:612px; height:55px; }
+.mode-fixed .welcome-label-pw{ left:90px; top:485px; width:200px; height:23px; font-weight:600; font-size:20px; line-height:23px; color:#1E293B; }
+.mode-fixed .welcome-logo-mark{ left:90px; top:131px; width:auto; height:70.99px; object-fit:contain; }
+.mode-fixed .welcome-logo-text{ left:130px; top:153.42px; height:31.76px; width:auto; object-fit:contain; }
+
+.mode-fixed .welcome-input-pw{ left:90px; top:514px; width:612px; height:55px; }
+/* Eye icon – fixed mode: match Figma (left:1576, top:526) inside pw field (left:1004, top:514, w:612, h:55)
+   Derived: right:16px; size:24x24; center vertically */
+.mode-fixed .welcome-input-pw input{ padding-right:48px; }
+.mode-fixed .welcome-eye{ right:16px; width:24px; height:24px; }
+.mode-fixed .welcome-eye img{ width:100%; height:100%; object-fit:contain; display:block; }
+
+.mode-fixed .welcome-checkbox{ left:90px; top:593px; }
+.mode-fixed .welcome-remember-text{ left:120px; top:595px; width:105px; height:19px; font-weight:400; font-size:16px; line-height:19px; color:#1E293B; background:transparent; border:0; padding:0; cursor:pointer; }
+.mode-fixed .welcome-forgot{ left:574px; top:593px; width:128px; height:19px; font-weight:400; font-size:16px; line-height:19px; color:#347E45; background:transparent; border:0; padding:0; cursor:pointer; }
+.mode-fixed .welcome-login-btn{ left:90px; top:649px; width:612px; height:56px; display:flex; flex-direction:row; align-items:center; justify-content:center; padding:20px; gap:10px; background:#347E45; border-radius:0.895vh; border:0; color:#FFFFFF; font-weight:400; font-size:20px; line-height:23px; cursor:pointer; }
+.mode-fixed .welcome-footer{ left:239px; top:1068px; width:314px; height:19px; text-align:center; font-weight:400; font-size:16px; line-height:19px; color:#979494; }
+
+/* Error message positions (Welcome) – Fixed-canvas (desktop) */
+.mode-fixed #login-id-error, .mode-fixed #login-password-error{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#F45B69;
+  font-family:'Roboto',sans-serif;
+  font-weight:400;
+  font-size:14px;
+  line-height:16px;
+  height:16px;
+}
+.mode-fixed #login-id-error{ left:90px; top:460px; width:612px; }
+.mode-fixed #login-password-error{ left:90px; top:576px; width:612px; }
+.welcome-error-icon{ width:12px; height:12px; flex-shrink:0; }
+
+/* Adjust positions when ID error shows (ID error at 460px, height 16px, ends at 476px) */
+.welcome-layer:has(#login-id-error) .welcome-label-pw{
+  top:500px !important;
+}
+.welcome-layer:has(#login-id-error) .welcome-input-pw{
+  top:529px !important;
+}
+.welcome-layer:has(#login-id-error) #login-password-error{
+  top:591px !important;
+}
+.welcome-layer:has(#login-id-error) .welcome-remember-row{
+  top:620px !important;
+}
+.welcome-layer:has(#login-id-error) .welcome-login-btn{
+  top:680px !important;
+}
+
+/* Adjust positions when password error shows (password input at 514px, height 55px, ends at 569px, error at 576px ends at 592px) */
+.welcome-layer:has(#login-password-error) .welcome-remember-row{
+  top:620px !important;
+}
+.welcome-layer:has(#login-password-error) .welcome-login-btn{
+  top:680px !important;
+}
+
+
+/* Fluid positions: map Figma px to right-panel percentages and viewport height */
+.mode-fluid .welcome-title{ left:11.06%; top:22.39vh; width:88.97%; height:5.01vh; font-weight:600; font-size:4.296vh; line-height:5.01vh; color:#1E293B; }
+.mode-fluid .welcome-subtitle{ left:11.06%; top:28.11vh; width:90.42%; font-weight:300; font-size:1.432vh; line-height:1.701vh; color:#979494; }
+.mode-fluid .welcome-label-id{ left:11.06%; top:32.68vh; width:26.18%; font-weight:600; font-size:1.79vh; line-height:2.06vh; color:#1E293B; }
+.mode-fluid .welcome-input-id{ left:11.06%; top:35.64vh; width:75.18%; height:4.925vh; }
+/* Eye icon – fluid mode: translate fixed right:16px and size 24px to relative units
+   Right offset = 16/612 = 2.61% of the input width; Size 24px = 24/1117 * 100vh ≈ 2.149vh */
+.mode-fluid .welcome-input-pw input{ padding-right:8.82%; }
+.mode-fluid .welcome-eye{ right:2.61%; width:2.149vh; height:2.149vh; }
+.mode-fluid .welcome-eye img{ width:100%; height:100%; object-fit:contain; display:block; }
+
+/* Fluid positions for logos */
+.mode-fluid .welcome-logo-mark{ left:11.06%; top:11.73vh; width:auto; height:6.35vh; object-fit:contain; }
+.mode-fluid .welcome-logo-text{ left:15.95%; top:13.74vh; height:2.84vh; width:auto; object-fit:contain; }
+
+.mode-fluid .welcome-label-pw{ left:11.06%; top:43.43vh; width:24.57%; font-weight:600; font-size:1.79vh; line-height:2.06vh; color:#1E293B; }
+/* Desktop: place remember row absolutely and make children static so they align in one row */
+.mode-fixed .welcome-remember-row{ position:absolute; left:90px; top:593px; width:612px; height:24px; display:flex; align-items:center; justify-content:space-between; }
+.mode-fixed .welcome-remember-text,.mode-fixed .welcome-forgot{ position:static !important; left:auto; top:auto; }
+
+.mode-fluid .welcome-remember-row{ position:absolute; left:11.06%; top:53.09vh; width:75.18%; display:flex; align-items:center; justify-content:space-between; }
+.mode-fluid .welcome-remember-text,.mode-fluid .welcome-forgot{ position:static !important; left:auto; top:auto; }
+
+.mode-fluid .welcome-input-pw{ left:11.06%; top:46.02vh; width:75.18%; height:4.925vh; }
+.mode-fluid .welcome-checkbox{ left:11.06%; top:53.09vh; width:1.549vh; height:1.549vh; }
+.mode-fluid .welcome-remember-text{ left:14.75%; top:53.29vh; font-weight:400; font-size:1.432vh; line-height:1.701vh; color:#1E293B; background:transparent; border:0; padding:0; cursor:pointer; }
+.mode-fluid .welcome-forgot{ left:74.40%; top:53.09vh; font-weight:400; font-size:1.432vh; line-height:1.701vh; color:#347E45; background:transparent; border:0; padding:0; cursor:pointer; }
+.mode-fluid .welcome-login-btn{ left:11.06%; top:58.12vh; width:75.18%; height:5.01vh; display:flex; flex-direction:row; align-items:center; justify-content:center; padding:1.79vh; gap:0.895vh; background:#347E45; border-radius:0.895vh; border:0; color:#FFFFFF; font-weight:400; font-size:1.79vh; line-height:2.06vh; cursor:pointer; }
+.mode-fluid .welcome-footer{ left:29.38%; top:95.62vh; width:38.58%; text-align:center; font-weight:400; font-size:1.432vh; line-height:1.701vh; color:#979494; }
+
+/* Error message positions (Welcome) – Fluid (desktop) */
+.mode-fluid #login-id-error, .mode-fluid #login-password-error{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  gap:0.716vh;
+  color:#F45B69;
+  font-family:'Roboto',sans-serif;
+  font-weight:400;
+  font-size:1.253vh; /* 14px */
+  line-height:1.432vh; /* 16px */
+  height:1.432vh;
+}
+.mode-fluid #login-id-error{ left:11.06%; top:41.18vh; width:75.18%; }
+.mode-fluid #login-password-error{ left:11.06%; top:51.56vh; width:75.18%; }
+
+/* Adjust positions when ID error shows (fluid) */
+.mode-fluid .welcome-layer:has(#login-id-error) .welcome-label-pw{
+  top:44.73vh !important;
+}
+.mode-fluid .welcome-layer:has(#login-id-error) .welcome-input-pw{
+  top:47.35vh !important;
+}
+.mode-fluid .welcome-layer:has(#login-id-error) #login-password-error{
+  top:52.89vh !important;
+}
+.mode-fluid .welcome-layer:has(#login-id-error) .welcome-remember-row{
+  top:55.52vh !important;
+}
+.mode-fluid .welcome-layer:has(#login-id-error) .welcome-login-btn{
+  top:60.90vh !important;
+}
+
+/* Adjust positions when password error shows (fluid) */
+.mode-fluid .welcome-layer:has(#login-password-error) .welcome-remember-row{
+  top:55.52vh !important;
+}
+.mode-fluid .welcome-layer:has(#login-password-error) .welcome-login-btn{
+  top:60.90vh !important;
+}
+
+
+/* ========================================
+   MOBILE: Welcome Back (≤768px) – FULL-WIDTH & CLEAN
+   ======================================== */
+@media (max-width: 768px) {
+  .login-right.welcome-context {
+    padding: 24px;
+    background: #FFFFFF;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .welcome-layer {
+    position: relative !important;
+    inset: auto !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  /* Hide logos */
+  .welcome-logo-mark,
+  .welcome-logo-text {
+    display: none !important;
+  }
+
+  /* Title */
+  .welcome-title {
+    font-size: clamp(24px, 7vw, 32px);
+    font-weight: 600;
+    line-height: 1.2;
+    color: #1E293B;
+    margin: 0;
+    text-align: left;
+  }
+
+  .welcome-subtitle {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #64748B;
+    margin: 4px 0 0;
+  }
+
+  /* Labels */
+  .welcome-label {
+    display: block;
+    margin: 0;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    color: #1E293B;
+  }
+
+  /* Field wrapper for input + error */
+  .welcome-field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* INPUTS — FULL WIDTH */
+  .welcome-input {
+    position: relative;
+    width: 100% !important;
+    height: 52px;
+    background: #FFFFFF;
+    border: 1px solid #DADADA;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  .welcome-input input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 16px 50px 16px 16px;
+    font-size: 16px;
+    line-height: 19px;
+    color: #1E293B;
+    box-sizing: border-box;
+  }
+
+  .welcome-input input::placeholder {
+    color: #1E293B;
+    opacity: 0.6;
+  }
+
+  /* Eye Icon */
+  .welcome-eye {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .welcome-eye img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Remember Me + Forgot */
+  .welcome-remember-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .welcome-remember-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #1E293B;
+  }
+
+  .welcome-checkbox-input {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+
+  .welcome-checkbox-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #347E45;
+    border-radius: 4px;
+    background: transparent;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .welcome-checkbox-input:checked + .welcome-checkbox-box {
+    background: transparent;
+    border-color: #347E45;
+  }
+
+  .welcome-checkbox-input:checked + .welcome-checkbox-box::after {
+    content: "";
+    position: absolute;
+    left: 37.5%;
+    top: 15%;
+    width: 25%;
+    height: 50%;
+    border-right: 2px solid #347E45;
+    border-bottom: 2px solid #347E45;
+    transform: rotate(45deg);
+  }
+
+  .welcome-remember-text {
+    font-size: 14px;
+  }
+
+  .welcome-forgot {
+    font-size: 14px;
+    color: #347E45;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* Login Button */
+  .welcome-login-btn {
+    width: 100% !important;
+    height: 52px;
+    margin: 0;
+    background: #347E45;
+    border-radius: 10px;
+    border: 0;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+
+  /* Validation messages under fields (mobile only) */
+  .welcome-error{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#F45B69;
+    font-family:'Roboto',sans-serif;
+    font-weight:400;
+    font-size:14px;
+    line-height:16px;
+    margin-top:4px;
+    margin-bottom:0;
+  }
+
+  /* Footer */
+  .welcome-footer {
+    margin-top: 32px;
+    font-size: 12px;
+    color: #979494;
+    text-align: center;
+  }
+
+  /* === FORCE RESET ABSOLUTE STYLES === */
+  .welcome-title,
+  .welcome-subtitle,
+  .welcome-label,
+  .welcome-input,
+  .welcome-remember-row,
+  .welcome-remember-text,
+  .welcome-login-btn,
+  .welcome-footer,
+  .welcome-eye,
+  .welcome-error {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+  }
+
+  .welcome-input-id,
+  .welcome-input-pw {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* --------------------------------------------------------------
+   Forgot Password (Right Panel) – absolute layout per Figma
+   -------------------------------------------------------------- */
+.login-right.forgot-context{ position:relative; padding:0; }
+.forgot-layer{ position:absolute; inset:0; }
+
+/* Base styles */
+.forgot-input input::placeholder{ font-family:'Roboto',sans-serif; font-weight:400; font-size:16px; line-height:19px; color:#1E293B; opacity:1; }
+
+.forgot-title,.forgot-subtitle,.forgot-label,.forgot-footer,.forgot-back{ position:absolute; font-family:'Roboto',sans-serif; }
+.forgot-input{ position:absolute; box-sizing:border-box; background:#FFFFFF; border:1px solid #DADADA; border-radius:0.895vh; }
+.forgot-input input{ width:100%; height:100%; border:none; outline:none; background:transparent; padding:16px 20px; font-family:'Roboto',sans-serif; font-size:16px; line-height:19px; color:#1E293B; }
+.forgot-field-icon{ position:absolute; right:1.43vh; top:50%; transform:translateY(-50%); width:1.43vh; height:1.43vh; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.forgot-field-icon img{ width:100%; height:100%; object-fit:contain; }
+.forgot-logo-mark,.forgot-logo-text{ position:absolute; }
+.forgot-send-btn{ position:absolute; display:flex; flex-direction:row; justify-content:center; align-items:center; padding:20px; gap:10px; background:#347E45; border-radius:0.895vh; border:0; color:#FFFFFF; font-weight:400; font-size:20px; line-height:23px; cursor:pointer; }
+
+
+/* --------------------------------------------------------------
+   Validation states (Forgot Password)
+   -------------------------------------------------------------- */
+.forgot-input[data-invalid="true"]{ border-color:#F45B69; }
+.forgot-send-btn:disabled{ opacity:0.6; cursor:not-allowed; }
+/* Hidden by default on desktop (absolute layout) */
+.forgot-error{ display:none; }
+
+/* Fixed-canvas positions */
+.mode-fixed .forgot-logo-mark{ left:90px; top:131px; width:auto; height:70px; object-fit:contain; }
+.mode-fixed .forgot-logo-text{ left:130px; top:153.11px; height:31.32px; width:auto; object-fit:contain; }
+.mode-fixed .forgot-back{ left:90px; top:64px; display:flex; align-items:center; gap:8px; background:transparent; border:0; padding:0; color:#1E293B; font-weight:300; font-size:16px; line-height:19px; cursor:pointer; }
+
+.mode-fixed .forgot-title{ left:90px; top:247px; width:627px; height:56px; font-weight:600; font-size:48px; line-height:56px; color:#1E293B; }
+.mode-fixed .forgot-subtitle{ left:90px; top:311px; width:719px; height:19px; font-weight:300; font-size:16px; line-height:19px; color:#979494; }
+.mode-fixed .forgot-label-email{ left:90px; top:362px; width:213px; height:23px; font-weight:600; font-size:20px; line-height:23px; color:#1E293B; }
+.mode-fixed .forgot-input-email{ left:90px; top:393px; width:612px; height:55px; }
+.mode-fixed #forgot-email-error{ position:absolute; display:flex; align-items:center; gap:8px; left:90px; top:451px; width:612px; color:#F45B69; font-family:'Roboto',sans-serif; font-weight:400; font-size:14px; line-height:16px; height:16px; }
+.mode-fixed .forgot-send-btn{ left:90px; top:480px; width:612px; height:56px; }
+
+/* Reserve space for error message */
+.mode-fixed .forgot-input-email[data-invalid="true"]{
+  padding-bottom:29px;
+}
+.mode-fixed .forgot-footer{ left:239px; top:1068px; width:314px; height:19px; text-align:center; font-weight:400; font-size:16px; line-height:19px; color:#979494; }
+
+/* Fluid positions */
+.mode-fluid .forgot-logo-mark{ left:11.06%; top:11.73vh; width:auto; height:6.27vh; object-fit:contain; }
+.mode-fluid .forgot-logo-text{ left:15.95%; top:13.70vh; height:2.80vh; width:auto; object-fit:contain; }
+.mode-fluid .forgot-back{ left:11.06%; top:5.73vh; display:flex; align-items:center; gap:0.8vh; background:transparent; border:0; padding:0; color:#1E293B; font-weight:300; font-size:1.432vh; line-height:1.701vh; cursor:pointer; }
+
+.mode-fluid .forgot-title{ left:11.06%; top:22.13vh; width:76.99%; height:5.01vh; font-weight:600; font-size:4.296vh; line-height:5.01vh; color:#1E293B; }
+.mode-fluid .forgot-subtitle{ left:11.06%; top:27.84vh; width:88.33%; font-weight:300; font-size:1.432vh; line-height:1.701vh; color:#979494; }
+.mode-fluid .forgot-label-email{ left:11.06%; top:32.39vh; width:26.18%; font-weight:600; font-size:1.79vh; line-height:2.06vh; color:#1E293B; }
+.mode-fluid .forgot-input-email{ left:11.06%; top:35.17vh; width:75.18%; height:4.925vh; }
+.mode-fluid #forgot-email-error{ position:absolute; display:flex; align-items:center; gap:0.716vh; left:11.06%; top:40.44vh; width:75.18%; color:#F45B69; font-family:'Roboto',sans-serif; font-weight:400; font-size:1.253vh; line-height:1.432vh; height:1.432vh; }
+.mode-fluid .forgot-send-btn{ left:11.06%; top:42.96vh; width:75.18%; height:5.01vh; }
+
+/* Reserve space for error message */
+.mode-fluid .forgot-input-email[data-invalid="true"]{
+  padding-bottom:2.06vh;
+}
+.mode-fluid .forgot-footer{ left:29.38%; top:95.61vh; width:38.58%; text-align:center; font-weight:400; font-size:1.432vh; line-height:1.701vh; color:#979494; }
+
+/* --------------------------------------------------------------
+   MOBILE: Forgot Password (≤768px) – ALREADY FIXED
+   -------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .login-right.forgot-context {
+    padding: 24px;
+    background: #FFFFFF;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .forgot-layer {
+    position: relative !important;
+    inset: auto !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    flex: 1;
+    min-height: calc(100vh - 48px);
+  }
+
+  /* Logo Row */
+  .forgot-logo-row {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 12px;
+    width: 100%;
+  }
+
+  .forgot-logo-mark,
+  .forgot-logo-text {
+    display: block !important;
+    position: static !important;
+    flex: 0 0 auto;
+  }
+
+  .forgot-logo-mark {
+    height: 40px !important;
+    width: auto !important;
+    object-fit: contain;
+  }
+
+  .forgot-logo-text {
+    height: 24px !important;
+    width: auto !important;
+    object-fit: contain;
+  }
+
+  /* Back Button */
+  .forgot-back {
+    position: static !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: #1E293B;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+
+  .forgot-back svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Title & Subtitle */
+  .forgot-title,
+  .forgot-subtitle {
+    text-align: center !important;
+  }
+
+  .forgot-title {
+    position: static !important;
+    margin: 0;
+    font-size: clamp(24px, 7vw, 32px);
+    font-weight: 600;
+    line-height: 1.2;
+    color: #1E293B;
+  }
+
+  .forgot-subtitle {
+    position: static !important;
+    margin: 4px 0 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #64748B;
+  }
+
+  /* Label */
+  .forgot-label {
+    display: block;
+    margin: 0;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    color: #1E293B;
+  }
+
+  /* Field wrapper for input + error */
+  .forgot-field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Input */
+  .forgot-input {
+    position: relative !important;
+    width: 100% !important;
+    height: 52px;
+    background: #FFFFFF;
+    border: 1px solid #DADADA;
+    border-radius: 10px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    padding-right: 8px;
+  }
+
+  .forgot-input input {
+    flex: 1;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 16px;
+    font-size: 16px;
+    line-height: 19px;
+    color: #1E293B;
+    box-sizing: border-box;
+  }
+
+  .forgot-input input::placeholder {
+    color: #1E293B;
+    opacity: 0.6;
+  }
+
+  .forgot-field-icon {
+    position: static !important;
+    width: 1.43vh;
+    height: 1.43vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 10px;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .forgot-field-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Validation messages under fields (mobile only) */
+  .forgot-error{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#F45B69;
+    font-family:'Roboto',sans-serif;
+    font-weight:400;
+    font-size:14px;
+    line-height:16px;
+    margin-top:4px;
+    margin-bottom:0;
+  }
+
+  /* Send Button */
+  .forgot-send-btn {
+    position: static !important;
+    width: 100% !important;
+    height: 52px;
+    margin: 0;
+    background: #347E45;
+    border-radius: 10px;
+    border: 0;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Footer */
+  .forgot-footer {
+    position: static !important;
+    margin-top: auto !important;
+    font-size: 12px;
+    color: #979494;
+    text-align: center;
+  }
+
+  /* Reset absolute positioning */
+  .forgot-title,
+  .forgot-subtitle,
+  .forgot-label,
+  .forgot-input,
+  .forgot-send-btn,
+  .forgot-footer,
+  .forgot-back,
+  .forgot-error {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+  }
+
+  .forgot-input-email {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  @supports (height: 100svh) {
+    .forgot-layer { min-height: calc(100svh - 48px); }
+  }
+}
+
+/* --------------------------------------------------------------
+   Enter OTP (Right Panel) – absolute layout per Figma
+   -------------------------------------------------------------- */
+.login-right.otp-context{ position:relative; padding:0; }
+.otp-layer{ position:absolute; inset:0; }
+
+/* Base styles */
+.otp-title,.otp-subtitle,.otp-footer,.otp-back,.otp-resend-hint{ position:absolute; font-family:'Roboto',sans-serif; }
+.otp-logo-mark,.otp-logo-text{ position:absolute; }
+.otp-row{ position:absolute; display:flex; flex-direction:row; align-items:flex-start; gap:1.79vh; isolation:isolate; }
+.otp-box{ width:5.37vh; height:5.37vh; border:2px solid #DADADA; border-radius:0.716vh; box-sizing:border-box; position:relative; flex:0 0 auto; z-index:2; background:#FFFFFF; }
+.otp-box input{ width:100%; height:100%; border:0; outline:0; background:transparent; text-align:center; font-weight:600; font-size:2.15vh; line-height:5.37vh; color:#1E293B; padding:0; }
+.otp-box:focus-within{ border-color:#347E45; }
+.otp-box.filled{ border-color:#347E45; }
+.otp-resend-hint{ text-align:center; color:#979494; font-weight:400; font-size:14px; line-height:16px; }
+.otp-resend{ background:transparent; border:0; padding:0 0 0 6px; color:#347E45; cursor:pointer; font: inherit; }
+.otp-verify-btn{ position:absolute; display:flex; flex-direction:row; justify-content:center; align-items:center; padding:20px; gap:10px; background:#347E45; border-radius:0.895vh; border:0; color:#FFFFFF; font-weight:400; font-size:20px; line-height:23px; cursor:pointer; height:55px; }
+
+
+/* --------------------------------------------------------------
+   Validation states (Enter OTP)
+   -------------------------------------------------------------- */
+.otp-row[data-invalid="true"] .otp-box{ border-color:#F45B69; }
+.otp-row[data-invalid="true"] .otp-box.filled{ border-color:#F45B69 !important; }
+.otp-verify-btn:disabled{ opacity:0.6; cursor:not-allowed; }
+/* Hidden by default on desktop (absolute layout) */
+.otp-error{ display:none; }
+
+/* Fixed-canvas positions */
+.mode-fixed .otp-logo-mark{ left:90px; top:131px; width:auto; height:70.99px; object-fit:contain; }
+.mode-fixed .otp-logo-text{ left:130px; top:153.42px; height:31.76px; width:auto; object-fit:contain; }
+.mode-fixed .otp-back{ left:90px; top:64px; display:flex; align-items:center; gap:8px; background:transparent; border:0; padding:0; color:#1E293B; font-weight:300; font-size:16px; line-height:19px; cursor:pointer; }
+
+.mode-fixed .otp-title{ left:90px; top:247px; width:627px; height:56px; font-weight:600; font-size:48px; line-height:56px; color:#1E293B; }
+.mode-fixed .otp-subtitle{ left:90px; top:313px; width:676px; height:19px; font-weight:300; font-size:16px; line-height:19px; color:#979494; }
+.mode-fixed .otp-row{ left:90px; top:367px; width:460px; height:5.37vh; }
+.mode-fixed #otp-error{ position:absolute; display:flex; align-items:center; gap:8px; left:90px; top:430px; width:612px; color:#F45B69; font-family:'Roboto',sans-serif; font-weight:400; font-size:14px; line-height:16px; height:16px; }
+.mode-fixed .otp-resend-hint{ left:90px; top:450px; width:397px; height:16px; }
+.mode-fixed .otp-verify-btn{ left:90px; top:480px; width:612px; }
+
+/* Reserve space for error message */
+.mode-fixed .otp-row[data-invalid="true"]{
+  padding-bottom:29px;
+}
+.mode-fixed .otp-footer{ left:239px; top:1068px; width:314px; height:19px; text-align:center; font-weight:400; font-size:16px; line-height:19px; color:#979494; }
+
+/* Fluid positions (map Figma → right-panel %) */
+.mode-fluid .otp-logo-mark{ left:11.06%; top:11.73vh; width:auto; height:6.35vh; object-fit:contain; }
+.mode-fluid .otp-logo-text{ left:15.95%; top:13.74vh; height:2.84vh; width:auto; object-fit:contain; }
+.mode-fluid .otp-back{ left:11.06%; top:5.73vh; display:flex; align-items:center; gap:0.8vh; background:transparent; border:0; padding:0; color:#1E293B; font-weight:300; font-size:1.432vh; line-height:1.701vh; cursor:pointer; }
+
+.mode-fluid .otp-title{ left:11.06%; top:22.13vh; width:76.99%; height:5.01vh; font-weight:600; font-size:4.296vh; line-height:5.01vh; color:#1E293B; }
+.mode-fluid .otp-subtitle{ left:11.06%; top:28.04vh; width:83.06%; height:1.7vh; font-weight:300; font-size:1.432vh; line-height:1.701vh; color:#979494; }
+.mode-fluid .otp-row{ left:11.06%; top:32.86vh; width:56.53%; height:auto; gap:2.46%; align-items:center; }
+.mode-fluid .otp-box{ width:7.37%; aspect-ratio:1 / 1; height:auto; border:2px solid #DADADA; border-radius:0.716vh; }
+.mode-fluid .otp-box input{ font-size:2.15vh; line-height:5.37vh; padding:0; }
+.mode-fluid #otp-error{ position:absolute; display:flex; align-items:center; gap:0.716vh; left:11.06%; top:38.54vh; width:75.18%; color:#F45B69; font-family:'Roboto',sans-serif; font-weight:400; font-size:1.253vh; line-height:1.432vh; height:1.432vh; }
+.mode-fluid .otp-resend-hint{ left:5.06%; top:40.26vh; width:48.65%; font-size:1.253vh; line-height:1.432vh; }
+.mode-fluid .otp-verify-btn{ left:11.06%; top:43.96vh; width:75.18%; height:4.925vh; font-size:1.79vh; line-height:2.06vh; }
+
+/* Reserve space for error message */
+.mode-fluid .otp-row[data-invalid="true"]{
+  padding-bottom:2.06vh;
+}
+.mode-fluid .otp-footer{ left:29.38%; top:95.61vh; width:38.58%; text-align:center; font-weight:400; font-size:1.432vh; line-height:1.701vh; color:#979494; }
+
+/* --------------------------------------------------------------
+   MOBILE: Enter OTP (≤768px) – ONLY THIS SECTION ADDED/UPDATED
+   -------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .login-right.otp-context {
+    padding: 24px;
+    background: #FFFFFF;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .otp-layer {
+    position: relative !important;
+    inset: auto !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    flex: 1;
+    min-height: calc(100vh - 48px);
+  }
+
+  /* Logo Row */
+  .otp-logo-row {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 12px;
+    width: 100%;
+  }
+
+  .otp-logo-mark,
+  .otp-logo-text {
+    display: block !important;
+    position: static !important;
+    flex: 0 0 auto;
+  }
+
+  .otp-logo-mark {
+    height: 40px !important;
+    width: auto !important;
+    object-fit: contain;
+  }
+
+  .otp-logo-text {
+    height: 24px !important;
+    width: auto !important;
+    object-fit: contain;
+  }
+
+  /* Back Button */
+  .otp-back {
+    position: static !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: #1E293B;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+
+  .otp-back svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Title & Subtitle */
+  .otp-title,
+  .otp-subtitle {
+    text-align: center !important;
+  }
+
+  .otp-title {
+    position: static !important;
+    margin: 0;
+    font-size: clamp(24px, 7vw, 32px);
+    font-weight: 600;
+    line-height: 1.2;
+    color: #1E293B;
+  }
+
+  .otp-subtitle {
+    position: static !important;
+    margin: 4px 0 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #64748B;
+  }
+
+  /* OTP Field wrapper for row + error */
+  .otp-field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+  }
+
+  /* OTP Row */
+  .otp-row {
+    position: static !important;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .otp-box {
+    position: relative;
+    width: 52px !important;
+    height: 52px !important;
+    border: 2px solid #DADADA;
+    border-radius: 8px;
+    background: #FFFFFF;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+  }
+
+  .otp-box input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    text-align: center;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 52px;
+    color: #1E293B;
+    padding: 0;
+  }
+
+  .otp-box:focus-within {
+    border-color: #347E45;
+  }
+
+  .otp-box.filled {
+    border-color: #347E45;
+  }
+
+  /* Resend Hint */
+  .otp-resend-hint {
+    position: static !important;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #979494;
+    margin: 0;
+  }
+
+  .otp-resend {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: #347E45;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* Verify Button */
+  .otp-verify-btn {
+    position: static !important;
+    width: 100% !important;
+    height: 52px;
+    margin: 0;
+    background: #347E45;
+    border-radius: 10px;
+    border: 0;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Validation message (mobile) */
+  .otp-error{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    color:#F45B69;
+    font-family:'Roboto',sans-serif;
+    font-weight:400;
+    font-size:14px;
+    line-height:16px;
+    margin-top:4px;
+    margin-bottom:0;
+  }
+
+
+  /* Footer */
+  .otp-footer {
+    position: static !important;
+    margin-top: auto !important;
+    font-size: 12px;
+    color: #979494;
+    text-align: center;
+  }
+
+  /* Reset absolute styles */
+  .otp-title,
+  .otp-subtitle,
+  .otp-row,
+  .otp-resend-hint,
+  .otp-verify-btn,
+  .otp-footer,
+  .otp-back,
+  .otp-error {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+  }
+
+  @supports (height: 100svh) {
+    .otp-layer { min-height: calc(100svh - 48px); }
+  }
+}
+
+/* --------------------------------------------------------------
+   Update Password (Right Panel) – absolute layout per Figma
+   -------------------------------------------------------------- */
+.login-right.update-context{ position:relative; padding:0; }
+.update-layer{ position:absolute; inset:0; }
+
+/* Base styles */
+.update-title,.update-subtitle,.update-label,.update-footer{ position:absolute; font-family:'Roboto',sans-serif; }
+.update-logo-mark,.update-logo-text{ position:absolute; }
+.update-input{ position:absolute; box-sizing:border-box; background:#FFFFFF; border:1px solid #DADADA; border-radius:0.895vh; }
+.update-input input{ width:100%; height:100%; border:none; outline:none; background:transparent; padding:16px 44px 16px 20px; font-size:16px; line-height:19px; color:#1E293B; }
+/* Placeholder styling for Update fields */
+.update-input input::placeholder{ font-family:'Roboto',sans-serif; font-weight:400; font-size:16px; line-height:19px; color:#1E293B; opacity:1; }
+
+.update-eye{ position:absolute; right:8px; top:50%; transform:translateY(-50%); background:transparent; border:0; padding:0; cursor:pointer; width:24px; height:24px; }
+.update-eye img{ width:100%; height:100%; object-fit:contain; }
+.update-field-icon{ position:absolute; right:1.43vh; top:50%; transform:translateY(-50%); width:1.43vh; height:1.43vh; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.update-field-icon img{ width:100%; height:100%; object-fit:contain; }
+.update-btn{ position:absolute; display:flex; flex-direction:row; align-items:center; justify-content:center; padding:12.98px 50.49px; gap:14.42px; background:#347E45; border-radius:0.895vh; border:0; color:#FFFFFF; font-weight:400; font-size:20px; line-height:23px; height:55px; cursor:pointer; }
+
+/* --------------------------------------------------------------
+   Validation states (Update Password)
+   -------------------------------------------------------------- */
+.update-input[data-invalid="true"]{ border-color:#F45B69; }
+.update-btn:disabled{ opacity:0.6; cursor:not-allowed; }
+/* Hidden by default on desktop (absolute layout) */
+.update-error{ display:none; }
+
+
+/* Fixed-canvas positions */
+.mode-fixed .update-logo-mark{ left:90px; top:131px; width:auto; height:70.99px; object-fit:contain; }
+.mode-fixed .update-logo-text{ left:130px; top:153.42px; height:31.76px; width:auto; object-fit:contain; }
+
+.mode-fixed .update-title{ left:90px; top:247px; width:736px; height:56px; font-weight:600; font-size:48px; line-height:56px; color:#1E293B; }
+.mode-fixed .update-subtitle{ left:90px; top:313px; width:736px; height:19px; font-weight:300; font-size:16px; line-height:19px; color:#979494; }
+.mode-fixed .update-label-np{ left:90px; top:365px; width:213px; height:23px; font-weight:600; font-size:19px; line-height:22px; color:#1E293B; }
+.mode-fixed .update-input-np{ left:90px; top:398px; width:612px; height:55px; }
+.mode-fixed #update-np-error{ position:absolute; display:flex; align-items:center; gap:8px; left:90px; top:456px; width:612px; color:#F45B69; font-family:'Roboto',sans-serif; font-weight:400; font-size:14px; line-height:16px; height:16px; }
+.mode-fixed .update-label-cp{ left:90px; top:485px; width:200px; height:19px; font-weight:600; font-size:20px; line-height:23px; color:#1E293B; }
+.mode-fixed .update-input-cp{ left:90px; top:517px; width:612px; height:55px; }
+.mode-fixed #update-cp-error{ position:absolute; display:flex; align-items:center; gap:8px; left:90px; top:575px; width:612px; color:#F45B69; font-family:'Roboto',sans-serif; font-weight:400; font-size:14px; line-height:16px; height:16px; }
+.mode-fixed .update-btn{ left:90px; top:607px; width:612px; }
+
+/* Reserve space for error messages */
+.mode-fixed .update-input-np[data-invalid="true"]{
+  padding-bottom:29px;
+}
+.mode-fixed .update-input-cp[data-invalid="true"]{
+  padding-bottom:29px;
+}
+.mode-fixed .update-footer{ left:239px; top:1068px; width:314px; height:19px; text-align:center; font-weight:400; font-size:16px; line-height:19px; color:#979494; }
+
+/* Fluid positions for Update Password */
+.mode-fluid .update-logo-mark{ left:11.06%; top:11.73vh; width:auto; height:6.35vh; object-fit:contain; }
+.mode-fluid .update-logo-text{ left:15.95%; top:13.74vh; height:2.84vh; width:auto; object-fit:contain; }
+
+.mode-fluid .update-title{ left:11.06%; top:22.13vh; width:88.97%; height:5.01vh; font-weight:600; font-size:4.296vh; line-height:5.01vh; color:#1E293B; }
+.mode-fluid .update-subtitle{ left:11.06%; top:28.04vh; width:90.42%; font-weight:300; font-size:1.432vh; line-height:1.701vh; color:#979494; }
+
+.mode-fluid .update-label-np{ left:11.06%; top:32.68vh; width:26.18%; font-weight:600; font-size:1.79vh; line-height:2.06vh; color:#1E293B; }
+.mode-fluid .update-input-np{ left:11.06%; top:35.64vh; width:75.18%; height:4.925vh; }
+.mode-fluid #update-np-error{ position:absolute; display:flex; align-items:center; gap:0.716vh; left:11.06%; top:40.83vh; width:75.18%; color:#F45B69; font-family:'Roboto',sans-serif; font-weight:400; font-size:1.253vh; line-height:1.432vh; height:1.432vh; }
+
+/* Eye position/size inside inputs (match welcome mapping) */
+.mode-fluid .update-input-np input,
+.mode-fluid .update-input-cp input{ padding-right:8.82%; }
+.mode-fluid .update-eye{ right:2.61%; width:2.149vh; height:2.149vh; }
+
+.mode-fluid .update-label-cp{ left:11.06%; top:43.43vh; width:24.57%; font-weight:600; font-size:1.79vh; line-height:2.06vh; color:#1E293B; }
+.mode-fluid .update-input-cp{ left:11.06%; top:46.30vh; width:75.18%; height:4.925vh; }
+.mode-fluid #update-cp-error{ position:absolute; display:flex; align-items:center; gap:0.716vh; left:11.06%; top:51.49vh; width:75.18%; color:#F45B69; font-family:'Roboto',sans-serif; font-weight:400; font-size:1.253vh; line-height:1.432vh; height:1.432vh; }
+
+/* Reserve space for error messages */
+.mode-fluid .update-input-np[data-invalid="true"]{
+  padding-bottom:2.06vh;
+}
+.mode-fluid .update-input-cp[data-invalid="true"]{
+  padding-bottom:2.06vh;
+}
+
+.mode-fluid .update-btn{ left:11.06%; top:54.34vh; width:75.18%; height:5.01vh; font-size:1.79vh; line-height:2.06vh; }
+.mode-fluid .update-footer{ left:29.38%; top:95.61vh; width:38.58%; text-align:center; font-weight:400; font-size:1.432vh; line-height:1.701vh; color:#979494; }
+/* Update Password: match Welcome eye placement (fluid desktop) */
+.mode-fluid .update-input.update-input-np input,
+.mode-fluid .update-input.update-input-cp input{ padding-right:8.82% !important; }
+.mode-fluid .update-input.update-input-np .update-eye,
+.mode-fluid .update-input.update-input-cp .update-eye{ right:2.61% !important; width:2.149vh !important; height:2.149vh !important; top:50% !important; transform:translateY(-50%) !important; }
+.mode-fluid .update-eye img{ width:100%; height:100%; object-fit:contain; display:block; }
+
+/* Update Password: fixed-canvas mapping for eye (same as Welcome) */
+.mode-fixed .update-input.update-input-np input,
+.mode-fixed .update-input.update-input-cp input{ padding-right:48px; }
+.mode-fixed .update-input .update-eye{ right:16px; width:24px; height:24px; top:50%; transform:translateY(-50%); }
+
+
+/* --------------------------------------------------------------
+   MOBILE: Update Password (≤768px) – FULLY UPDATED & CONSISTENT
+   -------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .login-right.update-context {
+    padding: 24px;
+    background: #FFFFFF;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .update-layer {
+    position: relative !important;
+    inset: auto !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    flex: 1;
+    min-height: calc(100vh - 48px);
+  }
+
+  /* Logo Row */
+  .update-logo-row {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 12px;
+    width: 100%;
+  }
+
+  .update-logo-mark,
+  .update-logo-text {
+    display: block !important;
+    position: static !important;
+    flex: 0 0 auto;
+  }
+
+  .update-logo-mark {
+    height: 40px !important;
+    width: auto !important;
+    object-fit: contain;
+  }
+
+  .update-logo-text {
+    height: 24px !important;
+    width: auto !important;
+    object-fit: contain;
+  }
+
+  /* Back Button */
+  .update-back {
+    position: static !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: #1E293B;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+
+  .update-back svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Title & Subtitle */
+  .update-title,
+  .update-subtitle {
+    text-align: center !important;
+  }
+
+  .update-title {
+    position: static !important;
+    margin: 0;
+    font-size: clamp(24px, 7vw, 32px);
+    font-weight: 600;
+    line-height: 1.2;
+    color: #1E293B;
+  }
+
+  .update-subtitle {
+    position: static !important;
+    margin: 4px 0 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #64748B;
+  }
+
+  /* Labels */
+  .update-label {
+    display: block;
+    margin: 0;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    color: #1E293B;
+  }
+
+  /* Field wrapper for input + error */
+  .update-field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Inputs */
+  .update-input {
+    position: relative !important;
+    width: 100% !important;
+    height: 60px;
+    background: #FFFFFF;
+    border: 1px solid #DADADA;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  .update-input input {
+    flex: 1;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 16px 50px 16px 16px;
+    font-size: 16px;
+    line-height: 19px;
+    color: #1E293B;
+    box-sizing: border-box;
+  }
+
+  .update-input input::placeholder {
+    color: #1E293B;
+    opacity: 0.6;
+  }
+
+
+  /* Validation messages under fields (mobile only) */
+  .update-error{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#F45B69;
+    font-family:'Roboto',sans-serif;
+    font-weight:400;
+    font-size:14px;
+    line-height:16px;
+    margin-top:4px;
+    margin-bottom:0;
+  }
+
+  /* Eye Icon */
+  .update-eye {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .update-eye img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .update-field-icon {
+    position: static !important;
+    width: 1.43vh;
+    height: 1.43vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 10px;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .update-field-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .update-input {
+    position: relative !important;
+    width: 100% !important;
+    height: 52px;
+    background: #FFFFFF;
+    border: 1px solid #DADADA;
+    border-radius: 10px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    padding-right: 8px;
+  }
+
+  /* Update Button */
+  .update-btn {
+    position: static !important;
+    width: 100% !important;
+    height: 52px;
+    margin: 0;
+    background: #347E45;
+    border-radius: 10px;
+    border: 0;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Footer */
+  .update-footer {
+    position: static !important;
+    margin-top: auto !important;
+    font-size: 12px;
+    color: #979494;
+    text-align: center;
+  }
+
+  /* Reset absolute styles */
+  .update-title,
+  .update-subtitle,
+  .update-label,
+  .update-btn,
+  .update-footer,
+  .update-back,
+  .update-error {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+  }
+
+  /* Neutralize fluid absolute offsets on mobile for Update fields */
+  .update-label-np,
+  .update-label-cp,
+  .update-input-np,
+  .update-input-cp{
+    left:auto !important; top:auto !important; right:auto !important; bottom:auto !important; transform:none !important;
+  }
+
+  .update-input-np,
+  .update-input-cp {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  @supports (height: 100svh) {
+    .update-layer { min-height: calc(100svh - 48px); }
+  }
+}
+
+/* Fixed positions for overlay children (Figma-accurate) */
+.mode-fixed .hero-overlay .hero-logo{ position:absolute; left:49px; top:24px; width:71px; height:71px; object-fit:contain; }
+.mode-fixed .hero-overlay .hero-title{ position:absolute; left:110px; top:46px; font-family:'Roboto',sans-serif; font-weight:600; font-size:24px; line-height:100%; letter-spacing:0%; vertical-align:middle; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; color:#FFFFFF; margin:0; }
+.mode-fixed .hero-overlay .hero-subtitle{ position:absolute; left:65px; top:105px; width:431px; font-family:'Roboto',sans-serif; font-weight:600; font-size:48px; line-height:56px; letter-spacing:0%; vertical-align:middle; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; color:#FFFFFF; }
+.mode-fixed .hero-overlay .hero-desc{ position:absolute; left:66px; top:255px; width:493px; font-weight:400; font-size:20px; line-height:23px; color:#FFFFFF; }
+
+/* Fluid positions for overlay children (Figma ratios) */
+.mode-fluid .hero-overlay .hero-logo{ position:absolute; left:5.36%; top:6.76%; width:7.77%; height:20%; object-fit:contain; }
+.mode-fluid .hero-overlay .hero-title{ position:absolute; left:12.05%; top:12.96%; font-family:'Roboto',sans-serif; font-weight:600; font-size:2.15vh; line-height:100%; letter-spacing:0%; vertical-align:middle; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; color:#FFFFFF; margin:0; }
+.mode-fluid .hero-overlay .hero-subtitle{ position:absolute; left:7.11%; top:31.5%; width:auto; max-width:55vh; font-family:'Roboto',sans-serif; font-weight:600; font-size:4.296vh; line-height:117%; letter-spacing:0%; vertical-align:middle; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; color:#FFFFFF; }
+.mode-fluid .hero-overlay .hero-desc{ position:absolute; left:7.22%; top:71.83%; width:85%; font-weight:400; font-size:1.79vh; line-height:2.06vh; color:#FFFFFF; }
+
+/* Mobile: hide left panel and stack right panel content */
+@media (max-width: 768px){
+  .login-root{ align-items:flex-start; height:auto; min-height:100vh; }
+  .login-stage,.login-canvas{ width:100vw; height:auto; }
+  .login-left{ display:none; }
+  .login-right{ width:100vw; min-height:100vh; padding:24px; overflow-y:auto; }
+  .login-right.welcome-context{ padding:24px; }
+  .welcome-layer{ position:relative; inset:auto; }
+
+  .welcome-footer{ margin-top:auto; font-size:12px; color:#979494; text-align:center; flex-shrink: 0; }
+
+  .welcome-label{ position:static; display:block; margin-top:16px; font-weight:600; font-size:14px; line-height:18px; color:#1E293B; }
+  .welcome-title{ position:static; margin-top:8px; font-size:clamp(22px,5.5vw,28px); line-height:1.2; }
+  .welcome-subtitle{ position:static; font-size:clamp(14px,4vw,16px); line-height:1.4; color:#64748B; margin-top:2px; }
+  .welcome-input{ position:relative; width:100%; height:52px; margin-top:8px; }
+  .welcome-eye{ right:16px; }
+  .welcome-remember-row{ display:flex; align-items:center; gap:12px; margin-top:12px; }
+  .welcome-remember-row .welcome-spacer{ flex:1; }
+  .welcome-remember-text{ font-size:14px; }
+  .welcome-forgot{ font-size:14px; color:#347E45; background:transparent; border:0; }
+  .login-right{ background:#FFFFFF; }
+
+  .welcome-title,.welcome-subtitle,.welcome-label,.welcome-remember-text,.welcome-forgot,.welcome-footer{ position:static; width:100%; height:auto; }
+  .welcome-input{ position:relative; width:100%; height:52px; margin-top:8px; }
+  .welcome-checkbox{ position:static; width:18px; height:18px; margin-top:16px; margin-right:8px; display:inline-block; vertical-align:middle; }
+  .welcome-remember-text{ display:inline-block; margin-left:8px; vertical-align:middle; }
+  .welcome-forgot{ display:block; margin-top:12px; text-align:right; }
+  .welcome-login-btn{ position:static; width:100%; height:52px; margin-top:20px; font-size:16px; }
+
+  .welcome-title,.welcome-subtitle,.welcome-label-id,.welcome-label-pw,
+  .welcome-input-id,.welcome-input-pw,.welcome-remember-text,.welcome-forgot,
+  .welcome-login-btn,.welcome-footer{
+    left:auto !important; top:auto !important; right:auto !important; bottom:auto !important;
+  }
+  .welcome-input-id,.welcome-input-pw{ width:100%; }
+
+  .welcome-logo-mark,.welcome-logo-text{ display:none !important; position:static; }
+
+  /* Mobile fixes: keep password eye 24x24 and positioned, and show logo row */
+  .welcome-input-pw{ position:relative !important; width:100% !important; height:52px !important; }
+  .welcome-input-pw input{ padding-right:48px !important; }
+  .welcome-eye{ position:absolute !important; right:16px !important; top:50% !important; transform:translateY(-50%) !important; width:24px !important; height:24px !important; }
+  .welcome-eye img{ width:100% !important; height:100% !important; object-fit:contain; display:block; }
+
+  /* Show logo section on mobile as a single row */
+  .welcome-logo-row,.forgot-logo-row,.otp-logo-row,.update-logo-row{ display:flex !important; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; width:100%; flex-wrap:nowrap; }
+  .welcome-logo-mark,.welcome-logo-text,
+  .forgot-logo-mark,.forgot-logo-text,
+  .otp-logo-mark,.otp-logo-text,
+  .update-logo-mark,.update-logo-text{ display:block !important; position:static !important; flex:0 0 auto; background:transparent !important; white-space:nowrap; }
+  .welcome-logo-mark,.forgot-logo-mark,.otp-logo-mark,.update-logo-mark{ height:40px !important; width:auto !important; object-fit:contain; flex-shrink:0; }
+  .welcome-logo-text,.forgot-logo-text,.otp-logo-text,.update-logo-text{ height:24px !important; width:auto !important; object-fit:contain; background:transparent !important; flex-shrink:0; }
+
+  /* Mobile: Remember row and checkbox guards */
+  .welcome-remember-row{ display:flex !important; align-items:center !important; justify-content:flex-start !important; flex-wrap:nowrap !important; gap:8px !important; width:100%; }
+  .welcome-remember-label{ display:flex !important; align-items:center !important; gap:8px !important; white-space:nowrap !important; flex:0 1 auto !important; }
+  .welcome-checkbox-box{ width:18px !important; height:18px !important; flex:0 0 18px !important; }
+  .welcome-remember-text{ white-space:nowrap !important; }
+  .welcome-forgot{ display:inline-block !important; width:auto !important; margin-top:0 !important; margin-left:auto !important; white-space:nowrap !important; flex:0 0 auto !important; }
+
+  /* Keep titles centered on mobile */
+  .welcome-title, .welcome-subtitle,
+  .forgot-title, .forgot-subtitle,
+  .otp-title, .otp-subtitle,
+  .update-title, .update-subtitle{ text-align:center !important; }
+
+  /* Use dynamic viewport to avoid shrink on keyboard */
+  .login-root,
+  .login-stage,
+  .login-canvas {
+    min-height: 100dvh !important;
+  }
+
+  body { overscroll-behavior: none; }
+
+  /* Prevent full-height layer collapse */
+  .welcome-layer,
+  .forgot-layer,
+  .otp-layer,
+  .update-layer {
+    min-height: auto !important;
+    flex: 1 !important;
+    padding-bottom: 32px !important;
+  }
+
+  .login-right.welcome-context,
+  .login-right.forgot-context,
+  .login-right.otp-context,
+  .login-right.update-context {
+    min-height: 100vh !important;
+    padding: 24px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* Field wrappers: fixed gap, reserve error space */
+  .welcome-field-wrapper,
+  .forgot-field-wrapper,
+  .otp-field-wrapper,
+  .update-field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  /* Fixed input sizes */
+  .welcome-input,
+  .forgot-input,
+  .update-input,
+  .otp-box {
+    height: 52px !important;
+    flex-shrink: 0;
+  }
+
+  /* Reserve error space */
+  .welcome-error,
+  .forgot-error,
+  .otp-error,
+  .update-error {
+    min-height: 20px;
+    font-size: 13px;
+    line-height: 16px;
+    margin-top: 2px;
+  }
+
+  /* Remember row & button */
+  .welcome-remember-row {
+    margin: 12px 0;
+    flex-shrink: 0;
+  }
+
+  .welcome-login-btn,
+  .forgot-send-btn,
+  .otp-verify-btn,
+  .update-btn {
+    margin-top: 20px;
+    flex-shrink: 0;
+  }
+
+  .welcome-footer,
+  .forgot-footer,
+  .otp-footer,
+  .update-footer {
+    margin-top: auto !important;
+    flex-shrink: 0;
+  }
+
+  /* === MOBILE: WELCOME BACK === */
+  .login-right.welcome-context { padding: 24px; background: #FFFFFF; }
+  .welcome-layer { position: relative !important; inset: auto !important; display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 100%; margin: 0 auto; }
+  .welcome-title { font-size: clamp(24px, 7vw, 32px); font-weight: 600; line-height: 1.2; color: #1E293B; margin: 0; text-align: left; }
+  .welcome-subtitle { font-size: 14px; line-height: 1.4; color: #64748B; margin: 4px 0 0; }
+  .welcome-label { display: block; margin: 0; font-weight: 600; font-size: 14px; line-height: 18px; color: #1E293B; }
+  .welcome-input { position: relative; width: 100% !important; height: 52px; background: #FFFFFF; border: 1px solid #DADADA; border-radius: 10px; box-sizing: border-box; display: flex; align-items: center; padding-right: 8px; }
+  .welcome-input input { flex: 1; height: 100%; border: none; outline: none; background: transparent; padding: 16px 16px; font-size: 16px; line-height: 19px; color: #1E293B; box-sizing: border-box; }
+  .welcome-input input::placeholder { color: #1E293B; opacity: 0.6; }
+  .welcome-eye { width: 24px; height: 24px; background: transparent; border: 0; padding: 0; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; line-height: 1; margin-right: 8px; }
+  .welcome-eye img { width: 24px; height: 24px; max-width: 24px; max-height: 24px; object-fit: contain; flex-shrink: 0; display: block; }
+  .welcome-field-icon { position: static !important; width: 1.43vh; height: 1.43vh; background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: center; line-height: 1; margin-right: 10px; margin-top: 0; margin-bottom: 0; }
+  .welcome-field-icon img { width: 1.43vh; height: 1.43vh; max-width: 1.43vh; max-height: 1.43vh; object-fit: contain; flex-shrink: 0; display: block; }
+  .welcome-remember-row { display: flex; justify-content: space-between; align-items: center; margin: 0; gap: 12px; width: 100%; }
+  .welcome-remember-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: #1E293B; }
+  .welcome-checkbox-input { opacity: 0; position: absolute; width: 0; height: 0; }
+  .welcome-checkbox-box { width: 18px; height: 18px; border: 2px solid #347E45; border-radius: 4px; background: transparent; position: relative; transition: all 0.2s; flex-shrink: 0; }
+  .welcome-checkbox-input:checked + .welcome-checkbox-box { background: transparent; border-color: #347E45; }
+  .welcome-checkbox-input:checked + .welcome-checkbox-box::after { content: ""; position: absolute; left: 37.5%; top: 15%; width: 25%; height: 50%; border-right: 2px solid #347E45; border-bottom: 2px solid #347E45; transform: rotate(45deg); }
+  .welcome-remember-text { font-size: 14px; }
+  .welcome-forgot { font-size: 14px; color: #347E45; background: transparent; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+  .welcome-login-btn { width: 100% !important; height: 52px; margin: 0; background: #347E45; border-radius: 10px; border: 0; color: #FFFFFF; font-size: 16px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .welcome-error { display: flex; align-items: center; gap: 8px; color: #F45B69; font-family: 'Roboto', sans-serif; font-weight: 400; font-size: 14px; line-height: 16px; margin-top: 4px; margin-bottom: 0; }
+  .welcome-footer { margin-top: auto !important; font-size: 12px; color: #979494; text-align: center; flex-shrink: 0; }
+
+  /* === MOBILE: FORGOT, OTP, UPDATE (consistent) === */
+  .forgot-layer, .otp-layer, .update-layer {
+    position: relative !important;
+    inset: auto !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    flex: 1;
+    min-height: auto;
+  }
+
+  .forgot-logo-row, .otp-logo-row, .update-logo-row {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 12px;
+    width: 100%;
+  }
+
+  .forgot-logo-mark, .forgot-logo-text,
+  .otp-logo-mark, .otp-logo-text,
+  .update-logo-mark, .update-logo-text {
+    display: block !important;
+    position: static !important;
+    flex: 0 0 auto;
+  }
+
+  .forgot-logo-mark, .otp-logo-mark, .update-logo-mark { height: 40px !important; width: auto !important; object-fit: contain; }
+  .forgot-logo-text, .otp-logo-text, .update-logo-text { height: 24px !important; width: auto !important; object-fit: contain; }
+
+  .forgot-back, .otp-back, .update-back {
+    position: static !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: #1E293B;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+
+  .forgot-back svg, .otp-back svg, .update-back svg { width: 20px; height: 20px; }
+
+  .forgot-title, .forgot-subtitle,
+  .otp-title, .otp-subtitle,
+  .update-title, .update-subtitle {
+    text-align: center !important;
+    position: static !important;
+    margin: 0;
+  }
+
+  .forgot-title, .otp-title, .update-title { font-size: clamp(24px, 7vw, 32px); font-weight: 600; line-height: 1.2; color: #1E293B; }
+  .forgot-subtitle, .otp-subtitle, .update-subtitle { margin: 4px 0 0; font-size: 14px; line-height: 1.4; color: #64748B; }
+
+  .forgot-label, .update-label { display: block; margin: 0; font-weight: 600; font-size: 14px; line-height: 18px; color: #1E293B; }
+
+
+
+  .otp-row { position: static !important; display: flex; justify-content: center; gap: 1.07vh; width: 100%; }
+  .otp-box { position: relative; width: 4.66vh !important; height: 4.66vh !important; border: 2px solid #DADADA; border-radius: 0.716vh; background: #FFFFFF; flex: 0 0 auto; box-sizing: border-box; }
+  .otp-box input { width: 100%; height: 100%; border: none; outline: none; background: transparent; text-align: center; font-weight: 600; font-size: 1.61vh; line-height: 4.66vh; color: #1E293B; padding: 0; }
+  .otp-box:focus-within, .otp-box.filled { border-color: #347E45; }
+
+  .otp-resend-hint { position: static !important; text-align: center; font-size: 13px; line-height: 1.4; color: #979494; margin: 0; }
+  .otp-resend { background: transparent; border: 0; padding: 0; color: #347E45; font-size: 13px; cursor: pointer; text-decoration: underline; }
+
+  .forgot-send-btn, .otp-verify-btn, .update-btn {
+    position: static !important;
+    width: 100% !important;
+    height: 52px;
+    margin: 0;
+    background: #347E45;
+    border-radius: 10px;
+    border: 0;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .forgot-error, .otp-error, .update-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #F45B69;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+    margin-top: 4px;
+    margin-bottom: 0;
+  }
+
+  .forgot-footer, .otp-footer, .update-footer {
+    position: static !important;
+    margin-top: auto !important;
+    font-size: 12px;
+    color: #979494;
+    text-align: center;
+  }
+
+  /* Reset all absolute positioning */
+  .welcome-title, .welcome-subtitle, .welcome-label, .welcome-input, .welcome-remember-row, .welcome-remember-text, .welcome-login-btn, .welcome-footer, .welcome-eye, .welcome-error,
+  .forgot-title, .forgot-subtitle, .forgot-label, .forgot-input, .forgot-send-btn, .forgot-footer, .forgot-back, .forgot-error,
+  .otp-title, .otp-subtitle, .otp-row, .otp-resend-hint, .otp-verify-btn, .otp-footer, .otp-back, .otp-error,
+  .update-title, .update-subtitle, .update-label, .update-btn, .update-footer, .update-back, .update-error {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+  }
+
+  .welcome-input-id, .welcome-input-pw,
+  .forgot-input-email,
+  .update-input-np, .update-input-cp {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}

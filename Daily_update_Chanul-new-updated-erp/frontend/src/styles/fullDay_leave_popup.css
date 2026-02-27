@@ -1,0 +1,394 @@
+/* ================= OVERLAY ================= */
+.fd-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 19, 35, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+/* ================= POPUP BOX ================= */
+.fd-popup-box {
+  background: #ffffff;
+  width: 820px;
+  padding: 28px 22px; /* slightly tighter to fit separate card */
+  border-radius: 20px;
+  text-align: center;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* ================= CLOSE BUTTON ================= */
+.fd-popup-box .fd-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.fd-popup-box .fd-close-btn img {
+  width: 22px;
+}
+
+/* ================= PROFILE ================= */
+.fd-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* profile left, annual card right */
+  gap: 12px;
+  margin-bottom: 12px;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+.fd-user-info {
+  display: flex;
+  margin-left: 4%;
+  margin-bottom: 5%;
+  align-items: center;
+  gap: 12px;
+  min-width: 0; /* allow text to truncate if needed */
+}
+
+
+.fd-popup-box .fd-profile-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* ================= NAME ================= */
+.fd-popup-box .fd-username {
+  font-style: bold;
+  font-size: 25px;
+  font-weight: 700;
+  margin: 0;
+  color: #1e293b;
+}
+
+.fd-popup-box .fd-role {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ================= ANNUAL LEAVE BALANCE (SEPARATE CARD) ================= */
+.fd-annual-balance {
+  flex: 0 0 360px;    
+  margin-left: 0%;
+  min-height: 120px;
+  margin-right: 3%;
+  min-width: 450px;
+  max-width: 460px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 6px rgba(16,24,40,0.04);
+}
+
+/* Top row */
+.fd-annual-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+.fd-annual-days-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Title */
+.fd-annual-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Days */
+.fd-annual-days {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.fd-annual-remaining {
+  font-size: 24px;
+  font-weight: 800;
+  color: #16a34a;
+}
+
+.fd-annual-total {
+  font-size: 16px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* Progress bar */
+.fd-progress-track {
+  width: 100%;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fd-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #34d399, #22c55e);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+/* ---------- Layout: use a two-column grid for form rows ---------- */
+.fd-popup-box .fd-content-box .fd-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* left column / right column */
+  gap: 16px;
+  align-items: start;
+}
+
+/* make right column (Reason, End Date) align to the right side */
+.fd-popup-box .fd-content-box .fd-row .fd-right-column {
+  
+  margin-left: 65%;
+}
+
+/* keep label & value formatting consistent when right-aligned */
+.fd-popup-box .fd-content-box .fd-row .fd-right-column label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.fd-popup-box .fd-content-box .fd-row .fd-right-column .fd-value,
+.fd-popup-box .fd-content-box .fd-row .fd-right-column .fd-end-date {
+  display: block;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ================= CONTENT BOX (DETAILS) ================= */
+.fd-popup-box .fd-content-box {
+  margin-left: 2%;
+  border: 1px solid #e5e7eb;
+  padding: 18px 16px 18px;
+  max-width: 740px;
+  border-radius: 12px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ================= FORM ROWS ================= */
+.fd-popup-box .fd-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.fd-popup-box .fd-row > div {
+  flex: 1;
+}
+
+.fd-popup-box .fd-row label {
+  font-size: 16px;
+  color: #6b7280;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.fd-popup-box .fd-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+.fd-popup-box .fd-end-date {
+   white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ================= STATUS ================= */
+.fd-status-proof-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin-top: 6px;
+  flex-wrap: nowrap;
+}
+.fd-popup-box .fd-status-label {
+  margin-top: 6px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+
+.fd-popup-box .fd-status-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 14px;
+  max-width: 340px;
+  flex: 1 1 auto;
+  box-sizing: border-box;
+}
+
+.fd-popup-box .fd-status-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+   white-space: nowrap;
+}
+
+.fd-popup-box .fd-status-divider {
+  width: 1px;
+  height: 18px;
+  background: #e5e7eb;
+  margin: 0 10px;
+}
+
+/* Radio */
+.fd-popup-box .fd-radio {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  display: inline-block;
+}
+
+.fd-radio.pending.active {
+  background: #E9F493;
+  border-color: #E9F493;
+}
+
+.fd-radio.rejected.active {
+  background: #F45B69;
+  border-color: #F45B69;
+}
+
+.fd-radio.approved.active {
+  background: #22C55E;
+  border-color: #22C55E;
+}
+
+/* ================= PROOF BUTTON ================= */
+.fd-popup-box .fd-proof-btn {
+  margin-top: 0px;
+  background: #1e7e34;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  max-height: 49px;
+  max-width: 150px;
+  justify-content: center;
+}
+
+.fd-popup-box .fd-proof-btn img {
+  width: 18px;
+}
+
+/* ================= UPDATE BUTTON ================= */
+.fd-popup-box .fd-update-btn {
+  margin-top: 14px;
+  width: 100%;
+  background: #029026;
+  border: none;
+  padding: 12px 0;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fd-status-label {
+  color: #979494;
+}
+/* Rejection reason input row — hidden by default, visible with a smooth reveal */
+.fd-reject-reason-row {
+  color: #979494;
+  margin-top: 12px;
+  display: none;               /* hidden unless .visible class applied */
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.fd-popup-box .fd-status-label,
+.fd-reject-reason-row label {
+  color: #979494;
+  font-size: 16px;   /* keep consistent with other labels */
+  margin-bottom: 4px;
+}
+
+/* when visible, use block layout */
+.fd-reject-reason-row.visible {
+  display: flex;
+  animation: fd-reveal 160ms ease-out;
+}
+
+/* small reveal animation */
+@keyframes fd-reveal {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Input styling (matches your design language) */
+.fd-reject-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 15px;
+  color: #979494;
+  box-sizing: border-box;
+  outline: none;
+  max-height: 40px;
+}
+
+/* placeholder color */
+.fd-reject-input::placeholder {
+  color: #A09999;
+}
+
+/* focus state 
+.fd-reject-input:focus {
+  border-color:#979494;
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.08);
+}*/
+
+/* small responsive tweak so the rejection input sits nicely inside content box */
+.fd-content-box .fd-reject-reason-row {
+  max-width: 720px;
+  width: 100%;
+}
+
+/* Optional: show a light error border (if you want to toggle manually in future) */
+.fd-reject-input.error {
+  border-color: #F45B69;
+  box-shadow: 0 0 0 4px rgba(244,91,105,0.06);
+}

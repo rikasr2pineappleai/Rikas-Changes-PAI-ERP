@@ -1,0 +1,51 @@
+/* dashboard styles placeholder */
+.page-container { 
+  padding: 16px; 
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Reduced spacing between sections */
+  width: 100%;
+  max-width: 100%; /* Allow full width on wider screens */
+  margin: 0; /* Ensure no centering that could cause misalignment */
+  box-sizing: border-box;
+  overflow: visible; /* Prevent internal scrolling */
+  height: auto; /* Allow flexible height */
+}
+
+.widgets-section {
+  width: 100%;
+  max-width: 100%; /* Allow full width on wider screens */
+  box-sizing: border-box;
+  overflow: visible; /* Prevent internal scrolling */
+  height: auto; /* Allow flexible height */
+}
+
+.overview-section {
+  width: 100%;
+  max-width: 100%; /* Allow full width on wider screens */
+  box-sizing: border-box;
+  overflow: visible; /* Prevent internal scrolling */
+  height: auto; /* Allow flexible height */
+}
+
+/* Responsive adjustments for larger screens */
+@media (min-width: 1401px) {
+  .page-container {
+    padding: 20px; /* Increase padding on larger screens */
+  }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 12px;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .widgets-section,
+  .overview-section {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}

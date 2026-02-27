@@ -1,0 +1,855 @@
+
+/* =============================
+   PAGE WRAPPER
+=============================*/
+.edit-wrapper {
+  padding: 20px;
+  background: #FFFFFF;
+  font-family: "Roboto", sans-serif;
+}
+
+
+/* =============================
+   HEADER BOX
+=============================*/
+.edit-header-box {
+  width: 100%;
+  max-width: 1384px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.edit-header-box h2 {
+  font-size: 24px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.back-btn img {
+  width: 32px;
+  height: 32px;
+}
+
+/* =============================
+   MAIN GRID
+=============================*/
+.edit-grid {
+  margin-top: 20px;
+  display: flex;
+  gap: 25px;
+}
+
+/* Left Column */
+.left-col {
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* =============================
+   PROFILE CARD
+=============================*/
+.profile-card {
+  position: relative;
+}
+
+.profile-img {
+  width: 250px;
+  height: 250px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.profile-edit-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+/* =============================
+   DOCUMENT CARD
+=============================*/
+.doc-card {
+  background: #fff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.doc-card h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.doc-field {
+  margin-bottom: 15px;
+}
+
+.doc-field.error .doc-input {
+  border: 1px solid #dadada;
+}
+
+.doc-field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.doc-input {
+  margin-top: 6px;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer; /* whole box clickable */
+}
+.doc-input .file-name {
+  color: #979494;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.doc-input .file-name.has-file {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+/* upload icon styling */
+.upload-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+
+.doc-input span {
+  color: #979494;
+}
+
+.doc-input img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain; /* keeps the icon clean */
+  cursor: pointer;
+}
+
+/* =============================
+   RIGHT PANEL
+=============================*/
+.right-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* =============================
+   INFO CARD (TOP)
+=============================*/
+.info-card {
+  background: #fff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.info-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.info-field {
+  border: 1px solid #347e45;
+  border-radius: 10px;
+  padding: 12px;
+  position: relative;
+  height: auto;
+  max-height: 100px;
+}
+
+.info-field.normal {
+  border-color: #dadada;
+}
+
+.info-field.error {
+  border-color: red;
+}
+
+.info-field.error label {
+  color: red;
+}
+
+.info-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #347e45;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.info-field input,
+.info-field select {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1e293b;
+  background: transparent;
+  height: 20px;
+  padding: 0;
+  margin: 0;
+}
+
+.info-field input::placeholder,
+.info-field select {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.info-field p {
+  margin-top: 5px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.info-field .icon {
+  width: 22px;
+  height: 22px;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.small-field .icon {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  pointer-events: none;
+}
+.custom-select {
+  position: relative;
+  width: 100%;
+  
+}
+
+/* Toggle button that looks like the field */
+.custom-select-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 44px;
+  padding: 10px 14px;
+  border: none;        /* removes black border */
+  outline: none;       /* removes focus outline */
+  box-shadow: none;    /* prevents focus shadow */
+  background: #fff;
+  cursor: pointer;
+}
+
+/* label inside the toggle */
+.custom-select-value {
+  font-size: 16px;
+  font-weight: 500;
+  color: #979494;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+}
+
+/* when a value exists */
+.custom-select-value.has-value {
+  color: #979494;
+  font-weight: 600;
+}
+
+/* icon on the right */
+.custom-select-icon {
+  width: 18px;
+  height: 18px;
+  margin-left: 12px;
+  transition: transform 180ms ease;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+/* rotate when open */
+.custom-select.open .custom-select-icon {
+  transform: rotate(180deg);
+}
+
+/* The big options panel (floating card) */
+.custom-select-menu {
+  position: absolute;
+  left: auto;
+  transform: translateX(-12px);
+  padding-right: 100px;
+  top: 60px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #DADADA;
+  min-width: 245px;
+  z-index: 1500;
+  padding: 8px 0;
+  max-height: 320px;
+  overflow: auto;
+  border-radius: 10px;
+ 
+}
+
+/* Option style */
+.custom-select-option {
+  padding: 22px 20px;             /* large vertical spacing like your screenshot */
+  font-size: 12px;
+  font-weight: 500;
+  color: #8f8f8f;
+  cursor: pointer;
+  display: block;
+  border-bottom: 1px solid transparent;
+}
+
+/* last item no border */
+.custom-select-option:last-child {
+  border-bottom: none;
+}
+
+/* hover/focus */
+.custom-select-option:hover,
+.custom-select-option:focus {
+  background: #fafafa;
+  color: #1e293b;
+  outline: none;
+}
+
+/* selected */
+.custom-select-option.selected {
+  color: #979494;
+  font-weight: 600;
+  background: #fff;
+}
+
+/* scrollbar styling (optional, subtle) */
+.custom-select-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Department-specific custom select menu (unique) */
+.custom-select-menu-department {
+  position: absolute;
+  left: auto;
+  transform: translateX(-12px);
+  padding-right: 100px;
+  top: 60px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #DADADA;
+  min-width: 245px;
+  z-index: 1500;
+  padding: 8px 0;
+  max-height: 320px;
+  overflow: auto;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(10,22,34,0.06);
+}
+
+/* Reuse option styles (if you already have .custom-select-option, this will inherit).
+   If not, add this small rule so options inside department menu look the same. */
+.custom-select-menu-department .custom-select-option {
+  padding: 22px 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8f8f8f;
+  cursor: pointer;
+  display: block;
+  border-bottom: 1px solid transparent;
+}
+
+/* Selected / hover states for department options */
+.custom-select-menu-department .custom-select-option:hover,
+.custom-select-menu-department .custom-select-option:focus {
+  background: #fafafa;
+  color: #1e293b;
+  outline: none;
+}
+
+.custom-select-menu-department .custom-select-option.selected {
+  color: #979494;
+  font-weight: 600;
+  background: #fff;
+}
+
+/* Disabled state for the toggle (visual hint) */
+.custom-select.disabled .custom-select-toggle {
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Role-specific custom select menu */
+.custom-select-menu-role {
+  position: absolute;
+  left: auto;
+  transform: translateX(-12px);
+  
+  top: 60px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #DADADA;
+  min-width: 319px !important;
+  z-index: 1500;
+  padding: 8px 0;
+  max-height: 320px;
+  overflow: auto;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(10,22,34,0.06);
+}
+
+/* Reuse option styles inside role menu */
+.custom-select-menu-role .custom-select-option {
+  padding: 22px 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8f8f8f;
+  cursor: pointer;
+  display: block;
+  border-bottom: 1px solid transparent;
+}
+.custom-select-menu-role .custom-select-option:hover,
+.custom-select-menu-role .custom-select-option:focus {
+  background: #fafafa;
+  color: #1e293b;
+  outline: none;
+}
+.custom-select-menu-role .custom-select-option.selected {
+  color: #979494;
+  font-weight: 600;
+  background: #fff;
+}
+
+/* Management-role specific custom select menu */
+.custom-select-menu-management-role {
+  position: absolute;
+  left: auto;
+  transform: translateX(-12px);
+  padding-right: 100px;
+  top: 60px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #DADADA;
+  min-width: 315px;
+  z-index: 1500;
+  padding: 8px 0;
+  max-height: 320px;
+  overflow: auto;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(10,22,34,0.06);
+}
+
+/* Reuse option styles inside management role menu */
+.custom-select-menu-management-role .custom-select-option {
+  padding: 22px 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8f8f8f;
+
+  cursor: pointer;
+  display: block;
+  border-bottom: 1px solid transparent;
+}
+.custom-select-menu-management-role .custom-select-option:hover,
+.custom-select-menu-management-role .custom-select-option:focus {
+  background: #fafafa;
+  color: #1e293b;
+  outline: none;
+}
+.custom-select-menu-management-role .custom-select-option.selected {
+  /*color: #979494;*/
+  font-weight: 600;
+  /*background: #fff;*/
+}
+
+/* Optional: a small width tweak for the toggle when used in smaller grid cells */
+.custom-select.role-select .custom-select-toggle,
+.custom-select.management-select .custom-select-toggle {
+  height: 44px;
+  padding: 10px 14px;
+}
+
+/* Gender-specific custom select menu (unique class) */
+.custom-select-menu-gender {
+  position: absolute;
+  left: auto;
+  transform: translateX(-12px);
+  padding-right: 100px;
+  top: 60px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #DADADA;
+  min-width: 245px;
+  z-index: 1500;
+  padding: 8px 0;
+  max-height: 320px;
+  overflow: auto;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(10,22,34,0.06);
+}
+
+/* Ensure options inside gender menu reuse your .custom-select-option styling */
+.custom-select-menu-gender .custom-select-option {
+  padding: 22px 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8f8f8f;
+  cursor: pointer;
+  display: block;
+  border-bottom: 1px solid transparent;
+}
+
+.custom-select-menu-gender .custom-select-option:hover,
+.custom-select-menu-gender .custom-select-option:focus {
+  background: #fafafa;
+  color: #1e293b;
+  outline: none;
+}
+
+.custom-select-menu-gender .custom-select-option.selected {
+  color: #979494;
+  font-weight: 600;
+  background: #fff;
+}
+
+
+
+
+/* =============================
+   STATUS FIELD
+=============================*/
+.status-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 319px;
+  height: 60px;
+ border: 1px solid #DADADA !important;
+ 
+  border-radius: 10px;
+  padding: 12px;
+  position: relative;
+}
+
+.status-field label {
+  width: 123px;
+  height: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  background:white;
+  color:  #1E293B;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.status-badge {
+  width: 134px;
+  height: 29px;
+  background: #FFFFFF;
+  border: 1px solid #DADADA;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5px;
+}
+
+.status-text {
+  flex: 1;
+  height: 18px;
+  background: white;
+  color: #979494;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-align: center;
+  margin-right: 5px;
+}
+
+.status-dropdown-icon {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  transition: transform 180ms ease;
+  transform-origin: center;
+}
+/* when the menu is open, rotate 180deg to point up */
+.status-dropdown-icon.open {
+  transform: rotate(180deg);
+}
+
+.status-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #dadada;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 150px;
+  margin-top: 5px;
+}
+
+.status-dropdown-option {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.status-dropdown-option:hover {
+  background-color: #f5f5f5;
+}
+
+.status-dropdown-option:last-child {
+  border-bottom: none;
+}
+
+/* =============================
+   BOTTOM SECTION (3 CARDS)
+=============================*/
+.bottom-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.small-card {
+  background: #fff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.small-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.small-field {
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.small-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #347e45;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.small-field input,
+.small-field select {
+  width: 100%;
+  border: 1px solid #dadada;
+  border-radius: 8px;
+  padding: 10px 36px 10px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  box-sizing: border-box;
+  appearance: none;
+  background-color: #fff;
+}
+
+.small-field input:focus,
+.small-field select:focus {
+  outline: none;
+  border-color: #347e45;
+  box-shadow: 0 0 0 2px rgba(52, 126, 69, 0.1);
+}
+
+.small-field p {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  padding: 10px 36px 10px 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid #dadada;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.view-btn {
+  margin-top: 12px;
+  border: 1px solid #347e45;
+  border-radius: 8px;
+  background: transparent;
+  color: #347e45;
+  padding: 10px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.view-btn:hover {
+  background: #347e45;
+  color: #fff;
+}
+
+/* =============================
+   FOOTER BUTTONS
+=============================*/
+.footer-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+.cancel-btn {
+  background: #fff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.save-btn {
+  background: #347e45;
+  border-radius: 10px;
+  color: #fff;
+  padding: 14px 24px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+/* ------------------------
+   Hide native (grey) date picker icon
+   only for the three date inputs used in Employee Information
+   (joined_date_input, end_date_input, dob_input)
+   ------------------------ */
+
+/* Target the date fields using the class we added */
+.date-input {
+  /* keep appearance as textfield so browser won't show its native button */
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+
+  /* leave room on the right so your green icon doesn't overlap the text */
+  padding-right: 42px;
+}
+
+/* WebKit (Chrome, Edge, Safari) - hide the native calendar icon */
+.date-input::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Additional WebKit controls (clear / spin) */
+.date-input::-webkit-inner-spin-button,
+.date-input::-webkit-clear-button {
+  display: none;
+}
+
+/* Firefox: make it look like a textfield (removes dropdown icon in some versions) */
+.date-input::-moz-focus-inner {
+  border: 0;
+}
+.date-input {
+  -moz-appearance: textfield;
+}
+
+/* Ensure the custom green icon is clickable and above native layers */
+.info-field .icon {
+  pointer-events: auto; /* allow clicks */
+  z-index: 2;
+}
+
+
+
+
+/* =============================
+   RESPONSIVE
+=============================*/
+@media (max-width: 1400px) {
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bottom-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .edit-grid {
+    flex-direction: column;
+  }
+
+  .left-col {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .bottom-info {
+    grid-template-columns: 1fr;
+  }
+}

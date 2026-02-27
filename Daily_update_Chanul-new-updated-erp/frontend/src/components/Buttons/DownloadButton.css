@@ -1,0 +1,28 @@
+.download-btn {
+ width: 160px;
+  height: 50px;
+  Top: 1300px;
+  left:968px;
+  border-radius: 10px;
+
+  background-color: #347e45;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 10px; /* space between buttons */
+}
+
+.download-btn:hover {
+  background-color: #2f6f3d;
+}
+
+.download-btn img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}

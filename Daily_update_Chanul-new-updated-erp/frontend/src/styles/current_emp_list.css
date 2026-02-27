@@ -1,0 +1,667 @@
+/* current_emp_list.css (updated: unique class names prefixed with cemp-) */
+
+.emppage-container .cemp-section {
+  background-color: #ffffff;
+  padding: 20px;
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+  /* Improve zoom responsiveness */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.emppage-container .cemp-header-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.emppage-container .cemp-title-section {
+  flex: 1;
+}
+
+.emppage-container .cemp-title-section h2 {
+  font-size: 24px;
+  margin: 0;
+  color: #333;
+}
+
+.emppage-container .cemp-title-section p {
+  font-size: 14px;
+  color: #666;
+  margin: 5px 0 0;
+}
+
+.emppage-container .cemp-controls {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* icons and search */
+.emppage-container .cemp-filter-icon {
+  width: 48px;
+  height: 48px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.emppage-container .cemp-search-bar {
+  position: relative;
+  height: 50px;
+  min-width: 150px;
+  width: 200px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.emppage-container .cemp-search-bar input {
+  height: 100%;
+  width: 100%;
+  padding: 0 15px 0 40px;
+  font-size: 16px;
+  border: 1px solid #979494;
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+
+.emppage-container .cemp-search-bar .cemp-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+}
+
+/* Table container */
+.emppage-container .cemp-table-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Table */
+.emppage-container .cemp-form-table {
+  width: 100%;
+  max-width: 100%;
+  background-color: #ffffff;
+  border-collapse: collapse;
+  table-layout: auto;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  /* Ensure proper scaling on zoom */
+  min-width: 600px;
+}
+
+/* header */
+.emppage-container .cemp-form-table thead {
+  background-color: #0b1739;
+  color: #ffffff;
+}
+
+.emppage-container .cemp-form-table th,
+.emppage-container .cemp-form-table td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.emppage-container .cemp-form-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.emppage-container .cemp-form-table th {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Management Role column - increased width and prevent text wrapping */
+.emppage-container .cemp-form-table th:nth-child(5),
+.emppage-container .cemp-form-table td:nth-child(5) {
+  min-width: 120px;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+/* HEADER ICON */
+.emppage-container .header-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.emppage-container .header-with-icon img {
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+}
+
+/* avatar + name layout */
+.emppage-container .cemp-name-cell,
+.emppage-container .cemp-manager-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.emppage-container .cemp-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  vertical-align: middle;
+  flex-shrink: 0;
+  object-fit: cover;
+  display: inline-block;
+}
+
+/* action buttons */
+.emppage-container .cemp-action-btn {
+  border: none;
+  background: transparent;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.emppage-container .cemp-action-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.emppage-container .cemp-action-btn img {
+  width: 25px;
+  height: 25px;
+}
+
+/* Ensure buttons are displayed horizontally in action cell */
+.emppage-container .cemp-form-table tbody td > .cemp-action-btn {
+  flex-shrink: 0;
+}
+
+.emppage-container .cemp-form-table tbody td > .cemp-action-btn:last-child {
+  margin-right: 0;
+}
+
+/* small text spans for better control */
+.emppage-container .cemp-name-text,
+.emppage-container .cemp-manager-text {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 14px;
+  color: #222;
+}
+
+/* Action cell container to align buttons horizontally */
+.emppage-container .cemp-form-table tbody td:nth-child(7) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+
+
+/* ----------------------------
+   Responsive: max-width 1440px
+   ---------------------------- */
+
+/* ----------------------------
+   Responsive: max-width 1024px
+   (CARD layout for tablet / narrow-desktop)
+   ---------------------------- */
+@media (max-width: 1024px) {
+  .emppage-container .cemp-section {
+    padding: 18px;
+    width: 100%;
+    max-width: 1100px;
+    box-sizing: border-box;
+  }
+
+  .emppage-container .cemp-filter-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .emppage-container .cemp-search-bar {
+    width: 280px;
+    height: 46px;
+  }
+
+  .emppage-container .cemp-search-bar input {
+    padding: 0 12px 0 38px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+
+  /* Make the table area act as a responsive card grid */
+  .emppage-container .cemp-form-table {
+    width: 100%;
+    height: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    box-sizing: border-box;
+    overflow: hidden;
+    min-width: unset;
+  }
+
+  /* hide the original table header (we will show labels per cell/card) */
+  .emppage-container .cemp-form-table thead {
+    display: none;
+  }
+
+  /* Use a responsive grid to layout cards (1 or 2 columns depending on space) */
+  .emppage-container .cemp-form-table tbody {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /* each row becomes a card */
+  .emppage-container .cemp-form-table tbody tr {
+    display: block;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 14px;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  /* last row should not have border */
+  .emppage-container .cemp-form-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  /* cells inside the card: label (left) | value (right) */
+  .emppage-container .cemp-form-table td {
+    display: flex;
+    /*justify-content: space-between;*/
+    align-items: center;
+    padding: 8px 6px;
+    border: none;
+    white-space: normal;
+    gap: 8px;
+    box-sizing: border-box;
+    font-size: 15px;
+  }
+
+  /* small label on the left (acts like the table head) */
+  .emppage-container .cemp-form-table td::before {
+    content: "";
+    display: inline-block;
+    font-weight: 600;
+    margin-right: 8px;
+    color: #374151;
+    min-width: 140px; /* reserve space for the label column */
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+
+  /* Map each column to a label using nth-child (matches table column order) */
+  .emppage-container .cemp-form-table tbody tr td:nth-child(1)::before { content: "Emp ID:"; }
+  .emppage-container .cemp-form-table tbody tr td:nth-child(2)::before { content: "Employee Name:"; }
+  .emppage-container .cemp-form-table tbody tr td:nth-child(3)::before { content: "Designation:"; }
+  .emppage-container .cemp-form-table tbody tr td:nth-child(4)::before { content: "Role:"; }
+  .emppage-container .cemp-form-table tbody tr td:nth-child(5)::before { content: "Management Role:"; }
+  .emppage-container .cemp-form-table tbody tr td:nth-child(6)::before { content: "Reporting Manager:"; }
+  .emppage-container .cemp-form-table tbody tr td:nth-child(7)::before { content: "Action:"; }
+
+  /* value area (right side) should wrap when needed */
+  .emppage-container .cemp-form-table tbody tr td > * {
+    margin-left: 6px;
+    text-align: left;
+    max-width: calc(100% - 160px);
+    overflow-wrap: anywhere;
+  }
+
+  /* keep name/manager cells nicely aligned with avatar */
+  .emppage-container .cemp-form-table tbody tr td .cemp-name-cell,
+  .emppage-container .cemp-form-table tbody tr td .cemp-manager-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
+  }
+
+  .emppage-container .cemp-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* action buttons placed horizontally and compact */
+  .emppage-container .cemp-form-table tbody tr td .action-group,
+  .emppage-container .cemp-form-table tbody tr td .cemp-action-btn + .cemp-action-btn {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .emppage-container .cemp-action-btn {
+    margin: 0;
+    padding: 6px;
+    background: transparent;
+  }
+
+  .emppage-container .cemp-action-btn img {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* hover / focus state for each card */
+  .emppage-container .cemp-form-table tbody tr:focus-within,
+  .emppage-container .cemp-form-table tbody tr:hover {
+    background-color: #f9fafb;
+  }
+
+  /* text sizing and spacing adjustments for this breakpoint */
+  .emppage-container .cemp-name-text,
+  .emppage-container .cemp-manager-text {
+    font-size: 14px;
+  }
+
+  .emppage-container .cemp-form-table td {
+    font-size: 14px;
+    padding: 6px 8px;
+  }
+}
+
+/* ----------------------------
+   Responsive: max-width 480px
+   (mobile optimizations: TABLE -> CARDS)
+   ---------------------------- */
+@media (max-width: 480px) {
+  .emppage-container .cemp-section {
+    padding: 12px;
+  }
+
+  .emppage-container .cemp-header-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .emppage-container .cemp-title-section h2 {
+    font-size: 18px;
+  }
+
+  .emppage-container .cemp-title-section p {
+    font-size: 13px;
+  }
+  
+
+  .emppage-container .cemp-controls {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .emppage-container .cemp-filter-icon {
+    width: 34px;
+    height: 34px;
+    margin-right: 6px;
+  }
+
+  .emppage-container .cemp-search-bar {
+    width: 200px;
+    height: 44px;
+    order: 2;
+  }
+
+  .emppage-container .cemp-search-bar input {
+    padding: 0 12px 0 36px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .emppage-container .cemp-search-bar .cemp-search-icon {
+    left: 8px;
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ---------------------------
+     Convert table rows into cards
+     left: small label (table head)
+     right: corresponding value
+     --------------------------- */
+
+  /* make the table scrollable but visually card-like */
+  .emppage-container .cemp-form-table {
+    width: 100%;
+    min-width: unset;
+    height: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  /* hide the original table header (we will show labels per cell) */
+  .emppage-container .cemp-form-table thead {
+    display: none;
+  }
+
+  /* ensure tbody and trs behave as blocks (cards) */
+  .emppage-container .cemp-form-table tbody {
+    display: block;
+  }
+
+  .emppage-container .cemp-form-table tbody tr {
+    display: block;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  /* last row should not have border */
+  .emppage-container .cemp-form-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  /* each cell becomes a single row inside card: label (left) | value (right) */
+  .emppage-container .cemp-form-table td {
+    display: flex;
+    /*justify-content: space-between;*/
+    align-items: center;
+    padding: 6px 8px;
+    border: none;
+    white-space: normal; /* allow wrapping of long values */
+    gap: 6px; /* very small gap between label and value */
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+
+  /* small label on the left (acts like the table head) */
+  .emppage-container .cemp-form-table td::before {
+    /* default fallback label if not matched below */
+    content: "";
+    display: inline-block;
+    min-width: 1px;
+  }
+
+  /* Map each column to a label using nth-child (matches table column order) */
+  /* 1 -> Emp ID */
+  .emppage-container .cemp-form-table tbody tr td:nth-child(1)::before {
+    content: "Emp ID:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 2 -> Employee Name */
+  .emppage-container .cemp-form-table tbody tr td:nth-child(2)::before {
+    content: "Employee Name:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 3 -> Designation */
+  .emppage-container .cemp-form-table tbody tr td:nth-child(3)::before {
+    content: "Designation:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 4 -> Role */
+  .emppage-container .cemp-form-table tbody tr td:nth-child(4)::before {
+    content: "Role:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 5 -> Management Role */
+  .emppage-container .cemp-form-table tbody tr td:nth-child(5)::before {
+    content: "Management Role:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 6 -> Reporting Manager */
+  .emppage-container .cemp-form-table tbody tr td:nth-child(6)::before {
+    content: "Reporting Manager:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* 7 -> Action */
+  .emppage-container .cemp-form-table tbody tr td:nth-child(7)::before {
+    content: "Action:";
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* reduce space between label and value — label stays compact */
+  .emppage-container .cemp-form-table tbody tr td::before {
+    font-size: 13px;
+    color: #374151;
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  /* value area (right side) should be allowed to wrap and align right */
+  .emppage-container .cemp-form-table tbody tr td > * {
+    margin-left: 6px;
+    text-align: left;
+    max-width: 72%;
+    overflow-wrap: anywhere;
+  }
+
+  /* style for name cell where avatar may exist: keep avatar left of name */
+  .emppage-container .cemp-form-table tbody tr td .cemp-name-cell,
+  .emppage-container .cemp-form-table tbody tr td .cemp-manager-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start; /* avatar left, text right */
+    min-height: 32px; /* Ensure consistent height for proper vertical alignment */
+  }
+
+  .emppage-container .cemp-avatar {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* action buttons placed horizontally, tightly spaced */
+  .emppage-container .cemp-form-table tbody tr td .action-group {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .emppage-container .cemp-action-btn {
+    margin: 0;
+    padding: 6px;
+    background: transparent;
+  }
+
+  .emppage-container .cemp-action-btn img {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* ensure last card row has no extra bottom border or spacing issues */
+  .emppage-container .cemp-form-table tbody tr:last-child {
+    margin-bottom: 6px;
+  }
+
+  /* accessibility / focus states */
+  .emppage-container .cemp-form-table tbody tr:focus-within,
+  .emppage-container .cemp-form-table tbody tr:hover {
+    background-color: #f9fafb;
+  }
+
+  /* keep fonts compact on mobile */
+  .emppage-container .cemp-name-text,
+  .emppage-container .cemp-manager-text {
+    font-size: 13px;
+  }
+
+  /* keep consistent small paddings */
+  .emppage-container .cemp-form-table td img {
+    vertical-align: middle;
+  }
+}
+
+/* Additional responsive improvements for zoom levels */
+@media screen and (-webkit-min-device-pixel-ratio: 1.25),
+       screen and (min-resolution: 120dpi) {
+  .emppage-container .cemp-form-table th,
+  .emppage-container .cemp-form-table td {
+    padding: 12px;
+  }
+  
+  .emppage-container .cemp-avatar {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 1.5),
+       screen and (min-resolution: 144dpi) {
+  .emppage-container .cemp-form-table th,
+  .emppage-container .cemp-form-table td {
+    padding: 10px;
+  }
+  
+  .emppage-container .cemp-avatar {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 2),
+       screen and (min-resolution: 192dpi) {
+  .emppage-container .cemp-form-table th,
+  .emppage-container .cemp-form-table td {
+    padding: 8px;
+  }
+  
+  .emppage-container .cemp-avatar {
+    width: 20px;
+    height: 20px;
+  }
+}

@@ -1,0 +1,112 @@
+/* ActionButton.css
+   Drop this next to ActionButton.js
+   Uses Roboto font from Google Fonts. If you already load Roboto elsewhere, you can remove the @import.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.Action_btn {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;                     /* space between icon and text */
+  padding: 8px 32px;            /* vertical / horizontal padding */
+  border: none;
+  cursor: pointer;
+  user-select: none;
+
+  /* Size & shape */
+  max-width: 200px;              /* you can change to fit your layout */
+  max-height: 50px;                  /* height determined by padding & content */
+  border-radius: 13px;           /* pill shape like the image */
+
+  /* Colors */
+  background: #2F7A44;           /* main green from the image (adjust if needed) */
+  color: #ffffff;                /* label color */
+
+  /* Typography (matches your Roboto / 400) */
+  font-family: 'Roboto', Arial, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 18px;               /* visually matches the attached image — adjust to taste */
+  line-height: 1;                /* 100% line height as requested */
+  letter-spacing: 0;
+  text-align: left;
+
+  /* Visual polish */
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  box-shadow: none;
+}
+
+/* Put the image (plus icon) visually to the left regardless of DOM order */
+.Action_btn .plus-icon {
+  order: -1;                     /* ensure the icon sits left of the text */
+  width: 20px;
+  height: 20px;
+  padding: 8px;                  /* white circle padding around the plus graphic */
+  box-sizing: content-box;
+  border-radius: 50%;
+  background: transparent;          /* white circular background */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;           /* ensure the source image scales nicely */
+  padding-right: 0px;
+  margin-left: 0%;                     /* spacing handled by gap on parent */
+  flex-shrink: 0;                /* don't allow the icon to shrink */
+  /* If your icon PNG already contains the white circle, reduce padding or remove background */
+}
+
+/* Text label */
+.Action_btn .action-btn-text {
+  color: #ffffff;
+  font-size: 16px;               /* same as parent for consistency */
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;           /* avoid wrapping the label */
+}
+
+/* If you pass children (e.g. extra icon nodes) they will appear after the label.
+   Keep them from shifting layout on small screens. */
+.Action_btn > :not(.plus-icon) {
+  /* default order stays 0 so plus-icon (-1) is leftmost */
+  order: 0;
+}
+
+/* Hover / active / focus states */
+.Action_btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.Action_btn:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+
+.Action_btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(47, 122, 68, 0.18); /* subtle focus ring */
+}
+
+/* Small screens: scale down text & padding */
+@media (max-width: 480px) {
+  .Action_btn {
+    width: 100%;
+    padding: 12px 20px;
+    gap: 12px;
+    max-width: 140px;
+  }
+  .Action_btn .plus-icon {
+    width: 100%;
+    max-width: 20px;
+    height: 20px;
+    padding: 0px;
+    
+  }
+  .Action_btn .action-btn-text {
+    font-size: 12px;
+    padding-right: 10px;
+  }
+}
+

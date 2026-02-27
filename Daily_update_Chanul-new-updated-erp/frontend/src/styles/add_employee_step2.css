@@ -1,0 +1,361 @@
+/* ==========================================================
+   ADD EMPLOYEE - STEP 2 PAGE (Educational & Professional Info)
+   ========================================================== */
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+
+.employee-step2-page {
+  background: #ffffff;
+  font-family: "Roboto", sans-serif;
+  color: #1e293b;
+  padding: 20px 40px;
+  margin-left: 0px;
+  transition: all 0.3s ease;
+}
+
+.employee-header {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  height: 80px;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.header-left h2 {
+  font-size: 24px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.back-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+/* Pagination (Step Indicator - Figma Specification) */
+.pagination {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 21px;
+  border: 2px solid #979494;
+  background: #DADADA;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 18px;
+  text-align: center;
+  color: #1e293b;
+  box-sizing: border-box;
+  z-index: 2;
+  position: relative;
+  transition: all 0.3s ease;
+  animation: circlePop 0.3s ease;
+}
+
+.circle.active {
+  border: 2px solid #347E45;
+  background: #347E45;
+  color: #FFFFFF;
+  transform: scale(1.1);
+}
+
+.circle.done {
+  border: 2px solid #347E45;
+  background: #347E45;
+  color: #FFFFFF;
+}
+
+.line {
+  width: 117px;
+  height: 5px;
+  background: #DADADA;
+  z-index: 1;
+  margin: 0 -15px;
+  transition: all 0.3s ease;
+}
+
+.line.active {
+  background: #347E45;
+  animation: lineFill 0.3s ease;
+}
+
+/* Info Boxes */
+.info-box {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  margin-top: 24px;
+  padding: 24px;
+}
+
+.info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-header h3 {
+  font-size: 22px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.add-btn {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  gap: 10px;
+  width: 50px;
+  height: 50px;
+  background: #347E45;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.plus-icon {
+  width: 19px;
+  height: 38px;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 38px;
+  color: #FFFFFF;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+/* Divider line */
+hr {
+  border: 1px solid #dadada;
+  margin: 16px 0;
+}
+
+/* Form grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  font-weight: 500;
+  font-size: 16px;
+  color: #1e293b;
+}
+
+input,
+select {
+  height: 48px;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-size: 16px;
+  color: #1e293b;
+  background: #ffffff;
+  appearance: none; /* Remove default browser styles */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+}
+
+input::placeholder,
+select {
+  color: #979494;
+}
+
+.input-icon {
+  position: relative;
+  height: 48px;
+  box-sizing: border-box;
+}
+
+.dropdown-icon {
+  position: absolute;
+  right: 16px;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Buttons */
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.cancel-btn,
+.create-btn {
+  width: 160px;
+  height: 50px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  color: #1e293b;
+}
+
+.cancel-btn:hover {
+  background: #f3f4f6;
+}
+
+.create-btn {
+  background: #347e45;
+  color: #ffffff;
+  border: none;
+}
+
+.create-btn:hover {
+  background: #2b6538;
+}
+
+/* ==========================================================
+   RESPONSIVE DESIGN
+   ========================================================== */
+
+/* Tablet View */
+@media (max-width: 1024px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pagination .line {
+    width: 80px;
+    margin: 0 -10px;
+  }
+}
+
+/* Animation keyframes */
+@keyframes circlePop {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes lineFill {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 117px;
+  }
+}
+
+/* Mobile View */
+@media (max-width: 768px) {
+  .employee-step2-page {
+    margin-left: 0;
+    padding: 16px;
+  }
+
+  .employee-header {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    gap: 10px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .button-row {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .create-btn {
+    width: 100%;
+  }
+
+  .add-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    position: absolute;
+    right: 24px;
+    top: 24px;
+  }
+
+  .plus-icon {
+    width: 14px;
+    height: 28px;
+    font-size: 28px;
+    line-height: 28px;
+  }
+
+  .input-icon {
+    height: 48px;
+    box-sizing: border-box;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .header-left h2 {
+    font-size: 20px;
+  }
+
+  .info-header h3 {
+    font-size: 20px;
+  }
+
+  input,
+  select {
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+}

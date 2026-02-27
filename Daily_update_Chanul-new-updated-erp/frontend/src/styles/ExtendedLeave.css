@@ -1,0 +1,413 @@
+/* ExtendedLeave.css
+   All original E- classes preserved; new lp- classes added for the improved date UI.
+*/
+/* Overlay and popup container */
+.Epopup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 22, 34, 0.06);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 36px;
+  z-index: 9999;
+  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+}
+.Epopup {
+  width: 800px;
+  height: 696px;
+  max-width: calc(100% - 48px);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 36px 56px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(8, 30, 40, 0.08);
+  color: #12202b;
+}
+/* Close button - uses provided styles */
+.Eclose-btn {
+  position: absolute;
+  right: 20px;
+  top: 36px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.Eclose-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f0f0; /* grey circle */
+  box-shadow: none;
+}
+.Eclose-circle img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  display: block;
+}
+/* Title */
+.Etitle {
+  margin: 0 0 24px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #12202b;
+}
+/* Form layout */
+.Eform {
+  padding-top: 33px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+/* Labels + inputs */
+.Elabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 18px;
+  color: #20323a;
+  font-weight: 600;
+}
+/* General input look */
+.Eselect, .Eupload {
+  position: relative;
+  width: 700px;
+  background: #fff;
+  border: 1px solid #e6e8ea;
+  border-radius: 12px;
+  padding: 12px 16px;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+/* Category fake input */
+.Eselect-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  color: #7d8a95;
+  background: transparent;
+  cursor: default;
+}
+/* select icon on right */
+.Eselect-icon-wrapper {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.Eselect-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  display: block;
+}
+/* Grid for start/end dates */
+.Egrid-two {
+  min-width: 400px;;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 100px;
+  align-items: start;
+ 
+}
+
+/* ---- Date & input fixes (paste into ExtendedLeave.css) ---- */
+
+/* Make general form fields responsive (use width:100% with max-width) */
+.Eselect,
+.Eupload,
+.Etextarea {
+  width: 100%;
+  max-width: 700px; /* keep the desktop max, but allow shrink */
+  box-sizing: border-box;
+}
+
+/* Fix grid spacing between start/end columns */
+.Egrid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;      /* reduced from 100px to match screenshot */
+  align-items: start;
+  min-width: 0;   /* allow columns to shrink nicely */
+}
+
+/* Ensure both naming variants are supported (JSX uses EEinput / Edate) */
+.EEinput,
+.EEinput.Edate,
+.E-input,
+.E-input.E-date {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e6e8ea;    /* subtle light border */
+  border-radius: 12px;
+  padding: 12px 16px;
+  background: #ffffff;          /* white background like screenshot */
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+/* Date variant: keep extra right padding for calendar icon */
+.EEinput.Edate,
+.E-input.E-date {
+  padding-right: 56px; /* space for the calendar circle */
+}
+
+/* Visible text input normalization (cover both naming schemes) */
+.EEinput input[type="text"],
+.E-input input[type="text"],
+.EEinput input[readonly],
+.E-input input[readonly] {
+  border: 0;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+  background: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  color: #334955;
+}
+
+/* Calendar icon circle (green) — keeps current look */
+.E-date-icon-wrapper {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8fbef;   /* light green circle */
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Icon sizing */
+.E-date-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Keep native date input visually hidden but usable */
+.E-hidden-date {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  background: transparent !important;
+}
+
+/* Error helper spacing: add top margin so it isn't glued to input */
+.E-error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 8px;    /* <--- increased spacing */
+  margin-left: 2px;   /* tiny left offset to match input padding */
+}
+.Etextarea + .E-error {
+  margin-top: 0px;   /* same vertical spacing as date error */
+  margin-left: 2px;  /* same left offset as date error */
+}
+
+/* Reason textarea responsive/clean */
+.Etextarea {
+  max-width: 700px;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #e6e8ea;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #334955;
+  resize: vertical;
+  background: #fff;
+  box-sizing: border-box;
+  max-height: 50px;
+}
+.Etextarea:focus,
+.Etextarea:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border-color: #e6e6e6; /* keep same border color so it doesn't jump */
+}
+
+/* Upload field (fake input) responsiveness 
+.Eupload {
+  width: 100%;
+  max-width: 700px;
+  padding-right: 48px;
+  cursor: pointer;
+  user-select: none;
+}*/
+
+.E-label {
+  display: block;
+  font-size: 20px;
+  color: #1E293B;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+/* shared input wrapper styles */
+
+/* Upload row label + pill */
+.Eupload-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.Einfo-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 0.9;
+  margin-bottom: 0.5%;
+}
+.Epill {
+   margin-bottom: 0.5%;
+  position: relative;              /* ✅ required for absolute ::before */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f2f2f3;             /* same as your pill */
+  color: #7a7a7a;
+  font-size: 13px;
+  padding: 6px 12px;               /* slightly wider so text doesn't butt into the tail */
+  border-radius: 999px;
+  z-index: 2;                      /* keep pill above the tail if you use negative z on ::before */
+}
+
+/* left-pointing triangular tail */
+.Epill::before {
+  content: "";
+  position: absolute;
+  left: -5px;                      /* how far the tail sticks out */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #f2f2f3; /* match the pill background exactly */
+  z-index: 1;
+}
+
+/* Upload field (fake input) */
+.Eupload {
+  padding-right: 48px;
+  cursor: pointer;
+  user-select: none;
+}
+.Eupload-fake {
+  width: 100%;
+  display: inline-block;
+  font-size: 14px;
+  color: #7d8a95;
+  line-height: 20px;
+}
+/* upload icon on the right */
+.Eupload-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  
+}
+/* Submit button wrapper */
+.Esubmit-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+/* Reason textarea invalid style */
+.Etextarea[aria-invalid="true"] {
+  
+  max-height: 50px;
+}
+@media (max-width: 1024px) {
+  .Epopup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 22, 34, 0.06);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 50px;
+  z-index: 9999;
+  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+}
+.Epopup {
+  width: 700px;
+  height: 580px;
+  max-width: calc(100% - 48px);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 36px 56px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(8, 30, 40, 0.08);
+  color: #12202b;
+}
+.Eselect-input {
+  border: none;
+  outline: none;
+  max-width: 400px;
+  font-size: 14px;
+  color: #7d8a95;
+  background: transparent;
+  cursor: default;
+}
+.Eform {
+  padding-top: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+/* Labels + inputs */
+.Elabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #20323a;
+  font-weight: 600;
+}
+.EEinput,
+.EEinput.Edate,
+.E-input,
+.E-input.E-date {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e6e8ea;    /* subtle light border */
+  border-radius: 12px;
+  padding: 12px 16px;
+  background: #ffffff;          /* white background like screenshot */
+  max-height: 34px;
+  box-sizing: border-box;
+}
+}

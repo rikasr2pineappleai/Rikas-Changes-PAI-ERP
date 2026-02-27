@@ -1,0 +1,682 @@
+/* -----------------------------------
+   Leave Management - full stylesheet
+   Responsive cards at <= 1024px
+   ----------------------------------- */
+
+
+.leave-wrapper {
+  padding: 20px 32px;
+  font-family: "Source Sans Pro", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #ffffff;
+  box-sizing: border-box;
+  min-height: calc(100vh - 40px);
+}
+
+/* PERIOD TOGGLE */
+.leave-wrapper .leave-period-toggle {
+  display: flex;
+  gap: 12px;
+}
+
+.leave-wrapper .period-btn {
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background-color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 24px;
+  cursor: pointer;
+}
+
+.leave-wrapper .period-btn.active {
+  background-color: #111827;
+  color: #ffffff;
+}
+
+/* LEAVE SUMMARY CARDS */
+.leave-wrapper .leave-summary-cards {
+  display: flex;
+  gap: 20px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.leave-wrapper .summary-card {
+  flex: 1;
+  min-width: 220px;
+  height: 113px;
+  background: #FFFFFF;
+  border: 1px solid #DADADA;
+  border-radius: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.leave-wrapper .summary-count {
+  font-family: 'Roboto', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 36px;
+  line-height: 42px;
+  color: #1E293B;
+  margin-right: 40px;
+  flex-shrink: 0;
+}
+
+.leave-wrapper .summary-label {
+  font-family: 'Roboto', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 23px;
+  color: #1E293B;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  flex-grow: 1;
+  margin-top: 5px;
+}
+
+/* HEADER */
+.leave-wrapper .leave-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leave-wrapper .leave-header h3 {
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 28px;
+  color: #1E293B;
+  margin: 0;
+}
+
+.leave-wrapper .leave-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* FILTER */
+.leave-wrapper .main-filter-btn {
+  background: #03962b;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* SEARCH */
+.leave-wrapper .search-box {
+  position: relative;
+}
+
+/* OUTER CONTAINER FOR LEAVE REQUESTS */
+.leave-requests-container {
+  background: #FFFFFF;
+  border: 1px solid #DADADA;
+  border-radius: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-top: 20px;
+}
+
+/* DIVIDER LINE UNDER HEADER */
+.leave-requests-divider {
+  height: 1px;
+  background-color: #DADADA;
+  margin: 15px -20px;
+  width: calc(100% + 40px);
+  box-sizing: border-box;
+}
+
+.leave-wrapper .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+}
+
+.leave-wrapper .search-box input {
+  padding: 8px 12px 8px 34px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
+
+/* DESKTOP TABLE */
+.leave-wrapper .leave-table {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.leave-wrapper .leave-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leave-wrapper .leave-table th {
+  background: #0b1739;
+  color: #ffffff;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.leave-wrapper .leave-table td {
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #1f2933;
+}
+
+/* HEADER ICON */
+.leave-wrapper .header-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.leave-wrapper .header-with-icon img {
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+}
+
+/* STATUS (desktop & general) */
+.leave-wrapper .status-tag {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.leave-wrapper .status-tag.approved { background: #dcfce7; color: #15803d; }
+.leave-wrapper .status-tag.pending  { background: #fef9c3; color: #a16207; }
+.leave-wrapper .status-tag.rejected { background: #fee2e2; color: #b91c1c; }
+
+/* ACTION BUTTONS CONTAINER */
+.leave-wrapper .action-buttons-container {
+  display: flex;
+  gap: 8px;
+  position: relative;
+  width: 80px;
+}
+
+/* ACTION – SMALLER BUTTON */
+.leave-wrapper .action-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+/* Edit button styling */
+.leave-wrapper .action-btn.edit-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.leave-wrapper .action-btn img {
+  width: 25px;
+  height: 25px;
+}
+
+/* Card action buttons container */
+.leave-wrapper .card-action-buttons {
+  display: flex;
+  gap: 8px;
+  position: relative;
+  width: 80px;
+}
+
+.leave-wrapper .card-action-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+/* Card edit button styling */
+.leave-wrapper .card-action-btn.edit-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.leave-wrapper .card-action-btn img {
+  width: 26px;
+  height: 26px;
+}
+
+/* MOBILE CARDS (hidden by default) */
+.leave-wrapper .leave-cards {
+  display: none;
+}
+
+/* FILTER DROPDOWN POSITIONING */
+.leave-wrapper .filter-wrapper {
+  position: relative;
+}
+
+.leave-wrapper .filter-dropdown {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  z-index: 1000;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.leave-wrapper .blurred {
+  filter: blur(5px);          /* your requested blur level */
+  pointer-events: none;       /* make background non-interactive while modal is open */
+  user-select: none;
+  transition: filter 0.16s ease;
+}
+
+/* --- Viewport backdrop (darkening + slight extra blur) --- */
+.leave-wrapper .lmodal-backdrop {
+  position: fixed;
+  inset: 0;                   /* top:0;right:0;bottom:0;left:0; */
+  z-index: 9998;
+  backdrop-filter: blur(2px);
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.leave-wrapper .lmodal-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* --- Modal container (the actual popup should be placed inside this) --- */
+.leave-wrapper .lmodal {
+  position: fixed;
+ 
+  z-index: 10000;             /* above the backdrop and blurred content */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 920px;           /* adjust as needed */
+  padding: 24px;
+  box-sizing: border-box;
+  outline: none;              /* for focus styles, manage accessibility separately */
+}
+
+.leave-wrapper .pagination-container {
+  display: flex;
+  justify-content: flex-end;   
+  padding: 12px 6px 0 6px;
+  box-sizing: border-box;
+  gap: 12px;
+  
+}
+
+.leave-wrapper .pagination-container--mobile {
+  display: none; 
+}
+
+.leave-wrapper .leave-table-container {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+/* Pagination wrapper positioned bottom-right under the table */
+
+
+
+/* ============================================
+   <= 1024px : table -> card layout
+   LEFT: headings (Employee Name, Type, Reason, From, To, Status)
+   RIGHT: data values, including status badge aligned with other values
+   ============================================ */
+@media (max-width: 1024px) {
+
+  .leave-wrapper{
+    padding-bottom: 750px;
+  }
+  /* Hide desktop table */
+  .leave-wrapper .leave-table {
+    display: none;
+  }
+
+  /* Show cards list */
+  .leave-wrapper .leave-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 1024px;   /* fixed container width as requested */
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+
+  /*
+    CSS variables to keep alignment consistent.
+    - --label-width: width of the left heading column
+    - --card-padding: padding of the card
+    - --col-gap: gap between columns
+  */
+  .leave-wrapper .leave-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    --label-width: 200px;
+    --card-padding: 16px;
+    --col-gap: 20px;
+
+    padding: var(--card-padding);
+    display: grid;
+    grid-template-columns: var(--label-width) 1fr;  /* heading column + data column */
+    column-gap: var(--col-gap);
+    align-items: start;
+    box-sizing: border-box;
+    background: #ffffff;
+    position: relative;
+  }
+
+  /* Top row = Employee Name. Keep special layout to include action button */
+  .leave-wrapper .card-top {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: var(--label-width) 1fr auto;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .leave-wrapper .card-top::before {
+    content: "Employee Name";
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+  }
+
+  .leave-wrapper .card-top h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0b1739;
+  }
+
+  .leave-wrapper .card-top .card-action-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Card top edit button styling */
+  .leave-wrapper .card-top .card-action-btn.edit-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .leave-wrapper .card-top .card-action-btn img {
+    width: 26px;
+    height: 26px;
+  }
+
+  /* Regular rows (Type, Reason, From, To)
+     Keep existing markup: <div class="card-row"><span>Label</span><p>Value</p></div> */
+  .leave-wrapper .card-row {
+    display: contents;  /* children participate in outer grid */
+  }
+
+  .leave-wrapper .card-row span {
+    grid-column: 1 / 2;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+    align-self: center;
+    padding: 6px 0;
+  }
+
+  .leave-wrapper .card-row p {
+    grid-column: 2 / -1;
+    margin: 0;
+    font-size: 14px;
+    color: #1f2933;
+    padding: 6px 0;
+    align-self: center;
+    justify-self: start; /* ensure left alignment of right-column values */
+  }
+
+  /* Status badge styles */
+.leave-wrapper .status-badge {
+  padding: 6px 20px;
+  text-align: center;
+  width: 70px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.leave-wrapper .status-badge.approved { background: #dcfce7; color: #15803d; font-size: 12px; }
+.leave-wrapper .status-badge.pending  { background: #fef9c3; color: #a16207; font-size: 12px; }
+.leave-wrapper .status-badge.rejected { background: #fee2e2; color: #b91c1c; font-size: 12px;}
+
+  /*
+    STATUS alignment (improved):
+    - Render the status row as a grid with the same two columns as the card.
+    - ::before renders the "Status" heading (left).
+    - ::after renders the badge and is placed into the right column.
+    - Both are regular grid items and use align-items:center so vertical alignment matches other rows.
+  */
+  .leave-wrapper .card-status {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: var(--label-width) 1fr;
+    align-items: center;      /* vertical center to match other rows */
+    margin-top: 8px;
+    box-sizing: border-box;
+    /* hide native text node visually so only ::after badge shows;
+       screen readers may still read it — if needed we can change markup later. */
+    color: transparent;
+    font-weight: 600;
+    font-size: 14px;
+    min-height: 1em; /* preserve vertical spacing */
+  }
+
+  /* Left label "Status" */
+  .leave-wrapper .card-status::before {
+    content: "Status";
+    grid-column: 1 / 2;
+    color: #374151;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 6px 0;
+    align-self: center;
+  }
+
+  /* Right badge placed inside the right column and left-aligned */
+  .leave-wrapper .card-status::after {
+    content: var(--status-text, "");
+    grid-column: 2 / 2;
+    padding-left: 0px;
+    justify-self: start;         /* left aligned in the value column */
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    box-sizing: border-box;
+    /*white-space: nowrap;
+    align-self: center;*/
+    margin: 0;                   /* remove any accidental margin */
+  }
+
+  /* status text variables & badge colors */
+  .leave-wrapper .card-status.approved { --status-text: "Approved"; }
+  .leave-wrapper .card-status.pending  { --status-text: "Pending"; }
+  .leave-wrapper .card-status.rejected { --status-text: "Rejected"; }
+
+  .leave-wrapper .card-status.approved::after { background: #dcfce7; color: #15803d; }
+  .leave-wrapper .card-status.pending::after  { background: #fef9c3; color: #a16207; }
+  .leave-wrapper .card-status.rejected::after { background: #fee2e2; color: #b91c1c; }
+
+  .leave-wrapper .leave-table-container > .pagination-container {
+    display: none;
+  }
+
+  /* show the mobile pagination (which is hidden by default) */
+  .leave-wrapper .pagination-container.pagination-container--mobile {
+    display: flex;
+    justify-content: center;   /* or flex-end if you want right-aligned */
+    gap: 12px;
+    padding: 12px 6px 20px 6px;
+    box-sizing: border-box;
+  }
+}
+
+
+/* ============================================
+   Extra small screens tweaks (<= 420px)
+   adjust CSS variables for smaller label width / padding
+   ============================================ */
+@media (max-width: 480px) {
+  .leave-wrapper .leave-card {
+    --label-width: 140px;
+    --card-padding: 12px;
+    --col-gap: 12px;
+    grid-template-columns: var(--label-width) 1fr;
+    padding: var(--card-padding);
+    column-gap: var(--col-gap);
+  }
+
+  .leave-wrapper .card-top::before,
+  .leave-wrapper .card-row span {
+    font-size: 13px;
+  }
+
+  .leave-wrapper .card-top h4 {
+    font-size: 15px;
+  }
+
+  .leave-wrapper .card-status {
+    font-size: 13px;
+  }
+
+  .leave-wrapper .card-status::before {
+    font-size: 13px;
+    padding: 4px 0;
+  }
+
+  .leave-wrapper .card-status::after {
+    font-size: 13px;
+    padding: 5px 8px;
+    justify-self: start;
+  }
+  
+  .leave-wrapper .leave-header {
+  display: flex;
+  /*justify-content: space-between;*/
+  align-items: left;
+}
+
+.leave-wrapper .leave-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  padding-right: 0px;
+  padding-left: 0px;
+  padding-top: 20px;
+}
+
+.leave-wrapper .leave-tools {
+  padding-left: 0px;
+  padding-right: 0px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.leave-wrapper .filter-wrapper {
+  padding-left: 30px;
+  padding-right: 0px;
+  padding-top: 20px;
+}
+
+.leave-wrapper .main-filter-btn {
+  position: relative;
+  background: #03962b;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  padding-right: 0px;
+  cursor: pointer;
+}
+
+.leave-wrapper .search-icon {
+  width: 18px;
+  height: 18px;
+  padding-bottom: 0px;
+  margin-top: 6%;
+  padding-left: 0px;
+}
+
+/* SEARCH */
+.leave-wrapper .search-box {
+  position: relative;
+  max-width: 160px;
+  min-width: 150px;
+  max-height: 20px;
+  margin-left: 0%;
+  padding-right: 0px;
+}
+
+.leave-wrapper .search-box input {
+  /*padding: 8px 12px 8px 34px;*/
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  width: 100%;
+}
+
+/*
+.leave-wrapper .pagination-container {
+  padding-right: 8px;
+}
+
+.leave-wrapper .pagination-container--mobile {
+  padding: 10px 8px 20px 8px;
+}*/
+}

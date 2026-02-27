@@ -1,0 +1,919 @@
+/* ── Wrapper & Layout ─────────────────────────────────────────────────────── */
+.privilege-wrapper {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Shared card ──────────────────────────────────────────────────────────── */
+.privilege-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.privilege-card__title {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1d2a3a;
+}
+
+/* ── Tab bar ──────────────────────────────────────────────────────────────── */
+.privilege-tabs {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.privilege-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e5e5e5;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  outline: none;
+}
+
+.privilege-tab--inactive {
+  background: #fff;
+  color: #2ecc71;
+}
+
+.privilege-tab--inactive:hover {
+  background: #f4fdf7;
+  border-color: #19b56a;
+}
+
+.privilege-tab--active {
+  background: #0f1c2e;
+  color: #19b56a;
+  border-color: #0f1c2e;
+}
+
+.privilege-tab__icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* ── Content area ─────────────────────────────────────────────────────────── */
+.privilege-content {
+  margin-top: 4px;
+}
+
+/* ── Page card ────────────────────────────────────────────────────────────── */
+.priv-page-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+/* ── Layout columns (roles tab) ───────────────────────────────────────────── */
+.priv-top-row {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.priv-col {
+  flex: 1;
+  min-width: 260px;
+}
+
+.priv-col--table {
+  flex: 1.2;
+}
+
+/* ── Titles ──────────────────────────────────────────────────────────────── */
+.priv-box-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #1d2a3a;
+  font-size: 13px;
+}
+
+/* ── Form row ─────────────────────────────────────────────────────────────── */
+.priv-form-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.priv-input {
+  flex: 1;
+  min-width: 220px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  outline: none;
+  font-size: 13px;
+  color: #1d2a3a;
+  transition: border-color 0.15s;
+}
+
+.priv-input:focus {
+  border-color: #19b56a;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.priv-btn-green {
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  padding: 0 14px;
+  background: #2e7d32;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.18s;
+  white-space: nowrap;
+}
+
+.priv-btn-green:hover {
+  background: #1b5e20;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+.priv-table-wrap {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.priv-table-scroll {
+  width: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.priv-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+
+.priv-table th {
+  text-align: left;
+  padding: 10px;
+  background: #101c2c;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.priv-table th.center {
+  text-align: center;
+}
+
+.priv-table td {
+  padding: 10px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 12px;
+  color: #1d2a3a;
+  white-space: nowrap;
+}
+
+.priv-table td.center {
+  text-align: center;
+}
+
+.priv-table td.module-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priv-table tr:last-child td {
+  border-bottom: none;
+}
+
+.priv-table tr:hover td {
+  background: #f9fafb;
+}
+
+/* ── Checkbox ─────────────────────────────────────────────────────────────── */
+.priv-table input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: #19b56a;
+}
+
+/* ── Eye icon ─────────────────────────────────────────────────────────────── */
+.priv-eye-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #cfcfcf;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #444;
+  flex-shrink: 0;
+}
+
+/* ── Action icon buttons ──────────────────────────────────────────────────── */
+.priv-icon-btn {
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: opacity 0.15s;
+}
+
+.priv-icon-btn:hover {
+  opacity: 0.82;
+}
+
+.priv-icon-btn img {
+  width: 16px;
+  height: 16px;
+}
+
+.priv-icon-btn--view { background: #19b56a; }
+.priv-icon-btn--edit { background: #1e88e5; }
+.priv-icon-btn--delete { background: #e53935; }
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+.priv-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  padding: 16px;
+}
+
+.priv-modal {
+  width: 360px;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+}
+
+.priv-modal__title {
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #1d2a3a;
+  font-size: 14px;
+}
+
+.priv-modal__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.priv-btn-small {
+  border: none;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  transition: opacity 0.15s;
+  min-width: 110px;
+}
+
+.priv-btn-small:hover {
+  opacity: 0.85;
+}
+
+.priv-btn-small--gray { background: #9e9e9e; }
+.priv-btn-small--red { background: #e53935; }
+
+/* ── Toast ────────────────────────────────────────────────────────────────── */
+.priv-toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 520px;
+  max-width: calc(100vw - 40px);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1000000;
+  display: flex;             /* needed for left bar */
+  background: #fff;
+}
+
+/* left vertical bar */
+.priv-toast__leftbar {
+  width: 25px;
+}
+
+/* SUCCESS */
+.priv-toast.success {
+  border: 1px solid #28c76f;
+}
+.priv-toast.success .priv-toast__leftbar {
+  background: #28c76f;
+}
+
+/* DANGER */
+.priv-toast.danger {
+  border: 1px solid #ff4d4f;
+}
+.priv-toast.danger .priv-toast__leftbar {
+  background: #ff4d4f;
+}
+
+.priv-toast__body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  gap: 12px;
+}
+
+.priv-toast__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* circle icon */
+.priv-toast__status-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.priv-toast.success .priv-toast__status-icon {
+  border: 2px solid #28c76f;
+  color: #28c76f;
+}
+.priv-toast.danger .priv-toast__status-icon {
+  border: 2px solid #ff4d4f;
+  color: #ff4d4f;
+}
+
+/* message */
+.priv-toast__msg {
+  font-size: 14px;
+  font-weight: 600;
+}
+.priv-toast.success .priv-toast__msg { color: #28c76f; }
+.priv-toast.danger .priv-toast__msg { color: #ff4d4f; }
+
+/* close button */
+.priv-toast__close {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #e6e6e6;
+  color: #ff4d4f;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+/* ── Permissions Tab header ──────────────────────────────────────────────── */
+.priv-permissions-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+.priv-section-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #1d2a3a;
+}
+
+.priv-dot-green {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #19b56a;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ── Permission Screen (Figma page) ───────────────────────────────────────── */
+.perm-page {
+  padding: 20px 24px;
+  background: #f5f6f8;
+  min-height: 100vh;
+}
+
+.perm-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.perm-back-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.perm-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.perm-check-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #19b56a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.perm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d2a3a;
+}
+
+.perm-table-wrap {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+.perm-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.perm-table th {
+  background: #0f1a2a;
+  color: #fff;
+  padding: 18px 20px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.perm-table th.left {
+  padding-left: 130px;  /* adjust until perfectly aligned */
+}
+
+
+.perm-table th.center { text-align: center; }
+
+.perm-table td {
+  padding: 18px 20px;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+}
+
+.perm-table td.center { text-align: center; }
+
+.perm-module {
+  font-weight: 500;
+}
+
+.perm-module-click {
+  display: flex;
+  align-items: center;
+  gap: 70px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+}
+
+.perm-module-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 2px solid #d9d9d9;
+}
+
+.perm-module-icon.is-active {
+  border-color: #19b56a;
+}
+
+.perm-checkbox {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 2px solid #cfcfcf;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #fff;
+}
+
+.perm-checkbox.is-checked {
+  background: #fff;          
+  border-color: #19b56a;     /* green border */
+}
+
+.perm-tick {
+  color: #19b56a;            /* green tick */
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 5;
+}
+.perm-toggle-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  filter: grayscale(100%);
+  transition: all 0.2s ease;
+}
+
+/* When all permissions enabled */
+.perm-toggle-img.is-active {
+  filter: none;
+  /* if icon is black, use this instead: */
+   filter: invert(48%) sepia(79%) saturate(420%) hue-rotate(95deg); 
+}
+.priv-eye-icon-img {
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+  object-fit: contain;
+}
+
+/* toggle icon */
+.perm-toggle-img{
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  object-fit: contain;
+}
+
+/* square checkbox  */
+.perm-checkbox{
+  width: 21px;
+  height: 21px;
+  border-radius: 2px;          
+  border: 3px solid #111;      
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+
+
+.perm-box-img{
+  width: 0px;
+  height: 50px;
+  object-fit: contain;
+}
+.perm-back-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;          /* circle */
+  border: none;
+  background: #feffff;         /* green */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.perm-back-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.perm-back-icon {
+  width: 29px;
+  height: 29px;
+  object-fit: contain;
+}
+/* ════════════════════════════════════════════════════════════════════════════
+   MOBILE CARD LAYOUT — hides table, shows cards instead
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Hide card lists on desktop */
+.priv-card-list,
+.perm-card-list {
+  display: none;
+}
+
+/* ── Roles Card List ─────────────────────────────────────────────────────── */
+.priv-role-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.priv-role-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.priv-role-card__id {
+  font-size: 11px;
+  color: #888;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.priv-role-card__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1d2a3a;
+}
+
+.priv-role-card__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Permissions Card List ───────────────────────────────────────────────── */
+.perm-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.perm-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #f8f9fb;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  user-select: none;
+}
+
+.perm-card__module-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.perm-card__toggle-all {
+  font-size: 11px;
+  font-weight: 700;
+  color: #19b56a;
+  border: 1px solid #19b56a;
+  border-radius: 6px;
+  padding: 3px 8px;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.perm-card__toggle-all:hover,
+.perm-card__toggle-all.is-all {
+  background: #19b56a;
+  color: #fff;
+}
+/* Animated Toggle Switch (for "Grant All / Revoke All") */
+.perm-switch {
+  width: 44px;
+  height: 30px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #000;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.perm-switch__thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+   border: 2px solid #000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+  transform: translateX(0);
+  transition: transform 0.2s ease;
+}
+
+/* ON state */
+.perm-switch.is-active {
+  background: #19b56a;
+  border: 2px solid #000;
+}
+
+.perm-switch.is-active .perm-switch__thumb {
+  transform: translateX(20px);
+  background: #ffffff;
+  border: 2px solid #ffffff;
+}
+.perm-card__actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.perm-card__action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f5f7f9;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.perm-card__action-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* Permissions tab card (module + checkboxes) */
+.priv-perm-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.priv-perm-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #101c2c;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.priv-perm-card__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.priv-perm-card__action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f5f7f9;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.priv-perm-card__action-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* 📱 Mobile (≤ 767px) — switch tables → cards */
+@media (max-width: 767px) {
+  .priv-top-row {
+    flex-direction: column;
+  }
+
+  .priv-col,
+  .priv-col--table {
+    width: 100%;
+  }
+
+  .priv-input {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .priv-btn-green {
+    width: 100%;
+  }
+
+  /* Hide the desktop table wrapper, show card list */
+  .priv-table-wrap,
+  .priv-table-scroll,
+  .perm-table-wrap {
+    display: none;
+  }
+
+  .priv-card-list,
+  .perm-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .perm-page {
+    padding: 14px;
+  }
+
+  .perm-title {
+    font-size: 15px;
+  }
+}
+
+/* 📲 Tablet (768px – 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .priv-top-row {
+    flex-direction: column;
+  }
+
+  .priv-col,
+  .priv-col--table {
+    width: 100%;
+  }
+
+  .perm-page {
+    padding: 18px;
+  }
+}
+html, body {
+  overflow-x: hidden;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .priv-table,
+  .perm-table {
+    min-width: 100%;   /* override 620px / 720px */
+  }
+
+  .priv-table,
+.perm-table {
+  width: 100%;
+  table-layout: fixed;
+}
+  .priv-table-wrap,
+  .perm-table-wrap {
+    overflow-x: hidden;
+  }
+}

@@ -1,0 +1,85 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #FFFFFF;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 280px; /* match sidebar width from figma */
+  background-color: #FFFFFF;
+}
+
+/* Remove sidebar offset when chrome (header/sidebar) is hidden, e.g., login */
+.main-content.no-chrome {
+  margin-left: 0;
+}
+
+/* Mobile layout adjustments */
+@media (max-width: 768px) {
+  .main-content { 
+    margin-left: 0; 
+    background-color: #FFFFFF;
+  }
+}
+
+/* Overlay shown when sidebar is open on mobile */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 900;
+  /* Prevent scrolling when overlay is active */
+  touch-action: none;
+}
+
+.page-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: visible; /* Removed internal scroll */
+  overflow-x: visible; /* Removed internal scroll */
+  box-sizing: border-box;
+  width: 100%;
+  background-color: #FFFFFF;
+}
+
+/* Full-bleed content (e.g., login) without page padding */
+.page-content.page-content--full {
+  padding: 0;
+  background-color: #FFFFFF;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.placeholder-content {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+}
+
+.page-container {
+  width: 100%;
+  background-color: #FFFFFF;
+}

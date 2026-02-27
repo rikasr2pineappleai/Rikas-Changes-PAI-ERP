@@ -1,0 +1,759 @@
+/* DashboardOverview.css
+   Updated: reset external spacing, responsive width, prevent extra bottom gap
+*/
+/* Version: 1.0.8 */
+
+:root {
+  --attendance-height: 522px;
+  --attendance-padding: 20px;
+  --attendance-radius: 16px;
+  --attendance-border: 1px solid #DADADA;
+}
+
+/* Global reset for this component's subtree */
+.DashboardOverview,
+.attendance-section,
+.attendance-section * {
+  box-sizing: border-box;
+}
+
+/* Attendance container */
+.attendance-section {
+  /* Use full available width */
+  width: 100%;
+  max-width: 100%; /* Allow full width on wider screens */
+  min-height: var(--attendance-height);
+  padding: var(--attendance-padding);
+  background: #ffffff;
+  border: var(--attendance-border);
+  border-radius: var(--attendance-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transform: rotate(0deg);
+  opacity: 1;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+    Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  color: #222831;
+
+  /* prevent any external spacing from pushing layout */
+  margin: 0;
+  margin-bottom: 0;
+  align-self: flex-start; /* Ensure consistent alignment */
+  justify-self: flex-start; /* Ensure consistent alignment */
+
+  /* keep the section visually aligned with other dashboard content */
+  align-items: stretch;
+  /* Remove any default browser styles that might affect alignment */
+  margin: 0;
+  /* Force consistent rendering */
+  display: block;
+  /* Remove fixed height to prevent internal scrolling */
+  height: auto;
+}
+
+/* Reset heading/p text margins inside the box to avoid external spacing issues */
+.attendance-section h1,
+.attendance-section h2,
+.attendance-section h3,
+.attendance-section p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Header row: title + view all */
+.attendance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-right: 0;
+  min-height: 40px;
+}
+
+/* Title - Updated to match Figma */
+.attendance-title {
+  font-family: 'Roboto'; /* Match Figma font family */
+  font-style: normal; /* Match Figma font style */
+  font-weight: 600; /* Match Figma font weight */
+  font-size: 20px; /* Match Figma font size */
+  line-height: 23px; /* Match Figma line height */
+  color: #1E293B; /* Match Figma color */
+  margin: 0; /* Remove default margins */
+  padding: 0; /* Remove default padding */
+  flex: none;
+  order: 0;
+  flex-grow: 1;
+}
+
+/* View All button - Final fix to match Figma exactly */
+.view-all-button {
+  box-sizing: border-box;
+  /* Auto layout */
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 10px;
+  gap: 10px;
+  width: 84px;
+  height: 36px;
+  border: 1px solid #DADADA;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  box-shadow: none;
+  
+  /* Inside auto layout */
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+  
+  /* Text styling - Matched to Figma exactly */
+  font-family: 'Roboto', sans-serif;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 22px;
+  /* identical to box height, or 157% */
+  text-align: center;
+  text-transform: capitalize;
+  color: #1E293B;
+  
+  /* Prevent text wrapping */
+  white-space: nowrap;
+  
+  /* Remove default button styles */
+  outline: none;
+}
+
+/* Remove default focus styles */
+.view-all-button:focus {
+  outline: none;
+}
+
+/* Table wrapper: removed internal scrolling */
+.attendance-table-wrapper {
+  margin-top: 4px;
+  /* Removed flex: 1 to prevent internal scrolling */
+  overflow: visible; /* Ensure no internal scrolling */
+}
+
+/* Table core */
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;    /* fixed layout keeps columns predictable */
+  min-width: 100%;
+}
+
+/* Header cells */
+.attendance-table thead th {
+  text-align: left;
+  padding: 12px 10px;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 24px;
+  /* identical to box height, or 150% */
+  color: #979494;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  background: transparent;
+  vertical-align: bottom;
+  height: 24px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+/* Column width hints (flexible because of table-layout: fixed) */
+.col-employee { width: 32%; min-width: 115px; }
+.col-designation { width: 22%; }
+.col-checkin { width: 14%; }
+.col-checkout { width: 18%; }
+.col-status { width: 8%; }
+
+/* Body rows */
+.attendance-table tbody tr.attendance-row {
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  /* Changed from fixed height to min-height to prevent overflow */
+  min-height: 74px;
+  height: auto;
+}
+
+/* Body cells */
+.attendance-table tbody td {
+  padding: 12px 10px;
+  vertical-align: middle;
+  font-size: 14px;
+  color: #2b3942;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* allow wrapping for long text to avoid layout overflow & accidental spacing */
+  white-space: nowrap; /* keep single-line appearance; change to normal if you want wrapping */
+}
+
+/* If you want long names to wrap instead of ellipsizing, switch these to:
+   white-space: normal;
+   word-break: break-word;
+*/
+
+/* Employee cell: avatar + name */
+.employee-cell .employee-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0; /* allows ellipsis to work on child text */
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+  object-fit: cover;
+}
+
+/* Name text */
+.employee-name {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 24px;
+  /* identical to box height, or 150% */
+  color: #1E293B;
+  width: 103px;
+  height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0; /* required so ellipsis works in flex children */
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+}
+
+/* Designation */
+.designation-cell {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+  /* identical to box height */
+  color: #1E293B;
+  width: 141px;
+  height: 19px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+/* Checkin/checkout small text style */
+.checkin-cell, .checkout-cell {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+  /* identical to box height */
+  color: #1E293B;
+  white-space: nowrap;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+/* Status badge */
+.status-badge {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 3px 8px;
+  gap: 10px;
+  border-radius: 4px;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 18px;
+  /* identical to box height, or 150% */
+  display: flex;
+  align-items: center;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+/* On time / Late colors */
+.status-badge.on-time {
+  width: 66px;
+  height: 24px;
+  background: rgba(63, 194, 138, 0.1);
+  color: #347E45;
+}
+
+.status-badge.late {
+  width: 39px;
+  height: 24px;
+  background: rgba(244, 91, 105, 0.1);
+  color: #F45B69;
+}
+
+/* MOBILE CARDS (hidden by default) */
+.attendance-cards {
+  display: none;
+}
+
+/* Responsive helpers for larger screens */
+@media (min-width: 1401px) {
+  .attendance-section {
+    height: auto;
+    min-height: 550px; /* Increase minimum height on larger screens */
+    padding: 25px; /* Increase padding on larger screens */
+  }
+  
+  /* Increase font sizes for larger screens */
+  .attendance-title {
+    font-size: 24px; /* Larger title on bigger screens */
+    line-height: 28px;
+  }
+  
+  /* Increase table header font sizes */
+  .attendance-table thead th {
+    font-size: 18px; /* Larger header text */
+    line-height: 26px;
+  }
+  
+  /* Increase body cell font sizes */
+  .attendance-table tbody td {
+    font-size: 16px; /* Larger body text */
+  }
+  
+  /* Increase employee name font size */
+  .employee-name {
+    font-size: 18px;
+    line-height: 26px;
+  }
+  
+  /* Increase designation font size */
+  .designation-cell {
+    font-size: 18px;
+    line-height: 21px;
+  }
+  
+  /* Increase checkin/checkout font size */
+  .checkin-cell, .checkout-cell {
+    font-size: 18px;
+    line-height: 21px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .attendance-section {
+    max-width: 100%;
+    height: auto;
+    min-height: 400px;
+  }
+
+  /* let table be scrollable horizontally on small screens */
+  .attendance-table {
+    min-width: 900px;
+  }
+  
+  /* Prevent internal vertical scrolling */
+  .attendance-table-wrapper {
+    overflow-x: auto; /* Only allow horizontal scrolling if needed */
+    overflow-y: visible; /* Prevent vertical scrolling */
+  }
+  
+  /* Maintain header styling on smaller screens */
+  .attendance-table thead th {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 24px;
+    color: #979494;
+    height: 24px;
+  }
+  
+  /* Maintain cell styling on smaller screens */
+  .employee-name {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 24px;
+    color: #1E293B;
+    width: 103px;
+    height: 24px;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+  }
+  
+  .designation-cell {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: #1E293B;
+    width: 141px;
+    height: 19px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+  }
+  
+  .checkin-cell, .checkout-cell {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: #1E293B;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+  }
+  
+  /* Maintain status badge styling on smaller screens */
+  .status-badge {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 3px 8px;
+    gap: 10px;
+    border-radius: 4px;
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 12px;
+    line-height: 18px;
+    display: flex;
+    align-items: center;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+  }
+  
+  .status-badge.on-time {
+    width: 66px;
+    height: 24px;
+    background: rgba(63, 194, 138, 0.1);
+    color: #347E45;
+  }
+  
+  .status-badge.late {
+    width: 39px;
+    height: 24px;
+    background: rgba(244, 91, 105, 0.1);
+    color: #F45B69;
+  }
+}
+
+@media (max-width: 1024px) {
+  /* Hide desktop table */
+  .attendance-table-wrapper {
+    display: none;
+  }
+
+  /* Show cards list */
+  .attendance-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    padding-top: 10px;
+    overflow-x: hidden;
+  }
+
+  .attendance-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #DADADA;
+    border-radius: 12px;
+    padding: 16px;
+    box-sizing: border-box;
+    background: #ffffff;
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* Card details - each on its own row */
+  .card-detail {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .card-detail:not(:last-child) {
+    border-bottom: 1px solid #f5f5f5;
+  }
+
+  .card-label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .card-value {
+    margin: 0;
+    font-size: 14px;
+    color: #1f2933;
+    display: block;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Employee header with avatar and name - improved centering */
+  .employee-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center !important;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+    height: auto;
+  }
+
+  .employee-header .avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+  }
+
+  .employee-header .employee-name {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.4;
+    color: #1E293B;
+    margin: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    height: auto;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    align-self: center;
+  }
+
+  /* Status badge in card */
+  .card-value .status-badge {
+    display: inline-flex;
+    margin: 0;
+    width: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .attendance-section {
+    height: auto;
+    min-height: auto;
+    padding: 15px;
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .attendance-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .view-all-button {
+    align-self: flex-end;
+  }
+
+  /* Mobile cards container - MUST be fully defined */
+  .attendance-cards {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 8px 0 0 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Mobile card - MUST be fully defined */
+  .attendance-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0;
+    padding: 14px;
+    margin: 0;
+    border: 1px solid #DADADA;
+    border-radius: 12px;
+    background: #ffffff;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Card detail row - each on its own line */
+  .card-detail {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 8px 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .card-detail:not(:last-child) {
+    border-bottom: 1px solid #f5f5f5 !important;
+  }
+
+  .card-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+
+  .card-value {
+    display: block;
+    margin: 0;
+    font-size: 13px;
+    color: #1f2933;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    line-height: 1.4;
+  }
+
+  /* Employee header - avatar and name on same line with improved centering */
+  .employee-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 8px 0 8px 12px !important;
+    box-sizing: border-box !important;
+    min-height: 56px !important;
+    height: auto !important;
+  }
+
+  .employee-header .avatar {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    border-radius: 50% !important;
+    flex-shrink: 0 !important;
+    object-fit: cover !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .employee-header .employee-name {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+    color: #1E293B !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    align-self: center !important;
+  }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 18px;
+    width: auto;
+  }
+  
+  .status-badge.on-time {
+    min-width: 60px;
+    height: 24px;
+    background: rgba(63, 194, 138, 0.1);
+    color: #347E45;
+  }
+  
+  .status-badge.late {
+    min-width: 35px;
+    height: 24px;
+    background: rgba(244, 91, 105, 0.1);
+    color: #F45B69;
+  }
+
+  .card-value .status-badge {
+    display: inline-flex;
+    margin: 0;
+    width: auto;
+  }
+}

@@ -1,0 +1,273 @@
+/* Mainpopup.css - styles for MainPopup component */
+/* Overlay */
+.mp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 22, 34, 0.06); /* soft dim */
+  display: flex;
+  align-items: flex-start; /* screenshot shows top-centered */
+  justify-content: center;
+  padding-top: 136px;
+  z-index: 9999;
+  font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Container */
+.mp-container {
+  width: 880px;
+  height: 320px;
+  max-width: calc(100% - 48px);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 36px 36px 26px 36px;
+  box-shadow: 0 14px 30px rgba(22, 31, 38, 0.08);
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Close button (top-right) */
+.mp-container .mp-closebtn {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 6px;
+}
+
+.mp-container .mp-closebtn img { 
+  width: 16px; 
+  height: 16px; 
+}
+
+.mp-container .close-circle{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  box-shadow: none;
+}
+
+/* Title */
+.mp-container .mp-title {
+  margin: 0 0 22px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f1724;
+  font-style: semi-bold;
+}
+
+/* Form */
+.mp-container .mp-form { 
+  display: block; 
+}
+
+.mp-container .mp-label {
+  display: block;
+  margin-bottom: 12px;
+  color: #1E293B;
+  font-weight: 600;
+  font-size: 20px;
+  margin-top: 5%;
+  font-style: Medium;
+}
+
+/* Select box (fake input) */
+.mp-container .mp-dropdown { 
+  position: relative; 
+  margin-bottom: 20px; 
+}
+
+.mp-container .mp-select {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  border-radius: 10px;
+  border: 1px solid #e6e9ec;
+  padding: 0 16px;
+  box-sizing: border-box;
+  background: #fff;
+  cursor: pointer;
+}
+
+.mp-container .mp-select.open {
+  border-color: #d1e7ef;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+}
+
+.mp-container .mp-placeholder {
+  color: #9aa3a8;
+  font-size: 16px;
+  text-align: left;
+}
+
+.mp-container .mp-placeholder.has-value {
+  color: #2b2f33;
+}
+
+/* dropdown icon inside input */
+.mp-container .mp-dropicon {
+  width: 18px;
+  height: 18px;
+  transform: rotate(0deg);
+  transition: transform 180ms ease;
+}
+
+.mp-container .mp-select.open .mp-dropicon {
+  transform: rotate(180deg);
+}
+
+/* Options list */
+.mp-container .mp-options {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 14px);
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e6e9ec;
+  box-shadow: 0 18px 40px rgba(22, 31, 38, 0.06);
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 12px 8px;
+  box-sizing: border-box;
+  z-index: 40;
+}
+
+/* Dotted cross decorative (approx) */
+.mp-container .mp-options::before,
+.mp-container .mp-options::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+}
+
+.mp-container .mp-options::before {
+  left: 50%;
+  top: 16px;
+  width: 1px;
+  height: calc(100% - 32px);
+  transform: translateX(-50%);
+  
+  opacity: 0.9;
+}
+
+.mp-container .mp-options::after {
+  top: 50%;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  transform: translateY(-50%);
+  
+  opacity: 0.9;
+}
+
+/* Individual option */
+.mp-container .mp-option {
+  list-style: none;
+  padding: 14px 18px;
+  border-radius: 6px;
+  margin: 4px 6px;
+  font-size: 16px;
+  color: #6c757d;
+  cursor: pointer;
+}
+
+.mp-container .mp-option:hover {
+  background: rgba(34,139,34,0.03); /* subtle hover */
+  color: #2b2f33;
+}
+
+.mp-container .mp-option.selected {
+  background: rgba(34,139,34,0.06);
+  color: #2b2f33;
+  font-weight: 600;
+}
+
+/* Submit row - center aligned and visually like screenshot */
+.mp-container .mp-submit-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* If Submitbtn is a button element inside, make sure it looks like screenshot */
+.mp-container .mp-submit-row button {
+  min-width: 240px;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  background: #2d7a3f; /* green */
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+.mp-container .mp-select.error {
+  border-color: #ef4444; /* red border (only the border) */
+  box-shadow: none; /* keep only border emphasized — no extra shadow */
+}
+
+/* Slightly stronger focus when error present (optional) */
+.mp-container .mp-select.error:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.06); /* subtle red halo */
+}
+
+/* Error message text */
+.mp-error-text {
+  margin-top: 8px;
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  padding-left: 4px;
+}
+
+/* Small responsive tweaks */
+@media (max-width: 1440px) {
+  .mp-container {
+    
+    padding: 24px 24px 20px 24px;
+    width: 480px;
+    height: 250px;
+    max-width: 500px;
+  }
+  
+  .mp-container .mp-title {
+    font-size: 22px;
+  }
+  
+  .mp-container .mp-label {
+    font-size: 18px;
+  }
+  
+  .mp-container .mp-select {
+    height: 48px;
+  }
+  
+  .mp-container .mp-submit-row button {
+    min-width: 200px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px){
+   .mp-container {
+    
+    padding: 24px 24px 20px 24px;
+    width: 350px;
+    height: 250px;
+    max-width: 400px;
+  }
+}

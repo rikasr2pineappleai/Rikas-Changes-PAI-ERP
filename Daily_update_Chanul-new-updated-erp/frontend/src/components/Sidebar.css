@@ -1,0 +1,187 @@
+:root {
+  --sidebar-width: 280px;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-border: rgba(30, 41, 59, 0.2);
+  --nav-width: 234px;
+  --nav-height: 56px;
+  --nav-gap: 20px;
+  --nav-padding-y: 10px;
+  --nav-padding-x: 20px;
+  --radius: 10px;
+  --text-default: #1E293B;
+  --text-active: #347E45;
+  --nav-hover: rgba(30, 41, 59, 0.06);
+  --nav-active-bg: #BBF7D0;
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  color: var(--text-default);
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  border-right: 0.5px solid var(--sidebar-border);
+  z-index: 1000;
+  transition: transform 0.25s ease;
+  will-change: transform;
+  /* Custom scrollbars */
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+  /* Smooth scrolling behavior */
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar styling */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Improve scroll performance */
+.sidebar {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Header area (logo/title) matching 108px block with bottom divider */
+.sidebar-header {
+  height: 108px;
+  position: sticky; /* keep logo area fixed within sidebar scroll */
+  top: 0;
+  z-index: 2;
+  padding: 0;
+  border-bottom: 0.5px solid #DADADA;
+  background: var(--sidebar-bg);
+}
+
+/* Figma-accurate positioning for logo and brand text image */
+.sidebar-header .logo-img {
+  position: absolute;
+  width: 66.5px;
+  height: 59.11px;
+  left: 28px;
+  top: 17px;
+  object-fit: contain;
+}
+
+.sidebar-header .brand-img {
+  position: absolute;
+  width: 161.6px;
+  height: 26.44px;
+  left: 87.89px;
+  top: 35.67px;
+  object-fit: contain;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-default);
+}
+
+.sidebar-nav {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--nav-gap);
+  padding: var(--nav-padding-y) var(--nav-padding-x);
+  width: var(--nav-width);
+  height: var(--nav-height);
+  margin-left: calc((var(--sidebar-width) - var(--nav-width)) / 2);
+  border-radius: var(--radius);
+  color: var(--text-default);
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+  font-family: 'Roboto', ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  font-weight: 400;
+}
+
+.nav-item:hover {
+  background: var(--nav-hover);
+}
+
+.nav-item.active {
+  background: var(--nav-active-bg);
+}
+
+.nav-item .nav-label {
+  font-size: 20px; /* 20px per figma */
+  line-height: 23px; /* visual alignment */
+  color: inherit;
+}
+
+/* Active state typography color */
+.nav-item.active .nav-label {
+  color: var(--text-active);
+}
+
+/* Icon box 32x32 as in figma */
+.nav-icon {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+/* Hide DB info on non-mobile screens */
+.db-info-mobile {
+  display: none;
+}
+
+/* Mobile off-canvas behaviour */
+@media (max-width: 768px) {
+  .sidebar { 
+    transform: translateX(-100%); 
+    /* Prevent body scroll when sidebar is open */
+    touch-action: pan-y;
+  }
+  .sidebar.open { 
+    transform: translateX(0); 
+    /* Ensure sidebar content can be scrolled */
+    overscroll-behavior: contain;
+  }
+  
+  /* Show DB info on mobile under the logo */
+  .db-info-mobile {
+    display: block !important;
+    position: relative;
+    left: 28px;
+    margin-top: 8px;
+    font-size: 10px;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+
+/* Active icon tint */
+.nav-item.active .nav-icon {
+  color: var(--text-active);
+}

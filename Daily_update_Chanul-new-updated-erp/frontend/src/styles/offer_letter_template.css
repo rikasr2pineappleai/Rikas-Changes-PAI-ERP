@@ -1,0 +1,289 @@
+/* ========================================================= */
+/* OFFER LETTER TEMPLATE (ERP Accurate – 3 Column Layout)    */
+/* ========================================================= */
+
+.offer-template-wrapper {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 24px 32px;
+  width: 100%;
+  max-width: none;
+  margin-right: 0;
+  box-sizing: border-box;
+}
+
+/* ---------- Header ---------- */
+.offer-template-header {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+  padding-bottom: 10px;
+}
+
+.offer-template-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* ---------- Form ---------- */
+.offer-template-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  
+  
+}
+
+/* ---------- Grid ---------- */
+.offer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px 24px;
+}
+
+.offer-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.offer-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.offer-group input,
+.offer-group select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #1e293b;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+.offer-group input:focus,
+.offer-group select:focus {
+  border-color: #03962b;
+}
+
+.offer-input-error {
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+/* ---------- Top Buttons (Cancel / Preview) ---------- */
+.offer-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.cancel-btn,
+.preview-btn {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+/* Cancel */
+.cancel-btn {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #1e293b;
+}
+
+.cancel-btn:hover {
+  background: #f9fafb;
+}
+
+/* Preview */
+.preview-btn {
+  background: #03962b;
+  color: #ffffff;
+}
+
+.preview-btn:hover {
+  background: #027a23;
+}
+
+/* ========================================================= */
+/* Bottom Right Action Buttons (Download | Email | Save)     */
+/* ========================================================= */
+
+.offer-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Shared base */
+.offer-actions button {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+/* Download */
+.download-btn {
+  background: #347E45;
+  color: #eef0f3;
+  border: 1px solid #d1d5db;
+}
+
+.download-btn:hover {
+  background: #e5e7eb;
+}
+
+/* Email */
+.email-btn {
+  background:#347E45;
+  color: #ffffff;
+}
+
+.email-btn:hover {
+  background: #347E45;
+}
+
+/* Save (Primary) */
+.save-btn {
+  background: #347E45;
+  color: #ffffff;
+  padding: 10px 32px;
+}
+
+.save-btn:hover {
+  background: #347E45;
+}
+
+/* ========================================================= */
+/* Responsive                                                */
+/* ========================================================= */
+
+@media (max-width: 992px) {
+  .offer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .offer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .offer-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  
+  .offer-buttons button {
+    width: 100%;
+    min-height: 52px;        
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+
+  .offer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .offer-actions button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+
+/* ========================================================= */
+/* PDF Preview Modal (Same as Service Letter)                */
+/* ========================================================= */
+
+.pdf-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  /* backdrop-filter: blur(8px); */
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal container */
+.pdf-modal {
+  position: relative;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Close button */
+.pdf-close-btn {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* Content */
+.pdf-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+}
+
+.pdf-content img {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* Footer */
+.pdf-modal-footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.pdf-download-btn {
+  background: #347e45;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pdf-download-btn:hover {
+  background: #2f6f3d;
+}

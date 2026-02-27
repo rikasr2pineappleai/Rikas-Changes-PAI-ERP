@@ -1,0 +1,1232 @@
+/* Projects module styles (scoped with prj- prefix to avoid impacting other pages) */
+
+.prj-page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ✅ Top header card */
+.prj-topCard {
+  background: #ffffff;
+  border: 1px solid #ededed;
+  border-radius: 14px;
+  padding: 14px 18px;
+}
+
+.prj-topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.prj-pageTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* =========================================================
+   ✅ FIXED DASHBOARD STATS (equal spacing + centered divider)
+   ========================================================= */
+.prj-statsCard {
+  padding: 12px 18px;
+  background: #ffffff;
+  border: 1px solid #ededed;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.prj-statsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  align-items: stretch;
+}
+
+.prj-stat {
+  padding: 14px 22px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.prj-stat:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 58px;
+  background: #e9e9e9;
+  border-radius: 999px;
+}
+
+.prj-statLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: #596173;
+}
+
+.prj-statValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1b1f2a;
+  margin-top: 6px;
+  line-height: 1.2;
+}
+
+/* Responsive: show as cards in 2 columns */
+@media (max-width: 820px) {
+  .prj-statsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+  }
+
+  .prj-stat {
+    border: 1px solid #eef1f5;
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+
+  .prj-stat:not(:first-child)::before {
+    display: none;
+  }
+}
+
+/* Responsive: 1 column on small mobile */
+@media (max-width: 520px) {
+  .prj-statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+.prj-primaryBtn {
+  border: none;
+  outline: none;
+  background: #2f7d3e;
+  color: #fff;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.prj-primaryBtn:hover {
+  filter: brightness(0.97);
+}
+.prj-primaryBtn:active {
+  transform: translateY(1px);
+}
+
+.prj-newProjectBtn,
+.prj-newTaskBtn {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.prj-newProjectImg,
+.prj-newTaskImg {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 100%;
+}
+
+.prj-primaryBtnFull {
+  width: 100%;
+  justify-content: center;
+  margin-top: 18px;
+  height: 54px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   Sections
+   ========================================================= */
+.prj-sectionCard {
+  padding: 0;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #ededed;
+  border-radius: 14px;
+}
+
+.prj-sectionHeader {
+  padding: 14px 18px;
+  border-bottom: 1px solid #ededed;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.prj-sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1b1f2a;
+}
+
+.prj-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prj-filterBtn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 14px;
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.prj-filterBtn img {
+  width: 44px;
+  height: 44px;
+  display: block;
+}
+
+/* =========================================================
+   ✅ SEARCH BAR
+   ========================================================= */
+.prj-searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: #ffffff;
+  border: 1.6px solid #cfd4dc;
+  border-radius: 14px;
+  padding: 0 14px;
+  height: 44px;
+  min-width: 220px;
+
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.prj-searchIcon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.55;
+}
+
+.prj-searchInput {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+  background: transparent;
+  color: #111827;
+}
+
+.prj-searchInput::placeholder {
+  color: #9ca3af;
+}
+
+.prj-searchWrap:focus-within {
+  border-color: #2f7d3e;
+  box-shadow: 0 0 0 3px rgba(47, 125, 62, 0.18);
+}
+
+/* =========================================================
+   Projects grid/cards
+   ========================================================= */
+.prj-grid {
+  padding: 16px 18px 18px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.prj-card {
+  border: 1px solid #e9e9e9;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition:
+    box-shadow 120ms ease,
+    transform 120ms ease;
+  min-height: 86px;
+}
+
+.prj-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.prj-cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.prj-cardHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.prj-cardHeadText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.prj-cardThumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #eaffef;
+  border: 1px solid #d7f5de;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px;
+}
+
+.prj-thumbRow {
+  height: 8px;
+  border-radius: 999px;
+  background: #c8ffd4;
+}
+
+.prj-externalBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #2f7d3e;
+  padding: 6px;
+  border-radius: 8px;
+}
+.prj-externalBtn:hover {
+  background: rgba(47, 125, 62, 0.08);
+}
+
+.prj-cardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1b1f2a;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prj-cardSub {
+  font-size: 12px;
+  color: #7a8190;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prj-cardBottom {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.prj-manager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prj-avatarImg {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid #d9dde7;
+  object-fit: cover;
+}
+
+.prj-managerText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.prj-managerName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1b1f2a;
+}
+.prj-managerRole {
+  font-size: 11px;
+  color: #7a8190;
+}
+
+.prj-rightMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.prj-date {
+  font-size: 11px;
+  color: #7a8190;
+  font-weight: 500;
+}
+
+.prj-status {
+  font-size: 12px;
+  font-weight: 600;
+}
+.prj-status.upcoming {
+  color: #3a4bff;
+}
+.prj-status.done {
+  color: #2f7d3e;
+}
+.prj-statusSpacer {
+  height: 16px;
+}
+
+/* View project header */
+.prj-viewTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.prj-backBtnIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.prj-backBtnIcon img {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+.prj-viewTitle {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1b1f2a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Table */
+.prj-tableWrap {
+  padding: 14px 18px 18px;
+}
+
+.prj-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.prj-table tbody td:nth-child(6),
+.prj-table tbody td:nth-child(7) {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.prj-table thead th {
+  background: #0f1b2d;
+  color: #fff;
+  font-size: 12px;
+  text-align: left;
+  padding: 12px 12px;
+  font-weight: 600;
+}
+
+.prj-table tbody td {
+  background: #fff;
+  padding: 14px 12px;
+  border-bottom: 1px solid #eef1f5;
+  font-size: 13px;
+  color: #1b1f2a;
+}
+
+.prj-actionsCol {
+  text-align: center;
+  width: 120px;
+}
+.prj-actionsCell {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.prj-actionBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.prj-actionBtn.danger {
+  background: #e74b4b;
+}
+.prj-actionBtn.edit {
+  background: transparent;
+  padding: 0;
+}
+.prj-actionBtn.edit img {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+.prj-assignedCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prj-assignAvatarImg {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid #d9dde7;
+  object-fit: cover;
+}
+.prj-assignName {
+  font-weight: 500;
+}
+
+.prj-empty {
+  text-align: center;
+  padding: 24px 12px !important;
+  color: #6b7280 !important;
+}
+
+/* Badges */
+.prj-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  min-width: 105px;
+  white-space: nowrap;
+}
+.prj-badge.medium {
+  background: #fff4c8;
+  color: #8a6a00;
+}
+.prj-badge.high {
+  background: #ffd6d6;
+  color: #b71c1c;
+}
+.prj-badge.low {
+  background: #d9f8e0;
+  color: #1b7b35;
+}
+.prj-badge.done {
+  background: #d9f8e0;
+  color: #1b7b35;
+}
+.prj-badge.progress {
+  background: #d8f0ff;
+  color: #0b78b8;
+}
+.prj-badge.notstarted {
+  background: #ffd6d6;
+  color: #b71c1c;
+}
+
+/* =========================================================
+   Modal
+   ========================================================= */
+.prj-modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.prj-modal {
+  width: min(860px, 94vw);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e9e9e9;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.prj-modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.prj-modalTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.prj-iconBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid #e6e6e6;
+  background: #f1f5f9;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.prj-iconBtn:hover {
+  background: #e9eef5;
+}
+.prj-iconBtn img {
+  width: 16px;
+  height: 16px;
+}
+
+.prj-modalBody {
+  padding: 14px 14px 16px;
+}
+
+.prj-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prj-formGrid {
+  gap: 10px;
+}
+
+.prj-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-top: 4px;
+}
+
+.prj-input,
+.prj-textarea,
+.prj-assigneeSearch input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+}
+
+.prj-input {
+  height: 46px;
+}
+
+.prj-input::placeholder,
+.prj-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.prj-textarea {
+  min-height: 48px;
+  resize: vertical;
+}
+
+.prj-twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* =========================================================
+   ✅ DATE FIELD FIX
+   ========================================================= */
+.prj-dateField {
+  position: relative;
+}
+
+.prj-inputWithIcon {
+  padding-right: 42px;
+}
+
+.prj-fieldIcon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px !important;
+  height: 18px !important;
+  display: block;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.prj-dateInput::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+.prj-dateInput::-webkit-inner-spin-button,
+.prj-dateInput::-webkit-clear-button {
+  display: none;
+}
+
+/* =========================================================
+   ✅ ASSIGNEE FIELD (clickable like input)
+   ========================================================= */
+.prj-assigneeField {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 14px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.prj-assigneeField:hover {
+  border-color: #cfd4dc;
+}
+
+.prj-assigneePlaceholder {
+  color: #9ca3af;
+  font-weight: 500;
+}
+.prj-assigneePlaceholder.has {
+  color: #111827;
+}
+
+.prj-assigneeIcon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.prj-hasValue {
+  border-color: #2f7d3e !important;
+  background: #f2fff5 !important;
+}
+
+/* =========================================================
+   ✅ ASSIGNEE MODAL (Screenshot)
+   ========================================================= */
+.prj-assigneeModal {
+  width: min(520px, 94vw);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e9e9e9;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.prj-assigneeSearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.prj-assigneeSearchIcon {
+  opacity: 0.5;
+  font-size: 14px;
+}
+
+.prj-assigneeSearch input {
+  border: none;
+  outline: none;
+  padding: 0;
+  height: auto;
+  background: transparent;
+}
+
+.prj-assigneeList {
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.prj-assigneeRow {
+  display: grid;
+  grid-template-columns: 18px 34px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.prj-assigneeRow:hover {
+  background: #f7fafc;
+}
+
+.prj-assigneeRow.active {
+  border: 1px solid rgba(47, 125, 62, 0.35);
+  background: rgba(47, 125, 62, 0.08);
+}
+
+.prj-assigneeAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid #d9dde7;
+  object-fit: cover;
+  background: #f1f5f9;
+}
+
+.prj-assigneeText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.prj-assigneeName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.prj-assigneeRole {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* =========================================================
+   ✅ SELECTED PERSON PREVIEW (under assignee field)
+   ========================================================= */
+.prj-selectedPerson {
+  margin-top: 10px;
+  border: 1px solid #e8e8e8;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prj-selectedAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid #d9dde7;
+  background: #ffffff;
+}
+
+.prj-selectedText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.prj-selectedName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prj-selectedRole {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* =========================================================
+   ✅ Inline field validation
+   ========================================================= */
+.prj-fieldError {
+  margin-top: -4px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b71c1c;
+}
+
+.prj-inputError {
+  border-color: #ff6b6b !important;
+  background: #fff5f5 !important;
+}
+
+/* =========================================================
+   ✅ Custom Checkbox (screenshot-style tick always visible)
+   ========================================================= */
+.prj-cb {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 2px solid #2f7d3e;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  flex: 0 0 16px;
+}
+
+.prj-cb.checked {
+  background: #2f7d3e;
+  border-color: #2f7d3e;
+}
+
+.prj-cb.checked::after {
+  content: "";
+  width: 8px;
+  height: 4px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+  margin-top: -1px;
+}
+
+/* =========================================================
+   ✅ Member Picker Modal (Search + list like screenshot)
+   ========================================================= */
+.prj-memberModal {
+  width: min(520px, 92vw);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e9e9e9;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.prj-memberHeader {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prj-memberTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.prj-memberBody {
+  padding: 14px 14px 16px;
+}
+
+.prj-memberSearch {
+  height: 42px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  background: #fff;
+}
+
+.prj-memberSearch input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  background: transparent;
+}
+
+.prj-memberSearchIcon {
+  opacity: 0.55;
+}
+
+.prj-memberList {
+  margin-top: 12px;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.prj-memberRow {
+  display: grid;
+  grid-template-columns: 22px 36px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.prj-memberRow:hover {
+  background: rgba(47, 125, 62, 0.06);
+}
+
+.prj-memberRow.active {
+  background: rgba(47, 125, 62, 0.1);
+}
+
+.prj-memberAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid #d9dde7;
+  background: #f1f5f9;
+}
+
+.prj-memberInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.prj-memberName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prj-memberRole {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.prj-memberEmpty {
+  padding: 16px 10px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* =========================================================
+   ✅ Priority/Status Option Modal (NO SEARCH)
+   ========================================================= */
+.prj-optionModal {
+  width: min(520px, 92vw);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e9e9e9;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.prj-optionList {
+  max-height: 340px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.prj-optionRow {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.prj-optionRow:hover {
+  background: rgba(47, 125, 62, 0.06);
+}
+
+.prj-optionRow.active {
+  border: 1px solid rgba(47, 125, 62, 0.35);
+  background: rgba(47, 125, 62, 0.1);
+}
+
+.prj-optionText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.prj-optionLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.prj-optionSub {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* =========================================================
+   Focus / hover states
+   ========================================================= */
+.prj-input:focus,
+.prj-textarea:focus,
+.prj-assigneeField:focus {
+  border-color: #2f7d3e;
+  box-shadow: 0 0 0 3px rgba(47, 125, 62, 0.18);
+}
+
+.prj-input:hover,
+.prj-textarea:hover,
+.prj-assigneeField:hover {
+  border-color: #c7d2de;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 1280px) {
+  .prj-grid {
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .prj-statsCard {
+    padding: 12px 16px;
+  }
+  .prj-sectionHeader {
+    padding: 12px 16px;
+  }
+  .prj-grid {
+    padding: 14px 16px 16px;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+  }
+  .prj-tableWrap {
+    padding: 12px 16px 16px;
+  }
+}
+
+@media (max-width: 820px) {
+  .prj-sectionHeader {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .prj-toolbar {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 600px) {
+  .prj-topRow,
+  .prj-viewTopRow {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .prj-toolbar {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .prj-searchWrap {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .prj-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prj-twoCol {
+    grid-template-columns: 1fr;
+  }
+
+  .prj-modal {
+    width: min(520px, 100%);
+  }
+  .prj-modalOverlay {
+    padding: 12px;
+  }
+
+  .prj-table thead {
+    display: none;
+  }
+  .prj-table,
+  .prj-table tbody,
+  .prj-table tr,
+  .prj-table td {
+    display: block;
+    width: 100%;
+  }
+  .prj-table tr {
+    border: 1px solid #eef1f5;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .prj-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .prj-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #6b7280;
+  }
+  .prj-actionsCell {
+    justify-content: flex-end;
+  }
+}
+

@@ -1,0 +1,298 @@
+/* Overlay + modal */
+.c-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  padding: 20px;
+}
+
+.c-modal {
+  width: 820px;
+  height: 660px;
+  max-width: calc(100% - 40px);
+  background: #ffffff;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.12);
+  padding: 28px 28px 20px 28px;
+  box-sizing: border-box;
+}
+
+/* for the close btn */
+.c-close-btn {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* the grey circle around the close icon */
+.c-close-wrapper {
+  padding-bottom: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f0f0; /* grey circle */
+  box-shadow: none;
+}
+
+/* the close icon */
+.c-close-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+/* content */
+.c-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* New: form container that wraps labels, inputs and actions.
+   Title and close button are intentionally excluded per request. */
+.c-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* keep title styling separate (excluded from .c-form) */
+.c-title {
+  font-size: 22px;
+  color: #0f1724;
+  font-weight: 700;
+}
+
+/* Label (used for Date label) */
+.c-label {
+  display: block;
+  font-size: 16px;
+  color: #1E293B;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+/* shared input wrapper styles */
+.c-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  box-sizing: border-box;
+  min-height: 44px;
+}
+
+
+/* keep max-height 50px for all inputs */
+.c-input input[type="date"],
+.c-input input[type="text"],
+.c-input input[type="file"],
+.c-input input[readonly] {
+  border: 0;
+  outline: none;
+  font-size: 14px;
+  max-width: 700px;
+  background: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  max-height: 50px;
+  box-sizing: border-box;
+}
+
+/* apply max-height for label-fake too */
+.c-upload-fake {
+  width: 100%;
+  display: inline-block;
+  font-size: 14px;
+  color: #7d8a95;
+  cursor: pointer;
+  user-select: none;
+  max-height: 50px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Select icon (right) */
+.c-select-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  margin-left: 8px;
+}
+
+/* Date input: date input + icon to the right */
+.c-date {
+  padding-right: 56px;
+  max-width: 300px;
+  position: relative;
+}
+
+/* hide webkit calendar picker indicator */
+.c-date input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+/* additional vendor hides (best-effort) */
+.c-date input[type="date"]::-webkit-clear-button,
+.c-date input[type="date"]::-webkit-inner-spin-button {
+  display: none;
+  -webkit-appearance: none;
+}
+
+/* Put the green circular background back on the custom icon wrapper */
+.c-date-icon-wrapper {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;       /* clickable area */
+  height: 36px;      /* clickable area */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8fbef; /* light green background restored */
+  border-radius: 50%;
+  cursor: pointer;
+}
+.c-date-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Visually hide native date input but keep it in DOM & usable programmatically */
+.c-hidden-date {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  background: transparent !important;
+}
+
+/* Upload row label + pill */
+.c-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.c-info-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  opacity: 0.9;
+}
+.c-pill {
+  color: #0f1724;
+}
+.c-pill-txt{
+  margin-left: 0%;
+  background: #f2f2f3;
+  color: #7a7a7a;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+/* Upload icon on the right */
+.c-upload-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* actions */
+.c-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.c-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  min-height: 40px;
+}
+
+/* submit wrapper: allow disabled state UI */
+.c-submit-wrapper {
+  padding-right: 480px;
+  display: inline-block;
+  transition: opacity 0.12s ease, transform 0.08s ease;
+}/*
+.c-submit-wrapper.disabled {
+  opacity: 0.55;
+  pointer-events: none;
+  transform: translateY(0);
+}*/
+
+/* error styling */
+.c-error {
+  color: #d32f2f;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* make invalid visible with red border (no inset shadow) */
+.c-input input[aria-invalid="true"],
+.c-textarea[aria-invalid="true"] {
+  border-color: #d32f2f;
+  outline: none;
+}
+
+/* ensure visible input uses monospace-ish spacing for digits (optional) */
+.c-input.c-date input[type="text"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* small visual cue for disabled/readonly fake control (optional) */
+.c-input input[readonly] {
+  cursor: pointer;
+}
+
+/* ensure modal is responsive */
+@media (max-width: 640px) {
+  .c-modal {
+    width: 100%;
+    padding: 20px;
+  }
+  .c-date {
+    max-width: 100%;
+  }
+}

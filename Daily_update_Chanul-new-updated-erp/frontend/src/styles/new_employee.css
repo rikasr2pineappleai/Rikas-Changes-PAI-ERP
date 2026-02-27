@@ -1,0 +1,451 @@
+/* ==========================================================
+   NEW EMPLOYEE PAGE (ERP Accurate Figma-Based Design)
+   ========================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+.employee-page {
+  background: #ffffff;
+  font-family: "Roboto", sans-serif;
+  color: #1e293b;
+  padding: 0px 20px;
+  margin-left: 0px;
+}
+
+/* ---------- Employees Overview Page (List) ---------- */
+.employees-page {
+  padding: 20px 40px;
+  margin-left: 280px;
+}
+
+.employees-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.employees-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.add-employee-btn {
+  background: #347e45;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.employees-list-box {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 60px 20px;
+  border: 1px solid #dadada;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* ==========================================================
+   HEADER SECTION
+   ========================================================== */
+
+.employee-header {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  min-height: 80px;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.header-left h2 {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 550;
+}
+
+.back-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+/* ==========================================================
+   PAGINATION (Step Indicator - Figma Specification)
+   ========================================================== */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 21px;
+  border: 2px solid #979494;
+  background: #DADADA;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 18px;
+  text-align: center;
+  color: #1e293b;
+  box-sizing: border-box;
+  z-index: 2;
+  position: relative;
+  transition: all 0.3s ease;
+  animation: circlePop 0.3s ease;
+}
+
+.circle.active {
+  border: 2px solid #347E45;
+  background: #347E45;
+  color: #FFFFFF;
+  transform: scale(1.1);
+}
+
+.circle.done {
+  border: 2px solid #347E45;
+  background: #347E45;
+  color: #FFFFFF;
+}
+
+.line {
+  width: 117px;
+  height: 5px;
+  background: #DADADA;
+  z-index: 1;
+  margin: 0 -15px;
+  transition: all 0.3s ease;
+}
+
+.line.active {
+  background: #347E45;
+  animation: lineFill 0.3s ease;
+}
+
+/* ==========================================================
+   INFO BOXES
+   ========================================================== */
+
+.info-box {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  margin-top: 24px;
+  padding: 24px;
+}
+
+.info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.info-header h3 {
+  font-size: 24px;
+  font-weight: 550;
+  color: #1e293b;
+}
+
+/* Upload Section */
+.upload-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.upload-btn {
+  background: #347e45;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 40px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.upload-btn:hover {
+  background: #2b6538;
+}
+
+.profile-box {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+}
+
+/* ==========================================================
+   FORM GRID & INPUT STYLES
+   ========================================================== */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+label {
+  font-weight: 500;
+  font-size: 16px;
+  color: #1e293b;
+}
+
+input,
+select {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-size: 16px;
+  color: #1e293b;
+  background: #ffffff;
+}
+
+input::placeholder,
+select {
+  color: #979494;
+}
+
+/* Icon inputs */
+.input-icon {
+  position: relative;
+}
+
+.calendar-icon,
+.refresh-icon {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 24px;
+  height: 24px;
+}
+
+/* ==========================================================
+   PASSWORD FIELD (FIGMA PERFECT MATCH)
+   ========================================================== */
+
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-input {
+  width: 100%;
+  padding-right: 50px;
+}
+
+.password-refresh-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+/* === Validation & Errors === */
+.error {
+  color: red;
+  font-size: 13px;
+  margin-top: -4px;
+}
+
+/* ==========================================================
+   BUTTONS
+   ========================================================== */
+
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.cancel-btn,
+.create-btn {
+  width: 160px;
+  height: 50px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  border: 1px solid #dadada;
+  background: #ffffff;
+  color: #1e293b;
+}
+
+.create-btn {
+  background: #347e45;
+  color: #ffffff;
+  border: none;
+}
+
+/* Animation keyframes */
+@keyframes circlePop {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes lineFill {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 117px;
+  }
+}
+
+/* ==========================================================
+   ✅ FULL RESPONSIVE BREAKPOINTS
+   ========================================================== */
+
+/* ✅ Tablets */
+@media (max-width: 1024px) {
+  .employees-page {
+    margin-left: 0;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .line {
+    width: 80px;
+    margin: 0 -10px;
+  }
+}
+
+/* ✅ Large Phones */
+@media (max-width: 768px) {
+  .employee-page,
+  .employees-page {
+    padding: 16px;
+  }
+
+  .employee-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    height: auto;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .upload-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .button-row {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .create-btn {
+    width: 100%;
+  }
+
+  .upload-btn {
+    width: 100%;
+  }
+}
+
+/* ✅ Small Phones (iPhone SE, Mini Android) */
+@media (max-width: 480px) {
+  .header-left h2 {
+    font-size: 20px;
+  }
+
+  .info-header h3 {
+    font-size: 20px;
+  }
+
+  input,
+  select {
+    font-size: 14px;
+  }
+
+  .calendar-icon,
+  .refresh-icon,
+  .password-refresh-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .circle {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+  
+  .line {
+    width: 50px;
+    margin: 0 -8px;
+  }
+}
+
+/* ✅ Ultra Small Phones (Very Old Android) */
+@media (max-width: 360px) {
+  .employees-page {
+    padding: 10px;
+  }
+
+  .upload-btn {
+    width: 100%;
+    padding: 12px 0;
+  }
+
+  .button-row {
+    gap: 10px;
+  }
+}
