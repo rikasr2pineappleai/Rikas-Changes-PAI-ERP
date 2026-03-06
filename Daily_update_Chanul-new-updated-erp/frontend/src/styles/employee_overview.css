@@ -370,6 +370,31 @@
   margin-top: -2px;
 }
 
+/* Full width info for project lists */
+.eov-info.eov-full-width {
+  grid-column: 1 / -1;
+  height: auto;
+  min-height: 80px;
+}
+
+/* Project list styling */
+.eov-project-list {
+  margin-top: 6px;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.eov-project-list li {
+  font-size: 14px;
+  color: #1e293b;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.eov-project-list li:last-child {
+  margin-bottom: 0;
+}
+
 /* icon inside card input */
 .eov-has-icon img {
   position: absolute;

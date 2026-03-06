@@ -63,18 +63,50 @@ export default function EditEmployee() {
     startDate: "",
   });
 
+  // State for expanded sections
+  const [expandedSections, setExpandedSections] = useState({
+    professional: false,
+    educational: false,
+    project: false,
+  });
+
+  // State for detailed project information
+  const [detailedProjectInfo, setDetailedProjectInfo] = useState({
+    previous_projects: "",
+    completed_projects: "",
+    project_role: "",
+    project_description: "",
+    project_contributions: "",
+    technologies_used: "",
+    allocation_start: "",
+    allocation_end: "",
+    allocated_hours: "",
+  });
+  
+  // Store the allocation ID being edited
+  const [currentAllocationId, setCurrentAllocationId] = useState(null);
+
   const [errors, setErrors] = useState({});
 
   const initialDocs = [
-    { id: "nic", label: "NIC", placeholder: "NIC document", error: true, file: null, fileName: "" },
+    { id: "nic", label: "NIC", placeholder: "NIC document", error: false, file: null, fileName: "" },
     { id: "birth", label: "Birth Certificate", placeholder: "Birth Certificate", error: false, file: null, fileName: "" },
-    { id: "edu", label: "Educational Certificate", placeholder: "Educational Certificate", error: true, file: null, fileName: "" },
-    { id: "transcript", label: "Transcript", placeholder: "Transcript", error: true, file: null, fileName: "" },
+    { id: "edu", label: "Educational Certificate", placeholder: "Educational Certificate", error: false, file: null, fileName: "" },
+    { id: "transcript", label: "Transcript", placeholder: "Transcript", error: false, file: null, fileName: "" },
   ];
   const [documents, setDocuments] = useState(initialDocs);
 
-  const normalizeDocumentType = (docType = "") => {
-    switch (docType) {
+  const normalizeDocumentType = (docType) => {
+    // Handle empty, null, or undefined document types
+    if (!docType || (typeof docType === 'string' && docType.trim() === '')) {
+      console.warn('Empty document type found in database:', docType);
+      return 'unknown';
+    }
+    
+    // Convert to string and trim for safety
+    const docTypeStr = String(docType).trim().toLowerCase();
+    
+    switch (docTypeStr) {
       case "birth":
       case "birth_certificate":
         return "birth";
@@ -83,16 +115,17 @@ export default function EditEmployee() {
         return "edu";
       case "nic":
       case "transcript":
-        return docType;
+        return docTypeStr;
       default:
-        return docType;
+        console.warn('Unknown document type:', docType);
+        return docTypeStr;
     }
   };
 
   const getFileNameFromPath = (path = "") => {
-    if (!path) return "";
+    if (!path || typeof path !== 'string') return "";
     const parts = path.split(/[\\/]/);
-    return parts[parts.length - 1];
+    return parts[parts.length - 1] || path;
   };
 
   useEffect(() => {
@@ -119,26 +152,61 @@ export default function EditEmployee() {
           end_date: user.EmployeeDetail?.end_date || "",
         });
 
+        // Check various possible locations for documents in the response
         const docsSource = Array.isArray(user.Documents)
           ? user.Documents
           : Array.isArray(user.documents)
           ? user.documents
+          : Array.isArray(user.Document)
+          ? user.Document
+          : Array.isArray(user.document)
+          ? user.document
           : [];
 
+        console.log('📦 Documents from backend:', JSON.stringify(docsSource, null, 2));
+        console.log('📦 user.Documents exists?', !!user.Documents);
+        console.log('📦 user.documents exists?', !!user.documents);
+        console.log('📦 Total documents found:', docsSource.length);
+
+        // Load documents into state - get the LATEST document of each type
         if (docsSource.length > 0) {
-          setDocuments((prev) =>
-            prev.map((d) => {
-              const found = docsSource.find((ud) =>
-                normalizeDocumentType(ud.document_type || ud.type) === d.id
-              );
+          setDocuments((prev) => {
+            const updated = prev.map((d) => {
+              // Find ALL documents of this type and get the most recent one (highest ID)
+              const matchingDocs = docsSource.filter((ud) => {
+                const docType = ud.document_type || ud.type;
+                const normalized = normalizeDocumentType(docType);
+                return normalized === d.id;
+              });
+              
+              // Get the most recent one (assuming higher ID = more recent)
+              const found = matchingDocs.length > 0 
+                ? matchingDocs.reduce((latest, current) => 
+                    current.id > latest.id ? current : latest
+                  )
+                : null;
+                  
               if (found) {
                 const filePath = found.file_path || found.path || "";
+                // Extract filename from path or use file_name if available
                 const fileName = found.file_name || getFileNameFromPath(filePath);
+                console.log(`✓ Loading document ${d.id}:`, JSON.stringify({ 
+                  filePath, 
+                  fileName, 
+                  raw: found,
+                  document_type_from_db: found.document_type,
+                  total_matches: matchingDocs.length
+                }, null, 2));
                 return { ...d, fileName, error: false };
               }
+              console.log(`✗ No match found for document ${d.id}`);
               return d;
-            })
-          );
+            });
+            console.log('📄 Final documents array:', JSON.stringify(updated, null, 2));
+            return updated;
+          });
+        } else {
+          console.log('⚠️ No documents found in user data');
         }
 
         if (user.professional && user.professional.length > 0) {
@@ -167,13 +235,88 @@ export default function EditEmployee() {
         }
 
         if (user.ProjectAllocations && user.ProjectAllocations.length > 0) {
-          const allocation = user.ProjectAllocations[0];
-          setProjectInfo(prev => ({
-            ...prev,
-            currentProject: allocation.Project?.project_name || "",
-            startDate: allocation.Project?.start_date || "",
-          }));
-        }
+  console.log("=== FOUND PROJECT ALLOCATIONS ===");
+  console.log("Total allocations:", user.ProjectAllocations.length);
+  
+  // Try to find the allocation with previous_projects or completed_projects data
+  const allocationWithDetails = user.ProjectAllocations.find(
+    alloc => alloc.previous_projects || alloc.completed_projects || alloc.project_role
+  );
+  
+  // If no allocation with details exists, use the most recent one (highest ID)
+  let allocation;
+  if (allocationWithDetails) {
+    allocation = allocationWithDetails;
+  } else {
+    // Find allocation with highest ID without mutating the array
+    const maxId = Math.max(...user.ProjectAllocations.map(a => a.id));
+    allocation = user.ProjectAllocations.find(a => a.id === maxId);
+  }
+  
+  const allocationId = allocation.id; // Store the ID of the allocation we're editing
+  
+  console.log("=== EDIT PAGE PROJECT ALLOCATION DEBUG ===");
+  console.log("Using allocation index:", user.ProjectAllocations.indexOf(allocation));
+  console.log("Allocation ID:", allocationId);
+  console.log("Full allocation object:", JSON.stringify(allocation, null, 2));
+  console.log("allocation.previous_projects:", allocation.previous_projects);
+  console.log("allocation.completed_projects:", allocation.completed_projects);
+  console.log("allocation.project_role:", allocation.project_role);
+  console.log("allocation.project_description:", allocation.project_description);
+  console.log("allocation.project_contributions:", allocation.project_contributions);
+  console.log("allocation.technologies_used:", allocation.technologies_used);
+  console.log("allocation.allocation_start:", allocation.allocation_start);
+  console.log("allocation.allocation_end:", allocation.allocation_end);
+  console.log("allocation.allocated_hours:", allocation.allocated_hours);
+
+  setProjectInfo(prev => ({
+    ...prev,
+
+    // check both possible backend formats
+    currentProject:
+      allocation.current_project ||
+      allocation.Project?.project_name ||
+      "",
+
+    startDate:
+      allocation.start_date ||
+      allocation.Project?.start_date ||
+      "",
+  }));
+
+  // Load detailed project information
+  console.log("Setting detailedProjectInfo with:", {
+    previous_projects: allocation.previous_projects || "",
+    completed_projects: allocation.completed_projects || "",
+    project_role: allocation.project_role || "",
+    project_description: allocation.project_description || "",
+    project_contributions: allocation.project_contributions || "",
+    technologies_used: allocation.technologies_used || "",
+    allocation_start: allocation.allocation_start || "",
+    allocation_end: allocation.allocation_end || "",
+    allocated_hours: allocation.allocated_hours || "",
+  });
+
+  setDetailedProjectInfo(prev => ({
+    ...prev,
+    previous_projects: allocation.previous_projects || "",
+    completed_projects: allocation.completed_projects || "",
+    project_role: allocation.project_role || "",
+    project_description: allocation.project_description || "",
+    project_contributions: allocation.project_contributions || "",
+    technologies_used: allocation.technologies_used || "",
+    allocation_start: allocation.allocation_start || "",
+    allocation_end: allocation.allocation_end || "",
+    allocated_hours: allocation.allocated_hours || "",
+  }));
+  
+  // Store the allocation ID
+  setCurrentAllocationId(allocation.id);
+  console.log("💾 Stored allocation ID for editing:", allocation.id);
+} else {
+  console.log("⚠️ No ProjectAllocations found in user data");
+  console.log("user.ProjectAllocations:", user.ProjectAllocations);
+}
       } catch (error) {
         console.error("Error fetching employee:", error);
       } finally {
@@ -184,6 +327,89 @@ export default function EditEmployee() {
     fetchEmployee();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // Debug: Log documents state whenever it changes
+  useEffect(() => {
+    console.log('📄 Documents state updated:', JSON.stringify(documents, null, 2));
+  }, [documents]);
+
+  // Reload documents if employeeData changes significantly (e.g., after save)
+  useEffect(() => {
+    if (employeeData && !loading) {
+      const docsSource = Array.isArray(employeeData.Documents)
+        ? employeeData.Documents
+        : Array.isArray(employeeData.documents)
+        ? employeeData.documents
+        : [];
+      
+      const serverDocCount = docsSource.length;
+      
+      // Only reload if we have documents and current state has no files
+      // This prevents overwriting newly uploaded files before save completes
+      const currentDocsWithFiles = documents.filter(d => d.fileName);
+      
+      if (serverDocCount > 0 && currentDocsWithFiles.length === 0) {
+        console.log('🔄 Initial sync of documents with employeeData');
+        
+        setDocuments((prev) => {
+          const updated = prev.map((d) => {
+            const matchingDocs = docsSource.filter((ud) => {
+              const docType = ud.document_type || ud.type;
+              const normalized = normalizeDocumentType(docType);
+              return normalized === d.id;
+            });
+            
+            const found = matchingDocs.length > 0 
+              ? matchingDocs.reduce((latest, current) => 
+                  current.id > latest.id ? current : latest
+                )
+              : null;
+                
+            if (found) {
+              const filePath = found.file_path || found.path || "";
+              const fileName = found.file_name || getFileNameFromPath(filePath);
+              return { ...d, fileName, error: false };
+            }
+            return d;
+          });
+          return updated;
+        });
+      } else if (serverDocCount > 0 && currentDocsWithFiles.length > 0) {
+        // We have both server docs and local uploads - merge them, preferring local uploads
+        console.log('🔄 Merging server documents with local uploads');
+        
+        setDocuments((prev) => {
+          const updated = prev.map((d) => {
+            // If we already have a fileName locally, keep it (don't overwrite)
+            if (d.fileName) {
+              return d;
+            }
+            
+            // Otherwise, try to load from server
+            const matchingDocs = docsSource.filter((ud) => {
+              const docType = ud.document_type || ud.type;
+              const normalized = normalizeDocumentType(docType);
+              return normalized === d.id;
+            });
+            
+            const found = matchingDocs.length > 0 
+              ? matchingDocs.reduce((latest, current) => 
+                  current.id > latest.id ? current : latest
+                )
+              : null;
+                
+            if (found) {
+              const filePath = found.file_path || found.path || "";
+              const fileName = found.file_name || getFileNameFromPath(filePath);
+              return { ...d, fileName, error: false };
+            }
+            return d;
+          });
+          return updated;
+        });
+      }
+    }
+  }, [employeeData, loading]);
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -375,12 +601,20 @@ export default function EditEmployee() {
         await axios.post(url, fd);
       }
 
-      const res = await employeeAPI.getEmployeeById(id);
+      console.log('Fetching updated employee data after upload...');
+      // Add cache-busting to ensure fresh data
+      const timestamp = new Date().getTime();
+      const res = await employeeAPI.getEmployeeById(id, timestamp);
+      console.log('Updated employee data:', res.data.user);
+      console.log('Updated profile_image:', res.data.user.profile_image);
+      console.log('Updated EmployeeDetail:', res.data.user.EmployeeDetail);
       const updatedUserData = res.data.user;
       setEmployeeData(updatedUserData);
 
       alert("Profile photo updated successfully!");
       e.target.value = "";
+      
+      // Force reload of employee list by setting refresh flag
     } catch (error) {
       console.error("Error uploading profile photo:", error);
       console.error("Server response:", error.response?.data);
@@ -425,7 +659,15 @@ export default function EditEmployee() {
     try {
       const fd = new FormData();
       fd.append("document", file);
-      fd.append("document_type", docId);
+      
+      // Map document IDs to database ENUM values
+      const docTypeMap = {
+        "nic": "nic",
+        "birth": "birth_certificate",
+        "edu": "educational_certificate",
+        "transcript": "transcript"
+      };
+      fd.append("document_type", docTypeMap[docId] || docId);
       fd.append("employee_id", id);
 
       if (employeeAPI.uploadEmployeeDocument) {
@@ -454,9 +696,59 @@ export default function EditEmployee() {
         const url = `${API_BASE.replace("/api", "")}/api/employees/${id}/documents`;
         await axios.post(url, fd);
       }
-
+      
+      // Fetch updated employee data to refresh documents
       const res = await employeeAPI.getEmployeeById(id);
-      if (res?.data?.user) setEmployeeData(res.data.user);
+      if (res?.data?.user) {
+        setEmployeeData(res.data.user);
+        
+        // Reload documents from the updated user data - get LATEST of each type
+        const updatedDocsSource = Array.isArray(res.data.user.Documents)
+          ? res.data.user.Documents
+          : Array.isArray(res.data.user.documents)
+          ? res.data.user.documents
+          : [];
+        
+        console.log('🔄 Reloading documents after upload:', JSON.stringify(updatedDocsSource, null, 2));
+        
+        // Update documents state - merge server data with local uploads
+        setDocuments((prev) => {
+          const updated = prev.map((d) => {
+            // If we already have a fileName from local upload, keep it (don't overwrite)
+            // This prevents losing the filename if server hasn't committed yet
+            if (d.fileName && d.file) {
+              console.log(`✓ Keeping local upload for ${d.id}:`, d.fileName);
+              return d;
+            }
+            
+            // Otherwise, try to load from server
+            const matchingDocs = updatedDocsSource.filter((ud) => {
+              const docType = ud.document_type || ud.type;
+              const normalized = normalizeDocumentType(docType);
+              return normalized === d.id;
+            });
+            
+            // Get the most recent one (assuming higher ID = more recent)
+            const found = matchingDocs.length > 0 
+              ? matchingDocs.reduce((latest, current) => 
+                  current.id > latest.id ? current : latest
+                )
+              : null;
+                  
+            if (found) {
+              const filePath = found.file_path || found.path || "";
+              const fileName = found.file_name || getFileNameFromPath(filePath);
+              console.log(`✓ Loaded ${d.id} from server:`, fileName, `(from ${matchingDocs.length} total)`);
+              return { ...d, fileName, error: false };
+            }
+            
+            // No file from server or local - keep as is
+            return d;
+          });
+          console.log('📄 Updated documents:', JSON.stringify(updated, null, 2));
+          return updated;
+        });
+      }
 
       e.target.value = "";
     } catch (error) {
@@ -465,6 +757,23 @@ export default function EditEmployee() {
       alert("Failed to upload document: " + (error.response?.data?.message || error.message || "Unknown error"));
       e.target.value = "";
     }
+  };
+
+  // Toggle expanded sections
+  const toggleSection = (sectionName) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [sectionName]: !prev[sectionName],
+    }));
+  };
+
+  // Handle detailed project info changes
+  const handleDetailedProjectChange = (e) => {
+    const { name, value } = e.target;
+    setDetailedProjectInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const validateForm = () => {
@@ -574,14 +883,168 @@ export default function EditEmployee() {
           alert("Employee information updated, but educational information failed to save: " + (eduError.response?.data?.message || eduError.message));
         }
       }
+//SAVE WORK INFO (backend requires joined_date, report_to, designation, ... )
+if (projectInfo.reportingManagerId || projectInfo.currentProject || projectInfo.startDate) {
+  try {
+   const payload = {
+  joined_date: formData.joined_date || null,
 
-      const res = await employeeAPI.getEmployeeById(id);
+  designation: formData.designation,
+
+   department_id: formData.department || null,
+   
+  management_role: formData.management_role,
+
+  report_to: Number(projectInfo.reportingManagerId),
+
+};
+
+    // Hard validation before calling API (avoid 400)
+    if (!payload.joined_date) {
+      alert('Joined Date (Starts on) is required.');
+      return;
+    }
+    if (!payload.designation) {
+      alert('Designation is required.');
+      return;
+    }
+    if (!payload.report_to) {
+      alert('Reporting Manager (Team Lead) is required.');
+      return;
+    }
+
+    console.log("Saving work-info payload:", payload);
+
+    await employeeAPI.setEmployeeWorkInfo(id, payload);
+  } catch (err) {
+    console.error("Error saving work info:", err);
+    alert(
+      "Employee updated, but Work info failed to save: " +
+        (err.response?.data?.error || err.response?.data?.message || err.message)
+    );
+  }
+}
+      
+// ✅ SAVE PROJECT ALLOCATION (Current Project + Start Date + Detailed Info)
+if (projectInfo.currentProject || projectInfo.startDate) {
+  try {
+    const projectPayload = {
+      current_project: projectInfo.currentProject?.trim() || "",
+      start_date: projectInfo.startDate || null,
+      report_to: Number(projectInfo.reportingManagerId),
+      previous_projects: detailedProjectInfo.previous_projects?.trim() || null,
+      completed_projects: detailedProjectInfo.completed_projects?.trim() || null,
+      project_role: detailedProjectInfo.project_role?.trim() || null,
+      project_description: detailedProjectInfo.project_description?.trim() || null,
+      project_contributions: detailedProjectInfo.project_contributions?.trim() || null,
+      technologies_used: detailedProjectInfo.technologies_used?.trim() || null,
+      allocation_start: detailedProjectInfo.allocation_start || null,
+      allocation_end: detailedProjectInfo.allocation_end || null,
+      allocated_hours: detailedProjectInfo.allocated_hours ? Number(detailedProjectInfo.allocated_hours) : null,
+    };
+
+    console.log("=== SAVING PROJECT ALLOCATION ===");
+    console.log("projectPayload:", projectPayload);
+    console.log("detailedProjectInfo state:", detailedProjectInfo);
+
+    // Check if we have an existing allocation to update
+    const hasExistingAllocation = employeeData?.ProjectAllocations && employeeData.ProjectAllocations.length > 0;
+    
+    console.log("hasExistingAllocation:", hasExistingAllocation);
+    console.log("employeeData.ProjectAllocations:", employeeData?.ProjectAllocations);
+    console.log("currentAllocationId from state:", currentAllocationId);
+    
+    if (hasExistingAllocation && currentAllocationId) {
+      // Use the SAME allocation ID we loaded when editing
+      console.log("🎯 Updating allocation ID:", currentAllocationId);
+      console.log("With payload:", projectPayload);
+      const updateResponse = await employeeAPI.updateEmployeeProjectAllocation(id, currentAllocationId, projectPayload);
+      console.log("✅ Update response:", updateResponse);
+      console.log("Updated allocation data:", updateResponse.data);
+      
+      // Verify the data was actually saved
+      const savedAllocation = updateResponse.data?.data || updateResponse.data;
+      const savedPrevProjects = savedAllocation?.previous_projects;
+      const savedCompletedProjects = savedAllocation?.completed_projects;
+      
+      console.log("✅ VERIFICATION - Data saved correctly:");
+      console.log("   previous_projects:", savedPrevProjects);
+      console.log("   completed_projects:", savedCompletedProjects);
+      
+      if (savedPrevProjects !== projectPayload.previous_projects) {
+        console.warn("⚠️ WARNING: previous_projects mismatch!");
+        console.warn("   Expected:", projectPayload.previous_projects);
+        console.warn("   Got:", savedPrevProjects);
+      }
+      if (savedCompletedProjects !== projectPayload.completed_projects) {
+        console.warn("⚠️ WARNING: completed_projects mismatch!");
+        console.warn("   Expected:", projectPayload.completed_projects);
+        console.warn("   Got:", savedCompletedProjects);
+      }
+    } else {
+      console.log("Creating new project allocation");
+      const createResponse = await employeeAPI.addEmployeeProjectAllocation(id, projectPayload);
+      console.log("✅ Create response:", createResponse);
+      console.log("Created allocation data:", createResponse.data);
+      
+      // Verify the data was actually saved
+      const savedAllocation = createResponse.data?.data || createResponse.data;
+      const savedPrevProjects = savedAllocation?.previous_projects;
+      const savedCompletedProjects = savedAllocation?.completed_projects;
+      
+      console.log("✅ VERIFICATION - Data saved correctly:");
+      console.log("   previous_projects:", savedPrevProjects);
+      console.log("   completed_projects:", savedCompletedProjects);
+      
+      if (savedPrevProjects !== projectPayload.previous_projects) {
+        console.warn("⚠️ WARNING: previous_projects mismatch!");
+        console.warn("   Expected:", projectPayload.previous_projects);
+        console.warn("   Got:", savedPrevProjects);
+      }
+      if (savedCompletedProjects !== projectPayload.completed_projects) {
+        console.warn("⚠️ WARNING: completed_projects mismatch!");
+        console.warn("   Expected:", projectPayload.completed_projects);
+        console.warn("   Got:", savedCompletedProjects);
+      }
+    }
+  } catch (err) {
+    console.error("Error saving project allocation:", err);
+    alert(
+      "Employee updated, but Project allocation failed to save: " +
+        (err.response?.data?.error ||
+          err.response?.data?.message ||
+          err.message)
+    );
+  }
+}
+      // Wait a moment for database to commit
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Add cache-busting to ensure fresh data
+      const timestamp = new Date().getTime();
+      console.log("🔄 Fetching fresh employee data with cache-bust timestamp:", timestamp);
+      const res = await employeeAPI.getEmployeeById(id, timestamp);
       const updatedUserData = res.data.user;
+      
+      console.log("✅ Fresh employee data received:", updatedUserData);
+      console.log("ProjectAllocations after save:", updatedUserData.ProjectAllocations);
+      if (updatedUserData.ProjectAllocations?.length > 0) {
+        const lastAlloc = updatedUserData.ProjectAllocations[updatedUserData.ProjectAllocations.length - 1];
+        console.log("Last allocation:", lastAlloc);
+        console.log("previous_projects:", lastAlloc.previous_projects);
+        console.log("completed_projects:", lastAlloc.completed_projects);
+      }
 
       setEmployeeData(updatedUserData);
 
       alert("Employee information updated successfully!");
-      navigate("/employees");
+      
+      // Force complete page reload to clear any cached data
+      setTimeout(() => {
+        console.log("🔄 Navigating to overview with fresh data");
+        // Use window.location for hard refresh instead of react router
+        window.location.href = `/employees/${id}/overview`;
+      }, 500); // Increased delay to ensure database commit completes
     } catch (error) {
       console.error("Error updating employee:", error);
       console.error("Server response:", error.response?.data);
@@ -636,14 +1099,15 @@ export default function EditEmployee() {
     };
 
     return (
-      <div
+        <div
         className={`custom-select ${className} ${open ? "open" : ""} ${disabled ? "disabled" : ""}`}
-        ref={containerRef}
-        role="combobox"
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-disabled={disabled}
-      >
+          ref={containerRef}
+          role="combobox"
+          aria-expanded={open}
+          aria-controls={`${name}-listbox`}
+          aria-haspopup="listbox"
+          aria-disabled={disabled}
+       >
         <button
           type="button"
           className="custom-select-toggle"
@@ -1069,9 +1533,80 @@ export default function EditEmployee() {
                 />
               </div>
 
-              <button className="view-btn">
-                <img src={dropdownIcon} alt="" />
-                View more
+              {/* Expanded Professional Details */}
+              {expandedSections.professional && (
+                <div className="expanded-section">
+                  <div className="small-field">
+                    <label>Previous Job Positions</label>
+                    <textarea
+                      name="previous_positions"
+                      placeholder="List your previous job positions (one per line)"
+                      rows="3"
+                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Key Responsibilities</label>
+                    <textarea
+                      name="responsibilities"
+                      placeholder="Describe your key responsibilities"
+                      rows="3"
+                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Technical Skills</label>
+                    <input
+                      type="text"
+                      name="technical_skills"
+                      placeholder="e.g., Java, Python, React, Node.js"
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Certifications</label>
+                    <input
+                      type="text"
+                      name="certifications"
+                      placeholder="List relevant certifications"
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Achievements</label>
+                    <textarea
+                      name="achievements"
+                      placeholder="Describe your key achievements"
+                      rows="2"
+                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Employment Duration</label>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <input
+                        type="date"
+                        name="employment_start"
+                        placeholder="Start Date"
+                        style={{ flex: 1 }}
+                      />
+                      <input
+                        type="date"
+                        name="employment_end"
+                        placeholder="End Date (or leave blank if current)"
+                        style={{ flex: 1 }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <button className="view-btn" onClick={() => toggleSection('professional')}>
+                <img src={dropdownIcon} alt="" style={{ transform: expandedSections.professional ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
+                {expandedSections.professional ? 'Show less' : 'View more'}
               </button>
             </div>
 
@@ -1118,9 +1653,70 @@ export default function EditEmployee() {
                 <img src={dropdownIcon} className="icon" alt="" />
               </div>
 
-              <button className="view-btn">
-                <img src={dropdownIcon} alt="" />
-                View more
+              {/* Expanded Educational Details */}
+              {expandedSections.educational && (
+                <div className="expanded-section">
+                  <div className="small-field">
+                    <label>Additional Qualifications</label>
+                    <textarea
+                      name="additional_qualifications"
+                      placeholder="List additional qualifications (one per line)"
+                      rows="3"
+                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Specialization Subjects</label>
+                    <input
+                      type="text"
+                      name="specialization"
+                      placeholder="e.g., Computer Science, Mathematics, Physics"
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Certifications & Licenses</label>
+                    <input
+                      type="text"
+                      name="certifications_licenses"
+                      placeholder="Professional certifications and licenses"
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Academic Awards</label>
+                    <textarea
+                      name="academic_awards"
+                      placeholder="Describe any academic awards or honors"
+                      rows="2"
+                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>GPA/Grade</label>
+                    <input
+                      type="text"
+                      name="gpa_grade"
+                      placeholder="e.g., 3.8 GPA, First Class Honors"
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Thesis/Dissertation Title</label>
+                    <input
+                      type="text"
+                      name="thesis_title"
+                      placeholder="Title of your thesis or dissertation"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <button className="view-btn" onClick={() => toggleSection('educational')}>
+                <img src={dropdownIcon} alt="" style={{ transform: expandedSections.educational ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
+                {expandedSections.educational ? 'Show less' : 'View more'}
               </button>
             </div>
 
@@ -1167,9 +1763,119 @@ export default function EditEmployee() {
                 />
               </div>
 
-              <button className="view-btn">
-                <img src={dropdownIcon} alt="" />
-                View more
+              {/* Expanded Project Details */}
+              {expandedSections.project && (
+                <div className="expanded-section">
+                  <div className="small-field">
+                    <label>Previous Projects</label>
+                    <textarea
+                      name="previous_projects"
+                      placeholder="List your previous projects (one per line)"
+                      rows="3"
+                      value={detailedProjectInfo.previous_projects}
+                      onChange={handleDetailedProjectChange}
+                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Completed Projects</label>
+                    <textarea
+                      name="completed_projects"
+                      placeholder="List completed projects with brief descriptions"
+                      rows="3"
+                      value={detailedProjectInfo.completed_projects}
+                      onChange={handleDetailedProjectChange}
+                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Project Role</label>
+                    <input
+                      type="text"
+                      name="project_role"
+                      placeholder="e.g., Lead Developer, Backend Engineer, UI/UX Designer"
+                      value={detailedProjectInfo.project_role}
+                      onChange={handleDetailedProjectChange}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Project Description</label>
+                    <textarea
+                      name="project_description"
+                      placeholder="Describe your current project"
+                      rows="3"
+                      value={detailedProjectInfo.project_description}
+                      onChange={handleDetailedProjectChange}
+                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Key Contributions</label>
+                    <textarea
+                      name="project_contributions"
+                      placeholder="Describe your key contributions to the project"
+                      rows="3"
+                      value={detailedProjectInfo.project_contributions}
+                      onChange={handleDetailedProjectChange}
+                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Technologies Used</label>
+                    <input
+                      type="text"
+                      name="technologies_used"
+                      placeholder="e.g., React, Node.js, MongoDB, AWS"
+                      value={detailedProjectInfo.technologies_used}
+                      onChange={handleDetailedProjectChange}
+                    />
+                  </div>
+
+                  <div className="small-field">
+                    <label>Allocation History</label>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <input
+                        type="date"
+                        name="allocation_start"
+                        placeholder="Allocation Start"
+                        value={detailedProjectInfo.allocation_start}
+                        onChange={handleDetailedProjectChange}
+                        style={{ flex: 1 }}
+                      />
+                      <input
+                        type="date"
+                        name="allocation_end"
+                        placeholder="Allocation End (or leave blank)"
+                        value={detailedProjectInfo.allocation_end}
+                        onChange={handleDetailedProjectChange}
+                        style={{ flex: 1 }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="small-field">
+                    <label>Allocated Hours (per week)</label>
+                    <input
+                      type="number"
+                      name="allocated_hours"
+                      placeholder="e.g., 40"
+                      min="0"
+                      step="1"
+                      value={detailedProjectInfo.allocated_hours}
+                      onChange={handleDetailedProjectChange}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <button className="view-btn" onClick={() => toggleSection('project')}>
+                <img src={dropdownIcon} alt="" style={{ transform: expandedSections.project ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
+                {expandedSections.project ? 'Show less' : 'View more'}
               </button>
             </div>
           </div>

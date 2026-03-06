@@ -328,7 +328,6 @@ const CurrentEmpList = ({ page = 1, setTotalPages }) => {
       try {
         setLoading(true);
         const response = await employeeAPI.getAllEmployees(page, 10); // Use page prop from parent for pagination
-
         if (response.success) {
           // Filter to show only active employees (inactive and terminated are former employees)
           const filteredEmployees = response.data.employees.filter(

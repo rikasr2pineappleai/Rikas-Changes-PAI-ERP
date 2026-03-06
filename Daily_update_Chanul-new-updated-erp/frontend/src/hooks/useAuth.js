@@ -89,7 +89,7 @@ export default function useAuth() {
 
     window.addEventListener('storage', handleStorageChange);
 
-    // Periodically check if the user is still authenticated (every 30 seconds)
+    // Periodically check if the user is still authenticated (every 5 minutes)
     const interval = setInterval(() => {
       // We need to check the current authentication state
       const currentToken = localStorage.getItem('token');
@@ -97,15 +97,22 @@ export default function useAuth() {
         getCurrentUser().catch(error => {
           // If there's an error fetching user data, log out
           console.error('Periodic auth check failed:', error);
-          // We need to update the state in this closure
-          setUser(null);
-          setIsAuthenticated(false);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          apiClient.removeToken();
+          // Only logout if it's a 401/403 error (invalid token)
+          // For network errors or other issues, we'll just log but not logout
+          if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            // Token is invalid, logout
+            setUser(null);
+            setIsAuthenticated(false);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            apiClient.removeToken();
+          } else {
+            // Network error or server error - don't logout, just warn
+            console.warn('Auth check encountered non-critical error. User remains logged in.');
+          }
         });
       }
-    }, 30 * 1000); // 30 seconds
+    }, 5 * 60 * 1000); // 5 minutes instead of 30 seconds
 
     // Cleanup listeners on unmount
     return () => {

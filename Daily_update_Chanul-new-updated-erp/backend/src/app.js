@@ -225,7 +225,8 @@ app.use((req, res, next) => {
 
 // CRITICAL: Serve static files from uploads directory with explicit priority
 // This must come BEFORE any frontend serving middleware
-const uploadsPath = path.join(__dirname, "uploads");
+const uploadsPath = path.join(__dirname, "../uploads");
+console.log("Serving uploads from:", uploadsPath);
 
 // Enhanced static file serving with proper headers for images
 app.use("/uploads", express.static(uploadsPath, {

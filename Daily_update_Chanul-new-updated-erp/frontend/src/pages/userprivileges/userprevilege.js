@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Userpermission from "./userpermission";
 import rolesIcon from "../../assets/icons/Roles.png";
-import viewIcon from "../../assets/icons/permision.png"; // use your existing permission icon
 import "./privilege.css";
 
 export default function Userprevillage() {

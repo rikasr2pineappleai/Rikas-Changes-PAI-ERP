@@ -609,9 +609,17 @@ exports.uploadEmployeeDocument = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    console.log("Upload document attempt - UserID:", userId);
-    console.log("File info:", req.file ? { filename: req.file.filename, size: req.file.size, mimetype: req.file.mimetype } : "No file");
-    console.log("Document type:", req.body.document_type);
+    console.log("=== UPLOAD DOCUMENT DEBUG ===");
+    console.log("UserID:", userId);
+    console.log("Request body:", req.body);
+    console.log("Document type from req.body.document_type:", req.body.document_type);
+    console.log("File info:", req.file ? { 
+      filename: req.file.filename, 
+      originalname: req.file.originalname,
+      size: req.file.size, 
+      mimetype: req.file.mimetype,
+      path: req.file.path 
+    } : "No file");
 
     // Check if user exists
     const user = await User.findByPk(userId);
@@ -630,14 +638,16 @@ exports.uploadEmployeeDocument = async (req, res) => {
       });
     }
 
+    // Get document type from request body
     const documentType = req.body.document_type;
+    console.log("Document type to be saved:", documentType);
 
     // Validate document type
     if (
       ![
         "nic",
-        "birth",
-        "edu",
+        "birth_certificate",
+        "educational_certificate",
         "transcript",
       ].includes(documentType)
     ) {
@@ -651,8 +661,40 @@ exports.uploadEmployeeDocument = async (req, res) => {
       });
     }
 
+    console.log(`Checking for existing ${documentType} document for user ${userId}...`);
+    
+    // Check if a document of this type already exists for this user
+    const existingDocument = await Document.findOne({
+      where: {
+        user_id: userId,
+        document_type: documentType
+      }
+    });
+
+    if (existingDocument) {
+      console.log(`Found existing document (ID: ${existingDocument.id}), replacing...`);
+      
+      // Delete the old file from disk
+      const { deleteFile } = require("../utils/fileUpload");
+      try {
+        if (existingDocument.file_path) {
+          deleteFile(existingDocument.file_path);
+          console.log("✓ Deleted old file:", existingDocument.file_path);
+        }
+      } catch (deleteError) {
+        console.error("⚠ Error deleting old file:", existingDocument.file_path, deleteError);
+        // Continue anyway - we don't want to fail the upload if old file deletion fails
+      }
+      
+      // Delete the old document record
+      await existingDocument.destroy();
+      console.log("✓ Deleted old document record:", existingDocument.id);
+    } else {
+      console.log(`No existing ${documentType} document found, creating new record`);
+    }
+
     // Store only the relative path for the document, not the full absolute path
-    const pathArray = req.file.path.split(/[\\\/]/);
+    const pathArray = req.file.path.split(/[\\/]/);
     const uploadsIndex = pathArray.lastIndexOf("uploads");
     const relativeDocumentPath =
       uploadsIndex !== -1
@@ -668,7 +710,12 @@ exports.uploadEmployeeDocument = async (req, res) => {
       file_path: relativeDocumentPath,
     });
 
-    console.log("Document created successfully:", document.id);
+    console.log("Document created successfully:", {
+      id: document.id,
+      document_type: document.document_type,
+      file_path: document.file_path
+    });
+    console.log("=== END UPLOAD DOCUMENT DEBUG ===");
 
     res.status(201).json({
       success: true,
@@ -785,107 +832,293 @@ exports.setEmployeeWorkInfo = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    // Validate input
-    const { error } = workInfoSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation error",
-        error: error.details[0].message,
-      });
-    }
+    const {
+      designation,
+      department_id,
+      management_role,
+      joined_date,
+      end_date,
+      report_to
+    } = req.body;
 
-    // Check if user exists
     const user = await User.findByPk(userId);
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "Employee not found",
+        message: "Employee not found"
       });
     }
 
-    const {
-      joined_date,
-      designation,
-      department_id,
-      management_role,
-      report_to,
-    } = req.body;
-
-    console.log("Work Info Data Received:", {
-      joined_date,
-      designation,
-      department_id,
-      management_role,
-      report_to,
-    });
-
-    // Check if department exists (only if department_id is provided)
-    if (department_id) {
-      const department = await Department.findByPk(department_id);
-      if (!department) {
-        return res.status(400).json({
-          success: false,
-          message: "Department not found",
-        });
-      }
-    }
-
-    // Update user with work information
-    console.log("Updating user with:", {
-      department_id,
-      designation,
-      management_role,
-      report_to: report_to || null,
-    });
-
+    // update user table
     await user.update({
-      department_id,
-      designation,
-      management_role,
-      report_to: report_to || null,
+      designation: designation || null,
+      department_id: department_id || null,
+      management_role: management_role || null,
+      report_to: report_to || null
     });
 
-    // Reload user to verify update
-    await user.reload();
-    console.log("User after update:", {
-      id: user.id,
-      designation: user.designation,
-      management_role: user.management_role,
-      department_id: user.department_id,
-      report_to: user.report_to,
-    });
-
-    // Update employee detail with joined date
+    // update employee details
     let employeeDetail = await EmployeeDetail.findOne({
-      where: { user_id: userId },
+      where: { user_id: userId }
     });
-    if (employeeDetail) {
-      await employeeDetail.update({
-        joined_date,
+
+    if (!employeeDetail) {
+      employeeDetail = await EmployeeDetail.create({
+        user_id: userId,
+        joined_date: joined_date || null,
+        end_date: end_date || null
       });
     } else {
-      await EmployeeDetail.create({
-        user_id: userId,
-        joined_date,
+      await employeeDetail.update({
+        joined_date: joined_date || null,
+        end_date: end_date || null
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Employee work information set successfully",
-      data: {
-        user,
-      },
+      message: "Employee work information saved successfully"
     });
+
   } catch (error) {
-    const errorResponse = handleControllerError(
-      error,
-      "set employee work info"
-    );
-    res.status(500).json(errorResponse);
+    console.error("setEmployeeWorkInfo error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to set employee work info"
+    });
   }
 };
+// @desc    Add employee project allocation
+// @route   POST /api/employees/:id/project-allocation
+// @access  Private (Admin)
+
+exports.addEmployeeProjectAllocation = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { 
+      current_project, 
+      start_date, 
+      report_to, 
+      previous_projects, 
+      completed_projects,
+      project_role,
+      project_description,
+      project_contributions,
+      technologies_used,
+      allocation_start,
+      allocation_end,
+      allocated_hours
+    } = req.body;
+
+    console.log("=== PROJECT ALLOCATION DEBUG ===");
+    console.log("userId:", userId);
+    console.log("current_project:", current_project);
+    console.log("start_date:", start_date);
+    console.log("report_to:", report_to);
+    console.log("previous_projects:", previous_projects);
+    console.log("completed_projects:", completed_projects);
+    console.log("project_role:", project_role);
+    console.log("project_description:", project_description);
+    console.log("project_contributions:", project_contributions);
+    console.log("technologies_used:", technologies_used);
+    console.log("allocation_start:", allocation_start);
+    console.log("allocation_end:", allocation_end);
+    console.log("allocated_hours:", allocated_hours);
+
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found"
+      });
+    }
+
+    console.log("Creating allocation with data:", {
+      user_id: userId,
+      project_id: null,
+      current_project,
+      start_date,
+      report_to: report_to || null,
+      previous_projects: previous_projects || null,
+      completed_projects: completed_projects || null,
+      project_role: project_role || null,
+      project_description: project_description || null,
+      project_contributions: project_contributions || null,
+      technologies_used: technologies_used || null,
+      allocation_start: allocation_start || null,
+      allocation_end: allocation_end || null,
+      allocated_hours: allocated_hours || null
+    });
+
+    const allocation = await ProjectAllocation.create({
+      user_id: userId,
+      project_id: null, // Optional - we're using current_project text field instead
+      current_project,
+      start_date,
+      report_to: report_to || null,
+      previous_projects: previous_projects || null,
+      completed_projects: completed_projects || null,
+      project_role: project_role || null,
+      project_description: project_description || null,
+      project_contributions: project_contributions || null,
+      technologies_used: technologies_used || null,
+      allocation_start: allocation_start || null,
+      allocation_end: allocation_end || null,
+      allocated_hours: allocated_hours || null
+    });
+
+    console.log("Allocation created successfully:", allocation.toJSON());
+
+    res.status(201).json({
+      success: true,
+      message: "Project allocation added",
+      data: allocation
+    });
+
+  } catch (error) {
+    console.error("Project allocation error:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      original: error.original?.message,
+      parent: error.parent?.message
+    });
+    res.status(500).json({
+      success: false,
+      message: "Failed to create allocation",
+      error: error.message
+    });
+  }
+};
+
+exports.updateEmployeeProjectAllocation = async (req, res) => {
+  try {
+    console.log("=== UPDATE PROJECT ALLOCATION ROUTE HIT ===");
+    console.log("Request params:", req.params);
+    console.log("Request body:", req.body);
+    
+    const userId = req.params.id;
+    const allocationId = req.params.allocationId;
+    const { 
+      current_project, 
+      start_date, 
+      report_to, 
+      previous_projects, 
+      completed_projects,
+      project_role,
+      project_description,
+      project_contributions,
+      technologies_used,
+      allocation_start,
+      allocation_end,
+      allocated_hours
+    } = req.body;
+
+    console.log("=== UPDATE PROJECT ALLOCATION DEBUG ===");
+    console.log("userId:", userId);
+    console.log("allocationId:", allocationId);
+    console.log("current_project:", current_project);
+    console.log("start_date:", start_date);
+    console.log("report_to:", report_to);
+    console.log("previous_projects:", previous_projects);
+    console.log("completed_projects:", completed_projects);
+    console.log("project_role:", project_role);
+    console.log("project_description:", project_description);
+    console.log("project_contributions:", project_contributions);
+    console.log("technologies_used:", technologies_used);
+    console.log("allocation_start:", allocation_start);
+    console.log("allocation_end:", allocation_end);
+    console.log("allocated_hours:", allocated_hours);
+
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found"
+      });
+    }
+
+    const allocation = await ProjectAllocation.findByPk(allocationId);
+
+    if (!allocation) {
+      return res.status(404).json({
+        success: false,
+        message: "Project allocation not found"
+      });
+    }
+
+    if (allocation.user_id !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "This project allocation does not belong to the specified employee"
+      });
+    }
+
+    console.log("Updating allocation with data:", {
+      current_project,
+      start_date,
+      report_to: report_to || null,
+      previous_projects: previous_projects || null,
+      completed_projects: completed_projects || null,
+      project_role: project_role || null,
+      project_description: project_description || null,
+      project_contributions: project_contributions || null,
+      technologies_used: technologies_used || null,
+      allocation_start: allocation_start || null,
+      allocation_end: allocation_end || null,
+      allocated_hours: allocated_hours || null
+    });
+
+    allocation.current_project = current_project || allocation.current_project;
+    allocation.start_date = start_date || allocation.start_date;
+    allocation.report_to = report_to !== undefined ? report_to : allocation.report_to;
+    allocation.previous_projects = previous_projects !== undefined ? previous_projects : allocation.previous_projects;
+    allocation.completed_projects = completed_projects !== undefined ? completed_projects : allocation.completed_projects;
+    allocation.project_role = project_role !== undefined ? project_role : allocation.project_role;
+    allocation.project_description = project_description !== undefined ? project_description : allocation.project_description;
+    allocation.project_contributions = project_contributions !== undefined ? project_contributions : allocation.project_contributions;
+    allocation.technologies_used = technologies_used !== undefined ? technologies_used : allocation.technologies_used;
+    allocation.allocation_start = allocation_start !== undefined ? allocation_start : allocation.allocation_start;
+    allocation.allocation_end = allocation_end !== undefined ? allocation_end : allocation.allocation_end;
+    allocation.allocated_hours = allocated_hours !== undefined ? allocated_hours : allocation.allocated_hours;
+
+    console.log("💾 Saving allocation changes:", {
+      allocation_id: allocation.id,
+      previous_projects: allocation.previous_projects,
+      completed_projects: allocation.completed_projects
+    });
+
+    await allocation.save();
+    
+    console.log("✅ Allocation saved successfully!");
+
+    console.log("Allocation updated successfully:", allocation.toJSON());
+
+    res.status(200).json({
+      success: true,
+      message: "Project allocation updated",
+      data: allocation
+    });
+
+  } catch (error) {
+    console.error("Project allocation update error:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      original: error.original?.message,
+      parent: error.parent?.message
+    });
+    res.status(500).json({
+      success: false,
+      message: "Failed to update allocation",
+      error: error.message
+    });
+  }
+};
+
 
 // @desc    Get employee overview
 // @route   GET /api/employees/:id
@@ -895,6 +1128,7 @@ exports.getEmployeeOverview = async (req, res) => {
     const userId = req.params.id;
 
     // Get user with associated data
+    console.log(`🔍 Fetching employee overview for userId: ${userId}`);
     const user = await User.findByPk(userId, {
       include: [
         {
@@ -935,9 +1169,30 @@ exports.getEmployeeOverview = async (req, res) => {
                 attributes: ["id", "project_name", "start_date", "end_date", "status"],
               },
             ],
+            // Explicitly include all project allocation fields
+            attributes: ['id', 'user_id', 'project_id', 'current_project', 'start_date', 
+                        'previous_projects', 'completed_projects', 'project_role', 
+                        'project_description', 'project_contributions', 'technologies_used',
+                        'allocation_start', 'allocation_end', 'allocated_hours', 'report_to']
           },
       ],
+      // Force Sequelize to log the query for debugging
+      benchmark: true,
+      logging: (message) => console.log("⏱️ DB Query Time:", message)
     });
+    
+    console.log("✅ User found:", user ? `Yes - ID: ${user.id}` : "No");
+    if (user?.ProjectAllocations?.length > 0) {
+      const lastAlloc = user.ProjectAllocations[user.ProjectAllocations.length - 1];
+      console.log("📊 Last Allocation Data (for Overview):", {
+        id: lastAlloc.id,
+        previous_projects: lastAlloc.previous_projects,
+        completed_projects: lastAlloc.completed_projects,
+        current_project: lastAlloc.current_project
+      });
+    } else {
+      console.log("⚠️ No ProjectAllocations found for this user");
+    }
 
     if (!user) {
       return res.status(404).json({

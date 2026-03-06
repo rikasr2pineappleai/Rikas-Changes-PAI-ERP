@@ -225,6 +225,25 @@ export default function NewEmployee() {
     const file = e.target.files[0];
 
     if (file) {
+      // Validate file type - only allow PDF and image files
+      const validImageTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/webp",
+      ];
+      
+      // Check if it's an image or PDF
+      const isImage = validImageTypes.includes(file.type);
+      const isPDF = file.type === "application/pdf";
+      
+      if (!isImage && !isPDF) {
+        alert("Unsupported file type. Please upload a PDF or image file only.");
+        // Clear the input to prevent the invalid file from being stored
+        e.target.value = "";
+        return;
+      }
+
       const imageURL = URL.createObjectURL(file);
       setPreview(imageURL);
       // Store the file in ref for later use during employee creation

@@ -141,6 +141,7 @@ class ApiClient {
 
     // If token exists but is expired, remove it
     if (token && this.isTokenExpired(token)) {
+      console.warn('Token found but is expired, removing it');
       this.removeToken();
       return null;
     }
@@ -174,14 +175,23 @@ class ApiClient {
     try {
       const decoded = this.decodeToken(token);
       if (!decoded || !decoded.exp) {
-        return true; // If we can't decode or there's no expiration, treat as expired
+        console.warn('Token missing exp claim, treating as non-expired for safety');
+        return false; // If we can't decode or there's no expiration, treat as non-expired to avoid locking users out
       }
 
       const currentTime = Math.floor(Date.now() / 1000);
-      return decoded.exp < currentTime;
+      // Add a 5-minute buffer before actual expiration
+      const buffer = 5 * 60; // 5 minutes in seconds
+      const isExpired = decoded.exp < (currentTime + buffer);
+      
+      if (isExpired) {
+        console.log('Token is expired or about to expire within 5 minutes');
+      }
+      
+      return isExpired;
     } catch (error) {
       console.error("Error checking token expiration:", error);
-      return true; // If there's an error, treat as expired
+      return false; // If there's an error, treat as non-expired to avoid locking users out
     }
   }
 
@@ -217,6 +227,8 @@ class ApiClient {
           headers["X-User-Role"] = user.role;
           headers["X-Employee-ID"] = user.emp_id;
         }
+      } else {
+        console.warn('No token available for authenticated request');
       }
     }
 
@@ -231,11 +243,16 @@ class ApiClient {
       ...options,
     };
 
+    console.log(`📡 API Request: ${options.method || 'GET'} ${endpoint}`);
+    console.log('Token status:', this.getToken() ? '✓ Present' : '✗ Missing');
+
     try {
       const response = await fetch(url, config);
 
       // Handle 401 Unauthorized responses
       if (response.status === 401) {
+        console.error('❌ 401 Unauthorized - Token may be invalid');
+        console.error('Response details:', await response.json().catch(() => 'No response body'));
         this.removeToken();
         window.location.href = "/login";
         throw new Error("Unauthorized");

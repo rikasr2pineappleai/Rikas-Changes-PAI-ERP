@@ -139,6 +139,26 @@ export default function AddEmployeeStep3() {
     const { name, files } = e.target;
     const file = files && files[0] ? files[0] : null;
     
+    if (file) {
+      // Validate file type - only allow PDF and image files
+      const validImageTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/webp",
+      ];
+      
+      // Check if it's an image or PDF
+      const isImage = validImageTypes.includes(file.type);
+      const isPDF = file.type === "application/pdf";
+      
+      if (!isImage && !isPDF) {
+        alert("Unsupported file type. Please upload a PDF or image file only.");
+        e.target.value = ""; // Clear the input to prevent the invalid file from being stored
+        return;
+      }
+    }
+    
     // Validate file size (10MB = 10 * 1024 * 1024 bytes)
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     
@@ -264,12 +284,12 @@ export default function AddEmployeeStep3() {
       await uploadDocument(
         employeeId,
         formData.birthCertificate,
-        "birth"
+        "birth_certificate"
       );
       await uploadDocument(
         employeeId,
         formData.educationCertificate,
-        "edu"
+        "educational_certificate"
       );
       // Transcript is optional - only upload if provided
       if (formData.transcript) {
@@ -478,14 +498,19 @@ export default function AddEmployeeStep3() {
 
           {/* Transcript */}
           <div className="upload-col">
-            <label className="upload-title">Transcript</label>
+            <label className="upload-title">
+              Transcript
+              <span style={{ fontSize: "14px", color: "#979494", fontWeight: "normal", marginLeft: "6px" }}>
+                (Optional)
+              </span>
+            </label>
 
             <label className="upload-field">
               <img src={uploadIcon} alt="upload" />
               <span>
                 {formData.transcript
                   ? formData.transcript.name
-                  : "Upload Transcript"}
+                  : "Upload Transcript (Optional)"}
               </span>
               <input
                 type="file"
@@ -496,7 +521,7 @@ export default function AddEmployeeStep3() {
               />
             </label>
 
-            <small className="pdf-note">* Upload PDF only</small>
+            <small className="pdf-note" style={{ color: "#979494" }}>* Optional - Upload PDF only if available</small>
             {errors.transcript && (
               <small className="error">{errors.transcript}</small>
             )}

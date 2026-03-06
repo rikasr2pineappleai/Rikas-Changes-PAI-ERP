@@ -1,14 +1,11 @@
-// Employee API Servic
+// Employee API Service
 import apiClient from "../utils/apiClient";
 
 class EmployeeAPI {
   // Step 1: Create employee personal information
   async createEmployeePersonal(data) {
     try {
-      const { data: response } = await apiClient.post(
-        "/employees/personal",
-        data
-      );
+      const { data: response } = await apiClient.post("/employees/personal", data);
       return response;
     } catch (error) {
       throw error;
@@ -85,10 +82,7 @@ class EmployeeAPI {
     try {
       const url = `${apiClient.baseURL}/employees/${employeeId}/documents`;
 
-      // Get token for authorization
       const token = apiClient.getToken();
-
-      // Check if token exists before making the request
       if (!token) {
         throw new Error("No authentication token found. Please log in again.");
       }
@@ -103,9 +97,7 @@ class EmployeeAPI {
 
       const data = await response.json();
 
-      // Check for 401 Unauthorized specifically
       if (response.status === 401) {
-        // Remove token and redirect to login
         apiClient.removeToken();
         window.location.href = "/login";
         throw new Error(data.message || "Unauthorized. Please log in again.");
@@ -117,30 +109,42 @@ class EmployeeAPI {
 
       return data;
     } catch (error) {
-      // Re-throw the error to be handled by the calling function
       throw error;
     }
   }
 
-  // Step 3: Set employee work information
-  async setEmployeeWorkInfo(employeeId, data) {
-    try {
-      const { data: response } = await apiClient.post(
-        `/employees/${employeeId}/work-info`,
-        data
-      );
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // Step 3: Set employee work information 
+ async setEmployeeWorkInfo(employeeId, data) {
+  const { data: response } = await apiClient.post(
+    `/employees/${employeeId}/work-info`,
+    data
+  );
+  return response;
+}
+
+  // Add employee project allocation (uses work-info)
+  async addEmployeeProjectAllocation(employeeId, data) {
+  const { data: response } = await apiClient.post(
+    `/employees/${employeeId}/project-allocation`,
+    data
+  );
+  return response;
+}
+
+ async updateEmployeeProjectAllocation(employeeId, allocationId, data) {
+  const { data: response } = await apiClient.put(
+    `/employees/${employeeId}/project-allocation/${allocationId}`,
+    data
+  );
+  return response;
+}
 
   // Get employee by ID
-  async getEmployeeById(employeeId) {
+  async getEmployeeById(employeeId, timestamp = null) {
     try {
-      const { data: response } = await apiClient.get(
-        `/employees/${employeeId}`
-      );
+      // Add cache-busting parameter to prevent browser caching
+      const cacheBuster = timestamp || new Date().getTime();
+      const { data: response } = await apiClient.get(`/employees/${employeeId}?_t=${cacheBuster}`);
       return response;
     } catch (error) {
       throw error;
@@ -151,9 +155,7 @@ class EmployeeAPI {
   async getAllEmployees(page = 1, limit = 10, status = null) {
     try {
       let url = `/employees?page=${page}&limit=${limit}`;
-      if (status) {
-        url += `&status=${status}`;
-      }
+      if (status) url += `&status=${status}`;
       const { data: response } = await apiClient.get(url);
       return response;
     } catch (error) {
@@ -178,8 +180,6 @@ class EmployeeAPI {
       formData.append("image", imageFile);
 
       const url = `${apiClient.baseURL}/employees/${employeeId}/profile-photo`;
-
-      // Get token for authorization
       const token = apiClient.getToken();
 
       const response = await fetch(url, {
@@ -227,5 +227,4 @@ class EmployeeAPI {
 
 // Create singleton instance
 const employeeAPI = new EmployeeAPI();
-
 export default employeeAPI;

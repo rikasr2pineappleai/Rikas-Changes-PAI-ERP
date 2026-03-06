@@ -9,6 +9,8 @@ const {
   uploadEmployeeDocument,
   uploadEmployeeProfilePhoto,
   setEmployeeWorkInfo,
+  addEmployeeProjectAllocation,
+  updateEmployeeProjectAllocation,
   getEmployeeOverview,
   getAllEmployees,
   getEmployeeCount,
@@ -18,7 +20,6 @@ const {
 } = require('../controllers/employee.controller');
 const { protect, authorize } = require('../middleware/auth.middleware');
 const { upload, uploadConfigs } = require('../utils/fileUpload');
-
 const router = express.Router();
 
 // All employees
@@ -60,6 +61,14 @@ router.route('/:id/professional/:professionalId')
 // Employee work information
 router.route('/:id/work-info')
   .post(protect, authorize('admin'), setEmployeeWorkInfo);
+
+// Project allocation routes - MUST come before the generic /:id route
+router.route('/:id/project-allocation')
+  .post(protect, authorize('admin'), addEmployeeProjectAllocation);
+
+// Update project allocation
+router.route('/:id/project-allocation/:allocationId')
+  .put(protect, authorize('admin'), updateEmployeeProjectAllocation);
 
 // Multer error handler for document uploads
 const handleMulterError = (err, req, res, next) => {

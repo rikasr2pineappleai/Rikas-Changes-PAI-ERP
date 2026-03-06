@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import employeeAPI from "../integration/employeeAPI"; // Import the employee API
+import employeeAPI from "../integration/employeeAPI";
 import PromotionProgress from "../components/PromotionProgress";
 import EmployeeDocumentsModal from "../modals/EmployeeDocumentsModal";
 
@@ -20,23 +20,44 @@ import rulesIcon from "../assets/icons/rulesandregulationsicon.png";
 
 export default function EmployeeOverview() {
   const navigate = useNavigate();
-  const { id } = useParams(); // Get the employee ID from the URL
+  const { id } = useParams();
   const [employeeData, setEmployeeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
 
-  // Fetch employee data from the backend
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
         setLoading(true);
+        console.log("📡 Fetching employee overview data for ID:", id);
         const response = await employeeAPI.getEmployeeById(id);
 
         if (response.success) {
-          console.log('Employee data received:', response.data.user);
-          console.log('Professional data:', response.data.user.professional);
+          console.log("✅ Employee data received:", response.data.user);
+          console.log("Project allocations:", response.data.user.ProjectAllocations);
+          
+          // Debug: Check project allocation structure
+          if (response.data.user.ProjectAllocations?.length > 0) {
+            const lastAllocation = response.data.user.ProjectAllocations[response.data.user.ProjectAllocations.length - 1];
+            console.log("🎯 Last project allocation:", lastAllocation);
+            console.log("Project association:", lastAllocation.Project);
+            console.log("current_project field:", lastAllocation.current_project);
+            console.log("start_date field:", lastAllocation.start_date);
+            console.log("previous_projects field:", lastAllocation.previous_projects);
+            console.log("completed_projects field:", lastAllocation.completed_projects);
+          }
+
+          // Helpful: see if backend returns work info under a different key
+          console.log("Possible work-info keys:", {
+            work_info: response.data.user.work_info,
+            workInfo: response.data.user.workInfo,
+            WorkInfo: response.data.user.WorkInfo,
+            employee_work_info: response.data.user.employee_work_info,
+            EmployeeWorkInfo: response.data.user.EmployeeWorkInfo,
+          });
+
           setEmployeeData(response.data.user);
         } else {
           setError(response.message || "Failed to fetch employee data");
@@ -112,7 +133,6 @@ export default function EmployeeOverview() {
     );
   }
 
-  // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -123,33 +143,109 @@ export default function EmployeeOverview() {
     });
   };
 
-  // Get profile image or use default
-  const profileImage = employeeData.profile_image
-    ? (() => {
-        // For uploads, use base URL without /api prefix
-        const apiBaseUrl =
-          process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
-        const baseUrl = apiBaseUrl.replace("/api", "");
-        return employeeData.profile_image.startsWith("uploads/")
-          ? `${baseUrl}/${employeeData.profile_image}`
-          : `${baseUrl}/uploads/${employeeData.profile_image}`;
-      })()
-    : employeeData.EmployeeDetail?.image_path
-    ? (() => {
-        // For uploads, use base URL without /api prefix
-        const apiBaseUrl =
-          process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
-        const baseUrl = apiBaseUrl.replace("/api", "");
-        return employeeData.EmployeeDetail.image_path.startsWith("uploads/")
-          ? `${baseUrl}/${employeeData.EmployeeDetail.image_path}`
-          : `${baseUrl}/uploads/${employeeData.EmployeeDetail.image_path}`;
-      })()
-    : profilePic;
+  const profileImage = (() => {
+    const BASE_URL = "http://localhost:5001";
+
+    const imagePath =
+      employeeData?.profile_image || employeeData?.EmployeeDetail?.image_path;
+
+    if (!imagePath) return profilePic;
+    return `${BASE_URL}/${imagePath}`;
+  })();
+
+  // Get the most recent project allocation
+  const allocation =
+    employeeData?.ProjectAllocations?.length > 0
+      ? employeeData.ProjectAllocations[employeeData.ProjectAllocations.length - 1]
+      : null;
+
+  // Debug logs to see what we have
+  console.log("=== PROJECT INFO DEBUG ===");
+  console.log("Total ProjectAllocations:", employeeData?.ProjectAllocations?.length || 0);
+  
+  if (employeeData?.ProjectAllocations?.length > 0) {
+    employeeData.ProjectAllocations.forEach((alloc, index) => {
+      console.log(`\n📁 Allocation #${index + 1} (ID: ${alloc.id}):`);
+      console.log(`  - current_project: ${alloc.current_project || '(empty)'}`);
+      console.log(`  - previous_projects: ${alloc.previous_projects || '(empty)'}`);
+      console.log(`  - completed_projects: ${alloc.completed_projects || '(empty)'}`);
+      console.log(`  - project_role: ${alloc.project_role || '(empty)'}`);
+    });
+  }
+  
+  console.log("\n🎯 Using LAST allocation for display:");
+  console.log("Allocation object:", allocation);
+  console.log("allocation.Project:", allocation?.Project);
+  console.log("allocation.current_project:", allocation?.current_project);
+  console.log("allocation.start_date:", allocation?.start_date);
+  console.log("allocation.previous_projects (raw):", allocation?.previous_projects);
+  console.log("allocation.completed_projects (raw):", allocation?.completed_projects);
+
+  // Current Project - prioritize Project association, fallback to direct field
+  const currentProject =
+    allocation?.Project?.project_name ||
+    allocation?.current_project ||
+    "N/A";
+
+  // Start Date - prioritize Project association, fallback to direct field
+  const startDate =
+    allocation?.Project?.start_date ||
+    allocation?.start_date ||
+    null;
+
+  // Previous Projects - format for display (handle both newline-separated and plain text)
+  const previousProjects = (() => {
+    if (!allocation?.previous_projects) return [];
+    const value = String(allocation.previous_projects).trim();
+    if (!value) return [];
+    // Split by newlines and filter empty lines
+    const projects = value
+      .split('\n')
+      .map(p => p.trim())
+      .filter(p => p.length > 0);
+    console.log("📋 Previous Projects Processing:", {
+      raw: allocation.previous_projects,
+      trimmed: value,
+      split: projects
+    });
+    return projects;
+  })();
+
+  // Completed Projects - format for display (handle both newline-separated and plain text)
+  const completedProjects = (() => {
+    if (!allocation?.completed_projects) return [];
+    const value = String(allocation.completed_projects).trim();
+    if (!value) return [];
+    // Split by newlines and filter empty lines
+    const projects = value
+      .split('\n')
+      .map(p => p.trim())
+      .filter(p => p.length > 0);
+    console.log("✅ Completed Projects Processing:", {
+      raw: allocation.completed_projects,
+      trimmed: value,
+      split: projects
+    });
+    return projects;
+  })();
+
+  console.log("Final currentProject:", currentProject);
+  console.log("Final startDate:", startDate);
+  console.log("Previous projects:", previousProjects);
+  console.log("Completed projects:", completedProjects);
+  console.log("========================");
+  
+  // Final debug check before render
+  console.log("🔍 OVERVIEW DISPLAY CHECK:");
+  console.log("  - allocation object exists:", !!allocation);
+  console.log("  - allocation.previous_projects:", allocation?.previous_projects);
+  console.log("  - allocation.completed_projects:", allocation?.completed_projects);
+  console.log("  - previousProjects array:", previousProjects);
+  console.log("  - completedProjects array:", completedProjects);
 
   return (
     <div className="eov-page">
       <div className="eov-width">
-        {/* HEADER */}
         <div className="eov-header">
           <button
             type="button"
@@ -161,16 +257,10 @@ export default function EmployeeOverview() {
           <h2 className="eov-title">Employee Overview</h2>
         </div>
 
-        {/* MAIN CONTENT */}
         <div className="eov-container">
-          {/* LEFT PANEL */}
           <div className="eov-left">
             <div className="eov-profile-card">
-              <img
-                src={profileImage}
-                alt="Profile"
-                className="eov-profile-img"
-              />
+              <img src={profileImage} alt="Profile" className="eov-profile-img" />
             </div>
 
             <div className="eov-basic">
@@ -185,10 +275,7 @@ export default function EmployeeOverview() {
 
             <div className="eov-promotions">
               <h4 className="eov-promotions-title">Promotion Progress</h4>
-              <PromotionProgress
-                employeeData={employeeData}
-                formatDate={formatDate}
-              />
+              <PromotionProgress employeeData={employeeData} formatDate={formatDate} />
             </div>
 
             <div className="eov-buttons">
@@ -200,10 +287,7 @@ export default function EmployeeOverview() {
                 <span>Attendance</span>
               </button>
 
-              <button
-                className="eov-green-btn"
-                onClick={() => navigate("/org-hierarchy")}
-              >
+              <button className="eov-green-btn" onClick={() => navigate("/org-hierarchy")}>
                 <img src={structureIcon} alt="" />
                 <span>Reporting Structure</span>
               </button>
@@ -226,9 +310,7 @@ export default function EmployeeOverview() {
             </div>
           </div>
 
-          {/* RIGHT PANEL */}
           <div className="eov-right">
-            {/* STATUS ROW */}
             <div className="eov-status-row">
               <div className="eov-status-card">
                 <span className="eov-green-txt">Away for Breakfast</span>
@@ -239,27 +321,23 @@ export default function EmployeeOverview() {
                 <span className="eov-dark-txt">Employment Status</span>
                 <div
                   className={`eov-status-pill ${
-                    employeeData.status === "active"
-                      ? "eov-active"
-                      : "eov-inactive"
+                    employeeData.status === "active" ? "eov-active" : "eov-inactive"
                   }`}
                 >
-                  {employeeData.status.charAt(0).toUpperCase() +
-                    employeeData.status.slice(1)}
+                  {employeeData.status.charAt(0).toUpperCase() + employeeData.status.slice(1)}
                 </div>
               </div>
 
-              <div 
-                className="eov-status-card eov-docs" 
+              <div
+                className="eov-status-card eov-docs"
                 onClick={() => setShowDocumentsModal(true)}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
               >
                 <span className="eov-red-txt">Uploaded Documents</span>
                 <img src={uploadIcon} alt="" />
               </div>
             </div>
 
-            {/* CARDS */}
             {/* Employee Information */}
             <section className="eov-card">
               <div className="eov-card-header">
@@ -279,14 +357,24 @@ export default function EmployeeOverview() {
 
                 <div className="eov-info eov-has-icon">
                   <label>Email</label>
-                  <p>{employeeData.email}</p>
-                  <a
-                    href={`mailto:${employeeData.email}`}
-                    className="eov-icon-link"
-                    title="Send email"
-                  >
-                    <img src={mailIcon} alt="Send email" />
-                  </a>
+                  {employeeData?.email ? (
+                    <a
+                      href={`https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=${encodeURIComponent(
+                        employeeData.email
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="eov-email-link"
+                      title="Send email via Gmail"
+                    >
+                      <p className="eov-email-text">{employeeData.email}</p>
+                      <span className="eov-icon-link">
+                        <img src={mailIcon} alt="Send email" />
+                      </span>
+                    </a>
+                  ) : (
+                    <p>N/A</p>
+                  )}
                 </div>
 
                 <div className="eov-info eov-has-icon">
@@ -298,11 +386,10 @@ export default function EmployeeOverview() {
                         try {
                           await navigator.clipboard.writeText(employeeData.EmployeeDetail.phone);
                           setCopySuccess(true);
-                          // Reset the success message after 2 seconds
                           setTimeout(() => setCopySuccess(false), 2000);
                         } catch (err) {
-                          console.error('Failed to copy phone number:', err);
-                          alert('Failed to copy phone number');
+                          console.error("Failed to copy phone number:", err);
+                          alert("Failed to copy phone number");
                         }
                       }
                     }}
@@ -311,9 +398,7 @@ export default function EmployeeOverview() {
                   >
                     <img src={copyIcon} alt="Copy phone number" />
                   </button>
-                  {copySuccess && (
-                    <span className="eov-copy-success">Copied!</span>
-                  )}
+                  {copySuccess && <span className="eov-copy-success">Copied!</span>}
                 </div>
 
                 <div className="eov-info">
@@ -351,44 +436,52 @@ export default function EmployeeOverview() {
               </div>
 
               <div className="eov-grid">
-                {employeeData.professional &&
-                employeeData.professional.length > 0 ? (
-                  employeeData.professional.map((exp, index) => (
-                    <React.Fragment key={index}>
-                      <div className="eov-info">
-                        <label>Position</label>
-                        <p>{exp.position}</p>
-                      </div>
+                {(() => {
+                  // Only get the first professional experience entry
+                  const firstProfessional = employeeData.professional && employeeData.professional.length > 0 
+                    ? employeeData.professional[0] 
+                    : null;
+                  
+                  if (firstProfessional) {
+                    return (
+                      <>
+                        <div className="eov-info">
+                          <label>Position</label>
+                          <p>{firstProfessional.position}</p>
+                        </div>
 
-                      <div className="eov-info">
-                        <label>Company Name</label>
-                        <p>{exp.company_name}</p>
-                      </div>
+                        <div className="eov-info">
+                          <label>Company Name</label>
+                          <p>{firstProfessional.company_name}</p>
+                        </div>
 
-                      <div className="eov-info">
-                        <label>Year of Experience</label>
-                        <p>{exp.years_of_experience || "N/A"} years</p>
-                      </div>
-                    </React.Fragment>
-                  ))
-                ) : (
-                  <>
-                    <div className="eov-info">
-                      <label>Position</label>
-                      <p>N/A</p>
-                    </div>
+                        <div className="eov-info">
+                          <label>Year of Experience</label>
+                          <p>{firstProfessional.years_of_experience || "N/A"} years</p>
+                        </div>
+                      </>
+                    );
+                  } else {
+                    return (
+                      <>
+                        <div className="eov-info">
+                          <label>Position</label>
+                          <p>N/A</p>
+                        </div>
 
-                    <div className="eov-info">
-                      <label>Company Name</label>
-                      <p>N/A</p>
-                    </div>
+                        <div className="eov-info">
+                          <label>Company Name</label>
+                          <p>N/A</p>
+                        </div>
 
-                    <div className="eov-info">
-                      <label>Year of Experience</label>
-                      <p>N/A</p>
-                    </div>
-                  </>
-                )}
+                        <div className="eov-info">
+                          <label>Year of Experience</label>
+                          <p>N/A</p>
+                        </div>
+                      </>
+                    );
+                  }
+                })()}
               </div>
             </section>
 
@@ -451,32 +544,38 @@ export default function EmployeeOverview() {
                 <div className="eov-info">
                   <label>Team Lead</label>
                   <p>
-                    {employeeData.report_to
-                      ? `${employeeData.ReportTo?.first_name} ${
-                          employeeData.ReportTo?.last_name || ""
-                        }`.trim()
-                      : "N/A"}
+                    {employeeData?.ReportTo
+  ? `${employeeData.ReportTo.first_name} ${employeeData.ReportTo.last_name || ""}`.trim()
+  : "N/A"}
                   </p>
                 </div>
 
                 <div className="eov-info">
                   <label>Current Project</label>
-                  <p>ERP System</p>
+                  <p>{currentProject}</p>
                 </div>
 
                 <div className="eov-info">
                   <label>Start Date</label>
-                  <p>16 Apr 2025</p>
+                  <p>{formatDate(startDate)}</p>
                 </div>
 
                 <div className="eov-info">
                   <label>Previous Projects</label>
-                  <p>N/A</p>
+                  {previousProjects && previousProjects.length > 0 ? (
+                    <p style={{ whiteSpace: 'pre-line' }}>{previousProjects.join(', ')}</p>
+                  ) : (
+                    <p>N/A</p>
+                  )}
                 </div>
 
                 <div className="eov-info">
                   <label>Completed Projects</label>
-                  <p>N/A</p>
+                  {completedProjects && completedProjects.length > 0 ? (
+                    <p style={{ whiteSpace: 'pre-line' }}>{completedProjects.join(', ')}</p>
+                  ) : (
+                    <p>N/A</p>
+                  )}
                 </div>
               </div>
             </section>
@@ -488,7 +587,7 @@ export default function EmployeeOverview() {
         isOpen={showDocumentsModal}
         onClose={() => setShowDocumentsModal(false)}
         documents={employeeData?.Documents || []}
-        employeeName={`${employeeData?.first_name || ''} ${employeeData?.last_name || ''}`.trim()}
+        employeeName={`${employeeData?.first_name || ""} ${employeeData?.last_name || ""}`.trim()}
       />
     </div>
   );

@@ -753,6 +753,80 @@
 }
 
 /* =============================
+   EXPANDED SECTIONS
+=============================*/
+.expanded-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f0f7f4;
+  border-radius: 8px;
+  border-left: 3px solid #347e45;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.expanded-section .small-field {
+  margin-bottom: 12px;
+}
+
+.expanded-section label {
+  font-weight: 600;
+  color: #2c5f2d;
+  font-size: 13px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.expanded-section input,
+.expanded-section textarea,
+.expanded-section select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d0e8d1;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.expanded-section input:focus,
+.expanded-section textarea:focus,
+.expanded-section select:focus {
+  outline: none;
+  border-color: #347e45;
+  box-shadow: 0 0 0 3px rgba(52, 126, 69, 0.1);
+}
+
+.expanded-section textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .expanded-section {
+    padding: 12px;
+  }
+  
+  .expanded-section input,
+  .expanded-section textarea,
+  .expanded-section select {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+}
+
+/* =============================
    FOOTER BUTTONS
 =============================*/
 .footer-btns {

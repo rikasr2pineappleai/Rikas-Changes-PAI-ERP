@@ -246,15 +246,41 @@ select {
 /* Icon inputs */
 .input-icon {
   position: relative;
+  width: 100%;
 }
 
 .calendar-icon,
 .refresh-icon {
   position: absolute;
-  right: 12px;
-  top: 12px;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 24px;
   height: 24px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+/* Ensure date input has proper padding to prevent text overlap */
+.input-icon input[type="date"] {
+  padding-right: 50px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Hide native calendar icon for better cross-browser consistency */
+.input-icon input[type="date"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
 }
 
 /* ==========================================================

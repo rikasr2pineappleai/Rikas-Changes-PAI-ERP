@@ -105,6 +105,13 @@
   font-size: 14px;
 }
 
+.emp-docs-item-filename {
+  font-size: 12px;
+  color: #6b7280;
+  font-family: monospace;
+  margin-top: 2px;
+}
+
 .emp-docs-item-date {
   font-size: 12px;
   color: #6b7280;
@@ -112,8 +119,8 @@
 
 .emp-docs-item-btn {
   padding: 8px 16px;
-  background-color: #dc2626;
-  color: white;
+  background-color: #e0e0e0;
+  color: #0f0f0f;
   border: none;
   border-radius: 4px;
   font-size: 14px;
@@ -123,7 +130,8 @@
 }
 
 .emp-docs-item-btn:hover {
-  background-color: #b91c1c;
+  background-color: #347e45;
+  color: #ffffff;
 }
 
 @media (max-width: 640px) {
