@@ -938,7 +938,7 @@ exports.addEmployeeProjectAllocation = async (req, res) => {
     console.log("Creating allocation with data:", {
       user_id: userId,
       project_id: null,
-      current_project,
+      current_project: current_project || null,
       start_date,
       report_to: report_to || null,
       previous_projects: previous_projects || null,
@@ -955,7 +955,7 @@ exports.addEmployeeProjectAllocation = async (req, res) => {
     const allocation = await ProjectAllocation.create({
       user_id: userId,
       project_id: null, // Optional - we're using current_project text field instead
-      current_project,
+      current_project: current_project || null,
       start_date,
       report_to: report_to || null,
       previous_projects: previous_projects || null,
@@ -969,7 +969,15 @@ exports.addEmployeeProjectAllocation = async (req, res) => {
       allocated_hours: allocated_hours || null
     });
 
-    console.log("Allocation created successfully:", allocation.toJSON());
+    console.log("✅ Allocation created successfully:", {
+      id: allocation.id,
+      user_id: allocation.user_id,
+      current_project: allocation.current_project,
+      start_date: allocation.start_date,
+      previous_projects: allocation.previous_projects,
+      completed_projects: allocation.completed_projects,
+      report_to: allocation.report_to
+    });
 
     res.status(201).json({
       success: true,
@@ -1050,7 +1058,12 @@ exports.updateEmployeeProjectAllocation = async (req, res) => {
       });
     }
 
-    if (allocation.user_id !== userId) {
+    console.log("🔍 VALIDATION CHECK:");
+    console.log("  - allocation.user_id:", allocation.user_id, typeof allocation.user_id);
+    console.log("  - userId:", userId, typeof userId);
+    console.log("  - Are they equal?", allocation.user_id === Number(userId));
+
+    if (allocation.user_id !== Number(userId)) {
       return res.status(403).json({
         success: false,
         message: "This project allocation does not belong to the specified employee"
@@ -1072,23 +1085,28 @@ exports.updateEmployeeProjectAllocation = async (req, res) => {
       allocated_hours: allocated_hours || null
     });
 
-    allocation.current_project = current_project || allocation.current_project;
-    allocation.start_date = start_date || allocation.start_date;
+    // Update allocation fields - use explicit checks to allow empty strings
+    // Convert empty strings to null for consistent database storage
+    allocation.current_project = current_project !== undefined ? (current_project === "" ? null : current_project) : allocation.current_project;
+    allocation.start_date = start_date !== undefined ? start_date : allocation.start_date;
     allocation.report_to = report_to !== undefined ? report_to : allocation.report_to;
-    allocation.previous_projects = previous_projects !== undefined ? previous_projects : allocation.previous_projects;
-    allocation.completed_projects = completed_projects !== undefined ? completed_projects : allocation.completed_projects;
-    allocation.project_role = project_role !== undefined ? project_role : allocation.project_role;
-    allocation.project_description = project_description !== undefined ? project_description : allocation.project_description;
-    allocation.project_contributions = project_contributions !== undefined ? project_contributions : allocation.project_contributions;
-    allocation.technologies_used = technologies_used !== undefined ? technologies_used : allocation.technologies_used;
+    allocation.previous_projects = previous_projects !== undefined ? (previous_projects === "" ? null : previous_projects) : allocation.previous_projects;
+    allocation.completed_projects = completed_projects !== undefined ? (completed_projects === "" ? null : completed_projects) : allocation.completed_projects;
+    allocation.project_role = project_role !== undefined ? (project_role === "" ? null : project_role) : allocation.project_role;
+    allocation.project_description = project_description !== undefined ? (project_description === "" ? null : project_description) : allocation.project_description;
+    allocation.project_contributions = project_contributions !== undefined ? (project_contributions === "" ? null : project_contributions) : allocation.project_contributions;
+    allocation.technologies_used = technologies_used !== undefined ? (technologies_used === "" ? null : technologies_used) : allocation.technologies_used;
     allocation.allocation_start = allocation_start !== undefined ? allocation_start : allocation.allocation_start;
     allocation.allocation_end = allocation_end !== undefined ? allocation_end : allocation.allocation_end;
     allocation.allocated_hours = allocated_hours !== undefined ? allocated_hours : allocation.allocated_hours;
 
     console.log("💾 Saving allocation changes:", {
       allocation_id: allocation.id,
+      current_project: allocation.current_project,
+      start_date: allocation.start_date,
       previous_projects: allocation.previous_projects,
-      completed_projects: allocation.completed_projects
+      completed_projects: allocation.completed_projects,
+      report_to: allocation.report_to
     });
 
     await allocation.save();

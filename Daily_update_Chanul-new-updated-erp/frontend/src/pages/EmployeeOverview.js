@@ -181,16 +181,16 @@ export default function EmployeeOverview() {
   console.log("allocation.previous_projects (raw):", allocation?.previous_projects);
   console.log("allocation.completed_projects (raw):", allocation?.completed_projects);
 
-  // Current Project - prioritize Project association, fallback to direct field
+  // Current Project - prioritize direct current_project field from allocation (not Project association)
   const currentProject =
-    allocation?.Project?.project_name ||
     allocation?.current_project ||
+    allocation?.Project?.project_name ||
     "N/A";
 
-  // Start Date - prioritize Project association, fallback to direct field
+  // Start Date - prioritize direct start_date field from allocation (not Project association)
   const startDate =
-    allocation?.Project?.start_date ||
     allocation?.start_date ||
+    allocation?.Project?.start_date ||
     null;
 
   // Previous Projects - format for display (handle both newline-separated and plain text)
