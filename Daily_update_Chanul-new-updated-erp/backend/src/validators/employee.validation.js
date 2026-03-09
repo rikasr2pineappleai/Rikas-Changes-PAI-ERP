@@ -124,4 +124,3 @@ module.exports = {
   documentSchema,
   updateDocumentsSchema
 };
-
