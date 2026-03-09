@@ -433,6 +433,7 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
   // Upload
   const hiddenFileRef = useRef(null);
   const [fileName, setFileName] = useState('');
+  const [fileError, setFileError] = useState('');
 
   // other validation errors
   const [timeError, setTimeError] = useState('');
@@ -709,8 +710,20 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
   }
   function onFileChange(e) {
     const f = e.target.files && e.target.files[0];
-    if (f) setFileName(f.name);
-    else setFileName('');
+    if (!f) {
+      setFileName('');
+      return;
+    }
+    const isPdf =
+      f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) {
+      setFileError('Please upload only PDF files.');
+      setFileName('');
+      e.target.value = '';
+      return;
+    }
+    setFileError('');
+    setFileName(f.name);
   }
 
   /* ---------- Validation helpers (modified validateReason) ---------- */
@@ -1063,7 +1076,6 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
             <input
               ref={hiddenFileRef}
               type="file"
-              accept=".pdf,application/pdf"
               onChange={onFileChange}
               className="h-hidden-file"
               style={{ display: 'none' }}
@@ -1071,6 +1083,13 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
 
             <img src={huploadicon} alt="upload" className="h-upload-icon" />
           </div>
+          {fileError && (
+            <span
+              style={{ color: 'red', fontSize: '12px', marginTop: '4px', display: 'block' }}
+            >
+              {fileError}
+            </span>
+          )}
 
           {/* Hidden field for backend: number of days (computed from start/end) */}
           <label htmlFor="number_of_days" style={{ display: 'none' }}>Number of days</label>

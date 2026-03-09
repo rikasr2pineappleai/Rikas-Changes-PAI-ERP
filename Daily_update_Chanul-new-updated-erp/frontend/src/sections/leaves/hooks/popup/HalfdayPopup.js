@@ -39,6 +39,7 @@ const Halfday = ({ onClose = () => {}, onRefresh = null }) => {
   const [reason, setReason] = useState(''); // typed reason if 'Others'
   const [reasonError, setReasonError] = useState('');
   const [uploadFile, setUploadFile] = useState(null);
+  const [fileError, setFileError] = useState('');
 
   // ---------- ADD FIXED HIDDEN VALUE HERE ----------
   const numberOfDays = 0.5; // fixed value, not editable by user (hidden input will contain this)
@@ -311,7 +312,18 @@ const Halfday = ({ onClose = () => {}, onRefresh = null }) => {
   }
   /* ---------------- File ---------------- */
   function handleFileChange(e) {
-    setUploadFile(e.target.files[0]);
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const isPdf =
+      f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) {
+      setFileError('Please upload only PDF files.');
+      setUploadFile(null);
+      e.target.value = '';
+      return;
+    }
+    setFileError('');
+    setUploadFile(f);
   }
 
   /* ---------------- Positioning helpers for portal menus --------------- */
@@ -724,14 +736,20 @@ const Halfday = ({ onClose = () => {}, onRefresh = null }) => {
             <input
               id="file-upload"
               type="file"
-              accept=".pdf"
               onChange={handleFileChange}
               style={{ display: 'none' }}
             />
             <img src={huploadicon} alt="Upload" className="hd-upload-icon" />
           </div>
+          {fileError && (
+            <span
+              style={{ color: 'red', fontSize: '12px', marginTop: '4px', display: 'block' }}
+            >
+              {fileError}
+            </span>
+          )}
 
-          {/* Submit */}
+          {/* Submit */
           <div className='hdsubmit-row'>
             <HSubmitbtn type="submit" />
           </div>

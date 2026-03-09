@@ -35,6 +35,7 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   const [reasonError, setReasonError] = useState('');
   const [fileName, setFileName] = useState(null);
   const [file, setFile] = useState(null);
+  const [fileError, setFileError] = useState('');
 
   // Reason dropdown specifics
   const [isReasonOpen, setIsReasonOpen] = useState(false);
@@ -134,6 +135,16 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   function handleFileChange(e) {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
+    const isPdf =
+      f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) {
+      setFileError('Please upload only PDF files.');
+      setFileName(null);
+      setFile(null);
+      e.target.value = '';
+      return;
+    }
+    setFileError('');
     setFileName(f.name);
     setFile(f);
   }
@@ -830,7 +841,6 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
             <input
               id="lp-file"
               type="file"
-              accept="application/pdf"
               onChange={handleFileChange}
               aria-label="Upload proof document"
             />
@@ -839,6 +849,14 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
             </label>
             <img src={uploadicon} alt="" className="lp-upload-icon" aria-hidden="true" />
           </div>
+          {fileError && (
+            <span
+              className="lp-error"
+              style={{ color: 'red', fontSize: '12px', marginTop: '4px', display: 'block' }}
+            >
+              {fileError}
+            </span>
+          )}
 
           <div className="lp-submit-wrap">
             <Submitbtn label="Submit" onClick={handleSubmit} disabled={!isFormValid} />
