@@ -952,22 +952,45 @@ exports.addEmployeeProjectAllocation = async (req, res) => {
       allocated_hours: allocated_hours || null
     });
 
-    const allocation = await ProjectAllocation.create({
-      user_id: userId,
-      project_id: null, // Optional - we're using current_project text field instead
-      current_project: current_project || null,
-      start_date,
-      report_to: report_to || null,
-      previous_projects: previous_projects || null,
-      completed_projects: completed_projects || null,
-      project_role: project_role || null,
-      project_description: project_description || null,
-      project_contributions: project_contributions || null,
-      technologies_used: technologies_used || null,
-      allocation_start: allocation_start || null,
-      allocation_end: allocation_end || null,
-      allocated_hours: allocated_hours || null
+    // Use findOrCreate to avoid duplicates when the frontend retries a create for
+    // an employee that already has an allocation (e.g. stale state race condition).
+    const [allocation, created] = await ProjectAllocation.findOrCreate({
+      where: { user_id: userId, project_id: null },
+      defaults: {
+        user_id: userId,
+        project_id: null,
+        current_project: current_project || null,
+        start_date,
+        report_to: report_to || null,
+        previous_projects: previous_projects || null,
+        completed_projects: completed_projects || null,
+        project_role: project_role || null,
+        project_description: project_description || null,
+        project_contributions: project_contributions || null,
+        technologies_used: technologies_used || null,
+        allocation_start: allocation_start || null,
+        allocation_end: allocation_end || null,
+        allocated_hours: allocated_hours || null
+      }
     });
+
+    if (!created) {
+      // Allocation already existed — update it instead
+      console.log("⚠️ Allocation already exists for this employee, updating instead. ID:", allocation.id);
+      allocation.current_project = current_project !== undefined ? (current_project || null) : allocation.current_project;
+      allocation.start_date = start_date !== undefined ? start_date : allocation.start_date;
+      allocation.report_to = report_to !== undefined ? (report_to || null) : allocation.report_to;
+      allocation.previous_projects = previous_projects !== undefined ? (previous_projects || null) : allocation.previous_projects;
+      allocation.completed_projects = completed_projects !== undefined ? (completed_projects || null) : allocation.completed_projects;
+      allocation.project_role = project_role !== undefined ? (project_role || null) : allocation.project_role;
+      allocation.project_description = project_description !== undefined ? (project_description || null) : allocation.project_description;
+      allocation.project_contributions = project_contributions !== undefined ? (project_contributions || null) : allocation.project_contributions;
+      allocation.technologies_used = technologies_used !== undefined ? (technologies_used || null) : allocation.technologies_used;
+      allocation.allocation_start = allocation_start !== undefined ? (allocation_start || null) : allocation.allocation_start;
+      allocation.allocation_end = allocation_end !== undefined ? (allocation_end || null) : allocation.allocation_end;
+      allocation.allocated_hours = allocated_hours !== undefined ? (allocated_hours || null) : allocation.allocated_hours;
+      await allocation.save();
+    }
 
     console.log("✅ Allocation created successfully:", {
       id: allocation.id,
@@ -1049,26 +1072,28 @@ exports.updateEmployeeProjectAllocation = async (req, res) => {
       });
     }
 
-    const allocation = await ProjectAllocation.findByPk(allocationId);
+    let allocation = await ProjectAllocation.findOne({
+      where: { id: allocationId, user_id: userId }
+    });
+
+    if (!allocation) {
+      // The supplied allocationId doesn't match this employee (stale front-end state).
+      // Try to recover by finding ANY allocation that belongs to this employee.
+      console.warn(`⚠️  allocationId ${allocationId} not found for user ${userId} — attempting fallback lookup`);
+      allocation = await ProjectAllocation.findOne({ where: { user_id: userId } });
+    }
 
     if (!allocation) {
       return res.status(404).json({
         success: false,
-        message: "Project allocation not found"
+        message: "Project allocation not found for this employee"
       });
     }
 
     console.log("🔍 VALIDATION CHECK:");
-    console.log("  - allocation.user_id:", allocation.user_id, typeof allocation.user_id);
-    console.log("  - userId:", userId, typeof userId);
-    console.log("  - Are they equal?", allocation.user_id === Number(userId));
-
-    if (allocation.user_id !== Number(userId)) {
-      return res.status(403).json({
-        success: false,
-        message: "This project allocation does not belong to the specified employee"
-      });
-    }
+    console.log("  - allocation.id:", allocation.id, "allocation.user_id:", allocation.user_id);
+    console.log("  - userId:", userId);
+    console.log("  - Match:", allocation.user_id === Number(userId));
 
     console.log("Updating allocation with data:", {
       current_project,

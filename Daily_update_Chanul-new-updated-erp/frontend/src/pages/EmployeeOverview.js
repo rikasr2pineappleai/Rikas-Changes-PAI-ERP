@@ -153,11 +153,17 @@ export default function EmployeeOverview() {
     return `${BASE_URL}/${imagePath}`;
   })();
 
-  // Get the most recent project allocation
-  const allocation =
-    employeeData?.ProjectAllocations?.length > 0
-      ? employeeData.ProjectAllocations[employeeData.ProjectAllocations.length - 1]
-      : null;
+  // Get the most recent project allocation (by highest ID, matching edit page logic)
+  const allocation = (() => {
+    if (!employeeData?.ProjectAllocations?.length) return null;
+    const allocs = employeeData.ProjectAllocations;
+    // Prefer allocation with project details; otherwise use highest ID
+    const withDetails = allocs.find(
+      a => a.previous_projects || a.completed_projects || a.project_role
+    );
+    if (withDetails) return withDetails;
+    return allocs.reduce((best, a) => (a.id > best.id ? a : best), allocs[0]);
+  })();
 
   // Debug logs to see what we have
   console.log("=== PROJECT INFO DEBUG ===");

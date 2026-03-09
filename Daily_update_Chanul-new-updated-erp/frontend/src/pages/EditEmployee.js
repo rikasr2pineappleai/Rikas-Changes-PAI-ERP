@@ -129,6 +129,10 @@ export default function EditEmployee() {
   };
 
   useEffect(() => {
+    // Reset allocation ID so stale state from a previously-edited employee
+    // is never used when this effect re-runs for a different employee.
+    setCurrentAllocationId(null);
+
     const fetchEmployee = async () => {
       try {
         const res = await employeeAPI.getEmployeeById(id);
@@ -309,6 +313,13 @@ export default function EditEmployee() {
     allocation_end: allocation.allocation_end || "",
     allocated_hours: allocation.allocated_hours || "",
   }));
+
+  // Auto-expand the project detail section when there is existing detail data
+  if (allocation.previous_projects || allocation.completed_projects ||
+      allocation.project_role || allocation.project_description ||
+      allocation.project_contributions || allocation.technologies_used) {
+    setExpandedSections(prev => ({ ...prev, project: true }));
+  }
   
   // Store the allocation ID
   setCurrentAllocationId(allocation.id);
@@ -885,80 +896,102 @@ export default function EditEmployee() {
       }
 //SAVE WORK INFO (backend requires joined_date, report_to, designation, ... )
 if (projectInfo.reportingManagerId || projectInfo.currentProject || projectInfo.startDate) {
-  try {
-   const payload = {
-  joined_date: formData.joined_date || null,
+  const workPayload = {
+    joined_date: formData.joined_date || null,
+    designation: formData.designation,
+    department_id: formData.department || null,
+    management_role: formData.management_role,
+    report_to: Number(projectInfo.reportingManagerId),
+  };
 
-  designation: formData.designation,
+  const missingWorkFields = [];
+  if (!workPayload.joined_date) missingWorkFields.push('Joined Date (Starts on)');
+  if (!workPayload.designation) missingWorkFields.push('Designation');
+  if (!workPayload.report_to) missingWorkFields.push('Reporting Manager (Team Lead)');
 
-   department_id: formData.department || null,
-   
-  management_role: formData.management_role,
-
-  report_to: Number(projectInfo.reportingManagerId),
-
-};
-
-    // Hard validation before calling API (avoid 400)
-    if (!payload.joined_date) {
-      alert('Joined Date (Starts on) is required.');
-      return;
+  if (missingWorkFields.length > 0) {
+    // Warn but do NOT return — still allow project allocation to save below
+    console.warn('⚠️ Skipping work-info save, missing fields:', missingWorkFields);
+  } else {
+    try {
+      console.log("Saving work-info payload:", workPayload);
+      await employeeAPI.setEmployeeWorkInfo(id, workPayload);
+    } catch (err) {
+      console.error("Error saving work info:", err);
+      alert(
+        "Employee updated, but Work info failed to save: " +
+          (err.response?.data?.error || err.response?.data?.message || err.message)
+      );
     }
-    if (!payload.designation) {
-      alert('Designation is required.');
-      return;
-    }
-    if (!payload.report_to) {
-      alert('Reporting Manager (Team Lead) is required.');
-      return;
-    }
-
-    console.log("Saving work-info payload:", payload);
-
-    await employeeAPI.setEmployeeWorkInfo(id, payload);
-  } catch (err) {
-    console.error("Error saving work info:", err);
-    alert(
-      "Employee updated, but Work info failed to save: " +
-        (err.response?.data?.error || err.response?.data?.message || err.message)
-    );
   }
 }
       
 // ✅ SAVE PROJECT ALLOCATION (Current Project + Start Date + Detailed Info)
-if (projectInfo.currentProject || projectInfo.startDate) {
+// Check if we have an existing allocation to update
+const hasExistingAllocation = employeeData?.ProjectAllocations && employeeData.ProjectAllocations.length > 0;
+const hasAnyProjectData = projectInfo.currentProject || projectInfo.startDate ||
+  detailedProjectInfo.previous_projects || detailedProjectInfo.completed_projects ||
+  detailedProjectInfo.project_role || detailedProjectInfo.project_description ||
+  detailedProjectInfo.project_contributions || detailedProjectInfo.technologies_used;
+
+if (hasExistingAllocation || hasAnyProjectData) {
   try {
     const projectPayload = {
-      current_project: projectInfo.currentProject?.trim() || "",
+      current_project: projectInfo.currentProject?.trim() || null,
       start_date: projectInfo.startDate || null,
-      report_to: Number(projectInfo.reportingManagerId),
+      report_to: projectInfo.reportingManagerId ? Number(projectInfo.reportingManagerId) : null,
       previous_projects: detailedProjectInfo.previous_projects?.trim() || null,
       completed_projects: detailedProjectInfo.completed_projects?.trim() || null,
-      project_role: detailedProjectInfo.project_role?.trim() || null,
-      project_description: detailedProjectInfo.project_description?.trim() || null,
-      project_contributions: detailedProjectInfo.project_contributions?.trim() || null,
-      technologies_used: detailedProjectInfo.technologies_used?.trim() || null,
-      allocation_start: detailedProjectInfo.allocation_start || null,
-      allocation_end: detailedProjectInfo.allocation_end || null,
-      allocated_hours: detailedProjectInfo.allocated_hours ? Number(detailedProjectInfo.allocated_hours) : null,
+      project_role: expandedSections.project ? (detailedProjectInfo.project_role?.trim() || null) : undefined,
+      project_description: expandedSections.project ? (detailedProjectInfo.project_description?.trim() || null) : undefined,
+      project_contributions: expandedSections.project ? (detailedProjectInfo.project_contributions?.trim() || null) : undefined,
+      technologies_used: expandedSections.project ? (detailedProjectInfo.technologies_used?.trim() || null) : undefined,
+      allocation_start: expandedSections.project ? (detailedProjectInfo.allocation_start || null) : undefined,
+      allocation_end: expandedSections.project ? (detailedProjectInfo.allocation_end || null) : undefined,
+      allocated_hours: expandedSections.project ? (detailedProjectInfo.allocated_hours ? Number(detailedProjectInfo.allocated_hours) : null) : undefined,
     };
 
     console.log("=== SAVING PROJECT ALLOCATION ===");
     console.log("projectPayload:", projectPayload);
     console.log("detailedProjectInfo state:", detailedProjectInfo);
-
-    // Check if we have an existing allocation to update
-    const hasExistingAllocation = employeeData?.ProjectAllocations && employeeData.ProjectAllocations.length > 0;
     
     console.log("hasExistingAllocation:", hasExistingAllocation);
     console.log("employeeData.ProjectAllocations:", employeeData?.ProjectAllocations);
     console.log("currentAllocationId from state:", currentAllocationId);
-    
-    if (hasExistingAllocation && currentAllocationId) {
+
+    // Resolve the safe allocation ID for THIS employee.
+    // Guard 1: only trust employeeData if it was actually loaded for this employee
+    //          (employeeData could be stale from a previously-edited employee if the
+    //           user navigated quickly and clicked Save before the new fetch finished).
+    // Guard 2: filter allocations by user_id so a stale allocation that snuck in
+    //          from a different employee is never used.
+    const numericEmployeeId = Number(id);
+    const isEmployeeDataCurrent = employeeData?.id === numericEmployeeId;
+    const employeeAllocations = isEmployeeDataCurrent
+      ? (employeeData.ProjectAllocations || []).filter(a => a.user_id === numericEmployeeId)
+      : [];
+    let resolvedAllocationId = null;
+    if (employeeAllocations.length > 0) {
+      const alloc =
+        employeeAllocations.find(
+          a => a.previous_projects || a.completed_projects || a.project_role
+        ) || employeeAllocations[employeeAllocations.length - 1];
+      resolvedAllocationId = alloc.id;
+    } else if (currentAllocationId) {
+      // No confirmed allocations in loaded data yet — only use the state ID when
+      // employeeData hasn't been (re-)fetched yet (e.g. brand-new allocation just
+      // created this session).  We skip this and fall through to CREATE if
+      // employeeData is loaded but genuinely empty.
+      resolvedAllocationId = isEmployeeDataCurrent ? null : currentAllocationId;
+    }
+    console.log("🔐 resolvedAllocationId (safe):", resolvedAllocationId,
+      "| employeeData matches:", isEmployeeDataCurrent);
+
+    if (resolvedAllocationId) {
       // Use the SAME allocation ID we loaded when editing
-      console.log("🎯 Updating allocation ID:", currentAllocationId);
+      console.log("🎯 Updating allocation ID:", resolvedAllocationId);
       console.log("With payload:", projectPayload);
-      const updateResponse = await employeeAPI.updateEmployeeProjectAllocation(id, currentAllocationId, projectPayload);
+      const updateResponse = await employeeAPI.updateEmployeeProjectAllocation(id, resolvedAllocationId, projectPayload);
       console.log("✅ Update response:", updateResponse);
       console.log("Updated allocation data:", updateResponse.data);
       
@@ -987,24 +1020,10 @@ if (projectInfo.currentProject || projectInfo.startDate) {
       console.log("✅ Create response:", createResponse);
       console.log("Created allocation data:", createResponse.data);
       
-      // Verify the data was actually saved
-      const savedAllocation = createResponse.data?.data || createResponse.data;
-      const savedPrevProjects = savedAllocation?.previous_projects;
-      const savedCompletedProjects = savedAllocation?.completed_projects;
-      
-      console.log("✅ VERIFICATION - Data saved correctly:");
-      console.log("   previous_projects:", savedPrevProjects);
-      console.log("   completed_projects:", savedCompletedProjects);
-      
-      if (savedPrevProjects !== projectPayload.previous_projects) {
-        console.warn("⚠️ WARNING: previous_projects mismatch!");
-        console.warn("   Expected:", projectPayload.previous_projects);
-        console.warn("   Got:", savedPrevProjects);
-      }
-      if (savedCompletedProjects !== projectPayload.completed_projects) {
-        console.warn("⚠️ WARNING: completed_projects mismatch!");
-        console.warn("   Expected:", projectPayload.completed_projects);
-        console.warn("   Got:", savedCompletedProjects);
+      // Store the new allocation ID so subsequent saves within the same session use UPDATE
+      const newAllocation = createResponse.data?.data || createResponse.data;
+      if (newAllocation?.id) {
+        setCurrentAllocationId(newAllocation.id);
       }
     }
   } catch (err) {
@@ -1036,6 +1055,13 @@ if (projectInfo.currentProject || projectInfo.startDate) {
       }
 
       setEmployeeData(updatedUserData);
+
+      // Keep currentAllocationId in sync with the freshly-fetched data so that
+      // any subsequent save within this session uses the correct allocation.
+      if (updatedUserData.ProjectAllocations?.length > 0) {
+        const freshAlloc = updatedUserData.ProjectAllocations[updatedUserData.ProjectAllocations.length - 1];
+        setCurrentAllocationId(freshAlloc.id);
+      }
 
       alert("Employee information updated successfully!");
       
@@ -1763,33 +1789,33 @@ if (projectInfo.currentProject || projectInfo.startDate) {
                 />
               </div>
 
+              <div className="small-field">
+                <label>Previous Projects</label>
+                <textarea
+                  name="previous_projects"
+                  placeholder="List your previous projects (one per line)"
+                  rows="3"
+                  value={detailedProjectInfo.previous_projects}
+                  onChange={handleDetailedProjectChange}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                />
+              </div>
+
+              <div className="small-field">
+                <label>Completed Projects</label>
+                <textarea
+                  name="completed_projects"
+                  placeholder="List completed projects with brief descriptions"
+                  rows="3"
+                  value={detailedProjectInfo.completed_projects}
+                  onChange={handleDetailedProjectChange}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                />
+              </div>
+
               {/* Expanded Project Details */}
               {expandedSections.project && (
                 <div className="expanded-section">
-                  <div className="small-field">
-                    <label>Previous Projects</label>
-                    <textarea
-                      name="previous_projects"
-                      placeholder="List your previous projects (one per line)"
-                      rows="3"
-                      value={detailedProjectInfo.previous_projects}
-                      onChange={handleDetailedProjectChange}
-                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                    />
-                  </div>
-
-                  <div className="small-field">
-                    <label>Completed Projects</label>
-                    <textarea
-                      name="completed_projects"
-                      placeholder="List completed projects with brief descriptions"
-                      rows="3"
-                      value={detailedProjectInfo.completed_projects}
-                      onChange={handleDetailedProjectChange}
-                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                    />
-                  </div>
-
                   <div className="small-field">
                     <label>Project Role</label>
                     <input

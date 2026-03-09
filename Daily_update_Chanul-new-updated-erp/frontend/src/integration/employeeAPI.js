@@ -122,22 +122,28 @@ class EmployeeAPI {
   return response;
 }
 
-  // Add employee project allocation (uses work-info)
+  // Add employee project allocation
   async addEmployeeProjectAllocation(employeeId, data) {
-  const { data: response } = await apiClient.post(
-    `/employees/${employeeId}/project-allocation`,
-    data
-  );
-  return response;
-}
+    const { data: response } = await apiClient.post(
+      `/employees/${employeeId}/project-allocation`,
+      data
+    );
+    if (!response.success) {
+      throw new Error(response.error || response.message || 'Failed to create project allocation');
+    }
+    return response;
+  }
 
- async updateEmployeeProjectAllocation(employeeId, allocationId, data) {
-  const { data: response } = await apiClient.put(
-    `/employees/${employeeId}/project-allocation/${allocationId}`,
-    data
-  );
-  return response;
-}
+  async updateEmployeeProjectAllocation(employeeId, allocationId, data) {
+    const { data: response } = await apiClient.put(
+      `/employees/${employeeId}/project-allocation/${allocationId}`,
+      data
+    );
+    if (!response.success) {
+      throw new Error(response.error || response.message || 'Failed to update project allocation');
+    }
+    return response;
+  }
 
   // Get employee by ID
   async getEmployeeById(employeeId, timestamp = null) {
