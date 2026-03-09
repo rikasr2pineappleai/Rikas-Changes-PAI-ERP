@@ -74,28 +74,24 @@ const MERCANTILE_HOLIDAYS = {
   ]
 };
 
-export default function HolidayList() {
+export default function HolidayList({ selectedDate }) {
   const [holidays, setHolidays] = useState([]);
 
   useEffect(() => {
-    // Get current year and next year
-    const currentYear = new Date().getFullYear();
-    const nextYear = currentYear + 1;
+    const viewDate = selectedDate || new Date();
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth(); // 0-indexed
 
-    // Combine mercantile holidays from current and next year
-    const allHolidays = [
-      ...(MERCANTILE_HOLIDAYS[currentYear] || []),
-      ...(MERCANTILE_HOLIDAYS[nextYear] || [])
-    ];
+    // Get holidays for the selected year
+    const yearHolidays = MERCANTILE_HOLIDAYS[year] || [];
 
-    // Filter to show only upcoming holidays (from today onwards)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const upcomingHolidays = allHolidays
-      .filter(holiday => new Date(holiday.date) >= today)
+    // Filter to only those in the selected month
+    const monthHolidays = yearHolidays
+      .filter(holiday => {
+        const d = new Date(holiday.date);
+        return d.getMonth() === month;
+      })
       .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .slice(0, 10) // Show only next 10 mercantile holidays
       .map((holiday, index) => {
         const holidayDate = new Date(holiday.date);
         return {
@@ -108,28 +104,38 @@ export default function HolidayList() {
         };
       });
 
-    setHolidays(upcomingHolidays);
-  }, []);
+    setHolidays(monthHolidays);
+  }, [selectedDate]);
+
+  const viewDate = selectedDate || new Date();
+  const monthLabel = viewDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
   return (
     <div className="holiday-container">
       <div className="holiday-wrapper">
         <h2 className="holiday-title">Holidays</h2>
+        <p className="holiday-month-label" style={{ color: '#888', fontSize: '13px', marginBottom: '10px' }}>{monthLabel}</p>
         
         <div className="holidays-list">
-          {holidays.map((holiday) => (
-            <div key={holiday.id} className="holiday-item">
-              <div className="holiday-date-box" style={{ backgroundColor: holiday.color }}>
-                <div className="holiday-date-number">{holiday.date}</div>
-                <div className="holiday-date-month">{holiday.month}</div>
+          {holidays.length === 0 ? (
+            <p style={{ color: '#aaa', fontSize: '13px', textAlign: 'center', marginTop: '20px' }}>
+              No holidays in this month.
+            </p>
+          ) : (
+            holidays.map((holiday) => (
+              <div key={holiday.id} className="holiday-item">
+                <div className="holiday-date-box" style={{ backgroundColor: holiday.color }}>
+                  <div className="holiday-date-number">{holiday.date}</div>
+                  <div className="holiday-date-month">{holiday.month}</div>
+                </div>
+                
+                <div className="holiday-info">
+                  <h3 className="holiday-name">{holiday.name}</h3>
+                  <p className="holiday-day">{holiday.day}</p>
+                </div>
               </div>
-              
-              <div className="holiday-info">
-                <h3 className="holiday-name">{holiday.name}</h3>
-                <p className="holiday-day">{holiday.day}</p>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

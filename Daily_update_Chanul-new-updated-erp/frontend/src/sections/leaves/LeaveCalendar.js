@@ -95,9 +95,9 @@ function MobileCalendar({ date, setDate, leaveData, getLeaveStatus }) {
   );
 };
 
-const LeaveCalendar = forwardRef((props, ref) => {
-  const { user, loading: authLoading } = useAuth(); // Get current user from auth context
-  const [date, setDate] = useState(new Date());
+const LeaveCalendar = forwardRef(({ date, onDateChange }, ref) => {
+  const setDate = onDateChange || (() => {});
+  const { user, loading: authLoading } = useAuth();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [leaveData, setLeaveData] = useState({});
   const [loading, setLoading] = useState(true);

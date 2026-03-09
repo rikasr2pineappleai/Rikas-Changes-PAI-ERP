@@ -749,7 +749,7 @@ const Halfday = ({ onClose = () => {}, onRefresh = null }) => {
             </span>
           )}
 
-          {/* Submit */
+          {/* Submit */}
           <div className='hdsubmit-row'>
             <HSubmitbtn type="submit" />
           </div>

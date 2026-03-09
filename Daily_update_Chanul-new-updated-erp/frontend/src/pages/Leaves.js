@@ -33,7 +33,10 @@ const Apply = ({ onClick, label = "Apply" }) => {
 export default function LeavesPage() {
   // state to control MainPopup visibility
   const [showMainPopup, setShowMainPopup] = useState(false);
-  
+
+  // Shared calendar date — drives both the calendar view and holiday sidebar
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   // Refs to access LeaveCalendar and LeaveStats components' refresh functions
   const leaveCalendarRef = useRef(null);
   const leaveStatsRef = useRef(null);
@@ -71,9 +74,9 @@ export default function LeavesPage() {
       <div className="leaves-content">
         <div className="leaves-left-section">
           <LeaveStats ref={leaveStatsRef} />
-          <LeaveCalendar ref={leaveCalendarRef} />
+          <LeaveCalendar ref={leaveCalendarRef} date={selectedDate} onDateChange={setSelectedDate} />
         </div>
-        <HolidayList />
+        <HolidayList selectedDate={selectedDate} />
       </div>
 
       {/* Render MainPopup when requested */}
