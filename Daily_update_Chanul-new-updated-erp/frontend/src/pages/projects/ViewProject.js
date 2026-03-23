@@ -1,24 +1,72 @@
-import React, { useMemo, useState, useEffect } from "react";
+// Import React and required hooks
+// React is used to build the component.
+// useState is used to store values.
+// useEffect is used to run code when page loads or updates.
+// useMemo is used to calculate values efficiently.
+// useRef is used to directly access input elements.
+import React, { useMemo, useState, useEffect, useRef } from "react";
+
+// Import router hooks
+// useNavigate is used to move between pages.
+// useParams is used to get values from the URL.
 import { useNavigate, useParams } from "react-router-dom";
+
+// Import CSS file
+// This CSS file contains all styles for this page.
 import "./Projects.css";
 
+// Import icons
+// Search icon for search input
 import searchIcon from "../../assets/icons/searchicon.png";
+
+// Close icon for modal close buttons
 import closeIcon from "../../assets/icons/closeicon.png";
+
+// Filter icon for filter button
 import filterIconPng from "../../assets/icons/filterricon.png";
+
+// Edit icon for edit task button
 import editBlueIcon from "../../assets/icons/editblueicon.png";
+
+// Calendar icon for date fields
 import calendarIcon from "../../assets/icons/calender.png";
+
+// Back icon for back button
 import backGreenIcon from "../../assets/icons/BackBtn.png";
+
+// Icon for creating a new task
 import newTaskBtn from "../../assets/icons/NewTaskIcon.png";
+
+// Dropdown icon for selection fields
 import dropDownIcon from "../../assets/icons/DropDownIcon.png";
+
+// Icon for assignee selection
 import addPersonIcon from "../../assets/icons/AddPersonIcon.png";
 
+// Import modal components
+// Delete confirmation popup
 import DeleteConfirmModal from "../../modals/DeleteConfirmModal";
+
+// Toast popup for success / error messages
 import ToastModal from "../../modals/ToastModal";
 
-import { fetchProjectById } from "../../integration/projectAPI";
-import employeeAPI from "../../integration/employeeAPI";
-import userAPI from "../../integration/userAPI";
+// Import project API functions
+// fetchProjectById -> get one project details
+// replaceProjectAllocations -> update project members
+import {
+  fetchProjectById,
+  replaceProjectAllocations,
+} from "../../integration/projectAPI";
 
+// Import employee API functions
+// Used to load employee list
+import employeeAPI from "../../integration/employeeAPI";
+
+// Import task API functions
+// fetchTasksByProject - get tasks of a project
+// createTaskAPI - create new task
+// updateTaskAPI - update task
+// deleteTaskAPI - delete task
 import {
   fetchTasksByProject,
   createTask as createTaskAPI,
@@ -26,6 +74,9 @@ import {
   deleteTask as deleteTaskAPI,
 } from "../../integration/taskAPI";
 
+// Trash icon component
+// This small component shows a trash icon.
+// It is used inside the delete button of each task row.
 function TrashIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -62,46 +113,81 @@ function TrashIcon() {
   );
 }
 
+// Reusable modal component
+// This common modal is used for both:
+// 1. New Task popup
+// 2. Update Task popup
 function Modal({ title, open, onClose, children }) {
+  // If modal is not open, show nothing
   if (!open) return null;
+
   return (
     <div className="prj-modalOverlay" onMouseDown={onClose}>
+      {/* Stop modal from closing when clicking inside modal box */}
       <div className="prj-modal" onMouseDown={(e) => e.stopPropagation()}>
         <div className="prj-modalHeader">
           <div className="prj-modalTitle">{title}</div>
+
+          {/* Close button */}
           <button className="prj-iconBtn" onClick={onClose} aria-label="Close">
             <img src={closeIcon} alt="close" />
           </button>
         </div>
+
+        {/* Modal content area */}
         <div className="prj-modalBody">{children}</div>
       </div>
     </div>
   );
 }
 
+// Badge component
+// This component shows a small label badge.
+// It is used for task priority and task progress.
 function Badge({ variant, children }) {
   return <span className={`prj-badge ${variant}`}>{children}</span>;
 }
 
+// Convert API task data into UI-friendly format
+// This function changes backend task data into a structure
+// that is easier to use in the frontend UI.
 const mapTaskFromApi = (t) => ({
   id: t.id,
   name: t.title || "Task",
   description: t.description || "",
   assignedTo: t.assigned_to ?? "",
   priority: t.priority || "medium",
-  progress: t.status || "to_do",
+  progress: t.status || "To_Do",
   startDate: t.assigned_at ? String(t.assigned_at).slice(0, 10) : "—",
   dueDate: t.deadline ? String(t.deadline).slice(0, 10) : "—",
+
+  // Hidden helper values used for sorting tasks
   _sortTime: t.assigned_at ? new Date(t.assigned_at).getTime() : 0,
   _sortId: t.id || 0,
+
+  // This will be assigned later after sorting
   taskNo: 0,
 });
 
-/** ✅ Assignee picker modal (Search + checkbox) */
+// Status label mapper - converts backend status keys to display labels
+const STATUS_LABELS = {
+  to_do: "To Do",
+  in_progress: "In Progress",
+  testing: "In Review",
+  blocked: "CTO Review",
+  done: "Completed",
+};
+
+// Assignee picker modal
+// This modal lets user choose one employee as task assignee.
 function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
+  // Search text entered by user
   const [q, setQ] = useState("");
+
+  // Temporary selected employee id
   const [temp, setTemp] = useState(value ? String(value) : "");
 
+  // Reset search and selected value whenever modal opens
   useEffect(() => {
     if (open) {
       setQ("");
@@ -109,9 +195,11 @@ function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
     }
   }, [open, value]);
 
+  // Filter people list using search text
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
     if (!query) return people;
+
     return (people || []).filter((p) => {
       const name = (p.name || "").toLowerCase();
       const role = (p.role || "").toLowerCase();
@@ -119,6 +207,7 @@ function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
     });
   }, [q, people]);
 
+  // If modal is closed, render nothing
   if (!open) return null;
 
   return (
@@ -128,13 +217,16 @@ function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="prj-modalHeader">
-          <div className="prj-modalTitle">Select Member</div>
+          <div className="prj-modalTitle">Assignee</div>
+
+          {/* Close button */}
           <button className="prj-iconBtn" onClick={onClose} aria-label="Close">
             <img src={closeIcon} alt="close" />
           </button>
         </div>
 
         <div className="prj-modalBody">
+          {/* Search input */}
           <div className="prj-assigneeSearch">
             <span className="prj-assigneeSearchIcon" aria-hidden="true">
               🔍
@@ -146,9 +238,11 @@ function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
             />
           </div>
 
+          {/* List of employees */}
           <div className="prj-assigneeList">
             {(filtered || []).map((p) => {
               const active = String(p.id) === String(temp);
+
               return (
                 <div
                   key={p.id}
@@ -157,17 +251,21 @@ function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
                   role="button"
                   tabIndex={0}
                 >
+                  {/* Custom checkbox */}
                   <div className={`prj-cb ${active ? "checked" : ""}`} />
 
+                  {/* Employee image */}
                   <img
                     className="prj-assigneeAvatar"
                     src={p.profile_pic || ""}
                     alt=""
                     onError={(e) => {
+                      // Hide broken image if image is not available
                       e.currentTarget.style.display = "none";
                     }}
                   />
 
+                  {/* Employee name and role */}
                   <div className="prj-assigneeText">
                     <div className="prj-assigneeName">{p.name}</div>
                     <div className="prj-assigneeRole">
@@ -178,13 +276,15 @@ function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
               );
             })}
 
+            {/* Show message if no employee found */}
             {!filtered?.length && (
               <div className="prj-empty" style={{ padding: 14 }}>
-                {people?.length === 0 ? "No users available for assignment." : "No matching employees found."}
+                No employees found.
               </div>
             )}
           </div>
 
+          {/* Confirm selected employee */}
           <button
             className="prj-primaryBtn prj-primaryBtnFull"
             type="button"
@@ -202,7 +302,142 @@ function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
   );
 }
 
-/** ✅ Option modal for Priority/Status */
+// Project members modal
+// This modal is used to select multiple employees
+// and add them as project members.
+function ProjectMembersModal({
+  open,
+  onClose,
+  people,
+  selectedIds = [],
+  onConfirm,
+}) {
+  // Search text
+  const [q, setQ] = useState("");
+
+  // Temporary selected member ids
+  const [temp, setTemp] = useState([]);
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (open) {
+      setQ("");
+      setTemp((selectedIds || []).map(String));
+    }
+  }, [open, selectedIds]);
+
+  // Filter employee list by search
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return people || [];
+
+    return (people || []).filter(
+      (p) =>
+        (p.name || "").toLowerCase().includes(s) ||
+        (p.role || "").toLowerCase().includes(s),
+    );
+  }, [q, people]);
+
+  // If modal is closed, render nothing
+  if (!open) return null;
+
+  // Toggle member selection
+  const toggle = (id) => {
+    setTemp((prev) => {
+      const sid = String(id);
+
+      // Remove if already selected
+      if (prev.includes(sid)) return prev.filter((x) => x !== sid);
+
+      // Add if not selected
+      return [...prev, sid];
+    });
+  };
+
+  return (
+    <div className="prj-modalOverlay" onMouseDown={onClose}>
+      <div className="prj-memberModal" onMouseDown={(e) => e.stopPropagation()}>
+        <div className="prj-memberHeader">
+          <div className="prj-memberTitle">Add Members</div>
+
+          {/* Close button */}
+          <button className="prj-iconBtn" onClick={onClose} aria-label="Close">
+            ×
+          </button>
+        </div>
+
+        <div className="prj-memberBody">
+          {/* Search input */}
+          <div className="prj-memberSearch">
+            <span className="prj-memberSearchIcon" aria-hidden="true">
+              🔍
+            </span>
+            <input
+              placeholder="Search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </div>
+
+          {/* Members list */}
+          <div className="prj-memberList">
+            {filtered.map((p) => {
+              const active = temp.includes(String(p.id));
+
+              return (
+                <div
+                  key={p.id}
+                  className={`prj-memberRow ${active ? "active" : ""}`}
+                  onClick={() => toggle(p.id)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className={`prj-cb ${active ? "checked" : ""}`} />
+
+                  <img
+                    className="prj-assigneeAvatar"
+                    src={p.profile_pic || ""}
+                    alt=""
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+
+                  <div className="prj-memberInfo">
+                    <div className="prj-memberName">{p.name}</div>
+                    <div className="prj-memberRole">{p.role || "Employee"}</div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Empty message */}
+            {!filtered.length && (
+              <div className="prj-memberEmpty">No members found.</div>
+            )}
+          </div>
+
+          {/* Confirm selected members */}
+          <button
+            type="button"
+            className="prj-primaryBtn prj-primaryBtnFull"
+            onClick={() => {
+              onConfirm(temp.map(Number));
+              onClose();
+            }}
+          >
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Option picker modal
+// This reusable modal is used for selecting:
+// 1. Priority
+// 2. Status
 function OptionPickerModal({
   open,
   onClose,
@@ -211,12 +446,15 @@ function OptionPickerModal({
   value,
   onConfirm,
 }) {
+  // Temporary selected option
   const [temp, setTemp] = useState(value ? String(value) : "");
 
+  // Reset selected option when modal opens
   useEffect(() => {
     if (open) setTemp(value ? String(value) : "");
   }, [open, value]);
 
+  // If modal is closed, render nothing
   if (!open) return null;
 
   return (
@@ -224,15 +462,18 @@ function OptionPickerModal({
       <div className="prj-optionModal" onMouseDown={(e) => e.stopPropagation()}>
         <div className="prj-modalHeader">
           <div className="prj-modalTitle">{title}</div>
+
           <button className="prj-iconBtn" onClick={onClose} aria-label="Close">
             <img src={closeIcon} alt="close" />
           </button>
         </div>
 
         <div className="prj-modalBody">
+          {/* Option list */}
           <div className="prj-optionList">
             {options.map((opt) => {
               const active = String(opt.value) === String(temp);
+
               return (
                 <div
                   key={opt.value}
@@ -244,12 +485,16 @@ function OptionPickerModal({
                   <div className={`prj-cb ${active ? "checked" : ""}`} />
                   <div className="prj-optionText">
                     <div className="prj-optionLabel">{opt.label}</div>
+                    {opt.subLabel ? (
+                      <div className="prj-optionSub">{opt.subLabel}</div>
+                    ) : null}
                   </div>
                 </div>
               );
             })}
           </div>
 
+          {/* Confirm option */}
           <button
             className="prj-primaryBtn prj-primaryBtnFull"
             type="button"
@@ -272,40 +517,69 @@ function OptionPickerModal({
   );
 }
 
+// Main ViewProject component
+// This page shows:
+// 1. Project details
+// 2. Project tasks
+// 3. Project members
+// 4. Create / update / delete tasks
 export default function ViewProject() {
+  // Get project id from URL
   const { projectId } = useParams();
+
+  // Hook used to go back or navigate to other pages
   const navigate = useNavigate();
 
+  // Project details state
   const [project, setProject] = useState(null);
+
+  // Task list state
   const [tasks, setTasks] = useState([]);
+
+  // Employee list state
   const [people, setPeople] = useState([]);
 
+  // Project members state
+  const [members, setMembers] = useState([]);
+
+  // Controls member modal open/close
+  const [membersModalOpen, setMembersModalOpen] = useState(false);
+
+  // Search input value
   const [search, setSearch] = useState("");
+
+  // Loading state
   const [loading, setLoading] = useState(false);
+
+  // Error message state
   const [error, setError] = useState("");
 
+  // Toast popup state
   const [toast, setToast] = useState({
     open: false,
     message: "",
     type: "success",
   });
 
+  // Task modal states
   const [newTaskOpen, setNewTaskOpen] = useState(false);
   const [editTaskOpen, setEditTaskOpen] = useState(false);
+
+  // Currently editing task
   const [editingTask, setEditingTask] = useState(null);
+
+  // Delete confirmation state
   const [confirmDeleteTask, setConfirmDeleteTask] = useState(null);
 
-  // ✅ pickers
+  // Member delete confirmation state
+  const [confirmDeleteMember, setConfirmDeleteMember] = useState(null);
+
+  // Picker modal states
   const [assigneeModalOpen, setAssigneeModalOpen] = useState(false);
   const [priorityModalOpen, setPriorityModalOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
 
-  // ✅ Members panel add modal
-  const [membersAddOpen, setMembersAddOpen] = useState(false);
-
-  // ✅ UI-only removed members (so they don't show in panel)
-  const [hiddenMemberIds, setHiddenMemberIds] = useState([]);
-
+  // Task form state
   const [taskForm, setTaskForm] = useState({
     name: "",
     assignedTo: "",
@@ -316,6 +590,7 @@ export default function ViewProject() {
     description: "",
   });
 
+  // Task form validation errors
   const [taskFieldErrors, setTaskFieldErrors] = useState({
     name: "",
     assignedTo: "",
@@ -326,94 +601,136 @@ export default function ViewProject() {
     description: "",
   });
 
-  const clearTaskFieldError = (key) =>
-    setTaskFieldErrors((prev) => ({ ...prev, [key]: "" }));
+  // Refs for date inputs
+  // These are used to open browser date picker using calendar icon click
+  const startDateRefNew = useRef(null);
+  const dueDateRefNew = useRef(null);
+  const startDateRefEdit = useRef(null);
+  const dueDateRefEdit = useRef(null);
 
-  useEffect(() => {
-    if (projectId) {
-      loadAll();
-    } else {
-      setError("Project ID is required");
-      setProject(null);
-      setTasks([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId]);
+  // Function to open date picker using input ref
+  const openDatePicker = (ref) => {
+    const el = ref?.current;
+    if (!el) return;
 
-  const normalizeTasksForView = (rawTasks) => {
-    const mapped = (rawTasks || []).map(mapTaskFromApi);
-    mapped.sort((a, b) => {
-      if (b._sortTime !== a._sortTime) return b._sortTime - a._sortTime;
-      return (b._sortId || 0) - (a._sortId || 0);
-    });
-    return mapped.map((t, idx) => ({ ...t, taskNo: idx + 1 }));
-  };
-
-  const loadAll = async () => {
-    // Validate projectId before making API calls
-    if (!projectId || isNaN(projectId) || parseInt(projectId) <= 0) {
-      setError("Invalid project ID provided");
-      setLoading(false);
+    // Best support for Chrome / Edge
+    if (typeof el.showPicker === "function") {
+      el.showPicker();
       return;
     }
 
+    // Fallback for Safari / iPhone
+    el.focus();
+    el.click();
+  };
+
+  // Clear one validation error only
+  const clearTaskFieldError = (key) =>
+    setTaskFieldErrors((prev) => ({ ...prev, [key]: "" }));
+
+  // Load all page data when projectId changes
+  useEffect(() => {
+    loadAll();
+  }, [projectId]);
+
+  // Normalize tasks for frontend display
+  const normalizeTasksForView = (rawTasks) => {
+    const mapped = (rawTasks || []).map(mapTaskFromApi);
+
+    // Sort by assigned time (oldest first), then by id (smallest first)
+    // This ensures the first created task gets Task No 1
+    mapped.sort((a, b) => {
+      if (a._sortTime !== b._sortTime) return a._sortTime - b._sortTime;
+      return (a._sortId || 0) - (b._sortId || 0);
+    });
+
+    // Add running task number
+    return mapped.map((t, idx) => ({ ...t, taskNo: idx + 1 }));
+  };
+
+  // Convert allocations to member display format
+  const allocationsToMembers = (allocations, allPeople) => {
+    const list = allocations || [];
+
+    const mapped = list.map((a) => {
+      const u = a.User || {};
+      const id = a.user_id || u.id;
+
+      const fallback = (allPeople || []).find(
+        (p) => String(p.id) === String(id),
+      );
+
+      return {
+        id,
+        name:
+          [u.first_name, u.last_name].filter(Boolean).join(" ").trim() ||
+          fallback?.name ||
+          u.email ||
+          `User ${id}`,
+        role: a.role_in_project || fallback?.role || "Employee",
+        profile_pic: u.profile_pic || fallback?.profile_pic || "",
+      };
+    });
+
+    // Remove duplicate members
+    const seen = new Set();
+    return mapped.filter((m) => {
+      const k = String(m.id);
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  };
+
+  // Load project, employees, and tasks
+  const loadAll = async () => {
     setLoading(true);
     setError("");
+
     try {
+      // Load single project details
       const pres = await fetchProjectById(projectId);
       if (!pres?.success)
         throw new Error(pres?.message || "Failed to load project");
+
       setProject(pres.project);
 
-      // People list - fetch users for assignment (using first_name column from Users table)
+      // Load employees
       try {
-        const response = await userAPI.getUsersForAssignment();
-        const userList = response?.users || [];
-        
-        const normalized = userList.map((u) => ({
+        const eres = await employeeAPI.getAllEmployees(1, 200);
+        const list =
+          eres?.data?.employees ||
+          eres?.employees ||
+          eres?.data ||
+          eres?.rows ||
+          [];
+
+        // Convert employee list into frontend friendly format
+        const normalized = (list || []).map((u) => ({
           id: u.id,
-          name: u.name || [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || `User ${u.id}`,
-          profile_pic: u.profile_pic || u.avatar || u.image || u.image_path || "",
+          name:
+            [u.first_name, u.last_name].filter(Boolean).join(" ").trim() ||
+            u.fullname ||
+            u.email ||
+            `User ${u.id}`,
+          profile_pic: u.profile_pic || u.avatar || u.image || "",
           role: u.role || u.designation || "",
         }));
+
         setPeople(normalized);
-        console.log(`Loaded ${normalized.length} users for assignment`);
+
+        // Build project member list from allocations
+        setMembers(allocationsToMembers(pres.allocations || [], normalized));
       } catch (e) {
-        console.error("Error fetching users for assignment:", e);
-        
-        // Fallback to employeeAPI if userAPI fails
-        try {
-          const eres = await employeeAPI.getAllEmployees(1, 200);
-          const list =
-            eres?.data?.employees ||
-            eres?.employees ||
-            eres?.data ||
-            eres?.rows ||
-            [];
-          const normalized = (list || []).map((u) => ({
-            id: u.id,
-            name:
-              [u.first_name, u.last_name].filter(Boolean).join(" ").trim() ||
-              u.fullname ||
-              u.email ||
-              `User ${u.id}`,
-            profile_pic: u.profile_pic || u.avatar || u.image || u.image_path || "",
-            role: u.role || u.designation || "",
-          }));
-          setPeople(normalized);
-          console.log(`Loaded ${normalized.length} employees as fallback`);
-        } catch (fallbackError) {
-          console.error("Fallback employee API also failed:", fallbackError);
-          setPeople([]);
-        }
+        // If employee API fails, still try to build members from project data
+        setPeople([]);
+        setMembers(allocationsToMembers(pres.allocations || [], []));
       }
 
+      // Load tasks
       const tres = await fetchTasksByProject(projectId);
-      if (tres?.success) {
-        setTasks(normalizeTasksForView(tres.tasks));
-      } else {
-        setTasks([]);
-      }
+      if (tres?.success) setTasks(normalizeTasksForView(tres.tasks));
+      else setTasks([]);
     } catch (err) {
       setError(err?.message || "Server error");
     } finally {
@@ -421,44 +738,25 @@ export default function ViewProject() {
     }
   };
 
+  // Search filter for tasks
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return tasks;
+
     return tasks.filter(
       (t) =>
         String(t.taskNo).includes(q) ||
         String(t.id).includes(q) ||
         (t.name || "").toLowerCase().includes(q) ||
-        String(t.assignedTo || "").toLowerCase().includes(q) ||
+        String(t.assignedTo || "")
+          .toLowerCase()
+          .includes(q) ||
         (t.priority || "").toLowerCase().includes(q) ||
         (t.progress || "").toLowerCase().includes(q),
     );
   }, [search, tasks]);
 
-  /** ✅ Members panel = unique assignees from tasks */
-  const taskMembers = useMemo(() => {
-    const ids = new Set();
-    (tasks || []).forEach((t) => {
-      if (t?.assignedTo) ids.add(String(t.assignedTo));
-    });
-
-    const arr = Array.from(ids)
-      .filter((id) => !hiddenMemberIds.includes(String(id)))
-      .map((id) => {
-        const p = (people || []).find((x) => String(x.id) === String(id));
-        return {
-          id: String(id),
-          name: p?.name || `User ${id}`,
-          role: p?.role || "Employee",
-          profile_pic: p?.profile_pic || "",
-        };
-      });
-
-    // nice stable order by name
-    arr.sort((a, b) => String(a.name).localeCompare(String(b.name)));
-    return arr;
-  }, [tasks, people, hiddenMemberIds]);
-
+  // Reset task form
   const resetForm = () => {
     setTaskForm({
       name: "",
@@ -469,6 +767,7 @@ export default function ViewProject() {
       dueDate: "",
       description: "",
     });
+
     setTaskFieldErrors({
       name: "",
       assignedTo: "",
@@ -480,6 +779,7 @@ export default function ViewProject() {
     });
   };
 
+  // Validate task form
   const validateTaskForm = () => {
     const next = {
       name: "",
@@ -513,6 +813,7 @@ export default function ViewProject() {
     );
   };
 
+  // Open edit task modal with selected task data
   const openEdit = (task) => {
     setEditingTask(task);
 
@@ -539,38 +840,43 @@ export default function ViewProject() {
     setEditTaskOpen(true);
   };
 
+  // Get selected assignee details
   const selectedAssignee = useMemo(() => {
     if (!taskForm.assignedTo) return null;
     return people.find((p) => String(p.id) === String(taskForm.assignedTo));
   }, [taskForm.assignedTo, people]);
 
+  // Priority options
   const priorityOptions = useMemo(
     () => [
-      { value: "low", label: "Low" },
-      { value: "medium", label: "Medium" },
-      { value: "high", label: "High" },
-      { value: "critical", label: "Critical" },
+      { value: "Low", label: "Low" },
+      { value: "Medium", label: "Medium" },
+      { value: "High", label: "High" },
+      // { value: "critical", label: "Critical" },
     ],
     [],
   );
 
+  // Status options
   const statusOptions = useMemo(
     () => [
       { value: "to_do", label: "To Do" },
       { value: "in_progress", label: "In Progress" },
-      { value: "testing", label: "Testing" },
-      { value: "done", label: "Done" },
-      { value: "blocked", label: "Blocked" },
-      { value: "pending", label: "Pending" },
+      { value: "testing", label: "In Review" },
+      { value: "blocked", label: "CTO Review" },
+      { value: "done", label: "Completed" },
     ],
     [],
   );
 
+  // Get selected label values for UI display
   const priorityLabel =
     priorityOptions.find((o) => o.value === taskForm.priority)?.label || "";
+
   const statusLabel =
     statusOptions.find((o) => o.value === taskForm.status)?.label || "";
 
+  // Create new task
   const submitNewTask = async (e) => {
     e.preventDefault();
     setError("");
@@ -578,13 +884,16 @@ export default function ViewProject() {
     if (!validateTaskForm()) return;
 
     try {
+      // Get logged-in user from localStorage
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const assigned_by = user?.id;
+
       if (!assigned_by) {
         setError("Login required (assigned_by missing)");
         return;
       }
 
+      // Prepare request payload
       const payload = {
         project_id: Number(projectId),
         title: taskForm.name.trim(),
@@ -599,18 +908,16 @@ export default function ViewProject() {
         deadline: taskForm.dueDate ? `${taskForm.dueDate}T00:00:00.000Z` : null,
       };
 
+      // API call
       const res = await createTaskAPI(payload);
       if (!res?.success) throw new Error(res?.message || "Create task failed");
 
-      // if user previously hidden, show again
-      setHiddenMemberIds((prev) =>
-        prev.filter((x) => String(x) !== String(taskForm.assignedTo)),
-      );
-
+      // Close modal and reload data
       setNewTaskOpen(false);
       resetForm();
       await loadAll();
 
+      // Show success toast
       setToast({
         open: true,
         message: "Task created successfully.",
@@ -621,6 +928,7 @@ export default function ViewProject() {
     }
   };
 
+  // Update existing task
   const submitEditTask = async (e) => {
     e.preventDefault();
     setError("");
@@ -645,10 +953,6 @@ export default function ViewProject() {
       const res = await updateTaskAPI(editingTask.id, payload);
       if (!res?.success) throw new Error(res?.message || "Update task failed");
 
-      setHiddenMemberIds((prev) =>
-        prev.filter((x) => String(x) !== String(taskForm.assignedTo)),
-      );
-
       setEditTaskOpen(false);
       setEditingTask(null);
       resetForm();
@@ -664,8 +968,10 @@ export default function ViewProject() {
     }
   };
 
+  // Delete task
   const deleteTask = async (task) => {
     setError("");
+
     try {
       const res = await deleteTaskAPI(task.id);
       if (!res?.success) throw new Error(res?.message || "Delete task failed");
@@ -675,7 +981,7 @@ export default function ViewProject() {
 
       setToast({
         open: true,
-        message: "Task deleted successfully.",
+        message: "Task is successfully deleted.",
         type: "error",
       });
     } catch (err) {
@@ -683,12 +989,87 @@ export default function ViewProject() {
     }
   };
 
+  // Save project members
+  const saveMembers = async (nextUserIds) => {
+    setError("");
+
+    try {
+      const res = await replaceProjectAllocations(projectId, nextUserIds);
+      if (!res?.success)
+        throw new Error(res?.message || "Members update failed");
+
+      const fresh = allocationsToMembers(res.allocations || [], people);
+      setMembers(fresh);
+
+      setToast({
+        open: true,
+        message: res.message || "Members updated.",
+        type: "success",
+      });
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || "Server error");
+    }
+  };
+
+  // Member ids only
+  const memberIds = useMemo(
+    () => members.map((m) => Number(m.id)).filter(Boolean),
+    [members],
+  );
+
+  // Combine actual project members + task assignees for display
+  const membersForPanel = useMemo(() => {
+    const map = new Map();
+
+    // Real allocated members
+    (members || []).forEach((m) => {
+      const id = String(m.id);
+      map.set(id, { ...m, _isAllocated: true });
+    });
+
+    // Task assignees only for display
+    (tasks || []).forEach((t) => {
+      const uid = t?.assignedTo ? String(t.assignedTo) : "";
+      if (!uid) return;
+
+      if (!map.has(uid)) {
+        const p = (people || []).find((x) => String(x.id) === uid);
+
+        map.set(uid, {
+          id: Number(uid),
+          name: p?.name || `User ${uid}`,
+          role: p?.role || "Employee",
+          profile_pic: p?.profile_pic || "",
+          _isAllocated: false,
+        });
+      }
+    });
+
+    return Array.from(map.values());
+  }, [members, tasks, people]);
+
+  // Remove a member from project
+  const removeMember = async (userId) => {
+    const next = memberIds.filter((id) => String(id) !== String(userId));
+    await saveMembers(next);
+
+    setToast({
+      open: true,
+      message: "Member deleted successfully.",
+      type: "error",
+    });
+  };
+
+  // Selected assignee name for showing in input UI
   const assigneeLabel = selectedAssignee?.name || "";
 
+  // Render UI
   return (
     <div className="prj-page">
+      {/* Top header section */}
       <div className="prj-topCard">
         <div className="prj-viewTopRow">
+          {/* Back button */}
           <button
             type="button"
             className="prj-backBtn prj-backBtnIcon"
@@ -698,10 +1079,12 @@ export default function ViewProject() {
             <img src={backGreenIcon} alt="Back" />
           </button>
 
+          {/* Project name */}
           <div className="prj-viewTitle">
             {project?.project_name || "Project"}
           </div>
 
+          {/* Open new task modal */}
           <button
             type="button"
             className="prj-newTaskBtn"
@@ -717,13 +1100,16 @@ export default function ViewProject() {
         </div>
       </div>
 
+      {/* Loading and error messages */}
       {loading && <div style={{ padding: 8 }}>Loading...</div>}
       {error && <div style={{ padding: 8, color: "red" }}>{error}</div>}
 
+      {/* Task list section */}
       <div className="prj-sectionCard">
         <div className="prj-sectionHeader">
           <div className="prj-sectionTitle">Task List</div>
 
+          {/* Search and filter area */}
           <div className="prj-toolbar">
             <button className="prj-filterBtn" type="button" aria-label="Filter">
               <img src={filterIconPng} alt="" aria-hidden="true" />
@@ -741,6 +1127,7 @@ export default function ViewProject() {
           </div>
         </div>
 
+        {/* Task table */}
         <div className="prj-tableWrap">
           <table className="prj-table">
             <thead>
@@ -781,11 +1168,11 @@ export default function ViewProject() {
                   <td data-label="Priority">
                     <Badge
                       variant={
-                        t.priority === "high" || t.priority === "critical"
+                        t.priority === "High"
                           ? "high"
                           : t.priority === "low"
-                          ? "low"
-                          : "medium"
+                            ? "low"
+                            : "medium"
                       }
                     >
                       {t.priority}
@@ -798,15 +1185,16 @@ export default function ViewProject() {
                         t.progress === "done"
                           ? "done"
                           : t.progress === "in_progress"
-                          ? "progress"
-                          : "notstarted"
+                            ? "progress"
+                            : "notstarted"
                       }
                     >
-                      {t.progress}
+                      {STATUS_LABELS[t.progress] || t.progress}
                     </Badge>
                   </td>
 
                   <td data-label="Actions" className="prj-actionsCell">
+                    {/* Delete button */}
                     <button
                       className="prj-actionBtn danger"
                       title="Delete"
@@ -815,6 +1203,7 @@ export default function ViewProject() {
                       <TrashIcon />
                     </button>
 
+                    {/* Edit button */}
                     <button
                       className="prj-actionBtn edit"
                       title="Edit"
@@ -826,6 +1215,7 @@ export default function ViewProject() {
                 </tr>
               ))}
 
+              {/* Show message if no tasks */}
               {!filtered.length && (
                 <tr>
                   <td colSpan={8} className="prj-empty">
@@ -838,71 +1228,86 @@ export default function ViewProject() {
         </div>
       </div>
 
-      {/* ✅ MEMBERS PANEL (Task Assignees ONLY) */}
+      {/* Project members section */}
       <div className="prj-sectionCard">
         <div className="prj-sectionHeader">
           <div className="prj-sectionTitle">Project Members</div>
-
-          <button
-            type="button"
-            className="prj-memberAddBtn"
-            onClick={() => {
-              setMembersAddOpen(true);
-              setError("");
-            }}
-          >
-            <span className="prj-memberAddIcon">+</span> Add member
-          </button>
         </div>
 
         <div className="prj-membersWrap">
-          {(taskMembers || []).map((m) => (
-            <div className="prj-memberChip" key={m.id}>
-              <div className="prj-memberAvatarSm" aria-hidden="true" />
-              <div className="prj-memberMeta">
-                <div className="prj-memberNameSm">{m.name}</div>
-                <div className="prj-memberRoleSm">{m.role || "Employee"}</div>
+          <div className="prj-membersRow">
+            {membersForPanel.map((m) => (
+              <div key={m.id} className="prj-memberChip">
+                {m.profile_pic ? (
+                  <img
+                    className="prj-memberAvatarImg"
+                    src={m.profile_pic}
+                    alt=""
+                  />
+                ) : (
+                  <div className="prj-memberAvatarImg" aria-hidden="true" />
+                )}
+
+                <div className="prj-memberText">
+                  <div className="prj-memberChipName">{m.name}</div>
+                  <div className="prj-memberChipRole">{m.role}</div>
+                </div>
+
+                {/* Only actual project members can be removed */}
+                {m._isAllocated ? (
+                  <button
+                    className="prj-memberRemove"
+                    type="button"
+                    title="Remove"
+                    onClick={() => setConfirmDeleteMember(m)}
+                  >
+                    ×
+                  </button>
+                ) : null}
               </div>
+            ))}
 
-              {/* ✅ Cancel/Remove */}
-              <button
-                className="prj-memberRemove"
-                title="Remove"
-                onClick={() =>
-                  setHiddenMemberIds((prev) => [...prev, String(m.id)])
-                }
-              >
-                ×
-              </button>
-            </div>
-          ))}
-
-          {!taskMembers?.length && (
-            <div className="prj-membersEmpty">
-              No members yet. Assign a task to someone or add member.
-            </div>
-          )}
+            {/* Add member button */}
+            <button
+              type="button"
+              className="pm-addBtn"
+              onClick={() => setMembersModalOpen(true)}
+            >
+              <span className="pm-addIcon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M15 21a7 7 0 0 0-14 0"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M19 8v6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M16 11h6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+              <span className="pm-addText">Add member</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ✅ Members add picker (uses employee list) */}
-      <AssigneePickerModal
-        open={membersAddOpen}
-        onClose={() => setMembersAddOpen(false)}
-        people={people}
-        value={""}
-        onConfirm={(id) => {
-          // NOTE: purely UI panel add (doesn't change DB)
-          setHiddenMemberIds((prev) => prev.filter((x) => String(x) !== String(id)));
-          setToast({
-            open: true,
-            message: "Member added to panel (assign tasks to make it permanent).",
-            type: "success",
-          });
-        }}
-      />
-
-      {/* ✅ New Task Modal */}
+      {/* New Task Modal */}
       <Modal
         title="New Task"
         open={newTaskOpen}
@@ -912,6 +1317,7 @@ export default function ViewProject() {
         }}
       >
         <form className="prj-form prj-formGrid" onSubmit={submitNewTask}>
+          {/* Task name */}
           <label className="prj-label">Task Name</label>
           <input
             className={`prj-input ${
@@ -928,10 +1334,10 @@ export default function ViewProject() {
             <div className="prj-fieldError">{taskFieldErrors.name}</div>
           )}
 
+          {/* Assignee and Priority */}
           <div className="prj-twoCol">
             <div>
               <label className="prj-label">Assignee</label>
-
               <button
                 type="button"
                 className={`prj-assigneeField ${
@@ -959,25 +1365,10 @@ export default function ViewProject() {
                   {taskFieldErrors.assignedTo}
                 </div>
               )}
-
-              {selectedAssignee && (
-                <div className="prj-selectedPerson">
-                  <div className="prj-selectedAvatar" aria-hidden="true" />
-                  <div className="prj-selectedText">
-                    <div className="prj-selectedName">
-                      {selectedAssignee.name}
-                    </div>
-                    <div className="prj-selectedRole">
-                      {selectedAssignee.role || "Assignee"}
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             <div>
               <label className="prj-label">Priority</label>
-
               <button
                 type="button"
                 className={`prj-assigneeField ${
@@ -999,18 +1390,19 @@ export default function ViewProject() {
                   aria-hidden="true"
                 />
               </button>
-
               {taskFieldErrors.priority && (
                 <div className="prj-fieldError">{taskFieldErrors.priority}</div>
               )}
             </div>
           </div>
 
+          {/* Start Date and Due Date */}
           <div className="prj-twoCol">
             <div>
               <label className="prj-label">Start Date</label>
               <div className="prj-dateField">
                 <input
+                  ref={startDateRefNew}
                   type="date"
                   className={`prj-input prj-inputWithIcon prj-dateInput ${
                     taskFieldErrors.startDate ? "prj-inputError" : ""
@@ -1022,13 +1414,21 @@ export default function ViewProject() {
                       clearTaskFieldError("startDate");
                   }}
                 />
-                <img
-                  className="prj-fieldIcon"
-                  src={calendarIcon}
-                  alt=""
-                  aria-hidden="true"
-                />
+                <button
+                  type="button"
+                  className="prj-dateIconBtn"
+                  aria-label="Open calendar"
+                  onClick={() => openDatePicker(startDateRefNew)}
+                >
+                  <img
+                    className="prj-fieldIconImg"
+                    src={calendarIcon}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
+
               {taskFieldErrors.startDate && (
                 <div className="prj-fieldError">
                   {taskFieldErrors.startDate}
@@ -1040,6 +1440,7 @@ export default function ViewProject() {
               <label className="prj-label">Due Date</label>
               <div className="prj-dateField">
                 <input
+                  ref={dueDateRefNew}
                   type="date"
                   className={`prj-input prj-inputWithIcon prj-dateInput ${
                     taskFieldErrors.dueDate ? "prj-inputError" : ""
@@ -1050,23 +1451,31 @@ export default function ViewProject() {
                     if (taskFieldErrors.dueDate) clearTaskFieldError("dueDate");
                   }}
                 />
-                <img
-                  className="prj-fieldIcon"
-                  src={calendarIcon}
-                  alt=""
-                  aria-hidden="true"
-                />
+                <button
+                  type="button"
+                  className="prj-dateIconBtn"
+                  aria-label="Open calendar"
+                  onClick={() => openDatePicker(dueDateRefNew)}
+                >
+                  <img
+                    className="prj-fieldIconImg"
+                    src={calendarIcon}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
+
               {taskFieldErrors.dueDate && (
                 <div className="prj-fieldError">{taskFieldErrors.dueDate}</div>
               )}
             </div>
           </div>
 
+          {/* Status */}
           <div className="prj-twoCol">
             <div style={{ gridColumn: "1 / -1" }}>
               <label className="prj-label">Status</label>
-
               <button
                 type="button"
                 className={`prj-assigneeField ${
@@ -1095,6 +1504,7 @@ export default function ViewProject() {
             </div>
           </div>
 
+          {/* Description */}
           <label className="prj-label">Description</label>
           <textarea
             className={`prj-textarea ${
@@ -1112,13 +1522,14 @@ export default function ViewProject() {
             <div className="prj-fieldError">{taskFieldErrors.description}</div>
           )}
 
+          {/* Submit button */}
           <button className="prj-primaryBtn prj-primaryBtnFull" type="submit">
             Create Task
           </button>
         </form>
       </Modal>
 
-      {/* ✅ Update Task Modal */}
+      {/* Update Task Modal */}
       <Modal
         title="Update Task"
         open={editTaskOpen}
@@ -1147,7 +1558,6 @@ export default function ViewProject() {
           <div className="prj-twoCol">
             <div>
               <label className="prj-label">Assignee</label>
-
               <button
                 type="button"
                 className={`prj-assigneeField ${
@@ -1175,11 +1585,24 @@ export default function ViewProject() {
                   {taskFieldErrors.assignedTo}
                 </div>
               )}
+
+              {/* {selectedAssignee && (
+                <div className="prj-selectedPerson">
+                  <div className="prj-selectedAvatar" aria-hidden="true" />
+                  <div className="prj-selectedText">
+                    <div className="prj-selectedName">
+                      {selectedAssignee.name}
+                    </div>
+                    <div className="prj-selectedRole">
+                      {selectedAssignee.role || "Assignee"}
+                    </div>
+                  </div>
+                </div>
+              )} */}
             </div>
 
             <div>
               <label className="prj-label">Priority</label>
-
               <button
                 type="button"
                 className={`prj-assigneeField ${
@@ -1213,6 +1636,7 @@ export default function ViewProject() {
               <label className="prj-label">Start Date</label>
               <div className="prj-dateField">
                 <input
+                  ref={startDateRefEdit}
                   type="date"
                   className={`prj-input prj-inputWithIcon prj-dateInput ${
                     taskFieldErrors.startDate ? "prj-inputError" : ""
@@ -1224,19 +1648,33 @@ export default function ViewProject() {
                       clearTaskFieldError("startDate");
                   }}
                 />
-                <img
-                  className="prj-fieldIcon"
-                  src={calendarIcon}
-                  alt=""
-                  aria-hidden="true"
-                />
+                <button
+                  type="button"
+                  className="prj-dateIconBtn"
+                  aria-label="Open calendar"
+                  onClick={() => openDatePicker(startDateRefEdit)}
+                >
+                  <img
+                    className="prj-fieldIconImg"
+                    src={calendarIcon}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
+
+              {taskFieldErrors.startDate && (
+                <div className="prj-fieldError">
+                  {taskFieldErrors.startDate}
+                </div>
+              )}
             </div>
 
             <div>
               <label className="prj-label">Due Date</label>
               <div className="prj-dateField">
                 <input
+                  ref={dueDateRefEdit}
                   type="date"
                   className={`prj-input prj-inputWithIcon prj-dateInput ${
                     taskFieldErrors.dueDate ? "prj-inputError" : ""
@@ -1247,18 +1685,28 @@ export default function ViewProject() {
                     if (taskFieldErrors.dueDate) clearTaskFieldError("dueDate");
                   }}
                 />
-                <img
-                  className="prj-fieldIcon"
-                  src={calendarIcon}
-                  alt=""
-                  aria-hidden="true"
-                />
+                <button
+                  type="button"
+                  className="prj-dateIconBtn"
+                  aria-label="Open calendar"
+                  onClick={() => openDatePicker(dueDateRefEdit)}
+                >
+                  <img
+                    className="prj-fieldIconImg"
+                    src={calendarIcon}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
+
+              {taskFieldErrors.dueDate && (
+                <div className="prj-fieldError">{taskFieldErrors.dueDate}</div>
+              )}
             </div>
           </div>
 
           <label className="prj-label">Status</label>
-
           <button
             type="button"
             className={`prj-assigneeField ${
@@ -1279,6 +1727,10 @@ export default function ViewProject() {
             />
           </button>
 
+          {taskFieldErrors.status && (
+            <div className="prj-fieldError">{taskFieldErrors.status}</div>
+          )}
+
           <label className="prj-label">Description</label>
           <textarea
             className={`prj-textarea ${
@@ -1291,6 +1743,9 @@ export default function ViewProject() {
                 clearTaskFieldError("description");
             }}
           />
+          {taskFieldErrors.description && (
+            <div className="prj-fieldError">{taskFieldErrors.description}</div>
+          )}
 
           <button className="prj-primaryBtn prj-primaryBtnFull" type="submit">
             Update Task
@@ -1298,7 +1753,7 @@ export default function ViewProject() {
         </form>
       </Modal>
 
-      {/* ✅ Assignee Picker */}
+      {/* Assignee picker modal */}
       <AssigneePickerModal
         open={assigneeModalOpen}
         onClose={() => setAssigneeModalOpen(false)}
@@ -1310,7 +1765,7 @@ export default function ViewProject() {
         }}
       />
 
-      {/* ✅ Priority Picker */}
+      {/* Priority picker modal */}
       <OptionPickerModal
         open={priorityModalOpen}
         onClose={() => setPriorityModalOpen(false)}
@@ -1323,7 +1778,7 @@ export default function ViewProject() {
         }}
       />
 
-      {/* ✅ Status Picker */}
+      {/* Status picker modal */}
       <OptionPickerModal
         open={statusModalOpen}
         onClose={() => setStatusModalOpen(false)}
@@ -1336,6 +1791,23 @@ export default function ViewProject() {
         }}
       />
 
+      {/* Project members modal */}
+      <ProjectMembersModal
+        open={membersModalOpen}
+        onClose={() => setMembersModalOpen(false)}
+        people={people}
+        selectedIds={memberIds}
+        onConfirm={async (selected) => {
+          const setAll = new Set([
+            ...memberIds.map(String),
+            ...(selected || []).map(String),
+          ]);
+          const next = [...setAll].map(Number).filter(Boolean);
+          await saveMembers(next);
+        }}
+      />
+
+      {/* Delete confirm modal */}
       {confirmDeleteTask && (
         <DeleteConfirmModal
           isOpen={!!confirmDeleteTask}
@@ -1345,6 +1817,20 @@ export default function ViewProject() {
         />
       )}
 
+      {/* Delete member confirm modal */}
+      {confirmDeleteMember && (
+        <DeleteConfirmModal
+          isOpen={!!confirmDeleteMember}
+          onClose={() => setConfirmDeleteMember(null)}
+          itemName="this member"
+          onConfirm={() => {
+            removeMember(confirmDeleteMember.id);
+            setConfirmDeleteMember(null);
+          }}
+        />
+      )}
+
+      {/* Toast popup */}
       {toast.open && (
         <ToastModal
           isOpen={toast.open}

@@ -1,0 +1,1244 @@
+.taskpage-wrap {
+  padding: 16px;
+  min-height: 100%;
+  background: #ffffff;
+}
+
+.taskpage-headerBox {
+  width: 100%;
+  min-height: 72px;
+  border: 1px solid #e7e7e7;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+  margin-bottom: 22px;
+  background: #ffffff;
+}
+
+.taskpage-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.taskpage-error {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+  font-size: 14px;
+}
+
+.taskpage-loading {
+  padding: 20px 6px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.taskpage-board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(220px, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.taskpage-column {
+  background: #f7f8fa;
+  border-radius: 14px;
+  min-height: 620px;
+  padding: 14px;
+  transition: all 0.2s ease;
+}
+
+.taskpage-columnDropActive {
+  outline: 2px dashed #22c55e;
+  outline-offset: -6px;
+  background: #f0fdf4;
+}
+
+.taskpage-columnHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #22c55e;
+  color: #ffffff;
+  border-radius: 999px;
+  min-height: 42px;
+  padding: 0 12px;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+.taskpage-columnCount {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #22c55e;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.taskpage-columnTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.taskpage-columnBody {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.taskpage-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.taskpage-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  border-color: #bfe8ca;
+}
+
+.taskpage-cardDragging {
+  opacity: 0.55;
+  transform: rotate(1deg);
+}
+
+.taskpage-cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.taskpage-cardTopLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.taskpage-projectDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  background: #22c55e;
+  flex-shrink: 0;
+}
+
+.taskpage-projectName {
+  font-size: 13px;
+  color: #5f5f5f;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* missing top-right icon fix */
+/* .taskpage-cardActionIcon {
+  width: 18px;
+  height: 18px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.taskpage-cardActionIcon::before {
+  content: "";
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid #22c55e;
+  border-right: 2px solid #22c55e;
+}
+
+.taskpage-cardActionIcon::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  bottom: 3px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #22c55e;
+  border-radius: 3px;
+} */
+
+.taskpage-cardActionIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.taskpage-cardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.taskpage-emptyCard {
+  min-height: 74px;
+  border: 1px dashed #d8d8d8;
+  border-radius: 12px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.taskpage-modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 9999;
+}
+
+.taskpage-modal {
+  width: 100%;
+  max-width: 760px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.taskpage-modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.taskpage-modalHeader h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #111827;
+}
+
+.taskpage-closeBtn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 10px;
+  background: #f3f4f6;
+  color: #111827;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.taskpage-detailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.taskpage-detailBlock {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fafafa;
+}
+
+.taskpage-detailBlockFull {
+  grid-column: 1 / -1;
+}
+
+.taskpage-detailBlock label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.taskpage-detailValue {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.taskpage-description {
+  min-height: 72px;
+}
+
+.taskpage-noteBox {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.taskpage-modalFooter {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.taskpage-moveBtn {
+  min-width: 220px;
+  min-height: 46px;
+  border: none;
+  border-radius: 12px;
+  background: #22c55e;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 18px;
+}
+
+.taskpage-moveBtn:hover:not(:disabled) {
+  background: #16a34a;
+}
+
+.taskpage-moveBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.taskpage-moveBtnDisabled {
+  background: #9ca3af;
+}
+
+/* ===== NEW MODAL DESIGN ===== */
+.taskpage-modalNew {
+  max-width: 720px;
+  padding: 28px;
+  border-radius: 16px;
+}
+
+/* Header */
+.taskpage-modalHeaderNew {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.taskpage-projectBadge {
+  background: #dcfce7;
+  color: #166534;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.taskpage-headerDivider {
+  color: #9ca3af;
+}
+
+.taskpage-headerLabel {
+  color: #6b7280;
+}
+
+/* Title row */
+.taskpage-modalTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.taskpage-statusIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  object-fit: contain;
+  display: block;
+}
+
+.taskpage-modalTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Two column body */
+.taskpage-modalBody {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+  align-items: start;
+}
+
+.taskpage-modalLeft {
+  display: flex;
+  flex-direction: column;
+}
+
+.taskpage-sectionLabel {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.taskpage-descriptionBox {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+  min-height: 180px;
+  white-space: pre-wrap;
+  flex: 1;
+}
+
+/* Right column */
+.taskpage-modalRight {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.taskpage-detailItem label {
+  display: block;
+  font-size: 13px;
+  color: #111827;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-bottom: 8px;
+}
+
+/* Status badge */
+.taskpage-statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.taskpage-statusBadge.status-to_do,
+.taskpage-statusBadge.status-in_progress,
+.taskpage-statusBadge.status-review,
+.taskpage-statusBadge.status-cto_review,
+.taskpage-statusBadge.status-testing,
+.taskpage-statusBadge.status-blocked,
+.taskpage-statusBadge.status-done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.taskpage-statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.taskpage-statusBadge .taskpage-statusDot {
+  background: #22c55e;
+}
+
+/* Priority buttons */
+.taskpage-priorityButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.taskpage-priorityBtn {
+  padding: 8px 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: default;
+}
+
+.taskpage-priorityBtn.active {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #166534;
+  font-weight: 600;
+}
+
+/* Dates */
+.taskpage-datesRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.taskpage-dateValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 1px solid #22c55e;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.taskpage-calendarIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Assignee */
+.taskpage-assigneeBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.taskpage-assigneeAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+}
+
+.taskpage-assigneeAvatarEmpty {
+  background: #e5e7eb;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+}
+
+.taskpage-assigneeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.taskpage-assigneeName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.taskpage-assigneeRole {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Footer */
+.taskpage-modalFooterNew {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.taskpage-closeBtnNew {
+  padding: 12px 28px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.taskpage-closeBtnNew:hover {
+  background: #f9fafb;
+}
+
+.taskpage-completeBtn {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 10px;
+  background: #22c55e;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.taskpage-completeBtn:hover:not(:disabled) {
+  background: #16a34a;
+}
+
+.taskpage-completeBtnDisabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+}
+
+/* ===== RESPONSIVE STYLES FOR ALL DEVICES ===== */
+
+/* Large Desktop (1400px+) - 5 columns */
+@media (min-width: 1401px) {
+  .taskpage-board {
+    grid-template-columns: repeat(5, minmax(220px, 1fr));
+  }
+}
+
+/* Desktop (1200px - 1400px) - 4 columns */
+@media (max-width: 1400px) {
+  .taskpage-board {
+    grid-template-columns: repeat(4, minmax(200px, 1fr));
+  }
+}
+
+/* Laptop (992px - 1200px) - 3 columns */
+@media (max-width: 1200px) {
+  .taskpage-board {
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  
+  .taskpage-column {
+    min-height: 500px;
+    padding: 12px;
+  }
+  
+  .taskpage-modalNew {
+    max-width: 680px;
+    padding: 24px;
+  }
+}
+
+/* Tablet (768px - 992px) - 2 columns, modal becomes single column */
+@media (max-width: 992px) {
+  .taskpage-board {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+    gap: 12px;
+  }
+  
+  .taskpage-column {
+    min-height: 450px;
+    padding: 10px;
+  }
+  
+  .taskpage-columnHead {
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+  
+  .taskpage-modalBody {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .taskpage-modalRight {
+    padding: 16px;
+    gap: 16px;
+  }
+  
+  .taskpage-descriptionBox {
+    min-height: 120px;
+  }
+  
+  .taskpage-datesRow {
+    gap: 12px;
+  }
+  
+  .taskpage-detailGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .taskpage-detailBlockFull {
+    grid-column: auto;
+  }
+}
+
+/* Small Tablet / Large Phone (640px - 768px) */
+@media (max-width: 768px) {
+  .taskpage-wrap {
+    padding: 12px;
+  }
+  
+  .taskpage-headerBox {
+    min-height: 56px;
+    border-radius: 16px;
+    padding: 0 16px;
+    margin-bottom: 16px;
+  }
+  
+  .taskpage-title {
+    font-size: 20px;
+  }
+  
+  .taskpage-board {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  
+  .taskpage-column {
+    min-height: 400px;
+    padding: 10px;
+    border-radius: 12px;
+  }
+  
+  .taskpage-columnHead {
+    min-height: 36px;
+    padding: 0 10px;
+    margin-bottom: 12px;
+  }
+  
+  .taskpage-columnCount {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+  
+  .taskpage-columnTitle {
+    font-size: 13px;
+  }
+  
+  .taskpage-card {
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .taskpage-cardTitle {
+    font-size: 13px;
+  }
+  
+  .taskpage-projectName {
+    font-size: 12px;
+  }
+  
+  .taskpage-projectDot {
+    width: 9px;
+    height: 9px;
+  }
+  
+  .taskpage-cardActionIcon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Modal adjustments */
+  .taskpage-modalOverlay {
+    padding: 16px;
+  }
+  
+  .taskpage-modalNew {
+    max-width: 100%;
+    padding: 20px;
+    border-radius: 14px;
+  }
+  
+  .taskpage-modalHeaderNew {
+    margin-bottom: 12px;
+    font-size: 12px;
+  }
+  
+  .taskpage-projectBadge {
+    padding: 3px 10px;
+    font-size: 12px;
+  }
+  
+  .taskpage-modalTitleRow {
+    margin-bottom: 16px;
+    gap: 10px;
+  }
+  
+  .taskpage-statusIcon {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .taskpage-modalTitle {
+    font-size: 18px;
+  }
+  
+  .taskpage-sectionLabel {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  
+  .taskpage-descriptionBox {
+    padding: 12px;
+    min-height: 100px;
+    font-size: 13px;
+  }
+  
+  .taskpage-modalRight {
+    padding: 14px;
+    gap: 14px;
+    border-radius: 12px;
+  }
+  
+  .taskpage-detailItem label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .taskpage-statusBadge {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+  
+  .taskpage-priorityBtn {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+  
+  .taskpage-dateValue {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .taskpage-calendarIcon {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .taskpage-assigneeAvatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+  
+  .taskpage-assigneeName {
+    font-size: 14px;
+  }
+  
+  .taskpage-assigneeRole {
+    font-size: 11px;
+  }
+  
+  .taskpage-modalFooterNew {
+    padding-top: 16px;
+    gap: 10px;
+  }
+  
+  .taskpage-closeBtnNew,
+  .taskpage-completeBtn {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile Phone (480px - 640px) - Single column board */
+@media (max-width: 640px) {
+  .taskpage-wrap {
+    padding: 10px;
+  }
+  
+  .taskpage-headerBox {
+    min-height: 52px;
+    border-radius: 14px;
+    padding: 0 14px;
+    margin-bottom: 14px;
+  }
+  
+  .taskpage-title {
+    font-size: 18px;
+  }
+  
+  .taskpage-board {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  
+  .taskpage-column {
+    min-height: auto;
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 12px;
+  }
+  
+  .taskpage-columnHead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  
+  .taskpage-card {
+    padding: 12px;
+  }
+  
+  .taskpage-cardTitle {
+    font-size: 14px;
+  }
+  
+  /* Modal full screen on mobile */
+  .taskpage-modalOverlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+  
+  .taskpage-modalNew {
+    max-width: 100%;
+    width: 100%;
+    max-height: 90vh;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 16px;
+    overflow-y: auto;
+  }
+  
+  .taskpage-modalBody {
+    gap: 16px;
+  }
+  
+  .taskpage-datesRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .taskpage-priorityButtons {
+    flex-wrap: wrap;
+  }
+  
+  .taskpage-modalFooterNew {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .taskpage-closeBtnNew,
+  .taskpage-completeBtn {
+    width: 100%;
+    padding: 12px;
+  }
+}
+
+/* Small Mobile (below 480px) */
+@media (max-width: 480px) {
+  .taskpage-wrap {
+    padding: 8px;
+  }
+  
+  .taskpage-headerBox {
+    min-height: 48px;
+    padding: 0 12px;
+    margin-bottom: 12px;
+  }
+  
+  .taskpage-title {
+    font-size: 16px;
+  }
+  
+  .taskpage-board {
+    gap: 12px;
+  }
+  
+  .taskpage-column {
+    padding: 10px;
+    border-radius: 12px;
+  }
+  
+  .taskpage-columnHead {
+    min-height: 34px;
+    padding: 0 10px;
+  }
+  
+  .taskpage-columnCount {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+  
+  .taskpage-columnTitle {
+    font-size: 12px;
+  }
+  
+  .taskpage-card {
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .taskpage-cardTop {
+    margin-bottom: 10px;
+  }
+  
+  .taskpage-cardTitle {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  
+  .taskpage-projectName {
+    font-size: 11px;
+  }
+  
+  .taskpage-projectDot {
+    width: 8px;
+    height: 8px;
+  }
+  
+  /* Modal adjustments */
+  .taskpage-modalNew {
+    padding: 16px 14px;
+    max-height: 95vh;
+  }
+  
+  .taskpage-modalHeaderNew {
+    font-size: 11px;
+    gap: 6px;
+  }
+  
+  .taskpage-projectBadge {
+    padding: 2px 8px;
+    font-size: 11px;
+  }
+  
+  .taskpage-modalTitle {
+    font-size: 16px;
+  }
+  
+  .taskpage-modalTitleRow {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  
+  .taskpage-statusIcon {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .taskpage-modalBody {
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  
+  .taskpage-sectionLabel {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  
+  .taskpage-descriptionBox {
+    padding: 10px;
+    min-height: 80px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  
+  .taskpage-modalRight {
+    padding: 12px;
+    gap: 12px;
+    border-radius: 10px;
+  }
+  
+  .taskpage-detailItem label {
+    font-size: 11px;
+    margin-bottom: 5px;
+  }
+  
+  .taskpage-statusBadge {
+    padding: 4px 10px;
+    font-size: 11px;
+    gap: 6px;
+  }
+  
+  .taskpage-statusDot {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .taskpage-priorityButtons {
+    gap: 6px;
+  }
+  
+  .taskpage-priorityBtn {
+    padding: 5px 12px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  
+  .taskpage-dateValue {
+    padding: 8px 10px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+  
+  .taskpage-calendarIcon {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .taskpage-assigneeAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+  }
+  
+  .taskpage-assigneeName {
+    font-size: 13px;
+  }
+  
+  .taskpage-assigneeRole {
+    font-size: 10px;
+  }
+  
+  .taskpage-modalFooterNew {
+    padding-top: 14px;
+    gap: 8px;
+  }
+  
+  .taskpage-closeBtnNew,
+  .taskpage-completeBtn {
+    padding: 10px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+}
+
+/* Extra Small Mobile (below 360px) */
+@media (max-width: 360px) {
+  .taskpage-wrap {
+    padding: 6px;
+  }
+  
+  .taskpage-headerBox {
+    min-height: 44px;
+    padding: 0 10px;
+  }
+  
+  .taskpage-title {
+    font-size: 15px;
+  }
+  
+  .taskpage-column {
+    padding: 8px;
+  }
+  
+  .taskpage-card {
+    padding: 8px;
+  }
+  
+  .taskpage-cardTitle {
+    font-size: 12px;
+  }
+  
+  .taskpage-modalNew {
+    padding: 14px 12px;
+  }
+  
+  .taskpage-modalTitle {
+    font-size: 15px;
+  }
+  
+  .taskpage-descriptionBox {
+    min-height: 60px;
+    font-size: 11px;
+  }
+  
+  .taskpage-priorityBtn {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .taskpage-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .taskpage-card:active {
+    transform: scale(0.98);
+    background: #f9fafb;
+  }
+  
+  .taskpage-closeBtnNew:active,
+  .taskpage-completeBtn:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .taskpage-modalOverlay {
+    align-items: center;
+    padding: 10px;
+  }
+  
+  .taskpage-modalNew {
+    max-height: 95vh;
+    border-radius: 12px;
+    max-width: 600px;
+  }
+  
+  .taskpage-modalBody {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  .taskpage-descriptionBox {
+    min-height: 80px;
+  }
+}
+
+/* High DPI / Retina displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .taskpage-projectDot,
+  .taskpage-statusDot {
+    transform: translateZ(0);
+  }
+}
+
+/* Print styles */
+@media print {
+  .taskpage-modalOverlay {
+    position: static;
+    background: none;
+    padding: 0;
+  }
+  
+  .taskpage-modalNew {
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .taskpage-closeBtnNew,
+  .taskpage-completeBtn {
+    display: none;
+  }
+}

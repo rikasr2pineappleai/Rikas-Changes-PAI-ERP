@@ -1,6 +1,8 @@
+// Toast Modal Component
 import React from "react";
 import closeIcon from "../../assets/icons/closeicon.png";
 
+// Toast Modal Component
 export default function ToastModal({
   isOpen,
   message,

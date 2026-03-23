@@ -1,370 +1,202 @@
 /* ===============================
-   PROJECTS MODULE STYLES
-   =============================== */
-
-.prj-page {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.prj-topCard,
-.prj-statsCard,
-.prj-sectionCard {
-  background: #ffffff;
-  border: 1px solid #e8e8e8;
-  border-radius: 14px;
-}
-
-.prj-topCard {
-  padding: 18px;
-}
-
-.prj-topRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.prj-pageTitle {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1b1f2a;
-}
-
-/* Primary button */
-.prj-primaryBtn {
-  border: none;
-  background: #2f7d3e;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 0 18px;
-  height: 36px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.prj-primaryBtn:hover {
-  filter: brightness(0.97);
-}
-
-/* PNG button (New Project / New Task) */
-.prj-newProjectBtn,
-.prj-newTaskBtn {
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.prj-newProjectImg,
-.prj-newTaskImg {
-  height: 44px;
-  display: block;
-}
-
-/* ===============================
-   STATS
-   =============================== */
-
-.prj-statsCard {
-  padding: 12px 18px;
-}
-
-.prj-statsGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 18px;
-}
-
-.prj-statLabel {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.prj-statValue {
-  font-size: 26px;
-  font-weight: 700;
-}
-
-/* ===============================
-   SEARCH + FILTER
-   =============================== */
-
-.prj-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.prj-filterBtn {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.prj-searchWrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 12px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-}
-
-.prj-searchInput {
-  border: none;
-  outline: none;
-  font-size: 14px;
-}
-
-/* ===============================
-   PROJECT CARDS
-   =============================== */
-
-.prj-grid {
-  padding: 18px;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(220px, 1fr));
-  gap: 18px;
-}
-
-.prj-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px;
-  cursor: pointer;
-  background: #fff;
-}
-
-.prj-card:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-}
-
-.prj-cardTitle {
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.prj-cardSub {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-/* ===============================
-   MODAL (BaseModal)
-   =============================== */
-
-.prj-modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 1200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.prj-modal {
-  background: #fff;
-  border-radius: 14px;
-  width: min(860px, 94vw);
-  overflow: hidden;
-}
-
-.prj-modalHeader {
-  display: flex;
-  justify-content: space-between;
-  padding: 16px 18px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.prj-modalTitle {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.prj-iconBtn {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid #e5e7eb;
-  background: #f1f5f9;
-  cursor: pointer;
-}
-
-.prj-modalBody {
-  padding: 18px;
-}
-
-/* ===============================
-   FORM
-   =============================== */
-
-.prj-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.prj-label {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.prj-input,
-.prj-textarea {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px 14px;
-  font-size: 14px;
-}
-
-.prj-input {
-  height: 46px;
-}
-
-/* 🔽 Reduced description height */
-.prj-textarea {
-  min-height: 72px;
-  resize: vertical;
-}
-
-/* ===============================
-   TABLE
-   =============================== */
-
-.prj-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.prj-table th {
-  background: #0f1b2d;
-  color: #fff;
-  font-size: 12px;
-  padding: 12px;
-}
-
-.prj-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid #eef1f5;
-}
-
-/* ===============================
-   TOAST (DELETE STYLE like Figma)
+   TOAST MODAL - UNIFIED STYLE
    =============================== */
 
 .toast-modal {
   position: fixed;
-  right: 28px;
-  bottom: 28px;
+  right: 24px;
+  bottom: 24px;
   z-index: 3200;
 
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 
-  padding: 14px 18px;
-  min-height: 52px;
-  min-width: 340px;
-  max-width: min(520px, calc(100vw - 56px));
+  width: min(680px, calc(100vw - 32px));
+  min-height: 78px;
+  padding: 0 20px 0 22px;
 
-  border-radius: 12px;
-  background: #ffffff;
-  border: 2px solid #ee4b3c;
+  background: #f8f8f8;
+  border: 2px solid transparent;
+  border-radius: 18px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
 
-  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.12);
-  animation: toastIn 0.18s ease;
-
-  position: fixed;
+  animation: toastIn 0.2s ease;
+  overflow: hidden;
 }
 
-/* left red bar */
+/* Left vertical bar */
 .toast-modal::before {
   content: "";
   position: absolute;
   left: 0;
   top: 0;
+  width: 30px;
   height: 100%;
-  width: 14px;
-  background: #ee4b3c;
-  border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
 }
 
-/* icon */
+/* ===============================
+   SUCCESS
+   =============================== */
+.toast-modal.success {
+  border-color: #2f8f46;
+}
+
+.toast-modal.success::before {
+  background: #2f8f46;
+}
+
+.toast-modal.success .toast-icon {
+  color: #2f8f46;
+}
+
+.toast-modal.success .toast-text {
+  color: #2f8f46;
+}
+
+/* ===============================
+   ERROR / DELETE
+   =============================== */
+.toast-modal.error {
+  border-color: #d64541;
+}
+
+.toast-modal.error::before {
+  background: #d64541;
+}
+
+.toast-modal.error .toast-icon {
+  color: #d64541;
+}
+
+.toast-modal.error .toast-text {
+  color: #d64541;
+}
+
+/* ===============================
+   INFO
+   =============================== */
+.toast-modal.info {
+  border-color: #2f8f46;
+}
+
+.toast-modal.info::before {
+  background: #2f8f46;
+}
+
+.toast-modal.info .toast-icon {
+  color: #2f8f46;
+}
+
+.toast-modal.info .toast-text {
+  color: #2f8f46;
+}
+
+/* Icon */
 .toast-icon {
-  width: 22px;
-  height: 22px;
-  margin-left: 10px; /* because left bar */
-  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 24px;
 }
 
-/* message text (RED) */
+.toast-icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+/* Text */
 .toast-text {
   flex: 1;
-  font-size: 14px;
-  font-weight: 700;
-  color: #ee4b3c;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  letter-spacing: 0;
+  word-break: break-word;
 }
 
-/* close button right */
+/* Close button */
 .toast-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
+  width: 34px;
+  height: 34px;
   border: none;
-  background: #f3f4f6;
+  border-radius: 50%;
+  background: #e6e6e6;
+  color: #666666;
   cursor: pointer;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
 
-.toast-close img {
-  width: 12px;
-  height: 12px;
-  filter: none;
-  opacity: 0.75;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+  flex-shrink: 0;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .toast-close:hover {
-  background: #e5e7eb;
+  background: #d8d8d8;
+  transform: scale(1.03);
 }
 
-/* only error style needed */
-.toast-modal.error {
-  background: #ffffff;
-  border-color: #ee4b3c;
+.toast-close:active {
+  transform: scale(0.97);
 }
 
+/* Animation from bottom */
 @keyframes toastIn {
   from {
-    transform: translateY(10px);
     opacity: 0;
+    transform: translateY(14px);
   }
   to {
-    transform: translateY(0);
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (max-width: 520px) {
+/* Mobile responsive */
+@media (max-width: 768px) {
   .toast-modal {
     right: 16px;
     left: 16px;
     bottom: 16px;
-    min-width: 0;
+    width: auto;
+    min-height: 68px;
+    padding: 0 16px 0 18px;
+    border-radius: 16px;
+  }
+
+  .toast-modal::before {
+    width: 24px;
+  }
+
+  .toast-icon {
+    margin-left: 18px;
+  }
+
+  .toast-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .toast-text {
+    font-size: 15px;
+  }
+
+  .toast-close {
+    width: 30px;
+    height: 30px;
+    font-size: 21px;
   }
 }

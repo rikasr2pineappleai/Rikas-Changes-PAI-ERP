@@ -1,23 +1,48 @@
+// Import React and required hooks
+// React is needed to create the component.
+// useState is used to store values.
+// useEffect is used to run code when component loads or updates.
+// useMemo is used to avoid unnecessary recalculations.
 import React, { useMemo, useState, useEffect } from "react";
+
+// Import navigation hook
+// useNavigate helps move to another page in the app.
 import { useNavigate } from "react-router-dom";
+
+// Import CSS file
+// This CSS file contains the styles for this page.
 import "./Projects.css";
 
+// Import images and modal component
+// Icon for creating a new project
 import newProjectIcon from "../../assets/icons/new_project_plus.png";
+
+// Reusable modal component for popup window
 import BaseModal from "../../modals/projects/BaseModel";
 
+// Search icon image
 import searchIcon from "../../assets/icons/searchicon.png";
+
+// Filter icon image
 import filterIconPng from "../../assets/icons/filterricon.png";
 
-// ✅ NEW: your dropdown icon
+// Dropdown arrow icon image
 import dropDownIcon from "../../assets/icons/DropDownIcon.png";
 
+// Import API functions
+// fetchProjectsDashboard - gets all projects and dashboard stats
+// createProjectAPI - sends new project data to backend
 import {
   fetchProjectsDashboard,
   createProject as createProjectAPI,
 } from "../../integration/projectAPI";
 
+// employeeAPI - used to get employee list from backend
 import employeeAPI from "../../integration/employeeAPI";
 
+// Small external link icon component
+// This SVG icon is shown on each project card.
+// When clicked, it opens the selected project page.
 function ExternalLinkIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
@@ -29,11 +54,17 @@ function ExternalLinkIcon() {
   );
 }
 
-/** ✅ Member Picker Modal (Search + checkbox like screenshot) */
+// MemberPickerModal Component
+// This modal is used to select a project member / manager.
+// It shows a search box and list of employees.
 function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
+  // q = search text typed by the user
   const [q, setQ] = useState("");
+
+  // temp = temporarily selected member id inside the modal
   const [temp, setTemp] = useState("");
 
+  // When modal opens, reset search field and set current selected value
   useEffect(() => {
     if (open) {
       setQ("");
@@ -41,33 +72,47 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
     }
   }, [open, value]);
 
+  // Filter employee list based on search text
   const filtered = useMemo(() => {
+    // Remove extra spaces and convert to lowercase for easier search
     const s = q.trim().toLowerCase();
+
+    // If search box is empty, return all people
     if (!s) return people || [];
+
+    // Return only people whose name includes the search text
     return (people || []).filter((p) =>
       String(p.name || "")
         .toLowerCase()
-        .includes(s),
+        .includes(s)
     );
   }, [q, people]);
 
+  // If modal is not open, show nothing
   if (!open) return null;
 
+  // UI of member picker modal
   return (
     <div className="prj-modalOverlay" onMouseDown={onClose}>
       <div className="prj-memberModal" onMouseDown={(e) => e.stopPropagation()}>
+        {/* Header section of modal */}
         <div className="prj-memberHeader">
           <div className="prj-memberTitle">Project Members</div>
+
+          {/* Close button */}
           <button className="prj-iconBtn" onClick={onClose} aria-label="Close">
             ×
           </button>
         </div>
 
+        {/* Body content of modal */}
         <div className="prj-memberBody">
+          {/* Search bar */}
           <div className="prj-memberSearch">
             <span className="prj-memberSearchIcon" aria-hidden="true">
               🔍
             </span>
+
             <input
               placeholder="Search"
               value={q}
@@ -75,9 +120,12 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
             />
           </div>
 
+          {/* Employee list */}
           <div className="prj-memberList">
             {filtered.map((p) => {
+              // Check whether this employee is currently selected
               const active = String(p.id) === String(temp);
+
               return (
                 <div
                   key={p.id}
@@ -86,11 +134,13 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
                   role="button"
                   tabIndex={0}
                 >
-                  {/* ✅ Custom checkbox */}
+                  {/* Custom checkbox box */}
                   <div className={`prj-cb ${active ? "checked" : ""}`} />
 
+                  {/* Avatar placeholder */}
                   <div className="prj-memberAvatar" aria-hidden="true" />
 
+                  {/* Employee info */}
                   <div className="prj-memberInfo">
                     <div className="prj-memberName">{p.name}</div>
                     <div className="prj-memberRole">Employee</div>
@@ -99,11 +149,13 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
               );
             })}
 
+            {/* If no employee matches search */}
             {!filtered.length && (
               <div className="prj-memberEmpty">No members found.</div>
             )}
           </div>
 
+          {/* Confirm selection button */}
           <button
             type="button"
             className="prj-primaryBtn prj-primaryBtnFull"
@@ -113,8 +165,13 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
               cursor: !temp ? "not-allowed" : "pointer",
             }}
             onClick={() => {
+              // Do nothing if no employee is selected
               if (!temp) return;
+
+              // Send selected employee id back to parent component
               onConfirm(temp);
+
+              // Close modal
               onClose();
             }}
           >
@@ -126,21 +183,31 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
   );
 }
 
+// Main Projects Dashboard Component
 export default function ProjectsDashboard() {
+  // navigate is used to move to another page
   const navigate = useNavigate();
 
+  // Search input value for filtering projects
   const [search, setSearch] = useState("");
+
+  // Controls whether "New Project" modal is open or closed
   const [newProjectOpen, setNewProjectOpen] = useState(false);
 
+  // Form data for creating a new project
   const [form, setForm] = useState({
     name: "",
     description: "",
     managerId: "",
   });
 
+  // Stores all projects received from backend
   const [projectList, setProjectList] = useState([]);
+
+  // Stores all employees received from backend
   const [people, setPeople] = useState([]);
 
+  // Stores dashboard stat values
   const [dashboardStats, setDashboardStats] = useState({
     totalProjects: 0,
     totalTasks: 0,
@@ -149,68 +216,83 @@ export default function ProjectsDashboard() {
     overdueTasks: 0,
   });
 
+  // True while loading data from backend
   const [loading, setLoading] = useState(false);
+
+  // Stores general error message
   const [error, setError] = useState("");
 
-  // ✅ ALL fields errors
+  // Stores validation error messages for each form field
   const [fieldErrors, setFieldErrors] = useState({
     name: "",
     description: "",
     managerId: "",
   });
 
+  // This function removes the error for one specific field only
   const clearFieldError = (key) =>
     setFieldErrors((prev) => ({ ...prev, [key]: "" }));
 
-  // ✅ Member picker open
+  // Controls member picker modal visibility
   const [memberPickerOpen, setMemberPickerOpen] = useState(false);
 
+  // Load projects and employees when page first opens
   useEffect(() => {
     loadProjects();
     loadPeople();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Function: Load all projects from backend
   const loadProjects = async () => {
-    setLoading(true);
-    setError("");
+    setLoading(true); // show loading state
+    setError(""); // clear old error
+
     try {
+      // Call API to get projects and stats
       const res = await fetchProjectsDashboard();
 
+      // Check whether backend returned success
       if (res?.success) {
+        // Get projects list, or empty array if missing
         const list = res.projects || [];
         setProjectList(list);
 
+        // Safely read total projects from possible backend field names
         const totalProjects =
           res?.stats?.totalProjects ??
           res?.stats?.total ??
           res?.stats?.total_project ??
           list.length;
 
+        // Safely read total tasks from possible backend field names
         const totalTasks =
           res?.stats?.totalTasks ??
           res?.stats?.total_tasks ??
           res?.stats?.tasks_total ??
           0;
 
+        // Safely read assigned tasks from possible backend field names
         const assignedTasks =
           res?.stats?.assignedTasks ??
           res?.stats?.assigned_tasks ??
           res?.stats?.tasks_assigned ??
           0;
 
+        // Safely read completed tasks from possible backend field names
         const completedTasks =
           res?.stats?.completedTasks ??
           res?.stats?.completed_tasks ??
           res?.stats?.tasks_completed ??
           0;
 
+        // Safely read overdue tasks from possible backend field names
         const overdueTasks =
           res?.stats?.overdueTasks ??
           res?.stats?.overdue_tasks ??
           res?.stats?.tasks_overdue ??
           0;
 
+        // Save all stat values into state
         setDashboardStats({
           totalProjects,
           totalTasks,
@@ -219,21 +301,29 @@ export default function ProjectsDashboard() {
           overdueTasks,
         });
       } else {
+        // If backend says request failed
         setError(res?.message || "Failed to load projects");
       }
     } catch (err) {
+      // Handle unexpected API or server errors
       setError(err?.response?.data?.message || err.message || "Server error");
     } finally {
+      // Stop loading in both success and error cases
       setLoading(false);
     }
   };
 
+  // Function: Load employee list from backend
   const loadPeople = async () => {
     try {
+      // Get employee data
       const res = await employeeAPI.getAllEmployees(1, 200);
+
+      // Try different response structures safely
       const list =
         res?.data?.employees || res?.employees || res?.data || res?.rows || [];
 
+      // Convert employee data into simple format: { id, name }
       const normalized = (list || []).map((u) => ({
         id: u.id,
         name:
@@ -243,46 +333,66 @@ export default function ProjectsDashboard() {
           `User ${u.id}`,
       }));
 
+      // Save employees into state
       setPeople(normalized);
     } catch (e) {
+      // If loading people fails, show warning in console only
       console.warn("People load failed:", e?.message);
       setPeople([]);
     }
   };
 
+  // Function: Open project details page
   const openProject = (p) => navigate(`/projects/${p.id}`);
 
+  // Filter projects based on search text
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
+
+    // If search is empty, show all projects
     if (!q) return projectList;
 
+    // Return only matching projects
     return projectList.filter((p) => {
       const title = (p.project_name || p.title || "").toLowerCase();
       const sub = (p.description || p.subtitle || "").toLowerCase();
       const mgr = (p.managerName || "").toLowerCase();
+
+      // Match search text with title, description, or manager name
       return title.includes(q) || sub.includes(q) || mgr.includes(q);
     });
   }, [search, projectList]);
 
-  // ✅ validate ALL fields
+  // Validate new project form
   const validateProjectForm = () => {
     const next = { name: "", description: "", managerId: "" };
 
+    // Validate project name
     if (!form.name.trim()) next.name = "Project name is required.";
+
+    // Validate description
     if (!form.description.trim()) next.description = "Description is required.";
+
+    // Validate selected manager/member
     if (!form.managerId) next.managerId = "Please select a project member.";
 
+    // Save validation errors into state
     setFieldErrors(next);
+
+    // Return true only if all fields are valid
     return !next.name && !next.description && !next.managerId;
   };
 
+  // Function: Create new project
   const handleCreateProject = async (e) => {
-    e.preventDefault();
-    setError("");
+    e.preventDefault(); // prevent page refresh on form submit
+    setError(""); // clear old general error
 
+    // Stop if validation fails
     if (!validateProjectForm()) return;
 
     try {
+      // Prepare request body to send to backend
       const body = {
         name: form.name.trim(),
         description: form.description.trim(),
@@ -293,40 +403,59 @@ export default function ProjectsDashboard() {
         managerId: Number(form.managerId),
       };
 
+      // Call backend API to create project
       const res = await createProjectAPI(body);
 
       if (res?.success) {
+        // Close modal after successful creation
         setNewProjectOpen(false);
+
+        // Reset form data
         setForm({ name: "", description: "", managerId: "" });
+
+        // Reset field errors
         setFieldErrors({ name: "", description: "", managerId: "" });
+
+        // Reload project list
         await loadProjects();
       } else {
+        // Show backend error message
         setError(res?.message || "Create project failed");
       }
     } catch (err) {
+      // Show API/server error
       setError(err?.response?.data?.message || err.message || "Server error");
     }
   };
 
-  // ✅ Selected member preview (nice display)
+  // Get selected member details from people list
   const selectedMember = useMemo(() => {
     if (!form.managerId) return null;
     return people.find((p) => String(p.id) === String(form.managerId)) || null;
   }, [form.managerId, people]);
 
+  // Render UI
   return (
     <div className="prj-page">
+      {/* Top header card */}
       <div className="prj-topCard">
         <div className="prj-topRow">
+          {/* Page title */}
           <div className="prj-pageTitle">Projects</div>
 
+          {/* Button to open new project modal */}
           <button
             type="button"
             className="prj-newProjectBtn"
             onClick={() => {
+              // Open modal
               setNewProjectOpen(true);
+
+              // Reset errors when opening modal
               setError("");
               setFieldErrors({ name: "", description: "", managerId: "" });
+
+              // Load people if not already available
               if (!people?.length) loadPeople();
             }}
             aria-label="New Project"
@@ -340,9 +469,13 @@ export default function ProjectsDashboard() {
         </div>
       </div>
 
+      {/* Loading message */}
       {loading && <div style={{ padding: 8 }}>Loading projects...</div>}
+
+      {/* Error message */}
       {error && <div style={{ padding: 8, color: "red" }}>{error}</div>}
 
+      {/* Dashboard statistics card */}
       <div className="prj-statsCard">
         <div className="prj-statsGrid">
           <div className="prj-stat">
@@ -372,15 +505,18 @@ export default function ProjectsDashboard() {
         </div>
       </div>
 
+      {/* Main section containing all projects */}
       <div className="prj-sectionCard">
         <div className="prj-sectionHeader">
           <div className="prj-sectionTitle">All Projects</div>
 
+          {/* Toolbar with filter and search */}
           <div className="prj-toolbar">
             <button className="prj-filterBtn" type="button" aria-label="Filter">
               <img src={filterIconPng} alt="" aria-hidden="true" />
             </button>
 
+            {/* Search input */}
             <div className="prj-searchWrap">
               <img className="prj-searchIcon" src={searchIcon} alt="" />
               <input
@@ -393,8 +529,10 @@ export default function ProjectsDashboard() {
           </div>
         </div>
 
+        {/* Projects grid */}
         <div className="prj-grid">
           {filtered.map((p, idx) => {
+            // Safe values for project display
             const title = p.project_name || p.title || "Project";
             const subtitle = p.description || p.subtitle || "";
             const managerName = p.managerName || "Project Manager";
@@ -407,24 +545,28 @@ export default function ProjectsDashboard() {
                 role="button"
                 tabIndex={0}
               >
+                {/* Top part of project card */}
                 <div className="prj-cardTop">
                   <div className="prj-cardHead">
+                    {/* Placeholder thumbnail */}
                     <div className="prj-cardThumb" aria-hidden="true">
                       <div className="prj-thumbRow" />
                       <div className="prj-thumbRow" />
                     </div>
 
+                    {/* Project title and subtitle */}
                     <div className="prj-cardHeadText">
                       <div className="prj-cardTitle">{title}</div>
                       <div className="prj-cardSub">{subtitle}</div>
                     </div>
                   </div>
 
+                  {/* External/open button */}
                   <button
                     className="prj-externalBtn"
                     title="Open"
                     onClick={(e) => {
-                      e.stopPropagation();
+                      e.stopPropagation(); // stop parent click
                       openProject(p);
                     }}
                   >
@@ -432,19 +574,25 @@ export default function ProjectsDashboard() {
                   </button>
                 </div>
 
+                {/* Bottom part of project card */}
                 <div className="prj-cardBottom">
+                  {/* Project manager info */}
                   <div className="prj-manager">
                     <div className="prj-avatarImg" aria-hidden="true" />
+
                     <div className="prj-managerText">
                       <div className="prj-managerName">{managerName}</div>
                       <div className="prj-managerRole">Project Manager</div>
                     </div>
                   </div>
 
+                  {/* Right side meta info */}
                   <div className="prj-rightMeta">
                     <div className="prj-date">
                       {p.start_date || p.startDate || ""}
                     </div>
+
+                    {/* Show project status if available */}
                     {p.status ? (
                       <div
                         className={`prj-status ${
@@ -464,33 +612,47 @@ export default function ProjectsDashboard() {
             );
           })}
 
+          {/* Message when there are no projects */}
           {!loading && !filtered.length && (
             <div style={{ padding: 10 }}>No projects found.</div>
           )}
         </div>
       </div>
 
+      {/* New Project modal */}
       <BaseModal
         title="New Project"
         open={newProjectOpen}
         onClose={() => setNewProjectOpen(false)}
       >
+        {/* Form for creating project */}
         <form className="prj-form" onSubmit={handleCreateProject}>
+          {/* Project name label */}
           <label className="prj-label">Project Name</label>
+
+          {/* Project name input */}
           <input
             className={`prj-input ${fieldErrors.name ? "prj-inputError" : ""}`}
             placeholder="Enter your project name"
             value={form.name}
             onChange={(e) => {
+              // Update form state
               setForm((s) => ({ ...s, name: e.target.value }));
+
+              // Remove name error once user starts typing
               if (fieldErrors.name) clearFieldError("name");
             }}
           />
+
+          {/* Show name field validation error */}
           {fieldErrors.name && (
             <div className="prj-fieldError">{fieldErrors.name}</div>
           )}
 
+          {/* Description label */}
           <label className="prj-label">Description</label>
+
+          {/* Description input */}
           <textarea
             className={`prj-textarea ${
               fieldErrors.description ? "prj-inputError" : ""
@@ -498,17 +660,23 @@ export default function ProjectsDashboard() {
             placeholder="Write a description"
             value={form.description}
             onChange={(e) => {
+              // Update form state
               setForm((s) => ({ ...s, description: e.target.value }));
+
+              // Remove description error once user starts typing
               if (fieldErrors.description) clearFieldError("description");
             }}
           />
+
+          {/* Show description validation error */}
           {fieldErrors.description && (
             <div className="prj-fieldError">{fieldErrors.description}</div>
           )}
 
+          {/* Project member label */}
           <label className="prj-label">Project Members</label>
 
-          {/* ✅ Instead of <select>, use clickable field that opens modal */}
+          {/* Button field to open member picker modal */}
           <button
             type="button"
             className={`prj-assigneeField ${
@@ -522,18 +690,22 @@ export default function ProjectsDashboard() {
             <img className="prj-assigneeIcon" src={dropDownIcon} alt="" />
           </button>
 
+          {/* Show manager field validation error */}
           {fieldErrors.managerId && (
             <div className="prj-fieldError">{fieldErrors.managerId}</div>
           )}
 
-          {/* ✅ Selected member preview */}
+          {/* Preview of selected member */}
           {selectedMember && (
             <div className="prj-selectedMember">
               <div className="prj-selectedAvatar" aria-hidden="true" />
+
               <div className="prj-selectedInfo">
                 <div className="prj-selectedName">{selectedMember.name}</div>
                 <div className="prj-selectedRole">Selected Member</div>
               </div>
+
+              {/* Remove selected member button */}
               <button
                 type="button"
                 className="prj-selectedClear"
@@ -546,19 +718,23 @@ export default function ProjectsDashboard() {
             </div>
           )}
 
+          {/* Submit button */}
           <button className="prj-primaryBtn prj-primaryBtnFull" type="submit">
             Create Project
           </button>
         </form>
 
-        {/* ✅ Member picker modal */}
+        {/* Member picker modal inside project modal */}
         <MemberPickerModal
           open={memberPickerOpen}
           onClose={() => setMemberPickerOpen(false)}
           people={people}
           value={form.managerId}
           onConfirm={(id) => {
+            // Save selected member id into form
             setForm((s) => ({ ...s, managerId: String(id) }));
+
+            // Remove manager validation error
             if (fieldErrors.managerId) clearFieldError("managerId");
           }}
         />

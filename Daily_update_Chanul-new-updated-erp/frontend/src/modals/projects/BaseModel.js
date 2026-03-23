@@ -1,6 +1,8 @@
+// Base Modal Component
 import React from 'react';
 import closeIcon from '../../assets/icons/closeicon.png';
 
+// Base Modal Component
 export default function BaseModal({ title, open, onClose, children }) {
   if (!open) return null;
   return (

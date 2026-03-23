@@ -1,7 +1,11 @@
+// Import Sequelize operators
 const { Op } = require("sequelize");
+
+// Import all database models
 const db = require("../models");
 
-const { Project, ProjectAllocation, User, Task, sequelize } = db;
+// Get needed models from DB
+const { Project, ProjectAllocation, User, Task } = db;
 
 // Helper: build a readable name from User table
 const userFullName = (u) => {
@@ -9,24 +13,26 @@ const userFullName = (u) => {
   return [u.first_name, u.last_name].filter(Boolean).join(" ").trim();
 };
 
+// Helper: convert date to ISO string (YYYY-MM-DD)
 const toISODateOnly = (d) => {
   if (!d) return null;
   if (typeof d === "string") return d.slice(0, 10);
   return new Date(d).toISOString().slice(0, 10);
 };
 
-// ✅ Map DB Task -> Frontend Task format (your ViewProject.js expects these keys)
+// ✅ Map DB Task -> Frontend Task format (from ViewProject.js expects these keys)
 const mapTaskForFrontend = (t) => ({
   id: t.id,
-
+// Task title for frontend
   task_name: t.title || "Task",
-
+// End / Due Dates
   start_date: t.assigned_at ? toISODateOnly(t.assigned_at) : null,
 
   end_date: t.deadline ? toISODateOnly(t.deadline) : null,
   due_date: t.deadline ? toISODateOnly(t.deadline) : null,
   deadline: t.deadline ? toISODateOnly(t.deadline) : null,
 
+  // Other Task details
   assigned_to: t.assigned_to,
   priority: t.priority,
   status: t.status,
@@ -38,6 +44,7 @@ const mapTaskForFrontend = (t) => ({
 // 2) fallback pm_user_id
 // 3) fallback first allocation
 const pickManagerFromProject = async (projectId, pm_user_id = null) => {
+  // Get all allocations for the project
   const allocations = await ProjectAllocation.findAll({
     where: { project_id: projectId },
     include: [
@@ -49,15 +56,18 @@ const pickManagerFromProject = async (projectId, pm_user_id = null) => {
     order: [["id", "ASC"]],
   });
 
+  // Find allocation with role containing "manager"
   const managerAlloc =
     allocations.find((a) =>
       String(a.role_in_project || "")
         .toLowerCase()
-        .includes("manager"),
+        .includes("manager")
     ) || null;
 
+    // If manager allocation found, return that user
   if (managerAlloc?.User) return managerAlloc.User;
 
+  // If pm_user_id provided, return that user
   if (pm_user_id) {
     const pm = await User.findByPk(pm_user_id, {
       attributes: ["id", "emp_id", "first_name", "last_name", "email"],
@@ -65,13 +75,16 @@ const pickManagerFromProject = async (projectId, pm_user_id = null) => {
     if (pm) return pm;
   }
 
+  // If no manager found, return the first allocation
   return allocations[0]?.User || null;
 };
 
+// Convert project DB data to dashboard format
 const mapProjectForDashboard = async (project) => {
+  // Find project manager from project details
   const managerUser = await pickManagerFromProject(
     project.id,
-    project.pm_user_id,
+    project.pm_user_id
   );
 
   return {
@@ -96,37 +109,39 @@ const mapProjectForDashboard = async (project) => {
   };
 };
 
-// ✅ DASHBOARD LIST + STATS
+// Get project dashboard. Return all projects with stats
 exports.getProjectsDashboard = async (req, res) => {
   try {
+    // Get all projects from DB
     const projects = await Project.findAll({
       order: [["id", "DESC"]],
     });
 
-    // Project status stats
+    // Count total projects
     const total = projects.length;
+    // Count projects by status
     const stats = projects.reduce(
       (acc, p) => {
         const s = (p.status || "active").toLowerCase();
         acc[s] = (acc[s] || 0) + 1;
         return acc;
       },
-      { total },
+      { total }
     );
 
-    // ✅ ADD: Task stats for dashboard cards
+    // Current Date & Time for task deadlines
     const now = new Date();
-
+    // Count total tasks
     const totalTasks = await Task.count();
-
+    // Count completed tasks
     const completedTasks = await Task.count({
       where: { status: "done" },
     });
-
+    // Count assigned tasks (not completed)
     const assignedTasks = await Task.count({
       where: { status: { [Op.ne]: "done" } },
     });
-
+    // Count overdue tasks (not completed and deadline passed)
     const overdueTasks = await Task.count({
       where: {
         status: { [Op.ne]: "done" },
@@ -134,18 +149,20 @@ exports.getProjectsDashboard = async (req, res) => {
       },
     });
 
-    // ✅ attach to stats
+    // Add task stats into stats object
     stats.totalProjects = total;
     stats.totalTasks = totalTasks;
     stats.assignedTasks = assignedTasks;
     stats.completedTasks = completedTasks;
     stats.overdueTasks = overdueTasks;
 
+    // Convert all projects into frontend format
     const mapped = [];
     for (const p of projects) {
       mapped.push(await mapProjectForDashboard(p));
     }
 
+    // Return success response with projects and stats
     return res.status(200).json({
       success: true,
       stats,
@@ -161,18 +178,21 @@ exports.getProjectsDashboard = async (req, res) => {
   }
 };
 
-// ✅ GET SINGLE PROJECT
+// GET SINGLE PROJECT BY ID
 exports.getProjectById = async (req, res) => {
   try {
+    // Get project ID from request params
     const id = Number(req.params.id);
-
+    // Find project by ID
     const project = await Project.findByPk(id);
+    // If project not found, return 404 error
     if (!project) {
       return res
         .status(404)
         .json({ success: false, message: "Project not found" });
     }
 
+    // Get all project allocations with user details
     const allocations = await ProjectAllocation.findAll({
       where: { project_id: id },
       include: [
@@ -183,28 +203,27 @@ exports.getProjectById = async (req, res) => {
       ],
       order: [["id", "ASC"]],
     });
-
+    // Get all project tasks with details
     const rawTasks = await Task.findAll({
       where: { project_id: id },
-
-      // ✅ newest first
       order: [
         ["assigned_at", "DESC"],
         ["id", "DESC"],
       ],
     });
 
-    // ✅ add task_no 1..N (per project)
+    // Add task_No for each task
     const tasks = rawTasks.map((t, idx) => ({
       ...mapTaskForFrontend(t),
       task_no: idx + 1,
     }));
 
+    // Find project manager from project details
     const managerUser = await pickManagerFromProject(
       project.id,
-      project.pm_user_id,
+      project.pm_user_id
     );
-
+    // Return success response with project details, allocations, and tasks
     return res.status(200).json({
       success: true,
       project: {
@@ -237,13 +256,13 @@ exports.getProjectById = async (req, res) => {
 exports.createProject = async (req, res) => {
   try {
     const body = req.body || {};
-
+    // Validate project name
     if (!body.name || !String(body.name).trim()) {
       return res
         .status(400)
         .json({ success: false, message: "name is required" });
     }
-
+    // Create project record
     const project = await Project.create({
       project_name: String(body.name).trim(),
       description: body.description || null,
@@ -253,7 +272,7 @@ exports.createProject = async (req, res) => {
       status: body.status || "planning",
       pm_user_id: body.managerId || null,
     });
-
+    // Send success response
     return res.status(201).json({
       success: true,
       message: "Project created successfully",
@@ -280,8 +299,9 @@ exports.updateProject = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Project not found" });
-
+    // Update only provided fields
     await project.update({
+      // Update project name if provided
       project_name:
         body.name !== undefined
           ? String(body.name).trim()
@@ -341,12 +361,77 @@ exports.deleteProject = async (req, res) => {
   }
 };
 
-// ✅ Replace allocations endpoint (kept from your project)
+// ✅ Replace allocations endpoint (FIXED: profile_pic removed + safe transaction)
 exports.replaceProjectAllocations = async (req, res) => {
+  const projectId = Number(req.params.id);
+  const userIdsRaw = Array.isArray(req.body?.user_ids) ? req.body.user_ids : [];
+
+  if (!projectId || Number.isNaN(projectId)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid project id" });
+  }
+
+  const userIds = [
+    ...new Set(
+      userIdsRaw.map((x) => Number(x)).filter((n) => n && !Number.isNaN(n))
+    ),
+  ];
+
+  const t = await db.sequelize.transaction();
+  let committed = false;
+
   try {
-    // keep your existing logic if you already implemented
-    return res.status(200).json({ success: true, message: "OK" });
+    const project = await db.Project.findByPk(projectId);
+    if (!project) {
+      await t.rollback();
+      return res
+        .status(404)
+        .json({ success: false, message: "Project not found" });
+    }
+
+    await db.ProjectAllocation.destroy({
+      where: { project_id: projectId },
+      transaction: t,
+    });
+
+    if (userIds.length) {
+      await db.ProjectAllocation.bulkCreate(
+        userIds.map((uid) => ({
+          project_id: projectId,
+          user_id: uid,
+        })),
+        { transaction: t }
+      );
+    }
+
+    // ✅ FIX: removed "profile_pic" from attributes
+    const allocations = await db.ProjectAllocation.findAll({
+      where: { project_id: projectId },
+      include: [
+        {
+          model: db.User,
+          attributes: ["id", "emp_id", "first_name", "last_name", "email"],
+        },
+      ],
+      transaction: t,
+    });
+
+    await t.commit();
+    committed = true;
+
+    return res.status(200).json({
+      success: true,
+      message: "Project members updated successfully",
+      allocations,
+    });
   } catch (error) {
+    if (!committed) {
+      try {
+        await t.rollback();
+      } catch (_) {}
+    }
+
     console.error("replaceProjectAllocations error:", error);
     return res.status(500).json({
       success: false,

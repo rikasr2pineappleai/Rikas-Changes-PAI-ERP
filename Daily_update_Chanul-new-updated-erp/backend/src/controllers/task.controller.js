@@ -1,9 +1,97 @@
 const db = require("../models");
-const { Task, User } = db;
+const { Task, User, Project } = db;
 
 // Helper: safe int
 const toInt = (v) =>
   v === null || v === undefined || v === "" ? null : Number(v);
+
+/**
+ * UI status:
+ * to_do, in_progress, review, cto_review, done
+ *
+ * DB status:
+ * to_do, in_progress, testing, blocked, done, pending
+ */
+
+// ✅ Convert DB/UI/old values -> UI status
+const normalizeStatus = (status) => {
+  if (!status) return "to_do";
+
+  const value = String(status)
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (value === "todo" || value === "to_do" || value === "pending") {
+    return "to_do";
+  }
+
+  if (
+    value === "inprogress" ||
+    value === "in_progress" ||
+    value === "progress"
+  ) {
+    return "in_progress";
+  }
+
+  if (value === "review" || value === "in_review" || value === "testing") {
+    return "review";
+  }
+
+  if (value === "cto_review" || value === "blocked") {
+    return "cto_review";
+  }
+
+  if (value === "complete" || value === "completed" || value === "done") {
+    return "done";
+  }
+
+  return "to_do";
+};
+
+// ✅ Convert UI/old values -> DB status only
+const toDbStatus = (status) => {
+  if (!status) return "to_do";
+
+  const value = String(status)
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (value === "todo" || value === "to_do" || value === "pending") {
+    return "to_do";
+  }
+
+  if (
+    value === "inprogress" ||
+    value === "in_progress" ||
+    value === "progress"
+  ) {
+    return "in_progress";
+  }
+
+  if (value === "review" || value === "in_review" || value === "testing") {
+    return "testing";
+  }
+
+  if (value === "cto_review" || value === "blocked") {
+    return "blocked";
+  }
+
+  if (value === "complete" || value === "completed" || value === "done") {
+    return "done";
+  }
+
+  return "to_do";
+};
+
+// ✅ Employee allowed move sequence in DB values
+const EMPLOYEE_ALLOWED_NEXT_STATUS = {
+  to_do: "in_progress",
+  in_progress: "testing",
+  testing: "blocked",
+  blocked: "done",
+};
 
 exports.getTasksByProjectId = async (req, res) => {
   try {
@@ -11,18 +99,16 @@ exports.getTasksByProjectId = async (req, res) => {
 
     const tasks = await Task.findAll({
       where: { project_id: projectId },
-
-      // ✅ Latest task first (your Task model uses assigned_at)
       order: [
         ["assigned_at", "DESC"],
         ["id", "DESC"],
       ],
     });
 
-    // ✅ Per-project continuous number (1..N)
     const numbered = (tasks || []).map((t, idx) => ({
       ...t.get({ plain: true }),
       task_no: idx + 1,
+      status: normalizeStatus(t.status),
     }));
 
     return res.status(200).json({ success: true, tasks: numbered });
@@ -36,17 +122,97 @@ exports.getTasksByProjectId = async (req, res) => {
   }
 };
 
+exports.getMyTasks = async (req, res) => {
+  try {
+    const userId = Number(req.params.userId);
+
+    if (!userId || Number.isNaN(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid userId is required",
+      });
+    }
+
+    const tasks = await Task.findAll({
+      where: { assigned_to: userId },
+      include: [
+        {
+          model: Project,
+          attributes: ["id", "project_name"],
+        },
+        {
+          model: User,
+          as: "AssignedToUser",
+          attributes: ["id", "first_name", "last_name"],
+          required: false,
+        },
+      ],
+      order: [
+        ["assigned_at", "DESC"],
+        ["id", "DESC"],
+      ],
+    });
+
+    const formatted = (tasks || []).map((task, idx) => {
+      const plain = task.get({ plain: true });
+
+      return {
+        ...plain,
+        task_no: idx + 1,
+        status: normalizeStatus(plain.status),
+        project_name: plain.Project?.project_name || "Project",
+        assignee_name: plain.AssignedToUser
+          ? [plain.AssignedToUser.first_name, plain.AssignedToUser.last_name]
+              .filter(Boolean)
+              .join(" ")
+              .trim()
+          : "",
+        assignee_profile_pic: "",
+        assignee_designation: "",
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      tasks: formatted,
+    });
+  } catch (error) {
+    console.error("getMyTasks error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load employee tasks",
+      error: error.message,
+    });
+  }
+};
+
 exports.getTaskById = async (req, res) => {
   try {
     const id = Number(req.params.id);
 
-    const task = await Task.findByPk(id);
-    if (!task)
-      return res
-        .status(404)
-        .json({ success: false, message: "Task not found" });
+    const task = await Task.findByPk(id, {
+      include: [
+        {
+          model: Project,
+          attributes: ["id", "project_name"],
+        },
+      ],
+    });
 
-    return res.status(200).json({ success: true, task });
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      task: {
+        ...task.get({ plain: true }),
+        status: normalizeStatus(task.status),
+      },
+    });
   } catch (error) {
     console.error("getTaskById error:", error);
     return res.status(500).json({
@@ -88,17 +254,21 @@ exports.createTask = async (req, res) => {
       description: body.description || null,
       assigned_to: toInt(body.assigned_to),
       priority: body.priority || "medium",
-      status: body.status || "to_do",
+      status: toDbStatus(body.status || "to_do"),
       deadline: body.deadline || null,
       assigner_deadline: body.assigner_deadline || null,
       staff_deadline: body.staff_deadline || null,
+      assigned_at: body.assigned_at || new Date(),
       assigned_by: toInt(body.assigned_by),
     });
 
     return res.status(201).json({
       success: true,
       message: "Task created successfully",
-      task,
+      task: {
+        ...task.get({ plain: true }),
+        status: normalizeStatus(task.status),
+      },
     });
   } catch (error) {
     console.error("createTask error:", error);
@@ -116,12 +286,13 @@ exports.updateTask = async (req, res) => {
     const body = req.body || {};
 
     const task = await Task.findByPk(id);
-    if (!task)
-      return res
-        .status(404)
-        .json({ success: false, message: "Task not found" });
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
 
-    // ✅ Update ALL fields (not only name)
     await task.update({
       title: body.title !== undefined ? String(body.title).trim() : task.title,
       description:
@@ -131,7 +302,7 @@ exports.updateTask = async (req, res) => {
           ? toInt(body.assigned_to)
           : task.assigned_to,
       priority: body.priority !== undefined ? body.priority : task.priority,
-      status: body.status !== undefined ? body.status : task.status,
+      status: body.status !== undefined ? toDbStatus(body.status) : task.status,
       deadline: body.deadline !== undefined ? body.deadline : task.deadline,
       assigner_deadline:
         body.assigner_deadline !== undefined
@@ -141,12 +312,17 @@ exports.updateTask = async (req, res) => {
         body.staff_deadline !== undefined
           ? body.staff_deadline
           : task.staff_deadline,
+      assigned_at:
+        body.assigned_at !== undefined ? body.assigned_at : task.assigned_at,
     });
 
     return res.status(200).json({
       success: true,
       message: "Task updated successfully",
-      task,
+      task: {
+        ...task.get({ plain: true }),
+        status: normalizeStatus(task.status),
+      },
     });
   } catch (error) {
     console.error("updateTask error:", error);
@@ -158,21 +334,106 @@ exports.updateTask = async (req, res) => {
   }
 };
 
+exports.moveTaskByEmployee = async (req, res) => {
+  try {
+    const taskId = Number(req.params.id);
+    const { user_id, target_status } = req.body || {};
+
+    if (!taskId || Number.isNaN(taskId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid task id is required",
+      });
+    }
+
+    if (!user_id || Number.isNaN(Number(user_id))) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid user_id is required",
+      });
+    }
+
+    const task = await Task.findByPk(taskId);
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    if (Number(task.assigned_to) !== Number(user_id)) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only update your own assigned task",
+      });
+    }
+
+    const currentDbStatus = toDbStatus(task.status);
+    const expectedNextDbStatus = EMPLOYEE_ALLOWED_NEXT_STATUS[currentDbStatus];
+    const requestedNextDbStatus = target_status
+      ? toDbStatus(target_status)
+      : null;
+
+    if (!expectedNextDbStatus) {
+      return res.status(400).json({
+        success: false,
+        message: "This task cannot be moved further by employee",
+      });
+    }
+
+    if (
+      requestedNextDbStatus &&
+      requestedNextDbStatus !== expectedNextDbStatus
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: `Task can only move from ${normalizeStatus(
+          currentDbStatus,
+        )} to ${normalizeStatus(expectedNextDbStatus)}`,
+      });
+    }
+
+    await task.update({
+      status: expectedNextDbStatus,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Task status updated successfully",
+      task: {
+        ...task.get({ plain: true }),
+        status: normalizeStatus(task.status),
+      },
+    });
+  } catch (error) {
+    console.error("moveTaskByEmployee error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update task status",
+      error: error.message,
+    });
+  }
+};
+
 exports.deleteTask = async (req, res) => {
   try {
     const id = Number(req.params.id);
 
     const task = await Task.findByPk(id);
-    if (!task)
-      return res
-        .status(404)
-        .json({ success: false, message: "Task not found" });
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
 
     await task.destroy();
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Task deleted successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Task deleted successfully",
+    });
   } catch (error) {
     console.error("deleteTask error:", error);
     return res.status(500).json({

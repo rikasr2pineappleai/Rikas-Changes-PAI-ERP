@@ -248,17 +248,35 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
+      const contentType = response.headers.get("content-type") || "";
+      const isJson = contentType.includes("application/json");
+
+      let data;
+      if (isJson) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        const snippet = (text || "").slice(0, 160).replace(/\s+/g, " ").trim();
+        throw new Error(
+          `API returned non-JSON response (${response.status}) for ${url}. ${snippet || "Empty response body."}`
+        );
+      }
 
       // Handle 401 Unauthorized responses
       if (response.status === 401) {
-        console.error('❌ 401 Unauthorized - Token may be invalid');
-        console.error('Response details:', await response.json().catch(() => 'No response body'));
+        console.error("401 Unauthorized - Token may be invalid");
+        console.error("Response details:", data || "No response body");
         this.removeToken();
         window.location.href = "/login";
         throw new Error("Unauthorized");
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          data?.message || `Request failed with status ${response.status}`
+        );
+      }
+
       return { data, response };
     } catch (error) {
       console.error("API Request Error:", error);

@@ -31,7 +31,7 @@ import Logout from './pages/Logout';
 import Unauthorized from './pages/Unauthorized';
 
 // Additional Pages
-import TasksPage from './pages/TasksPage';
+// import TasksPage from './pages/TasksPage';
 import Performance from './pages/Perfomance';
 import PerformancePage from './pages/PerformancePage';
 import SettingsPage from './pages/SettingsPage';
@@ -39,6 +39,7 @@ import ProjectsDashboard from "./pages/projects/ProjectsDashboard";
 import ViewProject from "./pages/projects/ViewProject";
 import ProjectsPage from './pages/ProjectsPage';
 import PayrollPage from './pages/PayrollPage';
+import TasksPage from './pages/TaskPage/TaskPage';
 
 // New Page Added
 import OrganizationalHierarchy from './pages/OrganizationalHierarchy';
