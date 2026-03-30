@@ -107,7 +107,7 @@
   padding: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  user-select: none;
+  /* user-select: none; */
 }
 
 .taskpage-card:hover {

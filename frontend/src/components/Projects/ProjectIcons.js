@@ -1,5 +1,6 @@
 import React from 'react';
 
+// External Link Icon
 export function ExternalLinkIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
@@ -11,6 +12,7 @@ export function ExternalLinkIcon() {
   );
 }
 
+// Plus Icon
 export function PlusIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">

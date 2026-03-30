@@ -7,11 +7,11 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, itemName }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>Confirm Delete</h3>
-        <p>Are you sure you want to delete {itemName}?</p>
+        <button className="modal-close-btn" onClick={onClose}>×</button>
+        <p className="modal-message">Are you sure you want to delete {itemName}?</p>
         <div className="modal-actions">
-          <button className="btn-cancel" onClick={onClose}>Cancel</button>
-          <button className="btn-delete" onClick={onConfirm}>Delete</button>
+          <button className="btn-yes" onClick={onConfirm}>Yes</button>
+          <button className="btn-no" onClick={onClose}>No</button>
         </div>
       </div>
     </div>
@@ -19,4 +19,3 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, itemName }) => {
 };
 
 export default DeleteConfirmModal;
-
