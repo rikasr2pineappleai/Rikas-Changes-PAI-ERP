@@ -1,21 +1,42 @@
 .notifications-dropdown {
-  position: absolute;
-  top: 60px;
-  right: 20px;
-  width: 300px;
+  width: 350px;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  padding: 15px;
-  z-index: 1000;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
 }
 
-.notifications-dropdown h4 {
-  margin: 0 0 15px 0;
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.notifications-header h4 {
+  margin: 0;
   font-size: 16px;
-  color: #333;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.mark-all-btn {
+  background: none;
+  border: none;
+  color: #347E45;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.mark-all-btn:hover {
+  background: rgba(52, 126, 69, 0.1);
 }
 
 .notifications-list {
@@ -24,24 +45,65 @@
 }
 
 .notification-item {
-  padding: 10px;
-  border-bottom: 1px solid #f5f5f5;
+  padding: 15px 18px;
+  border-bottom: 1px solid #f1f5f9;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+
+.notification-item.unread {
+  background: rgba(52, 126, 69, 0.03);
+}
+
+.notification-item.unread:hover {
+  background: rgba(52, 126, 69, 0.06);
 }
 
 .notification-item:hover {
   background: #f9f9f9;
 }
 
-.notification-message {
-  margin: 0 0 5px 0;
+.notification-title {
+  margin: 0 0 4px 0;
   font-size: 14px;
-  color: #333;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.notification-message {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.4;
 }
 
 .notification-time {
-  font-size: 12px;
-  color: #999;
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  background: #347E45;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.no-notifications {
+  padding: 40px 20px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.no-notifications p {
+  margin: 0;
+  font-size: 14px;
 }
 

@@ -1,5 +1,5 @@
 const db = require("../models");
-const { Task, User, Project } = db;
+const { Task, User, Project, Notification } = db;
 
 // Helper: safe int
 const toInt = (v) =>
@@ -262,6 +262,14 @@ exports.createTask = async (req, res) => {
       assigned_by: toInt(body.assigned_by),
     });
 
+    // Create notification for assigned user
+    await Notification.create({
+      user_id: task.assigned_to,
+      title: "New Task Assigned",
+      message: `You have been assigned a new task: ${task.title}`,
+      type: "info",
+    });
+
     return res.status(201).json({
       success: true,
       message: "Task created successfully",
@@ -315,6 +323,16 @@ exports.updateTask = async (req, res) => {
       assigned_at:
         body.assigned_at !== undefined ? body.assigned_at : task.assigned_at,
     });
+
+    // Create notification if status changed
+    if (body.status !== undefined) {
+      await Notification.create({
+        user_id: task.assigned_to,
+        title: "Task Status Updated",
+        message: `The status of your task "${task.title}" has been updated to ${normalizeStatus(task.status)}.`,
+        type: "info",
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -396,6 +414,18 @@ exports.moveTaskByEmployee = async (req, res) => {
 
     await task.update({
       status: expectedNextDbStatus,
+    });
+
+    // Get employee details for the notification name
+    const employee = await User.findByPk(task.assigned_to);
+    const employeeName = employee ? `${employee.first_name} ${employee.last_name || ''}`.trim() : "An employee";
+
+    // Create notification for assigner (usually admin/TL)
+    await Notification.create({
+      user_id: task.assigned_by,
+      title: `Task Status Changed by ${employeeName}`,
+      message: `${employeeName} has moved the task "${task.title}" to ${normalizeStatus(task.status)}.`,
+      type: "info",
     });
 
     return res.status(200).json({

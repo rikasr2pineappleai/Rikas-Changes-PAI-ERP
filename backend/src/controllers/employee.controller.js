@@ -7,6 +7,7 @@ const {
   Department,
     ProjectAllocation,
     Project,
+    Notification,
 } = require("../models");
 const { upload } = require("../utils/fileUpload");
 const {
@@ -98,6 +99,14 @@ exports.createEmployeePersonal = async (req, res) => {
       phone: phone || null,
       address: address || null,
       image_path: null, // Will be updated when image is uploaded
+    });
+
+    // Create welcome notification
+    await Notification.create({
+      user_id: user.id,
+      title: "Welcome to Pineapple AI",
+      message: `Welcome to Pineapple AI, ${user.first_name}! Your account has been created successfully.`,
+      type: "info",
     });
 
     res.status(201).json({

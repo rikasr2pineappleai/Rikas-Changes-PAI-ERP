@@ -170,6 +170,9 @@ const taskRoutes = require("./routes/task.routes");
 // User Routes
 const userRoutes = require("./routes/user.routes");
 
+// Notification Routes
+const notificationRoutes = require("./routes/notification.routes");
+
 const app = express();
 app.use(express.json());
 
@@ -266,6 +269,7 @@ function getMimeType(filePath) {
 // sequelize.sync({ alter: false });
 
 // Mount routers
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/sidebar", sidebarRoutes);
@@ -296,9 +300,23 @@ app.use("/api/tasks", taskRoutes);
 // User Routes
 app.use("/api/users", userRoutes);
 
+// User Routes
+app.use("/api/users", userRoutes);
+
 // ✅ Test Route
 app.get("/", (req, res) => {
   res.send("PAI ERP Backend Running ✅");
+});
+
+// ✅ Notification Test Route (Debugging)
+app.get("/api/notifications-test", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Notification test route is working",
+    data: [
+      { id: 99, title: "Test Notification", message: "If you see this, the test route is working.", created_at: new Date() }
+    ]
+  });
 });
 
 

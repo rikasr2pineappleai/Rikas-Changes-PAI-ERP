@@ -3,6 +3,7 @@ const db = require('../models');
 const { Op } = require('sequelize');
 const LeaveRequest = db.LeaveRequest;
 const LeaveType = db.LeaveType;
+const Notification = db.Notification;
 const LeaveServices = require('../services/LeaveService');
 const fs = require('fs');
 const path = require('path');
@@ -440,6 +441,14 @@ exports.updateStatus = async (req, res) => {
         { status: lowerCaseNewStatus, approved_by: approved_by || null, ...(reasonToSave !== undefined ? { reason: reasonToSave } : {}), ...(adminReasonToSave !== undefined ? { adminReason: adminReasonToSave } : {}) },
         { transaction: t }
       );
+
+      // Create notification
+      await Notification.create({
+        user_id: leaveReq.user_id,
+        title: "Leave Approved",
+        message: `Your leave request from ${leaveReq.start_date} has been approved.`,
+        type: "success",
+      }, { transaction: t });
     }
 
     // ===== REJECT / CANCEL =====
@@ -461,6 +470,14 @@ exports.updateStatus = async (req, res) => {
         { status: lowerCaseNewStatus, approved_by: approved_by || null, ...(reasonToSave !== undefined ? { reason: reasonToSave } : {}), ...(adminReasonToSave !== undefined ? { adminReason: adminReasonToSave } : {}) },
         { transaction: t }
       );
+
+      // Create notification
+      await Notification.create({
+        user_id: leaveReq.user_id,
+        title: lowerCaseNewStatus === 'rejected' ? "Leave Rejected" : "Leave Cancelled",
+        message: `Your leave request from ${leaveReq.start_date} has been ${lowerCaseNewStatus}.`,
+        type: lowerCaseNewStatus === 'rejected' ? "error" : "warning",
+      }, { transaction: t });
     }
 
     // ===== BACK TO PENDING =====

@@ -87,6 +87,8 @@ import "./Header.css";
 import defaultProfile from "../assets/images/default_profile.png";
 import bellIcon from "../assets/icons/bell.png";
 import { getEmployeeImageUrl } from "../utils/imageUtils";
+import TopbarNotifications from "./TopbarNotifications";
+import apiClient from "../utils/apiClient";
 
 const Header = ({ onToggleSidebar }) => {
   const { user, loading } = useAuth();
@@ -96,6 +98,53 @@ const Header = ({ onToggleSidebar }) => {
     database: "Loading...",
     version: "Loading...",
   });
+
+  // State for toggling notifications dropdown
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch notifications from backend
+  const fetchNotifications = async () => {
+    try {
+      const { data } = await apiClient.get("/notifications");
+      if (data.success) {
+        setNotifications(data.data);
+        const unread = data.data.filter((n) => !n.is_read).length;
+        setUnreadCount(unread);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+      // Optionally poll for new notifications every minute
+      const interval = setInterval(fetchNotifications, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  // Toggle notifications visibility
+  const toggleNotifications = (e) => {
+    e.stopPropagation();
+    setShowNotifications(!showNotifications);
+  };
+
+  // Close notifications when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowNotifications(false);
+    };
+    if (showNotifications) {
+      window.addEventListener("click", handleClickOutside);
+    }
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, [showNotifications]);
 
   // Fetch database info from backend
   useEffect(() => {
@@ -189,12 +238,28 @@ const Header = ({ onToggleSidebar }) => {
       </div>
 
       {/* Notification square (green border) with centered icon */}
-      <div className="notification-box">
+      <div 
+        className={`notification-box ${showNotifications ? 'active' : ''}`} 
+        onClick={toggleNotifications}
+        title="View Notifications"
+      >
         <img
           src={bellIcon}
           alt="Notifications"
           className="notification-icon-img"
         />
+        {/* Simple badge indicating new notifications */}
+        {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+        
+        {showNotifications && (
+          <div className="notifications-container" onClick={(e) => e.stopPropagation()}>
+            <TopbarNotifications 
+              notifications={notifications} 
+              onRefresh={fetchNotifications}
+              onClose={() => setShowNotifications(false)}
+            />
+          </div>
+        )}
       </div>
 
       {/* User card: avatar + name + role */}
