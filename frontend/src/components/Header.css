@@ -78,6 +78,43 @@
   top: calc(50% - 60px/2);
   border: 1px solid #347E45;
   border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.notification-box:hover {
+  background-color: rgba(52, 126, 69, 0.05);
+  border-color: #2D6A3B;
+}
+.notification-box.active {
+  background-color: rgba(52, 126, 69, 0.1);
+  border-color: #2D6A3B;
+  box-shadow: 0 0 0 2px rgba(52, 126, 69, 0.2);
+}
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ef4444;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+.notifications-container {
+  position: absolute;
+  top: 70px;
+  right: 0;
+  z-index: 1000;
+  cursor: default;
 }
 .notification-icon-img {
   position: absolute;
