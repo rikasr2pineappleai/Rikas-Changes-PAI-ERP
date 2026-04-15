@@ -277,7 +277,7 @@
   max-width: 340px;
   flex: 1 1 auto;
   box-sizing: border-box;
-  margin-top: 6%;
+  min-height: 48px;
 }
 
 .hp-popup-box .hp-status-option {
@@ -323,7 +323,6 @@
 
 /* ================= PROOF BUTTON ================= */
 .hp-popup-box .hp-proof-btn {
-  
   background: #1e7e34;
   color: #ffffff;
   padding: 8px 14px;
@@ -340,6 +339,26 @@
   justify-content: center;
 }
 
+.hp-proof-column {
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+
+.hp-document-notice {
+  margin: 0;
+  font-size: 12px;
+  color: #c53030;
+  background-color: #fde8e8;
+  border: 1px solid #f5c2c7;
+  border-radius: 8px;
+  padding: 6px 10px;
+  text-align: center;
+}
+
 .hp-popup-box .hp-proof-btn img {
   width: 18px;
 }
@@ -348,7 +367,7 @@
 .hp-popup-box .hp-update-btn {
   margin-top: 14px;
   width: 100%;
-  background: #029026;
+  background: #1e7e34;
   border: none;
   padding: 12px 0;
   border-radius: 8px;
@@ -358,7 +377,6 @@
   cursor: pointer;
 }
 .hp-status-label {
-  padding-top: 20px;
   color: #979494;
 }
 /* Rejection reason input row — hidden by default, visible with a smooth reveal */
@@ -425,4 +443,3 @@
   border-color: #F45B69;
   box-shadow: 0 0 0 4px rgba(244,91,105,0.06);
 }
-

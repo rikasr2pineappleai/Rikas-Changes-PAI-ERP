@@ -112,21 +112,21 @@ const LeaveSummaryCards = ({ activePeriod }) => {
 
   return (
     <div className="leave-summary-cards">
-      <div className="summary-card">
+      <div className="summary-card summary-card--today">
+        <div className="summary-count">{loading ? '--' : summaryData.today}</div>
+        <div className="summary-label">{activePeriod === 'week' ? 'Week Leaves' : activePeriod === 'all' ? 'All Leaves' : 'Today Leaves'}</div>
+      </div>
+      <div className="summary-card summary-card--pending">
         <div className="summary-count">{loading ? '--' : summaryData.pending}</div>
         <div className="summary-label">Pending Approvals</div>
       </div>
-      <div className="summary-card">
+      <div className="summary-card summary-card--approved">
         <div className="summary-count">{loading ? '--' : summaryData.approved}</div>
         <div className="summary-label">Approved Leaves</div>
       </div>
-      <div className="summary-card">
+      <div className="summary-card summary-card--rejected">
         <div className="summary-count">{loading ? '--' : summaryData.rejected}</div>
         <div className="summary-label">Rejected Leaves</div>
-      </div>
-      <div className="summary-card">
-        <div className="summary-count">{loading ? '--' : summaryData.today}</div>
-        <div className="summary-label">{activePeriod === 'week' ? 'Week Leaves' : activePeriod === 'all' ? 'All Leaves' : 'Today Leaves'}</div>
       </div>
     </div>
   );
