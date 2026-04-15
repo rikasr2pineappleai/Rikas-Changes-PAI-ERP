@@ -5,7 +5,7 @@ import closeIcon from "../../assets/icons/Close.png";
 import profile from "../../assets/icons/profile.png";
 import proofIcon from "../../assets/icons/proof.png";
 import "../../styles/hour_permission_leave_popup.css";
-import { updateLeaveStatus, getLeaveRequestById, getLeaveDocumentUrl } from "../../integration/leavesAPI";
+import { updateLeaveStatus, getLeaveRequestById, openLeaveDocument } from "../../integration/leavesAPI";
 import { getEmployeeImageUrl } from "../../utils/imageUtils";
 
 export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
@@ -33,6 +33,7 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
   const [errorModalMessage, setErrorModalMessage] = useState('');
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successModalMessage, setSuccessModalMessage] = useState('');
+  const [documentNotice, setDocumentNotice] = useState("");
 
   // Fetch leave request data when component mounts
   useEffect(() => {
@@ -138,6 +139,16 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
     }
   };
 
+  const handleOpenDocument = async () => {
+    if (!displayData.upload_document) {
+      setDocumentNotice("No document found");
+      return;
+    }
+
+    const result = await openLeaveDocument(displayData.id);
+    setDocumentNotice(result.success ? "" : "No document found");
+  };
+
   return (
     <div className="hp-popup-overlay">
       <div className="hp-popup-box" role="dialog" aria-modal="true" aria-label="Leave details">
@@ -232,101 +243,69 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
             <div aria-hidden="true" />
           </div>
 
-          {/* ROW 4: Status (left) | Proof Document button (right) */}
-          <div className="hp-row">
-            <div>
-              <label className="hp-status-label">Status</label>
+          <label className="hp-status-label">Status</label>
 
-              <div className="hp-status-box" aria-label="Leave status options">
-                <div className="hp-status-option">
-                  <span>Pending</span>
-                  <span
-                    className={`hp-radio pending ${selectedStatus === "Pending" ? "active" : ""}`}
-                    onClick={() => setSelectedStatus("Pending")}
-                    onKeyDown={(e) => handleStatusKey(e, "Pending")}
-                    role="button"
-                    tabIndex={0}
-                    aria-pressed={selectedStatus === "Pending"}
-                    aria-label="Set status to pending"
-                  />
-                </div>
+          <div className="hp-status-proof-row">
+            <div className="hp-status-box" aria-label="Leave status options">
+              <div className="hp-status-option">
+                <span>Pending</span>
+                <span
+                  className={`hp-radio pending ${selectedStatus === "Pending" ? "active" : ""}`}
+                  onClick={() => setSelectedStatus("Pending")}
+                  onKeyDown={(e) => handleStatusKey(e, "Pending")}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={selectedStatus === "Pending"}
+                  aria-label="Set status to pending"
+                />
+              </div>
 
-                <div className="hp-status-divider" />
+              <div className="hp-status-divider" />
 
-                <div className="hp-status-option">
-                  <span>Rejected</span>
-                  <span
-                    className={`hp-radio rejected ${selectedStatus === "Rejected" ? "active" : ""}`}
-                    onClick={() => setSelectedStatus("Rejected")}
-                    onKeyDown={(e) => handleStatusKey(e, "Rejected")}
-                    role="button"
-                    tabIndex={0}
-                    aria-pressed={selectedStatus === "Rejected"}
-                    aria-label="Set status to rejected"
-                  />
-                </div>
+              <div className="hp-status-option">
+                <span>Rejected</span>
+                <span
+                  className={`hp-radio rejected ${selectedStatus === "Rejected" ? "active" : ""}`}
+                  onClick={() => setSelectedStatus("Rejected")}
+                  onKeyDown={(e) => handleStatusKey(e, "Rejected")}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={selectedStatus === "Rejected"}
+                  aria-label="Set status to rejected"
+                />
+              </div>
 
-                <div className="hp-status-divider" />
+              <div className="hp-status-divider" />
 
-                <div className="hp-status-option">
-                  <span>Approved</span>
-                  <span
-                    className={`hp-radio approved ${selectedStatus === "Approved" ? "active" : ""}`}
-                    onClick={() => setSelectedStatus("Approved")}
-                    onKeyDown={(e) => handleStatusKey(e, "Approved")}
-                    role="button"
-                    tabIndex={0}
-                    aria-pressed={selectedStatus === "Approved"}
-                    aria-label="Set status to approved"
-                  />
-                </div>
+              <div className="hp-status-option">
+                <span>Approved</span>
+                <span
+                  className={`hp-radio approved ${selectedStatus === "Approved" ? "active" : ""}`}
+                  onClick={() => setSelectedStatus("Approved")}
+                  onKeyDown={(e) => handleStatusKey(e, "Approved")}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={selectedStatus === "Approved"}
+                  aria-label="Set status to approved"
+                />
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end' }}>
-              {displayData.upload_document && (
-                <button
-                  className="hp-proof-btn"
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      const documentUrl = await getLeaveDocumentUrl(displayData.id);
-                      // Open in new tab with authentication
-                      const token = localStorage.getItem('token');
-                      if (token) {
-                        // Create a temporary link with authorization header
-                        const link = document.createElement('a');
-                        link.href = documentUrl;
-                        link.target = '_blank';
-                        link.rel = 'noopener noreferrer';
-                        // Add token to headers via fetch and blob
-                        fetch(documentUrl, {
-                          headers: {
-                            'Authorization': `Bearer ${token}`
-                          }
-                        })
-                        .then(response => response.blob())
-                        .then(blob => {
-                          const url = window.URL.createObjectURL(blob);
-                          window.open(url, '_blank');
-                        })
-                        .catch(err => {
-                          console.error('Error opening document:', err);
-                          // Fallback to direct URL
-                          window.open(documentUrl, '_blank');
-                        });
-                      } else {
-                        window.open(documentUrl, '_blank');
-                      }
-                    } catch (error) {
-                      console.error('Error getting document URL:', error);
-                    }
-                  }}
-                  aria-label="Open proof document"
-                >
-                  <img src={proofIcon} alt="" />
-                  Proof Document
-                </button>
+            <div className="hp-proof-column">
+              <button
+                className="hp-proof-btn"
+                type="button"
+                onClick={handleOpenDocument}
+                aria-label="Open proof document"
+              >
+                <img src={proofIcon} alt="" />
+                View Document
+              </button>
+
+              {documentNotice && (
+                <p className="hp-document-notice">
+                  {documentNotice}
+                </p>
               )}
             </div>
           </div>
