@@ -3,18 +3,13 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const LeaveRequest = db.LeaveRequest;
 const LeaveType = db.LeaveType;
-const LeaveServices = require("../services/LeaveService");
-const fs = require("fs");
-const path = require("path");
+const Notification = db.Notification;
+const LeaveServices = require('../services/LeaveService');
+const fs = require('fs');
+const path = require('path');
 
-const VALID_LEAVE_MODES = [
-  "full_day",
-  "half_day",
-  "hours_permission",
-  "compulsory",
-  "Half Day",
-];
-const VALID_STATUSES = ["pending", "approved", "rejected", "cancelled"];
+const VALID_LEAVE_MODES = ['full_day', 'half_day', 'hours_permission', 'compulsory', 'Half Day'];
+const VALID_STATUSES = ['pending', 'approved', 'rejected', 'cancelled'];
 
 const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
 
@@ -576,6 +571,14 @@ exports.updateStatus = async (req, res) => {
         },
         { transaction: t },
       );
+
+      // Create notification
+      await Notification.create({
+        user_id: leaveReq.user_id,
+        title: "Leave Approved",
+        message: `Your leave request from ${leaveReq.start_date} has been approved.`,
+        type: "success",
+      }, { transaction: t });
     }
 
     // ===== REJECT / CANCEL =====
@@ -618,6 +621,14 @@ exports.updateStatus = async (req, res) => {
         },
         { transaction: t },
       );
+
+      // Create notification
+      await Notification.create({
+        user_id: leaveReq.user_id,
+        title: lowerCaseNewStatus === 'rejected' ? "Leave Rejected" : "Leave Cancelled",
+        message: `Your leave request from ${leaveReq.start_date} has been ${lowerCaseNewStatus}.`,
+        type: lowerCaseNewStatus === 'rejected' ? "error" : "warning",
+      }, { transaction: t });
     }
 
     // ===== BACK TO PENDING =====
