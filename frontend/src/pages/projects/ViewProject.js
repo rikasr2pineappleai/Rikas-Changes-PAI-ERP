@@ -157,7 +157,7 @@ const mapTaskFromApi = (t) => ({
   description: t.description || "",
   assignedTo: t.assigned_to ?? "",
   priority: t.priority || "medium",
-  progress: t.status || "To_Do",
+  progress: (t.status || "to_do").toLowerCase(),
   startDate: t.assigned_at ? String(t.assigned_at).slice(0, 10) : "—",
   dueDate: t.deadline ? String(t.deadline).slice(0, 10) : "—",
 
@@ -171,11 +171,30 @@ const mapTaskFromApi = (t) => ({
 
 // Status label mapper - converts backend status keys to display labels
 const STATUS_LABELS = {
+  // Standard keys
   to_do: "To Do",
   in_progress: "In Progress",
   testing: "In Review",
   blocked: "CTO Review",
   done: "Completed",
+  // Actual backend values observed in API
+  review: "In Review",
+  cto_review: "CTO Review",
+  completed: "Completed",
+  pending: "To Do",
+  inprogress: "In Progress",
+  in_review: "In Review",
+};
+
+// Helper: get badge CSS variant from progress value
+const getProgressVariant = (progress) => {
+  if (!progress) return "notstarted";
+  const p = progress.toLowerCase();
+  if (p === "done" || p === "completed") return "done";
+  if (p === "in_progress" || p === "inprogress") return "progress";
+  if (p === "testing" || p === "review" || p === "in_review") return "testing";
+  if (p === "blocked" || p === "cto_review") return "blocked";
+  return "notstarted";
 };
 
 // Assignee picker modal
@@ -584,7 +603,7 @@ export default function ViewProject() {
     name: "",
     assignedTo: "",
     priority: "",
-    status: "",
+    status: "to_do", // ✅ FIX: default status
     startDate: "",
     dueDate: "",
     description: "",
@@ -762,7 +781,7 @@ export default function ViewProject() {
       name: "",
       assignedTo: "",
       priority: "",
-      status: "",
+      status: "to_do", // ✅ FIX here also
       startDate: "",
       dueDate: "",
       description: "",
@@ -794,7 +813,7 @@ export default function ViewProject() {
     if (!taskForm.name.trim()) next.name = "Task name is required.";
     if (!taskForm.assignedTo) next.assignedTo = "Assignee is required.";
     if (!taskForm.priority) next.priority = "Priority is required.";
-    if (!taskForm.status) next.status = "Status is required.";
+    // if (!taskForm.status) next.status = "Status is required.";
     if (!taskForm.startDate) next.startDate = "Start date is required.";
     if (!taskForm.dueDate) next.dueDate = "Due date is required.";
     if (!taskForm.description.trim())
@@ -806,7 +825,7 @@ export default function ViewProject() {
       !next.name &&
       !next.assignedTo &&
       !next.priority &&
-      !next.status &&
+      // !next.status &&
       !next.startDate &&
       !next.dueDate &&
       !next.description
@@ -1180,15 +1199,7 @@ export default function ViewProject() {
                   </td>
 
                   <td data-label="Progress">
-                    <Badge
-                      variant={
-                        t.progress === "done"
-                          ? "done"
-                          : t.progress === "in_progress"
-                            ? "progress"
-                            : "notstarted"
-                      }
-                    >
+                    <Badge variant={getProgressVariant(t.progress)}>
                       {STATUS_LABELS[t.progress] || t.progress}
                     </Badge>
                   </td>
@@ -1473,7 +1484,7 @@ export default function ViewProject() {
           </div>
 
           {/* Status */}
-          <div className="prj-twoCol">
+          {/* <div className="prj-twoCol">
             <div style={{ gridColumn: "1 / -1" }}>
               <label className="prj-label">Status</label>
               <button
@@ -1502,7 +1513,7 @@ export default function ViewProject() {
                 <div className="prj-fieldError">{taskFieldErrors.status}</div>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Description */}
           <label className="prj-label">Description</label>

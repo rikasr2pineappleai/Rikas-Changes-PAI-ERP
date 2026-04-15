@@ -267,6 +267,16 @@
   color: #d32f2f;
   font-size: 13px;
   margin-top: 6px;
+  line-height: 1.4;
+}
+
+.c-input.c-invalid {
+  border-color: #ef4444;
+}
+
+.c-input.c-invalid:focus-within {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
 /* make invalid visible with red border (no inset shadow) */

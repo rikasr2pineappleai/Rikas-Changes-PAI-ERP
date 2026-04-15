@@ -599,8 +599,11 @@
   font-size: 13px;
   font-weight: 600;
   line-height: 1;
-  min-width: 105px;
+  min-width: 120px;
   white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  letter-spacing: 0;
 }
 .prj-badge.medium {
   background: #fff4c8;
@@ -625,6 +628,16 @@
 .prj-badge.notstarted {
   background: #ffd6d6;
   color: #b71c1c;
+}
+/* In Review */
+.prj-badge.testing {
+  background: #ede9ff;
+  color: #5b21b6;
+}
+/* CTO Review */
+.prj-badge.blocked {
+  background: #fff0d6;
+  color: #92400e;
 }
 
 /* =========================================================
@@ -2076,6 +2089,6 @@
 
   .prj-memberRemove {
     opacity: 1;
-    pointer-events: auto;
+    pointer-events: auto; 
   }
 }

@@ -226,6 +226,7 @@
   font-size: 12px;
   margin-top: 8px;    /* <--- increased spacing */
   margin-left: 2px;   /* tiny left offset to match input padding */
+  line-height: 1.4;
 }
 .Etextarea + .E-error {
   margin-top: 0px;   /* same vertical spacing as date error */
@@ -349,6 +350,18 @@
 .Etextarea[aria-invalid="true"] {
   
   max-height: 50px;
+}
+
+.EEinput.E-invalid,
+.Etextarea.E-invalid {
+  border-color: #ef4444;
+}
+
+.EEinput.E-invalid:focus-within,
+.Etextarea.E-invalid:focus,
+.Etextarea.E-invalid:focus-visible {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 @media (max-width: 1024px) {
   .Epopup-overlay {

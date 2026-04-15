@@ -95,7 +95,7 @@ export default function LeaveManagement() {
             to: toDisplay,
             status: (leave.status ? leave.status.charAt(0).toUpperCase() + leave.status.slice(1).toLowerCase() : 'Pending'),
             leave_type_id: leave.leave_type_id,
-            leave_type_name: leave.LeaveType ? leave.LeaveType.leave_name : 'Unknown', // Use LeaveType name if available
+            leave_type_name: leave.LeaveType ? leave.LeaveType.leave_name : 'Unknown',
             user_id: leave.user_id,
             start_date: leave.start_date,
             end_date: leave.end_date,
@@ -104,6 +104,7 @@ export default function LeaveManagement() {
             leave_session: leave.leave_session,
             requested_at: leave.requested_at,
             approved_by: leave.approved_by,
+            upload_document: leave.upload_document || false,
           };
         });
         
@@ -192,6 +193,7 @@ export default function LeaveManagement() {
           leave_session: leave.leave_session,
           requested_at: leave.requested_at,
           approved_by: leave.approved_by,
+          upload_document: leave.upload_document || false,
         };
       });
       
