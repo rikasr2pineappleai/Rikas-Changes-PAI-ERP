@@ -5,7 +5,7 @@ import closeIcon from "../../assets/icons/Close.png";
 import profile from "../../assets/icons/profile.png";
 import proofIcon from "../../assets/icons/proof.png";
 import "../../styles/halfDay_leave_popup.css";
-import { updateLeaveStatus, getLeaveDocumentUrl, getLeaveRequestById } from "../../integration/leavesAPI";
+import { updateLeaveStatus, getLeaveRequestById, openLeaveDocument } from "../../integration/leavesAPI";
 import { getEmployeeImageUrl } from "../../utils/imageUtils";
 
 export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
@@ -38,6 +38,7 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
   const [errorModalMessage, setErrorModalMessage] = useState('');
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successModalMessage, setSuccessModalMessage] = useState('');
+  const [documentNotice, setDocumentNotice] = useState("");
 
   // autofocus when Rejected is selected
   useEffect(() => {
@@ -75,6 +76,8 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
      Derived values
      ------------------------- */
   const employeeUser = leaveRequestData?.User || data?.User || null;
+  const hasUploadedDocument =
+    leaveRequestData?.upload_document ?? data?.upload_document ?? false;
   const avatarSrc = getEmployeeImageUrl(employeeUser, profile);
 
   const annualRemaining =
@@ -148,6 +151,16 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
       e.preventDefault();
       setSelectedStatus(value);
     }
+  };
+
+  const handleOpenDocument = async () => {
+    if (!hasUploadedDocument) {
+      setDocumentNotice("No document found");
+      return;
+    }
+
+    const result = await openLeaveDocument(data.id);
+    setDocumentNotice(result.success ? "" : "No document found");
   };
 
   /* -------------------------
@@ -294,45 +307,23 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
               </div>
             </div>
 
-            {data.upload_document && (
+            <div className="hd-proof-column">
               <button
                 className="hd-proof-btn"
                 type="button"
-                onClick={async () => {
-                  try {
-                    const documentUrl = await getLeaveDocumentUrl(data.id);
-                    // Open in new tab with authentication
-                    const token = localStorage.getItem('token');
-                    if (token) {
-                      // Add token to headers via fetch and blob
-                      fetch(documentUrl, {
-                        headers: {
-                          'Authorization': `Bearer ${token}`
-                        }
-                      })
-                      .then(response => response.blob())
-                      .then(blob => {
-                        const url = window.URL.createObjectURL(blob);
-                        window.open(url, '_blank');
-                      })
-                      .catch(err => {
-                        console.error('Error opening document:', err);
-                        // Fallback to direct URL
-                        window.open(documentUrl, '_blank');
-                      });
-                    } else {
-                      window.open(documentUrl, '_blank');
-                    }
-                  } catch (error) {
-                    console.error('Error getting document URL:', error);
-                  }
-                }}
+                onClick={handleOpenDocument}
                 aria-label="Open proof document"
               >
                 <img src={proofIcon} alt="" />
-                Proof Document
+                View Document
               </button>
-            )}
+
+              {documentNotice && (
+                <p className="hd-document-notice">
+                  {documentNotice}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Rejection reason input - shown only when Rejected is selected */}

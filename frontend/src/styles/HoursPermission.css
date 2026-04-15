@@ -283,13 +283,20 @@
 
 /* error styling */
 .h-error {
-  color: white;
+  color: #d32f2f;
   font-size: 13px;
   margin-top: 6px;
   margin-bottom: 8px;
+  display: block;
 }
 .h-input-invalid {
+  border-color: #ef4444 !important;
   box-shadow: none !important;
+}
+
+.h-input-invalid:focus-within {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
 }
 
 /* ensure aria-invalid inputs have visible border (no inset) */
@@ -911,10 +918,11 @@
     font-size: 12px;
   }
   .h-error {
-    color: white;
+    color: #d32f2f;
     font-size: 9px;
     margin-top: 0px;
     margin-bottom: 0px;
+    display: block;
   }
   .h-pill {
     position: relative;

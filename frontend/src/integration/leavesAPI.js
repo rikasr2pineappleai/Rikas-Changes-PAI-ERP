@@ -282,12 +282,55 @@ export const getLeaveRequestById = async (leaveId) => {
 // Get leave request document URL
 export const getLeaveDocumentUrl = async (leaveId) => {
   try {
-    const token = apiClient.getToken();
     const baseURL = apiClient.baseURL;
     return `${baseURL}/leave-request/${leaveId}/document`;
   } catch (error) {
     console.error('Error getting document URL:', error);
     throw error;
+  }
+};
+
+export const openLeaveDocument = async (leaveId) => {
+  try {
+    const documentUrl = await getLeaveDocumentUrl(leaveId);
+    const token = apiClient.getToken();
+    const response = await fetch(documentUrl, {
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : {},
+    });
+
+    const contentType = response.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+      const data = await response.json();
+      return {
+        success: false,
+        message: data?.message || data?.error || "No document found",
+      };
+    }
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: "Failed to open document",
+      };
+    }
+
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    window.open(blobUrl, "_blank", "noopener,noreferrer");
+    window.setTimeout(() => window.URL.revokeObjectURL(blobUrl), 60000);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error opening leave document:", error);
+    return {
+      success: false,
+      message: error?.message || "Failed to open document",
+    };
   }
 };
 
