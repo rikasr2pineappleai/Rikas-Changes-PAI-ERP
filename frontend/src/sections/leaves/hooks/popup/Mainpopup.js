@@ -1,29 +1,25 @@
 // MainPopup.js
-import React, { useState, useEffect, useRef } from 'react';
-import '../../../../styles/Mainpopup.css';
-import dropicon from '../../../../assets/icons/drop.png';
-import closeicon from '../../../../assets/icons/closeicon.png'; // close icon
-import Submitbtn from '../../../../components/Buttons/Submit_button';
-import Fulldaypopup from '../popup/FulldayPopup';
-import HoursPermissionPopup from './HoursPermission';
-import Halfday from './HalfdayPopup';
+import React, { useState, useEffect, useRef } from "react";
+import "../../../../styles/Mainpopup.css";
+import dropicon from "../../../../assets/icons/drop.png";
+import closeicon from "../../../../assets/icons/closeicon.png"; // close icon
+import Submitbtn from "../../../../components/Buttons/Submit_button";
+import Fulldaypopup from "../popup/FulldayPopup";
+import HoursPermissionPopup from "./HoursPermission";
+import Halfday from "./HalfdayPopup";
 
-const LEAVE_OPTIONS = [
-  'Full Day',
-  'Half Day',
-  'Hours Permission',
-];
+const LEAVE_OPTIONS = ["Full Day", "Half Day", "Hours Permission"];
 
 export default function MainPopup({ onClose = () => {}, onRefresh = null }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selected, setSelected] = useState(''); // chosen leave type
+  const [selected, setSelected] = useState(""); // chosen leave type
   const [showFullDay, setShowFullDay] = useState(false);
   const [showHoursPermission, setShowHoursPermission] = useState(false);
   const [showHalfday, setShowHalfday] = useState(false); // <--- added
   const [showMainContent, setShowMainContent] = useState(true);
   const [thought, setThought] = useState(null); // used by think()
   const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const dropdownRef = useRef(null);
 
   // think() - user asked to include a "think" function. It stores a short debug note and logs.
@@ -32,7 +28,7 @@ export default function MainPopup({ onClose = () => {}, onRefresh = null }) {
     setThought(note);
     // keep debug console for dev
     // eslint-disable-next-line no-console
-    console.log('think:', note, { selected, dropdownOpen });
+    console.log("think:", note, { selected, dropdownOpen });
   }
 
   useEffect(() => {
@@ -42,21 +38,21 @@ export default function MainPopup({ onClose = () => {}, onRefresh = null }) {
       }
     }
     if (dropdownOpen) {
-      document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener("mousedown", handleOutsideClick);
     } else {
-      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener("mousedown", handleOutsideClick);
     }
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [dropdownOpen]);
 
   function toggleDropdown() {
     setDropdownOpen((s) => {
       const next = !s;
-      think(next ? 'open-dropdown' : 'close-dropdown');
+      think(next ? "open-dropdown" : "close-dropdown");
       // clear validation error when user opens the dropdown
       if (!s) {
         setError(false);
-        setErrorMessage('');
+        setErrorMessage("");
       }
       return next;
     });
@@ -68,39 +64,39 @@ export default function MainPopup({ onClose = () => {}, onRefresh = null }) {
     // clear validation error on selection
     if (error) {
       setError(false);
-      setErrorMessage('');
+      setErrorMessage("");
     }
     think(`select-${opt}`);
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    think('submit');
+    think("submit");
 
     // validation: require a selection
     if (!selected) {
       setError(true);
-      setErrorMessage('Select one option');
-      think('validation-failed');
+      setErrorMessage("Select one option");
+      think("validation-failed");
       // focus the dropdown for accessibility
       if (dropdownRef.current) {
-        const btn = dropdownRef.current.querySelector('.mp-select');
-        if (btn && typeof btn.focus === 'function') btn.focus();
+        const btn = dropdownRef.current.querySelector(".mp-select");
+        if (btn && typeof btn.focus === "function") btn.focus();
       }
       return;
     }
 
     // Route to the specific popup based on selection
     switch (selected) {
-      case 'Full Day':
+      case "Full Day":
         setShowMainContent(false);
         setShowFullDay(true);
         return;
-      case 'Hours Permission':
+      case "Hours Permission":
         setShowMainContent(false);
         setShowHoursPermission(true);
         return;
-      case 'Half Day': // <--- added handling for Half Day
+      case "Half Day": // <--- added handling for Half Day
         setShowMainContent(false);
         setShowHalfday(true);
         return;
@@ -118,8 +114,8 @@ export default function MainPopup({ onClose = () => {}, onRefresh = null }) {
   }
 
   function handleFullDaySubmit(formData) {
-    think('full-day-submitted');
-    console.log('Submitted full day leave:', formData);
+    think("full-day-submitted");
+    console.log("Submitted full day leave:", formData);
     setShowFullDay(false);
     onClose();
   }
@@ -131,8 +127,8 @@ export default function MainPopup({ onClose = () => {}, onRefresh = null }) {
   }
 
   function handleHoursPermissionSubmit(formData) {
-    think('hours-permission-submitted');
-    console.log('Submitted hours permission:', formData);
+    think("hours-permission-submitted");
+    console.log("Submitted hours permission:", formData);
     setShowHoursPermission(false);
     onClose();
   }
@@ -144,8 +140,8 @@ export default function MainPopup({ onClose = () => {}, onRefresh = null }) {
   }
 
   function handleHalfdaySubmit(formData) {
-    think('halfday-submitted');
-    console.log('Submitted half day leave:', formData);
+    think("halfday-submitted");
+    console.log("Submitted half day leave:", formData);
     setShowHalfday(false);
     onClose();
   }
@@ -182,17 +178,17 @@ export default function MainPopup({ onClose = () => {}, onRefresh = null }) {
                 <button
                   id="mp-leave-select"
                   type="button"
-                  className={`mp-select ${dropdownOpen ? 'open' : ''} ${error ? 'error' : ''}`}
+                  className={`mp-select ${dropdownOpen ? "open" : ""} ${error ? "error" : ""}`}
                   onClick={toggleDropdown}
                   aria-haspopup="listbox"
                   aria-expanded={dropdownOpen}
                   aria-invalid={error}
-                  aria-describedby={error ? 'mp-error' : undefined}
+                  aria-describedby={error ? "mp-error" : undefined}
                 >
                   <span
-                    className={`mp-placeholder ${selected ? 'has-value' : ''}`}
+                    className={`mp-placeholder ${selected ? "has-value" : ""}`}
                   >
-                    {selected || 'Choose a type for your leave'}
+                    {selected || "Choose a type for your leave"}
                   </span>
                   <img className="mp-dropicon" src={dropicon} alt="toggle" />
                 </button>
@@ -202,7 +198,7 @@ export default function MainPopup({ onClose = () => {}, onRefresh = null }) {
                     {LEAVE_OPTIONS.map((opt) => (
                       <li
                         key={opt}
-                        className={`mp-option ${selected === opt ? 'selected' : ''}`}
+                        className={`mp-option ${selected === opt ? "selected" : ""}`}
                         onClick={() => selectOption(opt)}
                         role="option"
                         aria-selected={selected === opt}
@@ -216,7 +212,12 @@ export default function MainPopup({ onClose = () => {}, onRefresh = null }) {
 
               {/* Error message shown under the dropdown */}
               {errorMessage && (
-                <div id="mp-error" className="mp-error-text" role="alert" aria-live="assertive">
+                <div
+                  id="mp-error"
+                  className="mp-error-text"
+                  role="alert"
+                  aria-live="assertive"
+                >
                   {errorMessage}
                 </div>
               )}

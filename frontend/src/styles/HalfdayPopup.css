@@ -299,9 +299,19 @@
 .hd-error {
   color: #d32f2f;
   font-size: 12px;
-  margin-top: 2px;
-  margin-bottom: 0%;
+  line-height: 1.4;
+  margin-top: 6px;
+  margin-bottom: 0;
   display: block;
+}
+
+.hd-input.hd-invalid {
+  border-color: #ef4444;
+}
+
+.hd-input.hd-invalid:focus-within {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
 .hd-input input[aria-invalid="true"],

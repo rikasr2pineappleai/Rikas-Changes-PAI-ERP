@@ -1,22 +1,20 @@
-
-
-import React, { useState, useRef, useEffect } from 'react';
-import { useToast } from '../../../../context/ToastContext';
-import '../../../../styles/HoursPermission.css';
+import React, { useState, useRef, useEffect } from "react";
+import { useToast } from "../../../../context/ToastContext";
+import "../../../../styles/HoursPermission.css";
 
 // Import the API function for creating hours permission leave requests
-import { createHoursPermissionLeaveRequest } from '../../../../integration/leavesAPI';
+import { createHoursPermissionLeaveRequest } from "../../../../integration/leavesAPI";
 
-import hcloseicon from '../../../../assets/icons/closeicon.png';
-import hselecticon from '../../../../assets/icons/drop.png';
-import hcalendericon from '../../../../assets/icons/calender.png';
-import hinicon from '../../../../assets/icons/inicon.png';
-import huploadicon from '../../../../assets/icons/upload.png';
-import hSubmitbtn from '../../../../components/Buttons/Submit_button';
+import hcloseicon from "../../../../assets/icons/closeicon.png";
+import hselecticon from "../../../../assets/icons/drop.png";
+import hcalendericon from "../../../../assets/icons/calender.png";
+import hinicon from "../../../../assets/icons/inicon.png";
+import huploadicon from "../../../../assets/icons/upload.png";
+import hSubmitbtn from "../../../../components/Buttons/Submit_button";
 
 /* ----------------- Time utilities ----------------- */
 function parseTimeToMinutes(t) {
-  if (!t || typeof t !== 'string') return null;
+  if (!t || typeof t !== "string") return null;
   const m = t.match(/^(\d{1,2}):(\d{2})$/);
   if (!m) return null;
   const hh = Number(m[1]);
@@ -24,10 +22,10 @@ function parseTimeToMinutes(t) {
   return hh * 60 + mm;
 }
 function minutesToTimeString(mins) {
-  if (mins == null || Number.isNaN(mins)) return '';
+  if (mins == null || Number.isNaN(mins)) return "";
   const hh = Math.floor(mins / 60) % 24;
   const mm = mins % 60;
-  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 }
 function addMinutesToTime(t, minutesToAdd) {
   const m = parseTimeToMinutes(t);
@@ -53,7 +51,7 @@ function isWithinMaxRange(start, end, maxHours = 3) {
 // convert minutes -> fraction of days (1 day = 8 hours = 480 minutes)
 // return string with 2 decimal places (e.g. "0.13")
 function computeDaysFromMinutes(minutes) {
-  if (minutes == null || Number.isNaN(minutes) || minutes <= 0) return '';
+  if (minutes == null || Number.isNaN(minutes) || minutes <= 0) return "";
   const days = minutes / 480; // 480 = 8 * 60
   const rounded = Math.round(days * 100) / 100;
   return rounded.toFixed(2);
@@ -67,9 +65,9 @@ function getLeaveTypeId(reason) {
   if (!r) return null;
 
   // handle exact presets + common misspelling
-  if (r === 'sick') return 22;
-  if (r === 'casual') return 23;
-  if (r === 'emergency' || r === 'emergancy') return 25;
+  if (r === "sick") return 22;
+  if (r === "casual") return 23;
+  if (r === "emergency" || r === "emergancy") return 25;
 
   // anything else (custom typed or 'others') => 24
   return 24;
@@ -81,7 +79,7 @@ function TimeSelect({
   value,
   onChange,
   options = [],
-  placeholder = 'Select Time',
+  placeholder = "Select Time",
   ariaLabel,
   onOpenChange,
   minTime = null, // string 'HH:MM' - options before this are disabled
@@ -92,7 +90,7 @@ function TimeSelect({
   const listRef = useRef(null);
 
   useEffect(() => {
-    if (typeof onOpenChange === 'function') onOpenChange(open);
+    if (typeof onOpenChange === "function") onOpenChange(open);
   }, [open, onOpenChange]);
 
   useEffect(() => {
@@ -101,15 +99,15 @@ function TimeSelect({
       if (!rootRef.current.contains(e.target)) setOpen(false);
     }
     function handleKey(e) {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === "Escape") setOpen(false);
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
-    document.addEventListener('keydown', handleKey);
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleKey);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
-      document.removeEventListener('keydown', handleKey);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKey);
     };
   }, []);
 
@@ -129,14 +127,16 @@ function TimeSelect({
   }
 
   function handleButtonKeyDown(e) {
-    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       setOpen(true);
       setTimeout(() => {
         if (!listRef.current) return;
         // focus first non-disabled li
-        const items = Array.from(listRef.current.querySelectorAll('li'));
-        const firstEnabled = items.find((it) => it.getAttribute('aria-disabled') !== 'true');
+        const items = Array.from(listRef.current.querySelectorAll("li"));
+        const firstEnabled = items.find(
+          (it) => it.getAttribute("aria-disabled") !== "true"
+        );
         if (firstEnabled) firstEnabled.focus();
       }, 0);
     }
@@ -149,36 +149,36 @@ function TimeSelect({
 
   function handleOptionKeyDown(e) {
     const current = e.target;
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       let next = current.nextElementSibling;
-      while (next && next.getAttribute('aria-disabled') === 'true') {
+      while (next && next.getAttribute("aria-disabled") === "true") {
         next = next.nextElementSibling;
       }
       if (next) next.focus();
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       let prev = current.previousElementSibling;
-      while (prev && prev.getAttribute('aria-disabled') === 'true') {
+      while (prev && prev.getAttribute("aria-disabled") === "true") {
         prev = prev.previousElementSibling;
       }
       if (prev) prev.focus();
-    } else if (e.key === 'Enter' || e.key === ' ') {
+    } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      const disabled = current.getAttribute('aria-disabled') === 'true';
+      const disabled = current.getAttribute("aria-disabled") === "true";
       if (!disabled) {
-        const opt = current.getAttribute('data-value') || '';
+        const opt = current.getAttribute("data-value") || "";
         pick(opt);
       }
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       setOpen(false);
     }
   }
 
-  const label = value || '';
+  const label = value || "";
 
   return (
-    <div className={`h-time-select ${open ? 'open' : ''}`} ref={rootRef}>
+    <div className={`h-time-select ${open ? "open" : ""}`} ref={rootRef}>
       <button
         type="button"
         className="h-time-button"
@@ -188,13 +188,13 @@ function TimeSelect({
         onClick={() => setOpen((s) => !s)}
         onKeyDown={handleButtonKeyDown}
       >
-        <span className={`h-time-label ${!label ? 'h-time-placeholder' : ''}`}>
+        <span className={`h-time-label ${!label ? "h-time-placeholder" : ""}`}>
           {label || placeholder}
         </span>
         <img
           src={hselecticon}
           alt=""
-          className={`h-select-icon ${open ? 'open' : ''}`}
+          className={`h-select-icon ${open ? "open" : ""}`}
         />
       </button>
 
@@ -210,14 +210,16 @@ function TimeSelect({
                 tabIndex={disabled ? -1 : 0}
                 aria-selected={isSelected}
                 aria-disabled={disabled}
-                data-value={opt || ''}
+                data-value={opt || ""}
                 onClick={() => {
                   if (!disabled) pick(opt);
                 }}
                 onKeyDown={handleOptionKeyDown}
-                className={`${isSelected ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
+                className={`${isSelected ? "selected" : ""} ${
+                  disabled ? "disabled" : ""
+                }`}
               >
-                {opt || 'Select Time'}
+                {opt || "Select Time"}
               </li>
             );
           })}
@@ -232,25 +234,25 @@ function TimeSelect({
 function ReasonSelect({
   value,
   onChange,
-  options = ['Sick', 'Emergency', 'Casual', 'Others'],
-  placeholder = 'Select Leave reason',
-  ariaLabel = 'Reason',
+  options = ["Sick", "Emergency", "Casual", "Others"],
+  placeholder = "Select Leave reason",
+  ariaLabel = "Reason",
 }) {
   const [open, setOpen] = useState(false);
   const [isCustom, setIsCustom] = useState(false);
-  const [customText, setCustomText] = useState('');
+  const [customText, setCustomText] = useState("");
   const rootRef = useRef(null);
   const listRef = useRef(null);
   const customInputRef = useRef(null);
 
   useEffect(() => {
-    const normalized = String(value || '');
+    const normalized = String(value || "");
     const presetFound = options.find(
       (o) => o.toLowerCase() === normalized.toLowerCase()
     );
-    if (presetFound && presetFound.toLowerCase() !== 'others') {
+    if (presetFound && presetFound.toLowerCase() !== "others") {
       setIsCustom(false);
-      setCustomText('');
+      setCustomText("");
     } else {
       if (normalized && normalized.length > 0) {
         setIsCustom(true);
@@ -265,58 +267,58 @@ function ReasonSelect({
       if (!rootRef.current.contains(e.target)) setOpen(false);
     }
     function handleKey(e) {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === "Escape") setOpen(false);
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
-    document.addEventListener('keydown', handleKey);
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleKey);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
-      document.removeEventListener('keydown', handleKey);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKey);
     };
   }, []);
 
   function handleButtonKeyDown(e) {
-    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       setOpen(true);
       setTimeout(() => {
-        const first = listRef.current && listRef.current.querySelector('li');
+        const first = listRef.current && listRef.current.querySelector("li");
         if (first) first.focus();
       }, 0);
     }
   }
 
   function handleOptionKeyDown(e, idx) {
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       const next = e.target.nextElementSibling;
       if (next) next.focus();
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       const prev = e.target.previousElementSibling;
       if (prev) prev.focus();
-    } else if (e.key === 'Enter' || e.key === ' ') {
+    } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       pick(options[idx]);
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       setOpen(false);
     }
   }
 
   function pick(opt) {
-    if (String(opt).toLowerCase() === 'others') {
+    if (String(opt).toLowerCase() === "others") {
       setIsCustom(true);
-      setCustomText('');
-      onChange('');
+      setCustomText("");
+      onChange("");
       setOpen(false);
       setTimeout(() => {
         if (customInputRef.current) customInputRef.current.focus();
       }, 50);
     } else {
       setIsCustom(false);
-      setCustomText('');
+      setCustomText("");
       onChange(opt);
       setOpen(false);
     }
@@ -333,10 +335,10 @@ function ReasonSelect({
       ? value
       : isCustom && customText
       ? customText
-      : '';
+      : "";
 
   return (
-    <div className={`h-reason-select ${open ? 'open' : ''}`} ref={rootRef}>
+    <div className={`h-reason-select ${open ? "open" : ""}`} ref={rootRef}>
       <button
         type="button"
         className="h-time-button"
@@ -347,14 +349,16 @@ function ReasonSelect({
         onKeyDown={handleButtonKeyDown}
       >
         <span
-          className={`h-time-label ${!displayLabel ? 'h-time-placeholder' : ''}`}
+          className={`h-time-label ${
+            !displayLabel ? "h-time-placeholder" : ""
+          }`}
         >
           {displayLabel || placeholder}
         </span>
         <img
           src={hselecticon}
           alt=""
-          className={`h-select-icon ${open ? 'open' : ''}`}
+          className={`h-select-icon ${open ? "open" : ""}`}
         />
       </button>
 
@@ -367,15 +371,15 @@ function ReasonSelect({
               tabIndex={0}
               aria-selected={
                 String(opt).toLowerCase() === String(value).toLowerCase() ||
-                (String(opt).toLowerCase() === 'others' &&
+                (String(opt).toLowerCase() === "others" &&
                   (isCustom || (!options.includes(value) && !!value)))
               }
               onClick={() => pick(opt)}
               onKeyDown={(e) => handleOptionKeyDown(e, i)}
               className={
                 String(opt).toLowerCase() === String(value).toLowerCase()
-                  ? 'selected'
-                  : ''
+                  ? "selected"
+                  : ""
               }
             >
               {opt}
@@ -409,13 +413,13 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
   const SubmitButton = hSubmitbtn;
 
   // basic form state
-  const category = 'Hours Permission';
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const category = "Hours Permission";
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   // hidden value for backend
-  const [numberOfDays, setNumberOfDays] = useState('');
+  const [numberOfDays, setNumberOfDays] = useState("");
 
-  const [reason, setReason] = useState(''); // will hold preset or custom text
+  const [reason, setReason] = useState(""); // will hold preset or custom text
   const [leaveTypeId, setLeaveTypeId] = useState(null); // NEW: numeric FK for backend
 
   // track which dropdown is open (for z-index styling etc.)
@@ -423,86 +427,86 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
   const [endOpen, setEndOpen] = useState(false);
 
   // Date state & refs
-  const [dateISO, setDateISO] = useState('');
-  const [displayDate, setDisplayDate] = useState('');
-  const [dateError, setDateError] = useState('');
+  const [dateISO, setDateISO] = useState("");
+  const [displayDate, setDisplayDate] = useState("");
+  const [dateError, setDateError] = useState("");
   const hiddenDateRef = useRef(null);
   const visibleDateRef = useRef(null);
   const composingRef = useRef(false); // IME composition guard
 
   // Upload
   const hiddenFileRef = useRef(null);
-  const [fileName, setFileName] = useState('');
-  const [fileError, setFileError] = useState('');
+  const [fileName, setFileName] = useState("");
+  const [fileError, setFileError] = useState("");
 
   // other validation errors
-  const [timeError, setTimeError] = useState('');
-  const [reasonError, setReasonError] = useState('');
+  const [timeError, setTimeError] = useState("");
+  const [reasonError, setReasonError] = useState("");
 
   // time options (values are plain strings; shown 1:1 in the list)
   const timeOptions = [
-    '',
-    '07:00',
-    '07:15',
-    '07:30',
-    '07:45',
-    '08:00',
-    '08:15',
-    '08:30',
-    '08:45',
-    '09:00',
-    '09:15',
-    '09:30',
-    '09:45',
-    '10:00',
-    '10:15',
-    '10:30',
-    '10:45',
-    '11:00',
-    '11:15',
-    '11:30',
-    '11:45',
-    '12:00',
-    '12:15',
-    '12:30',
-    '12:45',
-    '13:00',
-    '13:15',
-    '13:30',
-    '13:45',
-    '14:00',
-    '14:15',
-    '14:30',
-    '14:45',
-    '15:00',
-    '15:15',
-    '15:30',
-    '15:45',
-    '16:00',
-    '16:15',
-    '16:30',
-    '16:45',
-    '17:00',
-    '17:15',
-    '17:30',
-    '17:45',
-    '18:00',
-    '18:15',
-    '18:30',
-    '18:45',
-    '19:00',
-    '19:15',
-    '19:30',
-    '19:45',
-    '20:00',
-    '20:15',
-    '20:30',
-    '20:45',
-    '21:00',
-    '21:15',
-    '21:30',
-    '21:45',
-    '22:00',
+    "",
+    "07:00",
+    "07:15",
+    "07:30",
+    "07:45",
+    "08:00",
+    "08:15",
+    "08:30",
+    "08:45",
+    "09:00",
+    "09:15",
+    "09:30",
+    "09:45",
+    "10:00",
+    "10:15",
+    "10:30",
+    "10:45",
+    "11:00",
+    "11:15",
+    "11:30",
+    "11:45",
+    "12:00",
+    "12:15",
+    "12:30",
+    "12:45",
+    "13:00",
+    "13:15",
+    "13:30",
+    "13:45",
+    "14:00",
+    "14:15",
+    "14:30",
+    "14:45",
+    "15:00",
+    "15:15",
+    "15:30",
+    "15:45",
+    "16:00",
+    "16:15",
+    "16:30",
+    "16:45",
+    "17:00",
+    "17:15",
+    "17:30",
+    "17:45",
+    "18:00",
+    "18:15",
+    "18:30",
+    "18:45",
+    "19:00",
+    "19:15",
+    "19:30",
+    "19:45",
+    "20:00",
+    "20:15",
+    "20:30",
+    "20:45",
+    "21:00",
+    "21:15",
+    "21:30",
+    "21:45",
+    "22:00",
   ];
 
   // keep displayDate synced when dateISO changes externally
@@ -510,23 +514,23 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
     if (dateISO) {
       setDisplayDate(formatIsoToDisplay(dateISO));
     } else {
-      setDisplayDate('');
+      setDisplayDate("");
     }
   }, [dateISO]);
 
   useEffect(() => {
     if (!startTime || !endTime) {
-      setNumberOfDays('');
+      setNumberOfDays("");
       return;
     }
     const minutes = diffMinutes(startTime, endTime);
     if (minutes == null || minutes <= 0) {
-      setNumberOfDays('');
+      setNumberOfDays("");
       return;
     }
     // If the range exceeds 3 hours, keep it empty (your validation already prevents >3h)
     if (minutes > 3 * 60) {
-      setNumberOfDays('');
+      setNumberOfDays("");
       return;
     }
     setNumberOfDays(computeDaysFromMinutes(minutes));
@@ -539,27 +543,28 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
 
   /* ---------- Date helpers (unchanged) ---------- */
   function formatIsoToDisplay(iso) {
-    if (!iso) return '';
-    const parts = String(iso).split('-');
+    if (!iso) return "";
+    const parts = String(iso).split("-");
     if (parts.length === 3) {
       const [y, m, d] = parts;
-      return `${m.padStart(2, '0')}/${d.padStart(2, '0')}/${y}`;
+      return `${m.padStart(2, "0")}/${d.padStart(2, "0")}/${y}`;
     }
     const dt = new Date(iso);
     if (!isNaN(dt)) {
-      const mm = String(dt.getMonth() + 1).padStart(2, '0');
-      const dd = String(dt.getDate()).padStart(2, '0');
+      const mm = String(dt.getMonth() + 1).padStart(2, "0");
+      const dd = String(dt.getDate()).padStart(2, "0");
       const yyyy = dt.getFullYear();
       return `${mm}/${dd}/${yyyy}`;
     }
-    return '';
+    return "";
   }
 
   function isValidDateParts(y, m, d) {
     const year = Number(y),
       month = Number(m),
       day = Number(d);
-    if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) return false;
+    if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day))
+      return false;
     if (month < 1 || month > 12) return false;
     const mdays = new Date(year, month, 0).getDate();
     if (day < 1 || day > mdays) return false;
@@ -578,8 +583,8 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
     }
     const mmddMatch = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
     if (mmddMatch) {
-      let mm = mmddMatch[1].padStart(2, '0');
-      let dd = mmddMatch[2].padStart(2, '0');
+      let mm = mmddMatch[1].padStart(2, "0");
+      let dd = mmddMatch[2].padStart(2, "0");
       const yyyy = mmddMatch[3];
       if (isValidDateParts(yyyy, mm, dd)) return `${yyyy}-${mm}-${dd}`;
       return null;
@@ -588,8 +593,8 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
     const dt = new Date(t);
     if (!isNaN(dt)) {
       const yyyy = String(dt.getFullYear());
-      const mm = String(dt.getMonth() + 1).padStart(2, '0');
-      const dd = String(dt.getDate()).padStart(2, '0');
+      const mm = String(dt.getMonth() + 1).padStart(2, "0");
+      const dd = String(dt.getDate()).padStart(2, "0");
       if (isValidDateParts(yyyy, mm, dd)) return `${yyyy}-${mm}-${dd}`;
     }
     return null;
@@ -597,7 +602,7 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
 
   function openDatePicker() {
     if (hiddenDateRef.current) {
-      if (typeof hiddenDateRef.current.showPicker === 'function') {
+      if (typeof hiddenDateRef.current.showPicker === "function") {
         hiddenDateRef.current.showPicker();
       } else {
         hiddenDateRef.current.focus();
@@ -607,10 +612,10 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
 
   function onHiddenDateChange(e) {
     const val = e.target.value; // ISO YYYY-MM-DD or ''
-    setDateISO(val || '');
+    setDateISO(val || "");
     if (val) {
       setDisplayDate(formatIsoToDisplay(val));
-      setDateError('');
+      setDateError("");
     }
   }
 
@@ -620,13 +625,13 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
   }
   function onCompositionEnd(e) {
     composingRef.current = false;
-    handleSanitizeAndSet(e.target.value || '');
+    handleSanitizeAndSet(e.target.value || "");
   }
 
   function sanitizeDateInput(input) {
-    if (!input) return '';
+    if (!input) return "";
     // allow only digits and slash
-    const sanitized = input.replace(/[^0-9/]/g, '');
+    const sanitized = input.replace(/[^0-9/]/g, "");
     // enforce mm/dd/yyyy length limit = 10
     return sanitized.slice(0, 10);
   }
@@ -634,7 +639,7 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
   function handleSanitizeAndSet(value) {
     const cleaned = sanitizeDateInput(value);
     setDisplayDate(cleaned);
-    if (cleaned) setDateError('');
+    if (cleaned) setDateError("");
   }
 
   function handleVisibleDateChange(e) {
@@ -647,21 +652,20 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
 
   function handleDateKeyDown(e) {
     const ALLOWED_CONTROL_KEYS = [
-      'Backspace',
-      'Delete',
-      'ArrowLeft',
-      'ArrowRight',
-      'Home',
-      'End',
-      'Tab',
+      "Backspace",
+      "Delete",
+      "ArrowLeft",
+      "ArrowRight",
+      "Home",
+      "End",
+      "Tab",
     ];
     if (ALLOWED_CONTROL_KEYS.includes(e.key)) return;
     if (e.key.length === 1 && !/[0-9/]/.test(e.key)) {
       e.preventDefault();
       return;
     }
-    const cur =
-      (visibleDateRef.current && visibleDateRef.current.value) || '';
+    const cur = (visibleDateRef.current && visibleDateRef.current.value) || "";
     const selStart =
       (visibleDateRef.current && visibleDateRef.current.selectionStart) || 0;
     const selEnd =
@@ -678,19 +682,20 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
 
   function handleDatePaste(e) {
     e.preventDefault();
-    const text = (e.clipboardData || window.clipboardData).getData('text') || '';
+    const text =
+      (e.clipboardData || window.clipboardData).getData("text") || "";
     const sanitized = sanitizeDateInput(text);
     const limited = sanitized.slice(0, 10);
     setDisplayDate(limited);
-    if (limited) setDateError('');
+    if (limited) setDateError("");
   }
 
   /* blur: parse to ISO or show required message */
   function onVisibleDateBlur() {
-    const text = (displayDate || '').trim();
+    const text = (displayDate || "").trim();
     if (!text) {
-      setDateISO('');
-      setDateError('Date is required.');
+      setDateISO("");
+      setDateError("Date is required.");
       return;
     }
     const parsed = parseDisplayToIso(text);
@@ -698,9 +703,9 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
       setDateISO(parsed);
       if (hiddenDateRef.current) hiddenDateRef.current.value = parsed;
       setDisplayDate(formatIsoToDisplay(parsed));
-      setDateError('');
+      setDateError("");
     } else {
-      setDateISO('');
+      setDateISO("");
     }
   }
 
@@ -711,86 +716,99 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
   function onFileChange(e) {
     const f = e.target.files && e.target.files[0];
     if (!f) {
-      setFileName('');
+      setFileName("");
       return;
     }
     const isPdf =
-      f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+      f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
     if (!isPdf) {
-      setFileError('Please upload only PDF files.');
-      setFileName('');
-      e.target.value = '';
+      setFileError("Please upload only PDF files.");
+      setFileName("");
+      e.target.value = "";
       return;
     }
-    setFileError('');
+    setFileError("");
     setFileName(f.name);
   }
 
   /* ---------- Validation helpers (modified validateReason) ---------- */
   function validateReason() {
-    const t = (reason || '').trim();
+    const t = (reason || "").trim();
     // Accept presets without min-length, accept custom only if >=5 chars
-    const presets = ['sick', 'emergency', 'casual'];
+    const presets = ["sick", "emergency", "casual"];
     if (!t) {
-      setReasonError('Reason is required.');
+      setReasonError("Reason is required.");
       return false;
     }
     if (!presets.includes(t.toLowerCase()) && t.length < 5) {
-      setReasonError('Please enter at least 5 characters for custom reason.');
+      setReasonError("Please enter at least 5 characters for custom reason.");
       return false;
     }
-    setReasonError('');
+    setReasonError("");
     return true;
   }
 
   function validateTimes() {
-    setTimeError('');
+    setTimeError("");
     if (!startTime || !endTime) {
-      setTimeError('Start and end times are required.');
+      setTimeError("Start and end times are required.");
       return false;
     }
     if (startTime >= endTime) {
-      setTimeError('End time must be later than start time.');
+      setTimeError("End time must be later than start time.");
       return false;
     }
     const minutes = diffMinutes(startTime, endTime);
     if (minutes == null) {
-      setTimeError('Invalid time selection.');
+      setTimeError("Invalid time selection.");
       return false;
     }
     // 3 hours = 180 minutes
     if (minutes > 3 * 60) {
-      setTimeError('Maximum allowed time range is 3 hours.');
+      setTimeError("Maximum allowed time range is 3 hours.");
       return false;
     }
-    setTimeError('');
+    setTimeError("");
     return true;
   }
 
   function validateDateOnSubmit() {
-    const trimmed = (displayDate || '').trim();
+    const trimmed = (displayDate || "").trim();
     if (!trimmed) {
-      setDateError('Date is required.');
-      return false;
+      setDateError("Date is required.");
+      return null;
     }
     const parsed = parseDisplayToIso(trimmed);
     if (!parsed) {
-      setDateISO('');
-      return false;
+      setDateISO("");
+      return null;
     }
     setDateISO(parsed);
-    setDateError('');
-    return true;
+    setDateError("");
+    return parsed;
   }
 
   /* ---------- Submit ---------- */
   function submitHandler(e) {
     e.preventDefault();
-    const okDate = validateDateOnSubmit();
+    const resolvedDateISO = validateDateOnSubmit();
     const okReason = validateReason();
     const okTimes = validateTimes();
 
-    if (!okDate || !okReason || !okTimes) {
+    if (!resolvedDateISO || !okReason || !okTimes) {
+      if (!resolvedDateISO && visibleDateRef.current) {
+        visibleDateRef.current.focus();
+      } else if (!okTimes) {
+        const startTimeButton = document.querySelector(
+          '.h-time-select .h-time-button[aria-label="Start time"]'
+        );
+        if (startTimeButton) startTimeButton.focus();
+      } else if (!okReason) {
+        const reasonButton = document.querySelector(
+          '.h-reason-select .h-time-button[aria-label="Leave Reason"]'
+        );
+        if (reasonButton) reasonButton.focus();
+      }
       return;
     }
 
@@ -804,7 +822,7 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
     // Create payload for API
     const payload = {
       leave_type_id: computedLeaveTypeId, // integer foreign key expected by backend
-      start_date: dateISO,
+      start_date: resolvedDateISO,
       start_time: startTime,
       end_time: endTime,
       number_of_days: numberOfDays ? parseFloat(numberOfDays) : null, // send numeric or null
@@ -820,27 +838,35 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
     // Call the API to create the hours permission leave request
     createHoursPermissionLeaveRequest(payload)
       .then((response) => {
-        console.log('Hours permission leave request created:', response);
+        console.log("Hours permission leave request created:", response);
         // Show success message using toast
-        showToast('Hours permission leave request submitted successfully!', 'success');
-        
+        showToast(
+          "Hours permission leave request submitted successfully!",
+          "success"
+        );
 
-        
         // Close the popup
         onClose();
       })
       .catch((error) => {
-        console.error('Error creating hours permission leave request:', error);
+        console.error("Error creating hours permission leave request:", error);
         // Show error message using toast
-        let errorMessage = (error && error.message ? error.message : 'Unknown error');
-        
+        let errorMessage =
+          error && error.message ? error.message : "Unknown error";
+
         // Check if the error is specifically about leave balance
-        if (error?.response?.data?.error && error.response.data.error.includes('Insufficient leave balance')) {
+        if (
+          error?.response?.data?.error &&
+          error.response.data.error.includes("Insufficient leave balance")
+        ) {
           setReasonError(error.response.data.error); // Display the specific balance error near the reason field
           errorMessage = error.response.data.error;
         }
-        
-        showToast('Error submitting hours permission leave request: ' + errorMessage, 'error');
+
+        showToast(
+          "Error submitting hours permission leave request: " + errorMessage,
+          "error"
+        );
       });
   }
 
@@ -849,13 +875,15 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
   // when user chooses a start time
   function onStartTimePick(v) {
     setStartTime(v);
-    setTimeError('');
+    setTimeError("");
     if (endTime) {
       // if current endTime is now > start + 3 hours OR <= start
       if (!isWithinMaxRange(v, endTime)) {
         // clear endTime and show hint
-        setEndTime('');
-        setTimeError('End time reset: must be within 3 hours of start time. Please choose an end time.');
+        setEndTime("");
+        setTimeError(
+          "End time reset: must be within 3 hours of start time. Please choose an end time."
+        );
       }
     }
   }
@@ -864,18 +892,20 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
   function onEndTimePick(v) {
     if (startTime) {
       if (!isWithinMaxRange(startTime, v)) {
-        setTimeError('Maximum allowed time range is 3 hours.');
+        setTimeError("Maximum allowed time range is 3 hours.");
         return;
       }
     }
     setEndTime(v);
-    setTimeError('');
+    setTimeError("");
   }
 
   // compute max allowed end time if startTime set (3 hours = 180 minutes)
   const maxAllowedEndTime = startTime ? addMinutesToTime(startTime, 180) : null;
   // compute min allowed start time if endTime set (end - 3h)
-  const minAllowedStartTime = endTime ? subtractMinutesFromTime(endTime, 180) : null;
+  const minAllowedStartTime = endTime
+    ? subtractMinutesFromTime(endTime, 180)
+    : null;
 
   return (
     <div className="h-overlay" role="dialog" aria-modal="true">
@@ -896,7 +926,7 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
         <form className="h-form" onSubmit={submitHandler} noValidate>
           {/* Category */}
           <label className="h-label">Leave Category</label>
-          <div className="h-input h-select" style={{ position: 'relative' }}>
+          <div className="h-input h-select" style={{ position: "relative" }}>
             <input
               type="text"
               readOnly
@@ -913,9 +943,9 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
               <label className="h-label">Date</label>
               <div
                 className={`h-input h-date ${
-                  dateError ? 'h-input-invalid' : ''
+                  dateError ? "h-input-invalid" : ""
                 }`}
-                style={{ position: 'relative' }}
+                style={{ position: "relative" }}
               >
                 {/* visible text input */}
                 <input
@@ -958,7 +988,7 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       openDatePicker();
                     }
@@ -979,8 +1009,8 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
               <label className="h-label">Start Time</label>
               <div
                 className={`h-input h-time ${
-                  timeError ? 'h-input-invalid' : ''
-                } ${startOpen ? 'h-time-open' : ''}`}
+                  timeError ? "h-input-invalid" : ""
+                } ${startOpen ? "h-time-open" : ""}`}
               >
                 <TimeSelect
                   value={startTime}
@@ -1005,8 +1035,8 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
               <label className="h-label">End Time</label>
               <div
                 className={`h-input h-time ${
-                  timeError ? 'h-input-invalid' : ''
-                } ${endOpen ? 'h-time-open' : ''}`}
+                  timeError ? "h-input-invalid" : ""
+                } ${endOpen ? "h-time-open" : ""}`}
               >
                 <TimeSelect
                   value={endTime}
@@ -1040,9 +1070,9 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
               value={reason}
               onChange={(v) => {
                 setReason(v);
-                if (reasonError) setReasonError('');
+                if (reasonError) setReasonError("");
               }}
-              options={['Sick', 'Emergency', 'Casual', 'Others']}
+              options={["Sick", "Emergency", "Casual", "Others"]}
               placeholder="Select Leave reason"
               ariaLabel="Leave Reason"
             />
@@ -1060,17 +1090,17 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
             <span className="h-pill">Please upload only PDF files.</span>
           </div>
 
-          <div className="h-input h-upload" style={{ position: 'relative' }}>
+          <div className="h-input h-upload" style={{ position: "relative" }}>
             <div
               className="h-upload-fake"
               onClick={onFakeUploadClick}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') onFakeUploadClick();
+                if (e.key === "Enter" || e.key === " ") onFakeUploadClick();
               }}
             >
-              {fileName || 'Upload your proof document'}
+              {fileName || "Upload your proof document"}
             </div>
 
             <input
@@ -1078,41 +1108,44 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
               type="file"
               onChange={onFileChange}
               className="h-hidden-file"
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
 
             <img src={huploadicon} alt="upload" className="h-upload-icon" />
           </div>
           {fileError && (
             <span
-              style={{ color: 'red', fontSize: '12px', marginTop: '4px', display: 'block' }}
+              style={{
+                color: "red",
+                fontSize: "12px",
+                marginTop: "4px",
+                display: "block",
+              }}
             >
               {fileError}
             </span>
           )}
 
           {/* Hidden field for backend: number of days (computed from start/end) */}
-          <label htmlFor="number_of_days" style={{ display: 'none' }}>Number of days</label>
-           <input
-              id="number_of_days"
-              name="number_of_days"
-              type="hidden"
-              value={numberOfDays}
-            />
+          <label htmlFor="number_of_days" style={{ display: "none" }}>
+            Number of days
+          </label>
+          <input
+            id="number_of_days"
+            name="number_of_days"
+            type="hidden"
+            value={numberOfDays}
+          />
 
           {/* Hidden field for backend: leave_type_id */}
-          <input
-            type="hidden"
-            name="leave_type_id"
-            value={leaveTypeId ?? ''}
-          />
+          <input type="hidden" name="leave_type_id" value={leaveTypeId ?? ""} />
 
           {/* Submit button */}
           <div
             style={{
               marginTop: 24,
-              display: 'flex',
-              justifyContent: 'center',
+              display: "flex",
+              justifyContent: "center",
             }}
           >
             {SubmitButton ? (

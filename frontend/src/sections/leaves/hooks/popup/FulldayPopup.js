@@ -1,41 +1,45 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useToast } from '../../../../context/ToastContext';
-import '../../../../styles/Fulldaypopup.css';
-import closeicon from '../../../../assets/icons/closeicon.png';
-import selecticon from '../../../../assets/icons/drop.png'; // dropdown icon for reason + category
-import calendericon from '../../../../assets/icons/calender.png';
-import inicon from '../../../../assets/icons/inicon.png';
-import uploadicon from '../../../../assets/icons/upload.png';
-import Submitbtn from '../../../../components/Buttons/Submit_button';
+import React, { useState, useRef, useEffect } from "react";
+import { useToast } from "../../../../context/ToastContext";
+import "../../../../styles/Fulldaypopup.css";
+import closeicon from "../../../../assets/icons/closeicon.png";
+import selecticon from "../../../../assets/icons/drop.png"; // dropdown icon for reason + category
+import calendericon from "../../../../assets/icons/calender.png";
+import inicon from "../../../../assets/icons/inicon.png";
+import uploadicon from "../../../../assets/icons/upload.png";
+import Submitbtn from "../../../../components/Buttons/Submit_button";
 
 // Import the API client and function
-import { createLeaveRequest } from '../../../../integration/leavesAPI';
+import { createLeaveRequest } from "../../../../integration/leavesAPI";
 
-export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, onRefresh = null }) {
+export default function LeavePopup({
+  onClose = () => {},
+  onSubmit = () => {},
+  onRefresh = null,
+}) {
   const { showToast } = useToast();
   // Category
-  const [category, setCategory] = useState('Full Day');
+  const [category, setCategory] = useState("Full Day");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   // Start date state
-  const [startDateISO, setStartDateISO] = useState('');
-  const [startDisplayDate, setStartDisplayDate] = useState('');
-  const [startDateError, setStartDateError] = useState('');
+  const [startDateISO, setStartDateISO] = useState("");
+  const [startDisplayDate, setStartDisplayDate] = useState("");
+  const [startDateError, setStartDateError] = useState("");
 
   // End date state
-  const [endDateISO, setEndDateISO] = useState('');
-  const [endDisplayDate, setEndDisplayDate] = useState('');
-  const [endDateError, setEndDateError] = useState('');
+  const [endDateISO, setEndDateISO] = useState("");
+  const [endDisplayDate, setEndDisplayDate] = useState("");
+  const [endDateError, setEndDateError] = useState("");
 
   // Hidden number of days (for backend)
-  const [numberOfDays, setNumberOfDays] = useState('');
+  const [numberOfDays, setNumberOfDays] = useState("");
 
   // Reason & file
-  const [reason, setReason] = useState('');
-  const [reasonError, setReasonError] = useState('');
+  const [reason, setReason] = useState("");
+  const [reasonError, setReasonError] = useState("");
   const [fileName, setFileName] = useState(null);
   const [file, setFile] = useState(null);
-  const [fileError, setFileError] = useState('');
+  const [fileError, setFileError] = useState("");
 
   // Reason dropdown specifics
   const [isReasonOpen, setIsReasonOpen] = useState(false);
@@ -43,9 +47,6 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   // reasonEditable: when true, user can type; when false the input is readOnly and clicking the bar toggles dropdown.
   // Default: false so clicking opens options on first interaction.
   const [reasonEditable, setReasonEditable] = useState(false);
-
-  // Form valid
-  const [isFormValid, setIsFormValid] = useState(false);
 
   // Refs
   const selectRef = useRef(null);
@@ -58,44 +59,39 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   const reasonWrapperRef = useRef(null);
   const reasonInputRef = useRef(null);
 
-  const CATEGORY_OPTIONS = ['Full Day'];
-  const REASON_OPTIONS = ['Sick', 'Emergency', 'Casual', 'Others'];
+  const CATEGORY_OPTIONS = ["Full Day"];
+  const REASON_OPTIONS = ["Sick", "Emergency", "Casual", "Others"];
 
   useEffect(() => {
     function handleClickOutside(e) {
       if (selectRef.current && !selectRef.current.contains(e.target)) {
         setIsCategoryOpen(false);
       }
-      if (reasonWrapperRef.current && !reasonWrapperRef.current.contains(e.target)) {
+      if (
+        reasonWrapperRef.current &&
+        !reasonWrapperRef.current.contains(e.target)
+      ) {
         setIsReasonOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
     // keep display in sync if ISO changed programmatically
     if (startDateISO) {
       setStartDisplayDate(formatIsoToDisplay(startDateISO));
-      setStartDateError('');
+      setStartDateError("");
     }
   }, [startDateISO]);
 
   useEffect(() => {
     if (endDateISO) {
       setEndDisplayDate(formatIsoToDisplay(endDateISO));
-      setEndDateError('');
+      setEndDateError("");
     }
   }, [endDateISO]);
-
-  useEffect(() => {
-    // form is valid when both ISO dates exist, end >= start, and reason ok
-    const reasonOk = validateReasonSilently(reason);
-    const datesOk = validateDatesSilently(startDateISO, endDateISO);
-    setIsFormValid(Boolean(datesOk && reasonOk));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDateISO, endDateISO, reason]);
 
   // compute numberOfDays whenever dates change and are valid
   useEffect(() => {
@@ -103,7 +99,7 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
       const n = calculateNumberOfDaysInclusive(startDateISO, endDateISO);
       setNumberOfDays(String(n));
     } else {
-      setNumberOfDays('');
+      setNumberOfDays("");
     }
   }, [startDateISO, endDateISO]);
 
@@ -117,18 +113,19 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   }
   function handleKeyDownOnSelect(e) {
     const currentIndex = CATEGORY_OPTIONS.indexOf(category);
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       const next = (currentIndex + 1) % CATEGORY_OPTIONS.length;
       setCategory(CATEGORY_OPTIONS[next]);
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      const prev = (currentIndex - 1 + CATEGORY_OPTIONS.length) % CATEGORY_OPTIONS.length;
+      const prev =
+        (currentIndex - 1 + CATEGORY_OPTIONS.length) % CATEGORY_OPTIONS.length;
       setCategory(CATEGORY_OPTIONS[prev]);
-    } else if (e.key === 'Enter' || e.key === ' ') {
+    } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       setIsCategoryOpen((s) => !s);
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       setIsCategoryOpen(false);
     }
   }
@@ -136,15 +133,15 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
     const f = e.target.files && e.target.files[0];
     if (!f) return;
     const isPdf =
-      f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+      f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
     if (!isPdf) {
-      setFileError('Please upload only PDF files.');
+      setFileError("Please upload only PDF files.");
       setFileName(null);
       setFile(null);
-      e.target.value = '';
+      e.target.value = "";
       return;
     }
-    setFileError('');
+    setFileError("");
     setFileName(f.name);
     setFile(f);
   }
@@ -152,7 +149,7 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   /* ----- Date controls (Start) ----- */
   function openStartDatePicker() {
     if (startHiddenDateRef.current) {
-      if (typeof startHiddenDateRef.current.showPicker === 'function') {
+      if (typeof startHiddenDateRef.current.showPicker === "function") {
         startHiddenDateRef.current.showPicker();
       } else {
         startHiddenDateRef.current.focus();
@@ -164,31 +161,32 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
     setStartDateISO(val);
     if (val) {
       setStartDisplayDate(formatIsoToDisplay(val));
-      setStartDateError('');
+      setStartDateError("");
     }
   }
   function onStartVisibleBlur() {
     const text = startDisplayDate.trim();
     if (!text) {
-      setStartDateISO('');
-      setStartDateError('Date is required.');
+      setStartDateISO("");
+      setStartDateError("Start Date is required.");
       return;
     }
     const parsedISO = parseDisplayToIso(text);
     if (parsedISO) {
       setStartDateISO(parsedISO);
-      if (startHiddenDateRef.current) startHiddenDateRef.current.value = parsedISO;
+      if (startHiddenDateRef.current)
+        startHiddenDateRef.current.value = parsedISO;
       setStartDisplayDate(formatIsoToDisplay(parsedISO));
-      setStartDateError('');
+      setStartDateError("");
       // if endDate exists and is before startDate -> clear end error (we'll revalidate end)
       if (endDateISO && !isValidOrder(parsedISO, endDateISO)) {
-        setEndDateError('End date must be the same or after start date.');
+        setEndDateError("End date must be the same or after start date.");
       } else {
-        setEndDateError('');
+        setEndDateError("");
       }
     } else {
       // silently block invalid (no required message per request)
-      setStartDateISO('');
+      setStartDateISO("");
     }
   }
   function handleStartVisibleChange(e) {
@@ -196,13 +194,13 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
     const sanitized = sanitizeDateInput(raw);
     const limited = sanitized.slice(0, 10);
     setStartDisplayDate(limited);
-    if (limited) setStartDateError('');
+    if (limited) setStartDateError("");
   }
 
   /* ----- Date controls (End) ----- */
   function openEndDatePicker() {
     if (endHiddenDateRef.current) {
-      if (typeof endHiddenDateRef.current.showPicker === 'function') {
+      if (typeof endHiddenDateRef.current.showPicker === "function") {
         endHiddenDateRef.current.showPicker();
       } else {
         endHiddenDateRef.current.focus();
@@ -214,18 +212,18 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
     setEndDateISO(val);
     if (val) {
       setEndDisplayDate(formatIsoToDisplay(val));
-      setEndDateError('');
+      setEndDateError("");
       // re-check ordering
       if (startDateISO && !isValidOrder(startDateISO, val)) {
-        setEndDateError('End date must be the same or after start date.');
+        setEndDateError("End date must be the same or after start date.");
       }
     }
   }
   function onEndVisibleBlur() {
     const text = endDisplayDate.trim();
     if (!text) {
-      setEndDateISO('');
-      setEndDateError('Date is required.');
+      setEndDateISO("");
+      setEndDateError("End Date is required.");
       return;
     }
     const parsedISO = parseDisplayToIso(text);
@@ -233,15 +231,15 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
       setEndDateISO(parsedISO);
       if (endHiddenDateRef.current) endHiddenDateRef.current.value = parsedISO;
       setEndDisplayDate(formatIsoToDisplay(parsedISO));
-      setEndDateError('');
+      setEndDateError("");
       if (startDateISO && !isValidOrder(startDateISO, parsedISO)) {
-        setEndDateError('End date must be the same or after start date.');
+        setEndDateError("End date must be the same or after start date.");
       } else {
-        setEndDateError('');
+        setEndDateError("");
       }
     } else {
       // invalid format -> silently block
-      setEndDateISO('');
+      setEndDateISO("");
     }
   }
   function handleEndVisibleChange(e) {
@@ -249,69 +247,72 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
     const sanitized = sanitizeDateInput(raw);
     const limited = sanitized.slice(0, 10);
     setEndDisplayDate(limited);
-    if (limited) setEndDateError('');
+    if (limited) setEndDateError("");
   }
 
   /* ----- Shared date Helpers ----- */
   function sanitizeDateInput(input) {
-    return (input || '').replace(/[^0-9/]/g, '');
+    return (input || "").replace(/[^0-9/]/g, "");
   }
   function handleDateKeyDown(e) {
     const ALLOWED_CONTROL_KEYS = [
-      'Backspace',
-      'Delete',
-      'ArrowLeft',
-      'ArrowRight',
-      'Home',
-      'End',
-      'Tab',
+      "Backspace",
+      "Delete",
+      "ArrowLeft",
+      "ArrowRight",
+      "Home",
+      "End",
+      "Tab",
     ];
     if (ALLOWED_CONTROL_KEYS.includes(e.key)) return;
     if (e.key.length === 1 && !/[0-9/]/.test(e.key)) {
       e.preventDefault();
     }
   }
-  function handleDatePaste(e, target = 'start') {
+  function handleDatePaste(e, target = "start") {
     e.preventDefault();
-    const text = (e.clipboardData || window.clipboardData).getData('text') || '';
+    const text =
+      (e.clipboardData || window.clipboardData).getData("text") || "";
     const sanitized = sanitizeDateInput(text);
     const limited = sanitized.slice(0, 10);
-    if (target === 'start') {
+    if (target === "start") {
       setStartDisplayDate(limited);
-      if (limited) setStartDateError('');
+      if (limited) setStartDateError("");
     } else {
       setEndDisplayDate(limited);
-      if (limited) setEndDateError('');
+      if (limited) setEndDateError("");
     }
   }
   function formatIsoToDisplay(iso) {
-    if (!iso) return '';
-    const parts = iso.split('-');
+    if (!iso) return "";
+    const parts = iso.split("-");
     if (parts.length === 3) {
       const [y, m, d] = parts;
       return `${m}/${d}/${y}`;
     }
     const dt = new Date(iso);
     if (!isNaN(dt)) {
-      const mm = String(dt.getMonth() + 1).padStart(2, '0');
-      const dd = String(dt.getDate()).padStart(2, '0');
+      const mm = String(dt.getMonth() + 1).padStart(2, "0");
+      const dd = String(dt.getDate()).padStart(2, "0");
       const yyyy = dt.getFullYear();
       return `${mm}/${dd}/${yyyy}`;
     }
-    return '';
+    return "";
   }
   function parseDisplayToIso(text) {
-    if (!text) return '';
+    if (!text) return "";
     const isoMatch = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (isoMatch) {
-      const y = isoMatch[1], m = isoMatch[2], d = isoMatch[3];
+      const y = isoMatch[1],
+        m = isoMatch[2],
+        d = isoMatch[3];
       if (isValidDateParts(y, m, d)) return `${y}-${m}-${d}`;
       return null;
     }
     const mmddMatch = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
     if (mmddMatch) {
-      let mm = mmddMatch[1].padStart(2, '0');
-      let dd = mmddMatch[2].padStart(2, '0');
+      let mm = mmddMatch[1].padStart(2, "0");
+      let dd = mmddMatch[2].padStart(2, "0");
       const yyyy = mmddMatch[3];
       if (isValidDateParts(yyyy, mm, dd)) {
         return `${yyyy}-${mm}-${dd}`;
@@ -321,8 +322,8 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
     const dt = new Date(text);
     if (!isNaN(dt)) {
       const yyyy = String(dt.getFullYear());
-      const mm = String(dt.getMonth() + 1).padStart(2, '0');
-      const dd = String(dt.getDate()).padStart(2, '0');
+      const mm = String(dt.getMonth() + 1).padStart(2, "0");
+      const dd = String(dt.getDate()).padStart(2, "0");
       return `${yyyy}-${mm}-${dd}`;
     }
     return null;
@@ -331,7 +332,8 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
     const year = Number(y);
     const month = Number(m);
     const day = Number(d);
-    if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) return false;
+    if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day))
+      return false;
     if (month < 1 || month > 12) return false;
     const mdays = new Date(year, month, 0).getDate();
     if (day < 1 || day > mdays) return false;
@@ -339,8 +341,8 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   }
   function isValidOrder(startIso, endIso) {
     try {
-      const s = new Date(startIso + 'T00:00:00');
-      const e = new Date(endIso + 'T00:00:00');
+      const s = new Date(startIso + "T00:00:00");
+      const e = new Date(endIso + "T00:00:00");
       return e.getTime() >= s.getTime();
     } catch {
       return false;
@@ -356,22 +358,22 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   function validateReason(text) {
     const t = text.trim();
     if (!t) {
-      setReasonError('Reason is required.');
+      setReasonError("Reason is required.");
       return false;
     }
     if (t.length < 3) {
-      setReasonError('Reason too short (min 3 characters).');
+      setReasonError("Reason too short (min 3 characters).");
       return false;
     }
     if (t.length > 400) {
-      setReasonError('Reason is too long.');
+      setReasonError("Reason is too long.");
       return false;
     }
-    setReasonError('');
+    setReasonError("");
     return true;
   }
   function validateReasonSilently(text) {
-    const t = (text || '').trim();
+    const t = (text || "").trim();
     if (!t) return false;
     if (t.length < 3) return false;
     if (t.length > 400) return false;
@@ -383,21 +385,26 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
     // If user typed (Others) -> id 24
     if (editableFlag) return 24;
 
-    const t = (reasonText || '').trim().toLowerCase();
+    const t = (reasonText || "").trim().toLowerCase();
 
     if (!t) return null;
 
     // tolerant matching
-    if (t.startsWith('sick')) return 22;
-    if (t.startsWith('casual')) return 23;
+    if (t.startsWith("sick")) return 22;
+    if (t.startsWith("casual")) return 23;
     // match emergency spelled correctly or common misspelling 'emergancy' or 'emerg'
-    if (t.startsWith('emerg') || t.startsWith('emergan') || t.startsWith('emergenc')) return 25;
+    if (
+      t.startsWith("emerg") ||
+      t.startsWith("emergan") ||
+      t.startsWith("emergenc")
+    )
+      return 25;
 
     // fallback: if text exactly equals known options
-    if (t === 'sick') return 22;
-    if (t === 'casual') return 23;
-    if (t === 'others' || t === 'other') return 24;
-    if (t === 'emergency' || t === 'emergancy') return 25;
+    if (t === "sick") return 22;
+    if (t === "casual") return 23;
+    if (t === "others" || t === "other") return 24;
+    if (t === "emergency" || t === "emergancy") return 25;
 
     // unknown mapping -> null
     return null;
@@ -409,18 +416,18 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   }
   function handleReasonSelect(opt) {
     setIsReasonOpen(false);
-    if (opt === 'Others') {
+    if (opt === "Others") {
       // make editable
-      setReason('');
+      setReason("");
       setReasonEditable(true);
-      setReasonError('');
+      setReasonError("");
       setTimeout(() => {
         if (reasonInputRef.current) reasonInputRef.current.focus();
       }, 0);
     } else {
       setReason(opt);
       setReasonEditable(false);
-      setReasonError('');
+      setReasonError("");
       // keep input readOnly
     }
   }
@@ -439,18 +446,18 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   // keyboard on wrapper: Enter/Space toggles dropdown (unless editable)
   function handleReasonWrapperKeyDown(e) {
     if (reasonEditable) return;
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       toggleReasonDropdown();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       setIsReasonOpen(false);
     }
   }
 
   /* ----- Submit ----- */
   function calculateNumberOfDaysInclusive(sIso, eIso) {
-    const s = new Date(sIso + 'T00:00:00');
-    const e = new Date(eIso + 'T00:00:00');
+    const s = new Date(sIso + "T00:00:00");
+    const e = new Date(eIso + "T00:00:00");
     const diffDays = Math.round((e - s) / (1000 * 60 * 60 * 24));
     return diffDays + 1; // inclusive
   }
@@ -458,69 +465,101 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   function handleSubmit(e) {
     if (e && e.preventDefault) e.preventDefault();
 
-    // Ensure start date ISO exists; else try to parse (and show required if blank)
-    if (!startDateISO) {
-      const trimmed = startDisplayDate.trim();
-      if (!trimmed) {
-        setStartDateError('Date is required.');
-        return;
+    const trimmedStartDate = startDisplayDate.trim();
+    const trimmedEndDate = endDisplayDate.trim();
+    let resolvedStartDateISO = startDateISO;
+    let resolvedEndDateISO = endDateISO;
+    let hasDateError = false;
+
+    // Validate both date fields together so each field shows its own inline error.
+    if (!resolvedStartDateISO) {
+      if (!trimmedStartDate) {
+        setStartDateError("Start Date is required.");
+        hasDateError = true;
       }
-      const parsed = parseDisplayToIso(trimmed);
-      if (parsed) {
-        setStartDateISO(parsed);
-      } else {
-        return; // silently block
+      if (trimmedStartDate) {
+        const parsed = parseDisplayToIso(trimmedStartDate);
+        if (parsed) {
+          resolvedStartDateISO = parsed;
+          setStartDateISO(parsed);
+          setStartDateError("");
+        } else {
+          hasDateError = true; // silently block invalid format
+        }
       }
+    } else {
+      setStartDateError("");
     }
 
-    // Ensure end date ISO exists; else try to parse (and show required if blank)
-    if (!endDateISO) {
-      const trimmed = endDisplayDate.trim();
-      if (!trimmed) {
-        setEndDateError('Date is required.');
-        return;
+    if (!resolvedEndDateISO) {
+      if (!trimmedEndDate) {
+        setEndDateError("End Date is required.");
+        hasDateError = true;
       }
-      const parsed = parseDisplayToIso(trimmed);
-      if (parsed) {
-        setEndDateISO(parsed);
-      } else {
-        return; // silently block
+      if (trimmedEndDate) {
+        const parsed = parseDisplayToIso(trimmedEndDate);
+        if (parsed) {
+          resolvedEndDateISO = parsed;
+          setEndDateISO(parsed);
+          setEndDateError("");
+        } else {
+          hasDateError = true; // silently block invalid format
+        }
       }
+    } else {
+      setEndDateError("");
+    }
+
+    if (hasDateError) {
+      if (!trimmedStartDate && startVisibleDateRef.current) {
+        startVisibleDateRef.current.focus();
+      } else if (!trimmedEndDate && endVisibleDateRef.current) {
+        endVisibleDateRef.current.focus();
+      }
+      return;
     }
 
     // order check
-    if (!isValidOrder(startDateISO, endDateISO)) {
-      setEndDateError('End date must be the same or after start date.');
+    if (!isValidOrder(resolvedStartDateISO, resolvedEndDateISO)) {
+      setEndDateError("End date must be the same or after start date.");
       return;
     }
 
     // validate reason
     const rOk = validateReason(reason);
-    if (!rOk) return;
+    if (!rOk) {
+      if (reasonInputRef.current) reasonInputRef.current.focus();
+      return;
+    }
 
     // ensure numberOfDays is computed (safeguard) and use it in payload
-    const numDays = calculateNumberOfDaysInclusive(startDateISO, endDateISO);
+    const numDays = calculateNumberOfDaysInclusive(
+      resolvedStartDateISO,
+      resolvedEndDateISO
+    );
     setNumberOfDays(String(numDays)); // keep hidden input in sync
 
     // Use the leave_type_id based on the selected reason
     const leaveTypeId = getLeaveTypeIdFromReason(reason, reasonEditable);
 
     if (!leaveTypeId) {
-      setReasonError('Unable to determine leave type. Please select Sick, Casual, Emergency or Others.');
+      setReasonError(
+        "Unable to determine leave type. Please select Sick, Casual, Emergency or Others."
+      );
       return;
     }
 
     // Prepare payload according to backend requirements
     const payload = {
-      leave_mode: 'full_day',
+      leave_mode: "full_day",
       number_of_days: numDays,
-      start_date: startDateISO,
-      end_date: endDateISO,
+      start_date: resolvedStartDateISO,
+      end_date: resolvedEndDateISO,
       reason: reason,
       leave_type_id: leaveTypeId, // <-- newly added mapping
       // user_id handled by backend middleware
     };
-    
+
     // Add file to payload if exists
     if (file) {
       payload.document = file; // Map upload document to upload_document field
@@ -530,26 +569,32 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
       try {
         const response = await createLeaveRequest(payload);
         if (response) {
-          showToast('Leave request submitted successfully!', 'success');
-          
+          showToast("Leave request submitted successfully!", "success");
+
           // Call refresh callback if provided
-          if (onRefresh && typeof onRefresh === 'function') {
+          if (onRefresh && typeof onRefresh === "function") {
             onRefresh();
           }
-          
+
           onClose(); // Close popup on success
         }
       } catch (error) {
-        console.error('Error submitting leave request:', error);
+        console.error("Error submitting leave request:", error);
         // show a helpful message if available
-        let msg = error?.response?.data?.error || error?.response?.data?.message || error.message;
-        
+        let msg =
+          error?.response?.data?.error ||
+          error?.response?.data?.message ||
+          error.message;
+
         // Check if the error is specifically about leave balance
-        if (msg && msg.includes('Insufficient leave balance')) {
+        if (msg && msg.includes("Insufficient leave balance")) {
           setReasonError(msg); // Display the specific balance error near the reason field
         }
-        
-        showToast('Error submitting leave request: ' + (msg || 'Unknown error'), 'error');
+
+        showToast(
+          "Error submitting leave request: " + (msg || "Unknown error"),
+          "error"
+        );
       }
     };
 
@@ -557,17 +602,26 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
   }
 
   return (
-    <div className="lp-overlay" role="dialog" aria-modal="true" aria-labelledby="lp-title">
+    <div
+      className="lp-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="lp-title"
+    >
       <div className="lp-card">
         <button className="lp-close-btn" onClick={onClose} aria-label="Close">
           <span className="lp-close-circle">
             <img src={closeicon} alt="close" className="lp-close-icon" />
           </span>
         </button>
-        <h2 id="lp-title" className="lp-title">New leave request</h2>
+        <h2 id="lp-title" className="lp-title">
+          New leave request
+        </h2>
         <form className="lp-form" onSubmit={handleSubmit} noValidate>
           {/* Leave Category */}
-          <label className="lp-label" htmlFor="lp-category">Leave Category</label>
+          <label className="lp-label" htmlFor="lp-category">
+            Leave Category
+          </label>
           <div
             className="lp-input lp-select"
             ref={selectRef}
@@ -606,7 +660,7 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
                     aria-selected={opt === category}
                     onClick={() => handleSelectOption(opt)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
+                      if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         handleSelectOption(opt);
                       }
@@ -620,10 +674,20 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
           </div>
 
           {/* Dates: start + end side-by-side */}
-          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 16,
+              alignItems: "flex-start",
+              flexWrap: "wrap",
+            }}
+          >
             <div>
               <label className="lp-label">Start Date</label>
-              <div className="lp-input lp-date" style={{ position: 'relative' }}>
+              <div
+                className={`lp-input lp-date ${startDateError ? "lp-input-invalid" : ""}`}
+                style={{ position: "relative" }}
+              >
                 <input
                   ref={startVisibleDateRef}
                   type="text"
@@ -631,16 +695,16 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
                   onChange={handleStartVisibleChange}
                   onBlur={onStartVisibleBlur}
                   onKeyDown={handleDateKeyDown}
-                  onPaste={(e) => handleDatePaste(e, 'start')}
+                  onPaste={(e) => handleDatePaste(e, "start")}
                   aria-label="Start date"
                   placeholder="MM/DD/YYYY"
                   aria-invalid={!!startDateError}
                   style={{
                     border: 0,
-                    outline: 'none',
+                    outline: "none",
                     fontSize: 14,
-                    width: '100%',
-                    background: 'transparent',
+                    width: "100%",
+                    background: "transparent",
                   }}
                 />
                 <input
@@ -658,7 +722,7 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       openStartDatePicker();
                     }
@@ -668,12 +732,19 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
                   <img src={calendericon} alt="" className="lp-date-icon" />
                 </div>
               </div>
-              {startDateError && <div className="lp-error" role="alert">{startDateError}</div>}
+              {startDateError && (
+                <div className="lp-error" role="alert">
+                  {startDateError}
+                </div>
+              )}
             </div>
 
             <div>
               <label className="lp-label">End Date</label>
-              <div className="lp-input lp-date" style={{ position: 'relative' }}>
+              <div
+                className={`lp-input lp-date ${endDateError ? "lp-input-invalid" : ""}`}
+                style={{ position: "relative" }}
+              >
                 <input
                   ref={endVisibleDateRef}
                   type="text"
@@ -681,16 +752,16 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
                   onChange={handleEndVisibleChange}
                   onBlur={onEndVisibleBlur}
                   onKeyDown={handleDateKeyDown}
-                  onPaste={(e) => handleDatePaste(e, 'end')}
+                  onPaste={(e) => handleDatePaste(e, "end")}
                   aria-label="End date"
                   placeholder="MM/DD/YYYY"
                   aria-invalid={!!endDateError}
                   style={{
                     border: 0,
-                    outline: 'none',
+                    outline: "none",
                     fontSize: 14,
-                    width: '100%',
-                    background: 'transparent',
+                    width: "100%",
+                    background: "transparent",
                   }}
                 />
                 <input
@@ -708,7 +779,7 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       openEndDatePicker();
                     }
@@ -718,13 +789,19 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
                   <img src={calendericon} alt="" className="lp-date-icon" />
                 </div>
               </div>
-              {endDateError && <div className="lp-error" role="alert">{endDateError}</div>}
+              {endDateError && (
+                <div className="lp-error" role="alert">
+                  {endDateError}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Hidden number of days input for backend */}
           {/* Label is visually hidden; input is hidden (type="hidden") so users don't see it */}
-          <label htmlFor="number_of_days" style={{ display: 'none' }}>Number of days</label>
+          <label htmlFor="number_of_days" style={{ display: "none" }}>
+            Number of days
+          </label>
           <input
             id="number_of_days"
             name="number_of_days"
@@ -734,109 +811,119 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
           />
 
           {/* Reason - updated with input + dropdown */}
-          <label className="lp-label">Reason</label>
+          <div className="lp-field">
+            <label className="lp-label">Reason</label>
 
-          <div
-            className="lp-reason-wrapper"
-            ref={reasonWrapperRef}
-            onClick={handleReasonWrapperClick}
-            onKeyDown={handleReasonWrapperKeyDown}
-            role="button"
-            tabIndex={0}
-            aria-haspopup="listbox"
-            aria-expanded={isReasonOpen}
-            aria-label="Reason selector"
-            style={{ cursor: reasonEditable ? 'text' : 'pointer' }}
-          >
-            <input
-              ref={reasonInputRef}
-              className="lp-reason-input"
-              type="text"
-              placeholder="Select Leave Reason"
-              value={reason}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                // only allow typing when editable
-                if (!reasonEditable) return;
-                setReason(newValue);
-                if (newValue.trim().length > 0) setReasonError('');
-              }}
-              onBlur={() => validateReason(reason)}
-              maxLength={400}
-              aria-label="Reason for leave"
-              aria-invalid={!!reasonError}
-              readOnly={!reasonEditable}
-              // prevent wrapper click from toggling when user clicks the editable input
-              onClick={(ev) => {
-                if (reasonEditable) {
-                  ev.stopPropagation();
-                }
-              }}
-              onKeyDown={(ev) => {
-                // if user presses Escape while editing, blur input
-                if (ev.key === 'Escape' && reasonEditable) {
-                  ev.currentTarget.blur();
-                }
-              }}
-              style={{
-                border: 'none',
-                outline: 'none',
-                fontSize: 14,
-                width: '100%',
-                background: 'transparent',
-                padding: 0,
-              }}
-            />
+            <div
+              className={`lp-reason-wrapper ${reasonError ? "lp-input-invalid" : ""}`}
+              ref={reasonWrapperRef}
+              onClick={handleReasonWrapperClick}
+              onKeyDown={handleReasonWrapperKeyDown}
+              role="button"
+              tabIndex={0}
+              aria-haspopup="listbox"
+              aria-expanded={isReasonOpen}
+              aria-label="Reason selector"
+              style={{ cursor: reasonEditable ? "text" : "pointer" }}
+            >
+              <input
+                ref={reasonInputRef}
+                className="lp-reason-input"
+                type="text"
+                placeholder="Select Leave Reason"
+                value={reason}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  // only allow typing when editable
+                  if (!reasonEditable) return;
+                  setReason(newValue);
+                  if (newValue.trim().length > 0) setReasonError("");
+                }}
+                onBlur={() => validateReason(reason)}
+                maxLength={400}
+                aria-label="Reason for leave"
+                aria-invalid={!!reasonError}
+                aria-describedby={reasonError ? "lp-reason-error" : undefined}
+                readOnly={!reasonEditable}
+                // prevent wrapper click from toggling when user clicks the editable input
+                onClick={(ev) => {
+                  if (reasonEditable) {
+                    ev.stopPropagation();
+                  }
+                }}
+                onKeyDown={(ev) => {
+                  // if user presses Escape while editing, blur input
+                  if (ev.key === "Escape" && reasonEditable) {
+                    ev.currentTarget.blur();
+                  }
+                }}
+                style={{
+                  border: "none",
+                  outline: "none",
+                  fontSize: 14,
+                  width: "100%",
+                  background: "transparent",
+                  padding: 0,
+                }}
+              />
 
-            {/* dropdown toggle icon (still rotates) */}
-            <img
-              src={selecticon}
-              alt=""
-              className={`lp-dropdown-icon ${isReasonOpen ? 'rotated' : ''}`}
-              style={{ pointerEvents: 'none' }}
-              aria-hidden="true"
-            />
+              {/* dropdown toggle icon (still rotates) */}
+              <img
+                src={selecticon}
+                alt=""
+                className={`lp-dropdown-icon ${isReasonOpen ? "rotated" : ""}`}
+                style={{ pointerEvents: "none" }}
+                aria-hidden="true"
+              />
 
-            {isReasonOpen && (
-              <div className="lp-reason-dropdown" role="listbox" aria-label="Reason options">
-                {REASON_OPTIONS.map((opt) => (
-                  <div
-                    key={opt}
-                    role="option"
-                    tabIndex={0}
-                    className="lp-reason-item"
-                    aria-selected={reason === opt}
-                    onClick={(e) => {
-                       e.stopPropagation();
-                      handleReasonSelect(opt);
-                      }}
-                    onKeyDown={(e) => {
-                      e.stopPropagation();
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
+              {isReasonOpen && (
+                <div
+                  className="lp-reason-dropdown"
+                  role="listbox"
+                  aria-label="Reason options"
+                >
+                  {REASON_OPTIONS.map((opt) => (
+                    <div
+                      key={opt}
+                      role="option"
+                      tabIndex={0}
+                      className="lp-reason-item"
+                      aria-selected={reason === opt}
+                      onClick={(e) => {
+                        e.stopPropagation();
                         handleReasonSelect(opt);
-                      }
-                    }}
-                  >
-                    {opt}
-                  </div>
-                ))}
+                      }}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleReasonSelect(opt);
+                        }
+                      }}
+                    >
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {reasonError && (
+              <div id="lp-reason-error" className="lp-error" role="alert">
+                {reasonError}
               </div>
             )}
           </div>
-          {reasonError && <div className="lp-error" role="alert">{reasonError}</div>}
 
           {/* Upload Document */}
-          <div className="lp-upload-row" style={{ alignItems: 'center' }}>
-           <label className="lp-label">Upload Document (Optional)</label>
-           <img src={inicon} alt="" className="lp-info-icon" />
+          <div className="lp-upload-row" style={{ alignItems: "center" }}>
+            <label className="lp-label">Upload Document (Optional)</label>
+            <img src={inicon} alt="" className="lp-info-icon" />
 
-           {/* pill wrapper that contains the info icon + pill text */}
+            {/* pill wrapper that contains the info icon + pill text */}
             <div className="lp-pill-wrapper" aria-hidden="true">
-              
               <span className="lp-pill">Please upload only PDF files.</span>
-             </div>
-           </div>
+            </div>
+          </div>
           <div className="lp-input lp-upload">
             <input
               id="lp-file"
@@ -845,21 +932,31 @@ export default function LeavePopup({ onClose = () => {}, onSubmit = () => {}, on
               aria-label="Upload proof document"
             />
             <label htmlFor="lp-file" className="lp-upload-fake">
-              {fileName || 'Upload your proof document'}
+              {fileName || "Upload your proof document"}
             </label>
-            <img src={uploadicon} alt="" className="lp-upload-icon" aria-hidden="true" />
+            <img
+              src={uploadicon}
+              alt=""
+              className="lp-upload-icon"
+              aria-hidden="true"
+            />
           </div>
           {fileError && (
             <span
               className="lp-error"
-              style={{ color: 'red', fontSize: '12px', marginTop: '4px', display: 'block' }}
+              style={{
+                color: "red",
+                fontSize: "12px",
+                marginTop: "4px",
+                display: "block",
+              }}
             >
               {fileError}
             </span>
           )}
 
           <div className="lp-submit-wrap">
-            <Submitbtn label="Submit" onClick={handleSubmit} disabled={!isFormValid} />
+            <Submitbtn label="Submit" onClick={handleSubmit} />
           </div>
         </form>
       </div>
