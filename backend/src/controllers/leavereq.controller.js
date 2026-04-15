@@ -3,13 +3,18 @@ const db = require("../models");
 const { Op } = require("sequelize");
 const LeaveRequest = db.LeaveRequest;
 const LeaveType = db.LeaveType;
-const Notification = db.Notification;
-const LeaveServices = require('../services/LeaveService');
-const fs = require('fs');
-const path = require('path');
+const LeaveServices = require("../services/LeaveService");
+const fs = require("fs");
+const path = require("path");
 
-const VALID_LEAVE_MODES = ['full_day', 'half_day', 'hours_permission', 'compulsory', 'Half Day'];
-const VALID_STATUSES = ['pending', 'approved', 'rejected', 'cancelled'];
+const VALID_LEAVE_MODES = [
+  "full_day",
+  "half_day",
+  "hours_permission",
+  "compulsory",
+  "Half Day",
+];
+const VALID_STATUSES = ["pending", "approved", "rejected", "cancelled"];
 
 const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
 
