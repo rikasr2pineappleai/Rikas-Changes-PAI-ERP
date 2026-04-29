@@ -281,7 +281,7 @@ export default function DashboardOverview() {
   }, []);
 
   const handleViewAll = () => {
-    navigate("/attendance");
+    navigate("/admin/attendance");
   };
 
   return (

@@ -6,6 +6,37 @@ const { Op } = require('sequelize');
 const { handleControllerError } = require('../utils/errorHandler');
 const { generateOfferLetterHTML } = require('../templates/offerLetterPDF');
 
+const requiredOfferLetterFields = [
+  { name: 'employeeName', label: 'Name' },
+  { name: 'address', label: 'Address' },
+  { name: 'letterDate', label: 'Date' },
+  { name: 'position', label: 'Role' },
+  { name: 'salary', label: 'Salary' },
+  { name: 'joiningDate', label: 'Date of Joining' },
+  { name: 'department', label: 'Department' },
+  { name: 'reportingManager', label: 'Reporting Manager' },
+  { name: 'reportingManagerEmail', label: 'Reporting Manager Email' }
+];
+
+const getOfferLetterValidationErrors = (data) => {
+  const errors = {};
+
+  requiredOfferLetterFields.forEach(({ name, label }) => {
+    if (!String(data[name] || '').trim()) {
+      errors[name] = `${label} is required`;
+    }
+  });
+
+  if (
+    data.reportingManagerEmail &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.reportingManagerEmail)
+  ) {
+    errors.reportingManagerEmail = 'Enter a valid Reporting Manager Email';
+  }
+
+  return errors;
+};
+
 // Helper function to fetch employee details from database
 const fetchEmployeeDetails = async (userId) => {
   try {
@@ -133,14 +164,6 @@ exports.generateOfferLetterPDF = async (req, res) => {
   try {
     const { employee_id, ...manualOverrides } = req.body;
 
-    // Validate that either employee_id is provided or all required fields are provided
-    if (!employee_id && (!manualOverrides.employeeName || !manualOverrides.position || !manualOverrides.department)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Either employee_id or complete employee details (name, position, department, salary) are required'
-      });
-    }
-
     // Fetch employee data from database if employee_id is provided
     let dbEmployeeData = {};
     if (employee_id) {
@@ -151,16 +174,16 @@ exports.generateOfferLetterPDF = async (req, res) => {
     const mergedData = {
       ...dbEmployeeData,
       ...manualOverrides,
-      letterDate: manualOverrides.letterDate || new Date().toLocaleDateString('en-GB'),
       generatedBy: manualOverrides.generatedBy || 'HR Department'
     };
 
     // Validate that we have all required fields after merging
-    if (!mergedData.employeeName || !mergedData.position || !mergedData.department || !mergedData.salary) {
+    const validationErrors = getOfferLetterValidationErrors(mergedData);
+    if (Object.keys(validationErrors).length > 0) {
       return res.status(400).json({
         success: false,
-        message: 'Employee name, position, department, and salary are required',
-        receivedData: mergedData
+        message: 'Please fill all mandatory offer letter fields',
+        errors: validationErrors
       });
     }
 

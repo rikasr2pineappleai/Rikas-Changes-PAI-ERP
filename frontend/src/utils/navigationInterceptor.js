@@ -11,6 +11,7 @@ const requiresAuth = () => {
     '/dashboard',
     '/employees',
     '/attendance',
+    '/admin/attendance',
     '/leave',
     '/payroll',
     '/reports',

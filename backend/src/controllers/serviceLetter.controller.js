@@ -4,6 +4,30 @@ const { handleControllerError } = require('../utils/errorHandler');
 const { Op } = require('sequelize');
 const { generateServiceLetterHTML } = require('../templates/serviceLetterPDF');
 
+const requiredServiceLetterFields = [
+  { name: 'employeeName', label: 'Name' },
+  { name: 'position', label: 'Designation' },
+  { name: 'department', label: 'Department' },
+  { name: 'letterDate', label: 'Date' },
+  { name: 'joiningDate', label: 'Date of Joining' },
+  { name: 'endDate', label: 'Date of Ending' },
+  { name: 'responsibilities', label: 'Responsibilities' }
+];
+
+const getServiceLetterValidationErrors = (data) => {
+  const errors = {};
+
+  requiredServiceLetterFields.forEach(({ name, label }) => {
+    if (!String(data[name] || '').trim()) {
+      errors[name] = name === 'responsibilities'
+        ? `${label} are required`
+        : `${label} is required`;
+    }
+  });
+
+  return errors;
+};
+
 // Helper function to fetch employee details with all associations
 const fetchEmployeeDetailsForServiceLetter = async (userId) => {
   try {
@@ -117,10 +141,12 @@ exports.generateServiceLetterPDF = async (req, res) => {
     }
 
     // Validate required fields
-    if (!data.employeeName || !data.position || !data.department || !data.joiningDate) {
+    const validationErrors = getServiceLetterValidationErrors(data);
+    if (Object.keys(validationErrors).length > 0) {
       return res.status(400).json({
         success: false,
-        message: 'Employee name, position, department, and joining date are required'
+        message: 'Please fill all mandatory service letter fields',
+        errors: validationErrors
       });
     }
 
