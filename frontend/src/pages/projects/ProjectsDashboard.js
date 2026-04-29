@@ -3,7 +3,7 @@
 // useState is used to store values.
 // useEffect is used to run code when component loads or updates.
 // useMemo is used to avoid unnecessary recalculations.
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 
 // Import navigation hook
 // useNavigate helps move to another page in the app.
@@ -84,7 +84,7 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
     return (people || []).filter((p) =>
       String(p.name || "")
         .toLowerCase()
-        .includes(s)
+        .includes(s),
     );
   }, [q, people]);
 
@@ -183,6 +183,182 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
   );
 }
 
+// FilterModal Component
+// This modal allows filtering projects by status only
+function FilterModal({ open, onClose, filters, onFiltersChange }) {
+  // Local state for filter values
+  const [localFilters, setLocalFilters] = useState(filters);
+
+  // Update local filters when modal opens
+  useEffect(() => {
+    if (open) {
+      setLocalFilters(filters);
+    }
+  }, [open, filters]);
+
+  // If modal is not open, show nothing
+  if (!open) return null;
+
+  // Apply filters and close modal
+  const handleApply = () => {
+    onFiltersChange(localFilters);
+    onClose();
+  };
+
+  // Clear all filters
+  const handleClear = () => {
+    const cleared = { status: "" };
+    setLocalFilters(cleared);
+    onFiltersChange(cleared);
+    onClose();
+  };
+
+  const statusOptions = [
+    { value: "active", label: "Active" },
+    { value: "completed", label: "Completed" },
+    { value: "upcoming", label: "Upcoming" },
+    { value: "on-hold", label: "On Hold" },
+  ];
+
+  return (
+    <div className="prj-modalOverlay" onMouseDown={onClose}>
+      <div className="prj-memberModal" onMouseDown={(e) => e.stopPropagation()}>
+        {/* Header section of modal */}
+        <div className="prj-memberHeader">
+          <div className="prj-memberTitle">Filter Projects</div>
+          <button className="prj-iconBtn" onClick={onClose} aria-label="Close">
+            ×
+          </button>
+        </div>
+
+        {/* Body content of modal */}
+        <div className="prj-memberBody">
+          {/* Status filter */}
+          <div className="prj-filterSection">
+            <label className="prj-filterLabel">Status</label>
+            <div className="prj-filterChips">
+              {statusOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`prj-filterOption ${
+                    localFilters.status === option.value ? "active" : ""
+                  }`}
+                  aria-pressed={localFilters.status === option.value}
+                  onClick={() =>
+                    setLocalFilters((prev) => ({
+                      ...prev,
+                      status: option.value,
+                    }))
+                  }
+                >
+                  <span className="prj-filterCheck" aria-hidden="true">
+                    ✓
+                  </span>
+                  <span className="prj-filterText">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+
+          {/* Action buttons */}
+          <div className="prj-filterActions">
+            <button
+              type="button"
+              className="prj-secondaryBtn"
+              onClick={handleClear}
+            >
+              Clear All
+            </button>
+            <button
+              type="button"
+              className="prj-primaryBtn"
+              onClick={handleApply}
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProjectFilterDropdown({ open, onClose, filters, onFiltersChange }) {
+  const statusOptions = [
+    { value: "active", label: "Active" },
+    { value: "completed", label: "Completed" },
+    { value: "upcoming", label: "Upcoming" },
+    { value: "on-hold", label: "On Hold" },
+  ];
+
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handleOutsideClick = (event) => {
+      if (event.target.closest(".prj-filterWrap")) return;
+
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const toggleStatus = (value) => {
+    onFiltersChange((prev) => ({
+      ...prev,
+      status: prev.status === value ? "" : value,
+    }));
+  };
+
+  return (
+    <div
+      ref={dropdownRef}
+      className="prj-filterDropdown"
+      role="dialog"
+      aria-label="Filter projects"
+    >
+      <div className="prj-filterDropdownSection">
+        <p className="prj-filterDropdownTitle">Status</p>
+        {statusOptions.map((option) => {
+          const active = filters.status === option.value;
+
+          return (
+            <button
+              key={option.value}
+              type="button"
+              className={`prj-filterDropdownRow ${active ? "active" : ""}`}
+              onClick={() => toggleStatus(option.value)}
+            >
+              <span
+                className={`prj-filterDropdownCheck ${active ? "active" : ""}`}
+                aria-hidden="true"
+              />
+              <span className="prj-filterDropdownText">{option.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        className="prj-filterDropdownClear"
+        onClick={() => onFiltersChange({ status: "" })}
+      >
+        Clear all
+      </button>
+    </div>
+  );
+}
+
 // Main Projects Dashboard Component
 export default function ProjectsDashboard() {
   // navigate is used to move to another page
@@ -235,6 +411,14 @@ export default function ProjectsDashboard() {
 
   // Controls member picker modal visibility
   const [memberPickerOpen, setMemberPickerOpen] = useState(false);
+
+  // Controls filter modal visibility
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  // Filter criteria
+  const [filters, setFilters] = useState({
+    status: "",
+  });
 
   // Load projects and employees when page first opens
   useEffect(() => {
@@ -345,23 +529,38 @@ export default function ProjectsDashboard() {
   // Function: Open project details page
   const openProject = (p) => navigate(`/projects/${p.id}`);
 
-  // Filter projects based on search text
+  // Filter projects based on search text and filters
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
 
-    // If search is empty, show all projects
-    if (!q) return projectList;
+    // First apply filters
+    let result = projectList.filter((p) => {
+      // Filter by status
+      if (
+        filters.status &&
+        String(p.status || "").toLowerCase() !==
+          String(filters.status).toLowerCase()
+      )
+        return false;
 
-    // Return only matching projects
-    return projectList.filter((p) => {
-      const title = (p.project_name || p.title || "").toLowerCase();
-      const sub = (p.description || p.subtitle || "").toLowerCase();
-      const mgr = (p.managerName || "").toLowerCase();
 
-      // Match search text with title, description, or manager name
-      return title.includes(q) || sub.includes(q) || mgr.includes(q);
+      return true;
     });
-  }, [search, projectList]);
+
+    // Then apply search
+    if (q) {
+      result = result.filter((p) => {
+        const title = (p.project_name || p.title || "").toLowerCase();
+        const sub = (p.description || p.subtitle || "").toLowerCase();
+        const mgr = (p.managerName || "").toLowerCase();
+
+        // Match search text with title, description, or manager name
+        return title.includes(q) || sub.includes(q) || mgr.includes(q);
+      });
+    }
+
+    return result;
+  }, [search, projectList, filters]);
 
   // Validate new project form
   const validateProjectForm = () => {
@@ -512,9 +711,24 @@ export default function ProjectsDashboard() {
 
           {/* Toolbar with filter and search */}
           <div className="prj-toolbar">
-            <button className="prj-filterBtn" type="button" aria-label="Filter">
-              <img src={filterIconPng} alt="" aria-hidden="true" />
-            </button>
+            <div className="prj-filterWrap">
+              <button
+                className="prj-filterBtn"
+                type="button"
+                aria-label="Filter"
+                aria-expanded={filterOpen}
+                onClick={() => setFilterOpen((prev) => !prev)}
+              >
+                <img src={filterIconPng} alt="" aria-hidden="true" />
+              </button>
+
+              <ProjectFilterDropdown
+                open={filterOpen}
+                onClose={() => setFilterOpen(false)}
+                filters={filters}
+                onFiltersChange={setFilters}
+              />
+            </div>
 
             {/* Search input */}
             <div className="prj-searchWrap">
@@ -739,6 +953,7 @@ export default function ProjectsDashboard() {
           }}
         />
       </BaseModal>
+
     </div>
   );
 }

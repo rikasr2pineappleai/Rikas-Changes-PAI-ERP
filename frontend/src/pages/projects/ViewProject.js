@@ -148,6 +148,131 @@ function Badge({ variant, children }) {
   return <span className={`prj-badge ${variant}`}>{children}</span>;
 }
 
+function TaskFilterDropdown({
+  open,
+  onClose,
+  filters,
+  onFiltersChange,
+  people,
+  statusOptions,
+  priorityOptions,
+}) {
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handleOutsideClick = (event) => {
+      if (event.target.closest(".prj-filterWrap")) return;
+
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const toggleFilter = (key, value) => {
+    onFiltersChange((prev) => ({
+      ...prev,
+      [key]: prev[key] === value ? "" : value,
+    }));
+  };
+
+  const clearFilters = () => {
+    onFiltersChange({ status: "", priority: "", assignedTo: "" });
+  };
+
+  return (
+    <div
+      ref={dropdownRef}
+      className="prj-filterDropdown"
+      role="dialog"
+      aria-label="Filter tasks"
+    >
+      <div className="prj-filterDropdownSection">
+        <p className="prj-filterDropdownTitle">Status</p>
+        {statusOptions.map((option) => {
+          const active = filters.status === option.value;
+
+          return (
+            <button
+              key={option.value}
+              type="button"
+              className={`prj-filterDropdownRow ${active ? "active" : ""}`}
+              onClick={() => toggleFilter("status", option.value)}
+            >
+              <span
+                className={`prj-filterDropdownCheck ${active ? "active" : ""}`}
+                aria-hidden="true"
+              />
+              <span className="prj-filterDropdownText">{option.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="prj-filterDropdownSection">
+        <p className="prj-filterDropdownTitle">Priority</p>
+        {priorityOptions.map((option) => {
+          const active = filters.priority === option.value;
+
+          return (
+            <button
+              key={option.value}
+              type="button"
+              className={`prj-filterDropdownRow ${active ? "active" : ""}`}
+              onClick={() => toggleFilter("priority", option.value)}
+            >
+              <span
+                className={`prj-filterDropdownCheck ${active ? "active" : ""}`}
+                aria-hidden="true"
+              />
+              <span className="prj-filterDropdownText">{option.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {!!people?.length && (
+        <div className="prj-filterDropdownSection">
+          <p className="prj-filterDropdownTitle">Assigned To</p>
+          {people.map((person) => {
+            const active = String(filters.assignedTo) === String(person.id);
+
+            return (
+              <button
+                key={person.id}
+                type="button"
+                className={`prj-filterDropdownRow ${active ? "active" : ""}`}
+                onClick={() => toggleFilter("assignedTo", String(person.id))}
+              >
+                <span
+                  className={`prj-filterDropdownCheck ${active ? "active" : ""}`}
+                  aria-hidden="true"
+                />
+                <span className="prj-filterDropdownText">{person.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <button
+        type="button"
+        className="prj-filterDropdownClear"
+        onClick={clearFilters}
+      >
+        Clear all
+      </button>
+    </div>
+  );
+}
+
 // Convert API task data into UI-friendly format
 // This function changes backend task data into a structure
 // that is easier to use in the frontend UI.
@@ -567,6 +692,14 @@ export default function ViewProject() {
   // Search input value
   const [search, setSearch] = useState("");
 
+  // Task filter state
+  const [taskFilterOpen, setTaskFilterOpen] = useState(false);
+  const [taskFilters, setTaskFilters] = useState({
+    status: "",
+    priority: "",
+    assignedTo: "",
+  });
+
   // Loading state
   const [loading, setLoading] = useState(false);
 
@@ -760,20 +893,42 @@ export default function ViewProject() {
   // Search filter for tasks
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return tasks;
 
-    return tasks.filter(
-      (t) =>
-        String(t.taskNo).includes(q) ||
-        String(t.id).includes(q) ||
-        (t.name || "").toLowerCase().includes(q) ||
-        String(t.assignedTo || "")
-          .toLowerCase()
-          .includes(q) ||
-        (t.priority || "").toLowerCase().includes(q) ||
-        (t.progress || "").toLowerCase().includes(q),
-    );
-  }, [search, tasks]);
+    return tasks
+      .filter((t) => {
+        if (
+          taskFilters.status &&
+          String(t.progress).toLowerCase() !==
+            String(taskFilters.status).toLowerCase()
+        )
+          return false;
+        if (
+          taskFilters.priority &&
+          String(t.priority).toLowerCase() !==
+            String(taskFilters.priority).toLowerCase()
+        )
+          return false;
+        if (
+          taskFilters.assignedTo &&
+          String(t.assignedTo) !== String(taskFilters.assignedTo)
+        )
+          return false;
+        return true;
+      })
+      .filter((t) => {
+        if (!q) return true;
+        return (
+          String(t.taskNo).includes(q) ||
+          String(t.id).includes(q) ||
+          (t.name || "").toLowerCase().includes(q) ||
+          String(t.assignedTo || "")
+            .toLowerCase()
+            .includes(q) ||
+          (t.priority || "").toLowerCase().includes(q) ||
+          (t.progress || "").toLowerCase().includes(q)
+        );
+      });
+  }, [search, tasks, taskFilters]);
 
   // Reset task form
   const resetForm = () => {
@@ -1130,9 +1285,27 @@ export default function ViewProject() {
 
           {/* Search and filter area */}
           <div className="prj-toolbar">
-            <button className="prj-filterBtn" type="button" aria-label="Filter">
-              <img src={filterIconPng} alt="" aria-hidden="true" />
-            </button>
+            <div className="prj-filterWrap">
+              <button
+                className="prj-filterBtn"
+                type="button"
+                aria-label="Filter"
+                aria-expanded={taskFilterOpen}
+                onClick={() => setTaskFilterOpen((prev) => !prev)}
+              >
+                <img src={filterIconPng} alt="" aria-hidden="true" />
+              </button>
+
+              <TaskFilterDropdown
+                open={taskFilterOpen}
+                onClose={() => setTaskFilterOpen(false)}
+                filters={taskFilters}
+                onFiltersChange={setTaskFilters}
+                people={people}
+                statusOptions={statusOptions}
+                priorityOptions={priorityOptions}
+              />
+            </div>
 
             <div className="prj-searchWrap">
               <img className="prj-searchIcon" src={searchIcon} alt="" />

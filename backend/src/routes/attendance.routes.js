@@ -97,14 +97,14 @@ router.route('/employee/summary')
 router.route('/admin/records')
   .get(protect, authorize('admin'), getAllAttendanceRecords);
 
-router.route('/admin/records/:userId')
-  .get(protect, authorize('admin'), getEmployeeAttendanceRecords);
-
 router.route('/admin/employee/:employeeId')
   .get(protect, authorize('admin'), getEmployeeById);
 
 router.route('/admin/records/all')
   .get(protect, authorize('admin'), getAllEmployeesAttendanceRecords);
+
+router.route('/admin/records/:userId')
+  .get(protect, authorize('admin'), getEmployeeAttendanceRecords);
 
 router.route('/admin/analytics/trends')
   .get(protect, authorize('admin'), getAttendanceTrends);
