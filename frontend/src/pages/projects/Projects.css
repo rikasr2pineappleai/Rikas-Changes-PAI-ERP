@@ -22,7 +22,7 @@
   flex-direction: column;
   gap: 18px;
   padding: 0;
-  overflow-x: hidden;
+  overflow: visible;
 }
 
 /* =========================================================
@@ -177,6 +177,8 @@
   border: 1px solid #ededed;
   border-radius: 14px;
   max-width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .prj-sectionHeader {
@@ -210,6 +212,7 @@
 .prj-filterWrap {
   position: relative;
   flex-shrink: 0;
+  z-index: 200;
 }
 
 .prj-filterBtn {
@@ -241,7 +244,7 @@
   border-radius: 18px;
   padding: 20px 22px 18px;
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
-  z-index: 120;
+  z-index: 9999;
 }
 
 .prj-filterDropdownSection + .prj-filterDropdownSection {
