@@ -20,6 +20,7 @@ export default function ServiceLetterTemplate() {
   const [employeesError, setEmployeesError] = useState(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [newResponsibility, setNewResponsibility] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
   
   const [formData, setFormData] = useState({
     employeeName: "",
@@ -41,6 +42,8 @@ export default function ServiceLetterTemplate() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setPdfUrl(null);
+    setValidationErrors(prev => ({ ...prev, [name]: "" }));
   };
 
   // Convert date format: DD/MM/YYYY -> YYYY-MM-DD or pass through if already YYYY-MM-DD
@@ -110,18 +113,37 @@ export default function ServiceLetterTemplate() {
   const handleEmployeeSelect = (e) => {
     const selectedId = e.target.value;
     setSelectedEmployeeId(selectedId);
+    setPdfUrl(null);
+    setValidationErrors(prev => ({ ...prev, employeeName: "" }));
+
+    if (!selectedId) {
+      setFormData(prev => ({
+        ...prev,
+        employeeName: "",
+        position: ""
+      }));
+      return;
+    }
     
     const selectedEmployee = employees.find(emp => emp.userId === parseInt(selectedId));
     if (selectedEmployee) {
-      setFormData({
+      setFormData(prev => ({
         employeeName: selectedEmployee.employeeName || '',
         position: selectedEmployee.designation || "",
-        department: selectedEmployee.department || "",
-        letterDate: formData.letterDate,
+        department: selectedEmployee.department || prev.department,
+        letterDate: prev.letterDate,
         joiningDate: selectedEmployee.joiningDate || "",
         endDate: selectedEmployee.endDate || "",
-        responsibilities: formData.responsibilities
-      });
+        responsibilities: prev.responsibilities
+      }));
+      setValidationErrors(prev => ({
+        ...prev,
+        employeeName: "",
+        position: "",
+        department: selectedEmployee.department ? "" : prev.department,
+        joiningDate: selectedEmployee.joiningDate ? "" : prev.joiningDate,
+        endDate: selectedEmployee.endDate ? "" : prev.endDate
+      }));
     }
   };
 
@@ -142,9 +164,37 @@ export default function ServiceLetterTemplate() {
       ...prev,
       responsibilities: responsibilitiesString
     }));
+    setPdfUrl(null);
+    setValidationErrors(prev => ({ ...prev, responsibilities: "" }));
   }, [keyContributions]);
 
+  const validateForm = () => {
+    const errors = {};
+    const requiredFields = [
+      { name: "employeeName", message: "Name is required" },
+      { name: "position", message: "Designation is required" },
+      { name: "department", message: "Department is required" },
+      { name: "letterDate", message: "Date is required" },
+      { name: "joiningDate", message: "Date of Joining is required" },
+      { name: "endDate", message: "Date of Ending is required" },
+      { name: "responsibilities", message: "Responsibilities are required" }
+    ];
+
+    requiredFields.forEach(({ name, message }) => {
+      if (!String(formData[name] || "").trim()) {
+        errors[name] = message;
+      }
+    });
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const generatePDF = async () => {
+    if (!validateForm()) {
+      return null;
+    }
+
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -170,7 +220,20 @@ export default function ServiceLetterTemplate() {
       return url;
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please check all required fields.');
+      if (error.response?.data instanceof Blob) {
+        const errorText = await error.response.data.text();
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.errors) {
+            setValidationErrors(errorData.errors);
+          }
+          alert(errorData.message || 'Failed to generate PDF. Please check all required fields.');
+        } catch {
+          alert('Failed to generate PDF. Please check all required fields.');
+        }
+      } else {
+        alert(error.response?.data?.message || 'Failed to generate PDF. Please check all required fields.');
+      }
       return null;
     } finally {
       setLoading(false);
@@ -295,6 +358,7 @@ export default function ServiceLetterTemplate() {
                 value={selectedEmployeeId}
                 onChange={handleEmployeeSelect}
                 disabled={employeesLoading}
+                className={validationErrors.employeeName ? "service-field-error" : ""}
               >
                 <option value="">
                   {employeesLoading ? 'Loading employees...' : 'Select employee'}
@@ -306,6 +370,7 @@ export default function ServiceLetterTemplate() {
                 ))}
               </select>
               {employeesError && <div className="offer-input-error">{employeesError}</div>}
+              {validationErrors.employeeName && <div className="offer-input-error">{validationErrors.employeeName}</div>}
             </div>
 
             <div className="service-group">
@@ -316,7 +381,9 @@ export default function ServiceLetterTemplate() {
                 value={formData.position}
                 onChange={handleInputChange}
                 placeholder="e.g., Full Stack Engineer" 
+                className={validationErrors.position ? "service-field-error" : ""}
               />
+              {validationErrors.position && <div className="offer-input-error">{validationErrors.position}</div>}
             </div>
 
             <div className="service-group">
@@ -327,7 +394,9 @@ export default function ServiceLetterTemplate() {
                 value={formData.department}
                 onChange={handleInputChange}
                 placeholder="e.g., IT Department" 
+                className={validationErrors.department ? "service-field-error" : ""}
               />
+              {validationErrors.department && <div className="offer-input-error">{validationErrors.department}</div>}
             </div>
 
             <div className="service-group">
@@ -337,7 +406,9 @@ export default function ServiceLetterTemplate() {
                 name="letterDate"
                 value={toDateInputValue(formData.letterDate)}
                 onChange={handleInputChange}
+                className={validationErrors.letterDate ? "service-field-error" : ""}
               />
+              {validationErrors.letterDate && <div className="offer-input-error">{validationErrors.letterDate}</div>}
             </div>
 
             <div className="service-group">
@@ -347,7 +418,9 @@ export default function ServiceLetterTemplate() {
                 name="joiningDate"
                 value={toDateInputValue(formData.joiningDate)}
                 onChange={handleInputChange}
+                className={validationErrors.joiningDate ? "service-field-error" : ""}
               />
+              {validationErrors.joiningDate && <div className="offer-input-error">{validationErrors.joiningDate}</div>}
             </div>
 
             <div className="service-group">
@@ -357,7 +430,9 @@ export default function ServiceLetterTemplate() {
                 name="endDate"
                 value={toDateInputValue(formData.endDate)}
                 onChange={handleInputChange}
+                className={validationErrors.endDate ? "service-field-error" : ""}
               />
+              {validationErrors.endDate && <div className="offer-input-error">{validationErrors.endDate}</div>}
             </div>
           </div>
 
@@ -372,6 +447,7 @@ export default function ServiceLetterTemplate() {
                   type="text"
                   value={item}
                   onChange={(e) => updateContribution(index, e.target.value)}
+                  className={validationErrors.responsibilities ? "service-field-error" : ""}
                 />
 
                 <button
@@ -384,6 +460,9 @@ export default function ServiceLetterTemplate() {
               </div>
             ))}
           </div>
+          {validationErrors.responsibilities && (
+            <div className="offer-input-error">{validationErrors.responsibilities}</div>
+          )}
 
           {/* ---------- Responsibilities ---------- */}
           <div className="service-responsibilities">

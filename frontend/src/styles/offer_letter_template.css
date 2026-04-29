@@ -70,6 +70,18 @@
   border-color: #03962b;
 }
 
+.offer-group input.offer-field-error,
+.offer-group select.offer-field-error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.offer-group input.offer-field-error:focus,
+.offer-group select.offer-field-error:focus {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
+}
+
 .offer-input-error {
   color: #b91c1c;
   font-size: 12px;

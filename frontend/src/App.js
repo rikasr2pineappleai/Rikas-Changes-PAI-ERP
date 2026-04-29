@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -18,6 +18,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import EmployeesPage from './pages/EmployeesPage';
 import AttendancePage from './pages/AttendancePage';
+import AttendanceAdmin from './pages/AttendanceAdmin';
 import LeavePage from './pages/LeavePage';
 import RecruitmentPage from './pages/RecruitmentPage';
 import ReportsPage from './pages/ReportsPage';
@@ -50,6 +51,13 @@ import AddEmployeeStep2 from './pages/AddEmployeeStep2';
 import AddEmployeeStep3 from './pages/AddEmployeeStep3';
 import RulesAndRegulationsPage from './pages/RulesAndRegulationsPage';
 import Rating from './pages/Rating';
+
+function AttendanceRouteResolver() {
+  const [searchParams] = useSearchParams();
+  const employeeId = searchParams.get('employeeId');
+
+  return employeeId ? <AttendancePage /> : <AttendanceAdmin />;
+}
 
 function AppShell() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -108,7 +116,10 @@ function AppShell() {
             <Route path="/employees/:id" element={<RoleProtectedRoute allowedRoles={['admin']}><EmployeeProfilePage /></RoleProtectedRoute>} />
             <Route path="/employees/:id/overview" element={<RoleProtectedRoute allowedRoles={['admin']}><EmployeeOverview /></RoleProtectedRoute>} />
             <Route path="/employees/:id/edit" element={<RoleProtectedRoute allowedRoles={['admin']}><EditEmployee /></RoleProtectedRoute>} />
-            <Route path="/attendance" element={<RoleProtectedRoute allowedRoles={['admin']}><AttendancePage /></RoleProtectedRoute>} />
+            <Route path="/attendance" element={<RoleProtectedRoute allowedRoles={['admin']}><AttendanceRouteResolver /></RoleProtectedRoute>} />
+            <Route path="/admin/attendance" element={<RoleProtectedRoute allowedRoles={['admin']}><AttendanceAdmin /></RoleProtectedRoute>} />
+            <Route path="/admin/attendance/all" element={<RoleProtectedRoute allowedRoles={['admin']}><AttendanceAdmin /></RoleProtectedRoute>} />
+            <Route path="/attendance-admin" element={<RoleProtectedRoute allowedRoles={['admin']}><AttendanceAdmin /></RoleProtectedRoute>} />
             <Route path="/leave" element={<RoleProtectedRoute allowedRoles={['admin']}><LeavePage /></RoleProtectedRoute>} />
             <Route path="/recruitment" element={<RoleProtectedRoute allowedRoles={['admin']}><RecruitmentPage /></RoleProtectedRoute>} />
             <Route path="/reports" element={<RoleProtectedRoute allowedRoles={['admin']}><ReportsPage /></RoleProtectedRoute>} />

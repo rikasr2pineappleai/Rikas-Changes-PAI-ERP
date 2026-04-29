@@ -85,6 +85,23 @@ body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
   font-size: 14px;
 }
 
+.service-group input.service-field-error,
+.service-group select.service-field-error,
+.key-contribution-item input.service-field-error,
+.service-responsibilities textarea.service-field-error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.service-group input.service-field-error:focus,
+.service-group select.service-field-error:focus,
+.key-contribution-item input.service-field-error:focus,
+.service-responsibilities textarea.service-field-error:focus {
+  border-color: #b91c1c;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
+}
+
 /* ---------- Responsibilities ---------- */
 .responsibilities-header {
   display: flex;

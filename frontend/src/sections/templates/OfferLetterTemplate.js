@@ -10,6 +10,7 @@ export default function OfferLetterTemplate() {
   const [employeesLoading, setEmployeesLoading] = useState(false);
   const [employeesError, setEmployeesError] = useState("");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
   
   const [formData, setFormData] = useState({
     employeeName: "",
@@ -69,6 +70,8 @@ export default function OfferLetterTemplate() {
   const handleEmployeeSelect = (e) => {
     const selectedId = e.target.value;
     setSelectedEmployeeId(selectedId);
+    setPdfUrl(null);
+    setValidationErrors(prev => ({ ...prev, employeeName: "" }));
 
     if (!selectedId) {
       setFormData(prev => ({
@@ -96,15 +99,62 @@ export default function OfferLetterTemplate() {
         reportingManager: selectedEmployee.reportingManager || "",
         reportingManagerEmail: selectedEmployee.reportingManagerEmail || ""
       }));
+      setValidationErrors(prev => ({
+        ...prev,
+        employeeName: "",
+        address: "",
+        position: "",
+        joiningDate: "",
+        department: "",
+        reportingManager: "",
+        reportingManagerEmail: ""
+      }));
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setPdfUrl(null);
+    setValidationErrors(prev => ({ ...prev, [name]: "" }));
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    const requiredFields = [
+      { name: "employeeName", message: "Name is required" },
+      { name: "address", message: "Address is required" },
+      { name: "letterDate", message: "Date is required" },
+      { name: "position", message: "Role is required" },
+      { name: "salary", message: "Salary is required" },
+      { name: "joiningDate", message: "Date of Joining is required" },
+      { name: "department", message: "Department is required" },
+      { name: "reportingManager", message: "Reporting Manager is required" },
+      { name: "reportingManagerEmail", message: "Reporting Manager Email is required" }
+    ];
+
+    requiredFields.forEach(({ name, message }) => {
+      if (!String(formData[name] || "").trim()) {
+        errors[name] = message;
+      }
+    });
+
+    if (
+      formData.reportingManagerEmail &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.reportingManagerEmail)
+    ) {
+      errors.reportingManagerEmail = "Enter a valid Reporting Manager Email";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const generatePDF = async () => {
+    if (!validateForm()) {
+      return null;
+    }
+
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -127,7 +177,20 @@ export default function OfferLetterTemplate() {
       return url;
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please check all required fields.');
+      if (error.response?.data instanceof Blob) {
+        const errorText = await error.response.data.text();
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.errors) {
+            setValidationErrors(errorData.errors);
+          }
+          alert(errorData.message || 'Failed to generate PDF. Please check all required fields.');
+        } catch {
+          alert('Failed to generate PDF. Please check all required fields.');
+        }
+      } else {
+        alert(error.response?.data?.message || 'Failed to generate PDF. Please check all required fields.');
+      }
       return null;
     } finally {
       setLoading(false);
@@ -183,6 +246,7 @@ export default function OfferLetterTemplate() {
                 value={selectedEmployeeId}
                 onChange={handleEmployeeSelect}
                 disabled={employeesLoading}
+                className={validationErrors.employeeName ? "offer-field-error" : ""}
               >
                 <option value="">
                   {employeesLoading ? 'Loading employees...' : 'Select employee'}
@@ -196,6 +260,9 @@ export default function OfferLetterTemplate() {
               {employeesError && (
                 <span className="offer-input-error">{employeesError}</span>
               )}
+              {validationErrors.employeeName && (
+                <span className="offer-input-error">{validationErrors.employeeName}</span>
+              )}
             </div>
 
             <div className="offer-group">
@@ -206,7 +273,11 @@ export default function OfferLetterTemplate() {
                 value={formData.address}
                 onChange={handleInputChange}
                 placeholder="e.g., Inuvil, Jaffna" 
+                className={validationErrors.address ? "offer-field-error" : ""}
               />
+              {validationErrors.address && (
+                <span className="offer-input-error">{validationErrors.address}</span>
+              )}
             </div>
 
             <div className="offer-group">
@@ -216,7 +287,11 @@ export default function OfferLetterTemplate() {
                 name="letterDate"
                 value={toDateInputValue(formData.letterDate)}
                 onChange={handleInputChange}
+                className={validationErrors.letterDate ? "offer-field-error" : ""}
               />
+              {validationErrors.letterDate && (
+                <span className="offer-input-error">{validationErrors.letterDate}</span>
+              )}
             </div>
 
             <div className="offer-group">
@@ -227,7 +302,11 @@ export default function OfferLetterTemplate() {
                 value={formData.position}
                 onChange={handleInputChange}
                 placeholder="e.g., Software Engineer" 
+                className={validationErrors.position ? "offer-field-error" : ""}
               />
+              {validationErrors.position && (
+                <span className="offer-input-error">{validationErrors.position}</span>
+              )}
             </div>
 
             <div className="offer-group">
@@ -238,7 +317,11 @@ export default function OfferLetterTemplate() {
                 value={formData.salary}
                 onChange={handleInputChange}
                 placeholder="e.g., LKR 100,000" 
+                className={validationErrors.salary ? "offer-field-error" : ""}
               />
+              {validationErrors.salary && (
+                <span className="offer-input-error">{validationErrors.salary}</span>
+              )}
             </div>
 
             <div className="offer-group">
@@ -248,7 +331,11 @@ export default function OfferLetterTemplate() {
                 name="joiningDate"
                 value={toDateInputValue(formData.joiningDate)}
                 onChange={handleInputChange}
+                className={validationErrors.joiningDate ? "offer-field-error" : ""}
               />
+              {validationErrors.joiningDate && (
+                <span className="offer-input-error">{validationErrors.joiningDate}</span>
+              )}
             </div>
 
             <div className="offer-group">
@@ -259,7 +346,11 @@ export default function OfferLetterTemplate() {
                 value={formData.department}
                 onChange={handleInputChange}
                 placeholder="e.g., IT Department" 
+                className={validationErrors.department ? "offer-field-error" : ""}
               />
+              {validationErrors.department && (
+                <span className="offer-input-error">{validationErrors.department}</span>
+              )}
             </div>
 
             <div className="offer-group">
@@ -270,7 +361,11 @@ export default function OfferLetterTemplate() {
                 value={formData.reportingManager}
                 onChange={handleInputChange}
                 placeholder="e.g., John Doe" 
+                className={validationErrors.reportingManager ? "offer-field-error" : ""}
               />
+              {validationErrors.reportingManager && (
+                <span className="offer-input-error">{validationErrors.reportingManager}</span>
+              )}
             </div>
 
             <div className="offer-group">
@@ -281,7 +376,11 @@ export default function OfferLetterTemplate() {
                 value={formData.reportingManagerEmail}
                 onChange={handleInputChange}
                 placeholder="e.g., example@pineappleai.com" 
+                className={validationErrors.reportingManagerEmail ? "offer-field-error" : ""}
               />
+              {validationErrors.reportingManagerEmail && (
+                <span className="offer-input-error">{validationErrors.reportingManagerEmail}</span>
+              )}
             </div>
           </div>
 
