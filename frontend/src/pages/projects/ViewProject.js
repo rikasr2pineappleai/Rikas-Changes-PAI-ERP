@@ -1291,6 +1291,7 @@ export default function ViewProject() {
                 type="button"
                 aria-label="Filter"
                 aria-expanded={taskFilterOpen}
+                onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => setTaskFilterOpen((prev) => !prev)}
               >
                 <img src={filterIconPng} alt="" aria-hidden="true" />

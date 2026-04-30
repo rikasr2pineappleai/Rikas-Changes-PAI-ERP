@@ -665,3 +665,111 @@
     height: 20px;
   }
 }
+/* =========================================================
+   EMPLOYEE FILTER DROPDOWN  (scoped to cemp-)
+   ========================================================= */
+.emppage-container .cemp-filter-wrap {
+  position: relative;
+  flex-shrink: 0;
+  z-index: 200;
+}
+
+.emppage-container .cemp-filter-btn {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  margin-right: 10px;
+}
+
+
+.emppage-container .cemp-filter-dropdown {
+  position: absolute;
+  top: 54px;
+  right: 0;
+  width: 260px;
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 18px;
+  padding: 20px 22px 18px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  z-index: 9999;
+}
+
+.emppage-container .cemp-filter-section {
+  margin-bottom: 16px;
+}
+
+.emppage-container .cemp-filter-section + .cemp-filter-section {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 14px;
+}
+
+.emppage-container .cemp-filter-title {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #8d8d8d;
+}
+
+.emppage-container .cemp-filter-row {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 5px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.emppage-container .cemp-filter-row:hover {
+  background: #f8fafc;
+}
+
+.emppage-container .cemp-filter-check {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #148436;
+  border-radius: 4px;
+  background: #ffffff;
+  flex-shrink: 0;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.emppage-container .cemp-filter-check.active {
+  background: #148436;
+  box-shadow: inset 0 0 0 3px #ffffff;
+}
+
+.emppage-container .cemp-filter-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #344054;
+  line-height: 1.35;
+}
+
+.emppage-container .cemp-filter-clear {
+  margin-top: 14px;
+  width: 100%;
+  height: 36px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.emppage-container .cemp-filter-clear:hover {
+  background: #f8fafc;
+}

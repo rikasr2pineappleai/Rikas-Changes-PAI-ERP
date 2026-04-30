@@ -177,8 +177,6 @@
   border: 1px solid #ededed;
   border-radius: 14px;
   max-width: 100%;
-  position: relative;
-  z-index: 1;
 }
 
 .prj-sectionHeader {

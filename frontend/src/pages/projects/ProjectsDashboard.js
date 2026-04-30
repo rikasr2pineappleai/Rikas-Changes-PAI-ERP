@@ -717,6 +717,7 @@ export default function ProjectsDashboard() {
                 type="button"
                 aria-label="Filter"
                 aria-expanded={filterOpen}
+                onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => setFilterOpen((prev) => !prev)}
               >
                 <img src={filterIconPng} alt="" aria-hidden="true" />
