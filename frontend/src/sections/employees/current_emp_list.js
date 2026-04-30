@@ -298,17 +298,19 @@
 
 // export default CurrentEmpList;
 
-import React, { useState, useEffect } from "react";
+// (previous commented-out legacy code preserved above this line in original file)
+
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../../styles/current_emp_list.css";
-import employeeAPI from "../../integration/employeeAPI"; // Import the employee API
-import Pagination from "../../components/Pagination"; // Import Pagination component
+import employeeAPI from "../../integration/employeeAPI";
+import Pagination from "../../components/Pagination";
 import { getEmployeeImageUrl } from "../../utils/imageUtils";
 
 import filter from "../../assets/icons/filterricon.png";
 import search from "../../assets/icons/searchicon.png";
-import greenicon from "../../assets/icons/editicon.png"; // Overview (was Edit)
-import blueicon from "../../assets/icons/editblueicon.png"; // Edit (was Overview)
+import greenicon from "../../assets/icons/editicon.png";
+import blueicon from "../../assets/icons/editblueicon.png";
 import tempimg from "../../assets/icons/img.png";
 
 const CurrentEmpList = ({ page = 1, setTotalPages }) => {
@@ -318,42 +320,42 @@ const CurrentEmpList = ({ page = 1, setTotalPages }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  // Use the page prop from parent directly, no local state needed for currentPage
-  // const [currentPage, setCurrentPage] = useState(page); // Removed to prevent shadowing parent prop
-  const [totalPages, setTotalPagesState] = useState(1); // Local state for total pages
+  const [totalPages, setTotalPagesState] = useState(1);
 
-  // Fetch active and inactive employees from the backend (not terminated)
+  // Filter state
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterDesignation, setFilterDesignation] = useState("");
+  const [filterRole, setFilterRole] = useState("");
+  const [filterMgmtRole, setFilterMgmtRole] = useState("");
+  const filterDropdownRef = useRef(null);
+  const filterBtnRef = useRef(null);
+
+  // Fetch active employees from the backend
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         setLoading(true);
-        const response = await employeeAPI.getAllEmployees(page, 10); // Use page prop from parent for pagination
+        const response = await employeeAPI.getAllEmployees(page, 10);
         if (response.success) {
-          // Filter to show only active employees (inactive and terminated are former employees)
           const filteredEmployees = response.data.employees.filter(
             (emp) => emp.status === "active"
           );
 
-          // Transform the backend response to match the frontend format
           const transformedEmployees = filteredEmployees.map((emp) => {
             const avatar = getEmployeeImageUrl(emp, tempimg);
-
-            // Construct manager avatar URL
             const managerAvatar = emp.ReportTo
               ? getEmployeeImageUrl(emp.ReportTo, tempimg)
               : tempimg;
 
             return {
-              id: emp.id, // Use the actual database user ID
-              empId: emp.emp_id, // Store emp_id separately
+              id: emp.id,
+              empId: emp.emp_id,
               name: `${emp.first_name} ${emp.last_name || ""}`.trim(),
               designation: emp.designation || "-",
               role: emp.role || "-",
               mgmtRole: emp.management_role || "-",
               manager: emp.ReportTo
-                ? `${emp.ReportTo.first_name} ${
-                    emp.ReportTo.last_name || ""
-                  }`.trim()
+                ? `${emp.ReportTo.first_name} ${emp.ReportTo.last_name || ""}`.trim()
                 : "-",
               avatar: avatar,
               managerAvatar: managerAvatar,
@@ -362,14 +364,11 @@ const CurrentEmpList = ({ page = 1, setTotalPages }) => {
 
           setEmployees(transformedEmployees);
 
-          // Update total pages if provided
           if (setTotalPages && response.data.pagination) {
-            // Adjust the total pages to reflect the filtered results
-            // This is a simplified approach - in a real app you'd want to make a separate call for filtered counts
             setTotalPages(response.data.pagination.pages);
-            setTotalPagesState(response.data.pagination.pages); // Update local state
+            setTotalPagesState(response.data.pagination.pages);
           } else {
-            setTotalPagesState(1); // Default to 1 if no pagination info
+            setTotalPagesState(1);
           }
         } else {
           setError(response.message || "Failed to fetch employees");
@@ -383,15 +382,49 @@ const CurrentEmpList = ({ page = 1, setTotalPages }) => {
     };
 
     fetchEmployees();
-  }, [page, setTotalPages, location.state?.refresh]); // Use page prop for dependency
+  }, [page, setTotalPages, location.state?.refresh]);
 
-  // 🔥 Navigate to Employee Overview (GREEN button)
+  // Close filter dropdown on outside click
+  useEffect(() => {
+    if (!showFilter) return;
+    const handleOutside = (e) => {
+      if (
+        filterDropdownRef.current && !filterDropdownRef.current.contains(e.target) &&
+        filterBtnRef.current && !filterBtnRef.current.contains(e.target)
+      ) setShowFilter(false);
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [showFilter]);
+
+  // Unique filter options from loaded data
+  const designationOptions = useMemo(
+    () => [...new Set(employees.map((e) => e.designation).filter((v) => v && v !== "-"))].sort(),
+    [employees]
+  );
+  const roleOptions = useMemo(
+    () => [...new Set(employees.map((e) => e.role).filter((v) => v && v !== "-"))].sort(),
+    [employees]
+  );
+  const mgmtRoleOptions = useMemo(
+    () => [...new Set(employees.map((e) => e.mgmtRole).filter((v) => v && v !== "-"))].sort(),
+    [employees]
+  );
+
+  const clearFilters = () => {
+    setFilterDesignation("");
+    setFilterRole("");
+    setFilterMgmtRole("");
+  };
+
+  const hasActiveFilter = filterDesignation || filterRole || filterMgmtRole;
+
+  // Navigate to Employee Overview (GREEN button)
   const openOverview = (empId) => {
-    // Use the actual database user ID for navigation
     navigate(`/employees/${empId}/overview`);
   };
 
-  // 🔥 Navigate to Edit Employee (BLUE button)
+  // Navigate to Edit Employee (BLUE button)
   const openEdit = (empId) => {
     navigate(`/employees/${empId}/edit`);
   };
@@ -405,7 +438,11 @@ const CurrentEmpList = ({ page = 1, setTotalPages }) => {
             <p>Loading employees...</p>
           </div>
           <div className="cemp-controls">
-            <img src={filter} alt="Filter" className="cemp-filter-icon" />
+            <div className="cemp-filter-wrap">
+              <button className="cemp-filter-btn" disabled aria-label="Filter">
+                <img src={filter} alt="Filter" className="cemp-filter-icon" />
+              </button>
+            </div>
             <div className="cemp-search-bar">
               <img src={search} alt="Search" className="cemp-search-icon" />
               <input type="text" placeholder="Search" disabled />
@@ -444,12 +481,89 @@ const CurrentEmpList = ({ page = 1, setTotalPages }) => {
         </div>
 
         <div className="cemp-controls">
-          <img src={filter} alt="Filter" className="cemp-filter-icon" />
+          {/* Filter button + dropdown */}
+          <div className="cemp-filter-wrap">
+            <button
+              ref={filterBtnRef}
+              className="cemp-filter-btn"
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={() => setShowFilter((p) => !p)}
+              aria-label="Filter"
+              aria-expanded={showFilter}
+            >
+              <img src={filter} alt="Filter" className="cemp-filter-icon" />
+            </button>
+
+            {showFilter && (
+              <div ref={filterDropdownRef} className="cemp-filter-dropdown">
+
+                {/* Designation */}
+                {designationOptions.length > 0 && (
+                  <div className="cemp-filter-section">
+                    <p className="cemp-filter-title">Designation</p>
+                    {designationOptions.map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`cemp-filter-row${filterDesignation === opt ? " active" : ""}`}
+                        onClick={() => setFilterDesignation((p) => (p === opt ? "" : opt))}
+                      >
+                        <span className={`cemp-filter-check${filterDesignation === opt ? " active" : ""}`} />
+                        <span className="cemp-filter-text">{opt}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Role */}
+                {roleOptions.length > 0 && (
+                  <div className="cemp-filter-section">
+                    <p className="cemp-filter-title">Role</p>
+                    {roleOptions.map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`cemp-filter-row${filterRole === opt ? " active" : ""}`}
+                        onClick={() => setFilterRole((p) => (p === opt ? "" : opt))}
+                      >
+                        <span className={`cemp-filter-check${filterRole === opt ? " active" : ""}`} />
+                        <span className="cemp-filter-text">{opt}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Management Role */}
+                {mgmtRoleOptions.length > 0 && (
+                  <div className="cemp-filter-section">
+                    <p className="cemp-filter-title">Management Role</p>
+                    {mgmtRoleOptions.map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`cemp-filter-row${filterMgmtRole === opt ? " active" : ""}`}
+                        onClick={() => setFilterMgmtRole((p) => (p === opt ? "" : opt))}
+                      >
+                        <span className={`cemp-filter-check${filterMgmtRole === opt ? " active" : ""}`} />
+                        <span className="cemp-filter-text">{opt}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <button type="button" className="cemp-filter-clear" onClick={clearFilters}>
+                  Clear all
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Search */}
           <div className="cemp-search-bar">
             <img src={search} alt="Search" className="cemp-search-icon" />
-            <input 
-              type="text" 
-              placeholder="Search" 
+            <input
+              type="text"
+              placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -459,7 +573,6 @@ const CurrentEmpList = ({ page = 1, setTotalPages }) => {
 
       {/* Table container */}
       <div className="cemp-table-container">
-        {/* Table */}
         <table className="cemp-form-table">
           <thead>
             <tr>
@@ -476,14 +589,23 @@ const CurrentEmpList = ({ page = 1, setTotalPages }) => {
           <tbody>
             {employees
               .filter((emp) => {
-                if (!searchTerm) return true;
-                const searchLower = searchTerm.toLowerCase();
-                return (
-                  emp.name.toLowerCase().includes(searchLower) ||
-                  emp.empId.toLowerCase().includes(searchLower) ||
-                  emp.designation.toLowerCase().includes(searchLower) ||
-                  emp.role.toLowerCase().includes(searchLower)
-                );
+                // Search filter
+                if (searchTerm) {
+                  const s = searchTerm.toLowerCase();
+                  const match =
+                    emp.name.toLowerCase().includes(s) ||
+                    emp.empId.toLowerCase().includes(s) ||
+                    emp.designation.toLowerCase().includes(s) ||
+                    emp.role.toLowerCase().includes(s);
+                  if (!match) return false;
+                }
+                // Designation filter
+                if (filterDesignation && emp.designation !== filterDesignation) return false;
+                // Role filter
+                if (filterRole && emp.role !== filterRole) return false;
+                // Management Role filter
+                if (filterMgmtRole && emp.mgmtRole !== filterMgmtRole) return false;
+                return true;
               })
               .map((emp) => (
               <tr key={emp.id}>
@@ -496,10 +618,7 @@ const CurrentEmpList = ({ page = 1, setTotalPages }) => {
                       alt=""
                       aria-hidden="true"
                       className="cemp-avatar"
-                      onError={(e) => {
-                        e.target.onerror = null; // prevents looping
-                        e.target.src = tempimg; // fallback to default profile
-                      }}
+                      onError={(e) => { e.target.onerror = null; e.target.src = tempimg; }}
                     />
                     <span className="cemp-name-text">{emp.name}</span>
                   </span>
@@ -516,35 +635,39 @@ const CurrentEmpList = ({ page = 1, setTotalPages }) => {
                       alt=""
                       aria-hidden="true"
                       className="cemp-avatar"
-                      onError={(e) => {
-                        e.target.onerror = null; // prevents looping
-                        e.target.src = tempimg; // fallback to default profile
-                      }}
+                      onError={(e) => { e.target.onerror = null; e.target.src = tempimg; }}
                     />
                     <span className="cemp-manager-text">{emp.manager}</span>
                   </span>
                 </td>
 
-                {/* ACTION BUTTONS */}
                 <td>
-                  {/* 🟢 GREEN button = Overview */}
-                  <button
-                    className="cemp-action-btn"
-                    onClick={() => openOverview(emp.id)}
-                  >
+                  <button className="cemp-action-btn" onClick={() => openOverview(emp.id)}>
                     <img src={greenicon} alt="View Overview" />
                   </button>
-
-                  {/* 🔵 BLUE button = Edit Employee */}
-                  <button
-                    className="cemp-action-btn"
-                    onClick={() => openEdit(emp.id)}
-                  >
+                  <button className="cemp-action-btn" onClick={() => openEdit(emp.id)}>
                     <img src={blueicon} alt="Edit Employee" />
                   </button>
                 </td>
               </tr>
             ))}
+
+            {employees.filter((emp) => {
+              if (searchTerm) {
+                const s = searchTerm.toLowerCase();
+                if (!(emp.name.toLowerCase().includes(s) || emp.empId.toLowerCase().includes(s) || emp.designation.toLowerCase().includes(s) || emp.role.toLowerCase().includes(s))) return false;
+              }
+              if (filterDesignation && emp.designation !== filterDesignation) return false;
+              if (filterRole && emp.role !== filterRole) return false;
+              if (filterMgmtRole && emp.mgmtRole !== filterMgmtRole) return false;
+              return true;
+            }).length === 0 && (
+              <tr>
+                <td colSpan={7} style={{ textAlign: "center", padding: "24px", color: "#6b7280" }}>
+                  No employees found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
