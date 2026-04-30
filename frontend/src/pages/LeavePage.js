@@ -400,7 +400,8 @@ export default function LeaveManagement() {
               <div className="filter-wrapper">
                 <button
                   className="main-filter-btn"
-                  onClick={() => setShowFilterPopup(!showFilterPopup)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={() => setShowFilterPopup((prev) => !prev)}
                 >
                   <img src={mainfilterIcon} alt="Filter" />
                 </button>
