@@ -910,28 +910,7 @@ export default function ProjectsDashboard() {
             <div className="prj-fieldError">{fieldErrors.managerId}</div>
           )}
 
-          {/* Preview of selected member */}
-          {selectedMember && (
-            <div className="prj-selectedMember">
-              <div className="prj-selectedAvatar" aria-hidden="true" />
 
-              <div className="prj-selectedInfo">
-                <div className="prj-selectedName">{selectedMember.name}</div>
-                <div className="prj-selectedRole">Selected Member</div>
-              </div>
-
-              {/* Remove selected member button */}
-              <button
-                type="button"
-                className="prj-selectedClear"
-                onClick={() => setForm((s) => ({ ...s, managerId: "" }))}
-                aria-label="Remove selected member"
-                title="Remove"
-              >
-                ×
-              </button>
-            </div>
-          )}
 
           {/* Submit button */}
           <button className="prj-primaryBtn prj-primaryBtnFull" type="submit">
