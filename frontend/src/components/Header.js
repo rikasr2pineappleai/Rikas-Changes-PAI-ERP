@@ -151,7 +151,7 @@ const Header = ({ onToggleSidebar }) => {
     const fetchDbInfo = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5001/api/test-db`
+          `${process.env.REACT_APP_API_BASE_URL || "http://localhost:5001/api"}/test-db`
         );
         if (response.ok) {
           const data = await response.json();

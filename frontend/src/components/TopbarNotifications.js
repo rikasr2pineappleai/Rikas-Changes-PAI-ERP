@@ -14,7 +14,7 @@ const TopbarNotifications = ({ notifications = [], onRefresh, onClose }) => {
 
   const markAllAsRead = async () => {
     try {
-      await apiClient.put('/api/notifications/read-all');
+      await apiClient.put('/notifications/read-all');
       onRefresh();
     } catch (error) {
       console.error('Error marking all as read:', error);
