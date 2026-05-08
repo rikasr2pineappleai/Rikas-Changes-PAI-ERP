@@ -478,6 +478,18 @@
   border: 1px solid #d9dde7;
   object-fit: cover;
   flex-shrink: 0;
+  display: block;
+}
+
+.prj-avatarFallback {
+  background: #d7f5de;
+  color: #2f7d3e;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
 }
 
 .prj-managerText {
@@ -661,6 +673,7 @@
   border-radius: 999px;
   border: 1px solid #d9dde7;
   object-fit: cover;
+  background: #f1f5f9;
   flex-shrink: 0;
 }
 .prj-assignName {
@@ -1025,6 +1038,7 @@
   border: 1px solid #d9dde7;
   object-fit: cover;
   background: #f1f5f9;
+  flex-shrink: 0;
 }
 
 .prj-assigneeText {
@@ -1260,7 +1274,9 @@
   height: 34px;
   border-radius: 999px;
   border: 1px solid #d9dde7;
+  object-fit: cover;
   background: #f1f5f9;
+  flex-shrink: 0;
 }
 
 .prj-memberInfo {
@@ -1530,7 +1546,8 @@
   border-radius: 999px;
   object-fit: cover;
   border: 1px solid #e5e7eb;
-  background: #fff;
+  background: #f1f5f9;
+  flex-shrink: 0;
 }
 
 .prj-memberAvatarFallback {

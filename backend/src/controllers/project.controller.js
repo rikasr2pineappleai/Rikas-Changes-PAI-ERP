@@ -5,7 +5,10 @@ const { Op } = require("sequelize");
 const db = require("../models");
 
 // Get needed models from DB
-const { Project, ProjectAllocation, User, Task } = db;
+const { Project, ProjectAllocation, User, Task, EmployeeDetail } = db;
+
+// Base URL for serving uploaded files
+const SERVER_BASE_URL = process.env.SERVER_BASE_URL || "http://localhost:5001";
 
 // Helper: build a readable name from User table
 const userFullName = (u) => {
@@ -44,15 +47,22 @@ const mapTaskForFrontend = (t) => ({
 // 2) fallback pm_user_id
 // 3) fallback first allocation
 const pickManagerFromProject = async (projectId, pm_user_id = null) => {
+  // Include EmployeeDetail to get the profile image path
+  const userInclude = {
+    model: User,
+    attributes: ["id", "emp_id", "first_name", "last_name", "email"],
+    include: [
+      {
+        model: EmployeeDetail,
+        attributes: ["image_path"],
+      },
+    ],
+  };
+
   // Get all allocations for the project
   const allocations = await ProjectAllocation.findAll({
     where: { project_id: projectId },
-    include: [
-      {
-        model: User,
-        attributes: ["id", "emp_id", "first_name", "last_name", "email"],
-      },
-    ],
+    include: [userInclude],
     order: [["id", "ASC"]],
   });
 
@@ -64,19 +74,29 @@ const pickManagerFromProject = async (projectId, pm_user_id = null) => {
         .includes("manager")
     ) || null;
 
-    // If manager allocation found, return that user
+  // If manager allocation found, return that user
   if (managerAlloc?.User) return managerAlloc.User;
 
   // If pm_user_id provided, return that user
   if (pm_user_id) {
     const pm = await User.findByPk(pm_user_id, {
       attributes: ["id", "emp_id", "first_name", "last_name", "email"],
+      include: [{ model: EmployeeDetail, attributes: ["image_path"] }],
     });
     if (pm) return pm;
   }
 
   // If no manager found, return the first allocation
   return allocations[0]?.User || null;
+};
+
+// Build a full avatar URL from the stored image_path (e.g. "uploads/image-xxx.jpg")
+const buildAvatarUrl = (imagePath) => {
+  if (!imagePath) return null;
+  // Already a full URL
+  if (imagePath.startsWith("http")) return imagePath;
+  // Relative path like "uploads/image-xxx.jpg"
+  return `${SERVER_BASE_URL}/${imagePath.replace(/^\/+/, "")}`;
 };
 
 // Convert project DB data to dashboard format
@@ -106,6 +126,7 @@ const mapProjectForDashboard = async (project) => {
     managerId: managerUser?.id || null,
     managerName: userFullName(managerUser) || null,
     managerEmail: managerUser?.email || null,
+    managerAvatar: buildAvatarUrl(managerUser?.EmployeeDetail?.image_path),
   };
 };
 
