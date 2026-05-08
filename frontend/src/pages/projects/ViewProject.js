@@ -398,16 +398,33 @@ function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
                   {/* Custom checkbox */}
                   <div className={`prj-cb ${active ? "checked" : ""}`} />
 
-                  {/* Employee image */}
-                  <img
+                  {/* Avatar: profile photo or initial fallback */}
+                  {p.profile_pic ? (
+                    <img
+                      className="prj-assigneeAvatar"
+                      src={p.profile_pic}
+                      alt={p.name}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        e.currentTarget.nextSibling.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
+                  <div
                     className="prj-assigneeAvatar"
-                    src={p.profile_pic || ""}
-                    alt=""
-                    onError={(e) => {
-                      // Hide broken image if image is not available
-                      e.currentTarget.style.display = "none";
+                    aria-hidden="true"
+                    style={{
+                      display: p.profile_pic ? "none" : "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#d7f5de",
+                      color: "#2f7d3e",
+                      fontWeight: 700,
+                      fontSize: 13,
                     }}
-                  />
+                  >
+                    {p.name ? p.name.charAt(0).toUpperCase() : "?"}
+                  </div>
 
                   {/* Employee name and role */}
                   <div className="prj-assigneeText">
@@ -538,14 +555,33 @@ function ProjectMembersModal({
                 >
                   <div className={`prj-cb ${active ? "checked" : ""}`} />
 
-                  <img
+                  {/* Avatar: profile photo or initial fallback */}
+                  {p.profile_pic ? (
+                    <img
+                      className="prj-assigneeAvatar"
+                      src={p.profile_pic}
+                      alt={p.name}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        e.currentTarget.nextSibling.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
+                  <div
                     className="prj-assigneeAvatar"
-                    src={p.profile_pic || ""}
-                    alt=""
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
+                    aria-hidden="true"
+                    style={{
+                      display: p.profile_pic ? "none" : "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#d7f5de",
+                      color: "#2f7d3e",
+                      fontWeight: 700,
+                      fontSize: 13,
                     }}
-                  />
+                  >
+                    {p.name ? p.name.charAt(0).toUpperCase() : "?"}
+                  </div>
 
                   <div className="prj-memberInfo">
                     <div className="prj-memberName">{p.name}</div>
@@ -857,6 +893,17 @@ export default function ViewProject() {
           eres?.rows ||
           [];
 
+        // Base URL for profile images
+        const BASE_URL = "http://localhost:5001";
+
+        // Build avatar URL helper
+        const buildAvatar = (u) => {
+          const raw = u.profile_image || u.EmployeeDetail?.image_path || u.profile_pic || u.avatar || u.image || null;
+          if (!raw) return "";
+          if (raw.startsWith("http")) return raw;
+          return `${BASE_URL}/${raw.replace(/^\/+/, "")}`;
+        };
+
         // Convert employee list into frontend friendly format
         const normalized = (list || []).map((u) => ({
           id: u.id,
@@ -865,7 +912,7 @@ export default function ViewProject() {
             u.fullname ||
             u.email ||
             `User ${u.id}`,
-          profile_pic: u.profile_pic || u.avatar || u.image || "",
+          profile_pic: buildAvatar(u),
           role: u.role || u.designation || "",
         }));
 
@@ -1225,11 +1272,30 @@ export default function ViewProject() {
   // Remove a member from project
   const removeMember = async (userId) => {
     const next = memberIds.filter((id) => String(id) !== String(userId));
+
+    // If removing the project manager, also delete all their tasks in this project
+    if (String(userId) === String(project?.managerId)) {
+      const managerTasks = tasks.filter(
+        (t) => String(t.assignedTo) === String(userId)
+      );
+
+      for (const task of managerTasks) {
+        try {
+          await deleteTaskAPI(task.id);
+        } catch (err) {
+          console.warn("Failed to delete task:", task.id, err?.message);
+        }
+      }
+    }
+
     await saveMembers(next);
 
     setToast({
       open: true,
-      message: "Member deleted successfully.",
+      message:
+        String(userId) === String(project?.managerId)
+          ? "Project Manager and their tasks deleted successfully."
+          : "Member deleted successfully.",
       type: "error",
     });
   };
@@ -1345,14 +1411,48 @@ export default function ViewProject() {
 
                   <td data-label="Assigned">
                     <div className="prj-assignedCell">
-                      <div className="prj-assignAvatarImg" aria-hidden="true" />
-                      <div className="prj-assignName">
-                        {people.find(
-                          (p) => String(p.id) === String(t.assignedTo),
-                        )?.name ||
-                          t.assignedTo ||
-                          "—"}
-                      </div>
+                      {(() => {
+                        const person = people.find(
+                          (p) => String(p.id) === String(t.assignedTo)
+                        );
+                        return (
+                          <>
+                            {person?.profile_pic ? (
+                              <img
+                                className="prj-assignAvatarImg"
+                                src={person.profile_pic}
+                                alt={person.name}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                  e.currentTarget.nextSibling.style.display = "flex";
+                                }}
+                              />
+                            ) : null}
+                            <div
+                              className="prj-assignAvatarImg"
+                              aria-hidden="true"
+                              style={{
+                                display: person?.profile_pic ? "none" : "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                background: "#d7f5de",
+                                color: "#2f7d3e",
+                                fontWeight: 700,
+                                fontSize: 11,
+                              }}
+                            >
+                              {person?.name
+                                ? person.name.charAt(0).toUpperCase()
+                                : t.assignedTo
+                                ? String(t.assignedTo).charAt(0).toUpperCase()
+                                : "?"}
+                            </div>
+                            <div className="prj-assignName">
+                              {person?.name || t.assignedTo || "—"}
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   </td>
 
@@ -1423,32 +1523,55 @@ export default function ViewProject() {
           <div className="prj-membersRow">
             {membersForPanel.map((m) => (
               <div key={m.id} className="prj-memberChip">
-                {m.profile_pic ? (
-                  <img
+                <div className="prj-memberAvatarWrap">
+                  {m.profile_pic ? (
+                    <img
+                      className="prj-memberAvatarImg"
+                      src={m.profile_pic}
+                      alt={m.name}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        e.currentTarget.nextSibling.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
+                  <div
                     className="prj-memberAvatarImg"
-                    src={m.profile_pic}
-                    alt=""
-                  />
-                ) : (
-                  <div className="prj-memberAvatarImg" aria-hidden="true" />
-                )}
+                    aria-hidden="true"
+                    style={{
+                      display: m.profile_pic ? "none" : "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#d7f5de",
+                      color: "#2f7d3e",
+                      fontWeight: 700,
+                      fontSize: 16,
+                    }}
+                  >
+                    {m.name ? m.name.charAt(0).toUpperCase() : "?"}
+                  </div>
+
+                  {/* Only actual project members can be removed */}
+                  {m._isAllocated ? (
+                    <button
+                      className="prj-memberRemoveBtn"
+                      type="button"
+                      title="Remove"
+                      onClick={() => setConfirmDeleteMember(m)}
+                    >
+                      ×
+                    </button>
+                  ) : null}
+                </div>
 
                 <div className="prj-memberText">
                   <div className="prj-memberChipName">{m.name}</div>
-                  <div className="prj-memberChipRole">{m.role}</div>
+                  <div className="prj-memberChipRole">
+                    {String(m.id) === String(project?.managerId)
+                      ? "Project Manager"
+                      : m.role || "Employee"}
+                  </div>
                 </div>
-
-                {/* Only actual project members can be removed */}
-                {m._isAllocated ? (
-                  <button
-                    className="prj-memberRemove"
-                    type="button"
-                    title="Remove"
-                    onClick={() => setConfirmDeleteMember(m)}
-                  >
-                    ×
-                  </button>
-                ) : null}
               </div>
             ))}
 

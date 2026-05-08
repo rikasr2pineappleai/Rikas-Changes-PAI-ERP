@@ -137,8 +137,33 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
                   {/* Custom checkbox box */}
                   <div className={`prj-cb ${active ? "checked" : ""}`} />
 
-                  {/* Avatar placeholder */}
-                  <div className="prj-memberAvatar" aria-hidden="true" />
+                  {/* Avatar: show profile photo if available, else grey circle */}
+                  {p.avatar ? (
+                    <img
+                      className="prj-memberAvatar"
+                      src={p.avatar}
+                      alt={p.name}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        e.currentTarget.nextSibling.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="prj-memberAvatar"
+                    aria-hidden="true"
+                    style={{
+                      display: p.avatar ? "none" : "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#d7f5de",
+                      color: "#2f7d3e",
+                      fontWeight: 700,
+                      fontSize: 13,
+                    }}
+                  >
+                    {p.name ? p.name.charAt(0).toUpperCase() : "?"}
+                  </div>
 
                   {/* Employee info */}
                   <div className="prj-memberInfo">
@@ -507,15 +532,28 @@ export default function ProjectsDashboard() {
       const list =
         res?.data?.employees || res?.employees || res?.data || res?.rows || [];
 
-      // Convert employee data into simple format: { id, name }
-      const normalized = (list || []).map((u) => ({
-        id: u.id,
-        name:
-          [u.first_name, u.last_name].filter(Boolean).join(" ").trim() ||
-          u.fullname ||
-          u.email ||
-          `User ${u.id}`,
-      }));
+      // Base URL for profile images
+      const BASE_URL = "http://localhost:5001";
+
+      // Convert employee data into simple format: { id, name, avatar }
+      const normalized = (list || []).map((u) => {
+        // Build avatar URL from profile_image field (stored as "uploads/image-xxx.jpg")
+        const imagePath = u.profile_image || u.EmployeeDetail?.image_path || null;
+        const avatar = imagePath
+          ? imagePath.startsWith("http")
+            ? imagePath
+            : `${BASE_URL}/${imagePath.replace(/^\/+/, "")}`
+          : null;
+        return {
+          id: u.id,
+          name:
+            [u.first_name, u.last_name].filter(Boolean).join(" ").trim() ||
+            u.fullname ||
+            u.email ||
+            `User ${u.id}`,
+          avatar,
+        };
+      });
 
       // Save employees into state
       setPeople(normalized);
@@ -793,7 +831,24 @@ export default function ProjectsDashboard() {
                 <div className="prj-cardBottom">
                   {/* Project manager info */}
                   <div className="prj-manager">
-                    <div className="prj-avatarImg" aria-hidden="true" />
+                    {p.managerAvatar ? (
+                      <img
+                        className="prj-avatarImg"
+                        src={p.managerAvatar}
+                        alt={managerName}
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          e.currentTarget.nextSibling.style.display = "flex";
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="prj-avatarImg prj-avatarFallback"
+                      style={{ display: p.managerAvatar ? "none" : "flex" }}
+                      aria-hidden="true"
+                    >
+                      {managerName ? managerName.charAt(0).toUpperCase() : "?"}
+                    </div>
 
                     <div className="prj-managerText">
                       <div className="prj-managerName">{managerName}</div>
