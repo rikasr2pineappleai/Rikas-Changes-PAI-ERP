@@ -1,5 +1,5 @@
 const db = require("../models");
-const { Task, User, Project, Notification } = db;
+const { Task, User, Project, Notification, EmployeeDetail } = db;
 
 // Helper: safe int
 const toInt = (v) =>
@@ -143,8 +143,15 @@ exports.getMyTasks = async (req, res) => {
         {
           model: User,
           as: "AssignedToUser",
-          attributes: ["id", "first_name", "last_name"],
+          attributes: ["id", "first_name", "last_name", "designation"],
           required: false,
+          include: [
+            {
+              model: EmployeeDetail,
+              attributes: ["image_path"],
+              required: false,
+            },
+          ],
         },
       ],
       order: [
@@ -153,8 +160,17 @@ exports.getMyTasks = async (req, res) => {
       ],
     });
 
+    // Build absolute URL from the incoming request so the frontend can use
+    // the returned profile pic path directly as an <img src>.
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+
     const formatted = (tasks || []).map((task, idx) => {
       const plain = task.get({ plain: true });
+
+      const imagePath = plain.AssignedToUser?.EmployeeDetail?.image_path || "";
+      const profilePic = imagePath
+        ? `${baseUrl}/${String(imagePath).replace(/^\/+/, "")}`
+        : "";
 
       return {
         ...plain,
@@ -167,8 +183,8 @@ exports.getMyTasks = async (req, res) => {
               .join(" ")
               .trim()
           : "",
-        assignee_profile_pic: "",
-        assignee_designation: "",
+        assignee_profile_pic: profilePic,
+        assignee_designation: plain.AssignedToUser?.designation || "",
       };
     });
 
