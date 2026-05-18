@@ -310,8 +310,8 @@ export default function CompulsoryLeave({
         <div className="c-content">
           <h2 className="c-title">Compulsory Leave</h2>
 
-          {/* Leave category (example input) */}
-          <label className="c-label">Leave Category</label>
+          {/* Leave Type */}
+          <label className="c-label">Leave Type</label>
           <div className="c-input c-select">
             <input
               type="text"

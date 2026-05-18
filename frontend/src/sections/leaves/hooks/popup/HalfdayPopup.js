@@ -613,8 +613,8 @@ const Halfday = ({ onClose = () => {}, onRefresh = null }) => {
         </button>
 
         <form className="hd-form" onSubmit={handleSubmit}>
-          {/* Leave Category */}
-          <label className="hd-label">Leave Category</label>
+          {/* Leave Type */}
+          <label className="hd-label">Leave Type</label>
           <div className="hd-input hd-select" style={{ marginBottom: 16 }}>
             <input
               type="text"

@@ -32,7 +32,7 @@ const NEXT_BUTTON_LABEL = {
   to_do: "Move to In Progress",
   in_progress: "Move to Review",
   review: "Move to CTO Review",
-  cto_review: "Move to Completed",
+  cto_review: "Completed",
 };
 
 const STATUS_LABELS = {

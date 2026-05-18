@@ -618,9 +618,9 @@ export default function LeavePopup({
           New leave request
         </h2>
         <form className="lp-form" onSubmit={handleSubmit} noValidate>
-          {/* Leave Category */}
+          {/* Leave Type */}
           <label className="lp-label" htmlFor="lp-category">
-            Leave Category
+            Leave Type
           </label>
           <div
             className="lp-input lp-select"
