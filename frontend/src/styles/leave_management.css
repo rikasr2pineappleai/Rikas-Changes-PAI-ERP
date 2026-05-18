@@ -567,9 +567,9 @@
   .leave-wrapper .card-status.pending  { --status-text: "Pending"; }
   .leave-wrapper .card-status.rejected { --status-text: "Rejected"; }
 
-  .leave-wrapper .card-status.approved::after { background: #dcfce7; color: #15803d; }
-  .leave-wrapper .card-status.pending::after  { background: #fef9c3; color: #a16207; }
-  .leave-wrapper .card-status.rejected::after { background: #fee2e2; color: #b91c1c; }
+  .leave-wrapper .card-status.approved::after { background: #dcfce7; color: #347E45; }
+  .leave-wrapper .card-status.pending::after  { background: #fef9c3; color: #997908; }
+  .leave-wrapper .card-status.rejected::after { background: #fee2e2; color: #F45B69; }
 
   .leave-wrapper .leave-table-container > .pagination-container {
     display: none;
