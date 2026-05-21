@@ -157,23 +157,6 @@ const Rating = () => {
         <h2>Ratings</h2>
       </div>
 
-      {/* Role Selection Section */}
-      <div className="role-selection-section">
-        <label htmlFor="rater-role">Rating As (Your Role):</label>
-        <select 
-          id="rater-role"
-          value={raterRole} 
-          onChange={(e) => setRaterRole(e.target.value)}
-          className="role-dropdown"
-        >
-          <option value="TL">Team Lead (TL)</option>
-          <option value="PM">Project Manager (PM)</option>
-          <option value="COO">Chief Operating Officer (COO)</option>
-          <option value="CTO">Chief Technology Officer (CTO)</option>
-          <option value="CEO">Chief Executive Officer (CEO)</option>
-        </select>
-      </div>
-
       <div className="rating-table-wrapper">
         <table className="rating-table">
           {/* Header */}
@@ -290,9 +273,10 @@ const Rating = () => {
 
       {/* Submit */}
       <div className="submit-area">
-        <button 
+        <button
           onClick={handleSubmit}
           disabled={isLoading}
+          className={Object.values(ratings).some((v) => v && v > 0) ? "active" : ""}
         >
           {isLoading ? "Submitting..." : "Submit"}
         </button>

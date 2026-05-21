@@ -107,6 +107,25 @@ const mapProjectForDashboard = async (project) => {
     project.pm_user_id
   );
 
+  // Per-project task summary used by the All Projects card
+  // - taskCount: total number of tasks on this project
+  // - completedTaskCount: number of tasks with status === "done"
+  // - firstTaskAssignedAt: earliest assigned_at of any task on this project
+  const taskCount = await Task.count({ where: { project_id: project.id } });
+  const completedTaskCount = await Task.count({
+    where: { project_id: project.id, status: "done" },
+  });
+  const firstTask = taskCount
+    ? await Task.findOne({
+        where: { project_id: project.id },
+        order: [["assigned_at", "ASC"]],
+        attributes: ["assigned_at"],
+      })
+    : null;
+  const firstTaskAssignedAt = firstTask
+    ? toISODateOnly(firstTask.assigned_at)
+    : null;
+
   return {
     id: project.id,
     project_name: project.project_name,
@@ -122,6 +141,12 @@ const mapProjectForDashboard = async (project) => {
 
     startDate: toISODateOnly(project.start_date),
     endDate: toISODateOnly(project.end_date),
+
+    // Task summary fields for the All Projects card
+    taskCount,
+    completedTaskCount,
+    firstTaskAssignedAt,
+    allTasksCompleted: taskCount > 0 && completedTaskCount === taskCount,
 
     managerId: managerUser?.id || null,
     managerName: userFullName(managerUser) || null,

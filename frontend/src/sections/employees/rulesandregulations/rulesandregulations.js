@@ -17,7 +17,7 @@ const RulesAndRegulations = () => {
           items: [
             {
               content: [
-                "This document outlines the professional standards and operational procedures expected of all team members. Adherence to these guidelines is mandatory for maintaining organizational culture.",
+                "This document outlines the professional standards and operational procedures expected of all team members. These rules ensure a collaborative, transparent, and high-performing work environment. Adherence to these guidelines is mandatory for maintaining our organizational culture and Projects ensuring smooth business operations.",
               ],
             },
           ],
@@ -27,35 +27,41 @@ const RulesAndRegulations = () => {
           icon: clockIcon, // data-driven
           items: [
             {
-              title: "Sign in Time",
+              title: "Sign in  Time",
               content: [
-                "Morning: 6:45 – 7:00 AM",
-                "Afternoon: 12:45 – 1:00 PM",
+                "Morning shift : 6:45 - 7.00 AM",
+                "Afternoon shift : 12:45 - 1.00 PM",
               ],
             },
             {
               title: "Sign out Time",
-              content: ["4:00 PM or 10:00 PM (shift based)"],
+              content: [
+                "Standard Sign-out at 4:00 PM or 10:00 PM based on assigned shift schedules.",
+              ],
             },
             {
               title: "Break Time",
               content: [
-                "30 minutes Standard Break Time of 1 hour provided based on assigned shift schedules.",
+                "Standard Break Time of 1 hour provided based on assigned shift schedules.",
               ],
             },
           ],
         },
         {
           title: "Meetings & Scrum",
-          icon: policiesicon, 
+          icon: policiesicon,
           items: [
             {
               title: "Punctuality",
-              content: ["Join all virtual meetings and Scrum sessions at least 2 minutes before the start time. Always use laptops with a stable internet connection."],
+              content: [
+                "Join all virtual meetings and Scrum sessions at Always use laptops with a stable internet least 2 minutes before the start time.",
+              ],
             },
             {
               title: "Technical Setup",
-              content: ["Always use laptops with a stable internet connection. Mobile devices are not permitted for Scrum."],
+              content: [
+                "Always use laptops with a stable internet connection. Mobile devices are not permitted for Scrum.",
+              ],
             },
             {
               title: "Scrum Updates",
@@ -66,8 +72,8 @@ const RulesAndRegulations = () => {
           ],
         },
         {
-          title: "Communications & Tasks",
-          icon:standardsicon,
+          title: "Communication & Tasks",
+          icon: standardsicon,
           items: [
             {
               title: "Prompt Responses",
@@ -78,13 +84,13 @@ const RulesAndRegulations = () => {
             {
               title: "Task Assignment",
               content: [
-                "Mandatory completion of all tasks assigned by Team Leaders or Trainers.",
+                "Mandatory completion of all tasks assigned by Team Leaders (TL) or Trainers.",
               ],
             },
             {
               title: "Issue Resolution",
               content: [
-                "Limit independent technical issue resolution to 1 day before escalating.",
+                "Limit independent technical issue resolution to 1 day before escalating for help.",
               ],
             },
           ],
@@ -102,7 +108,7 @@ const RulesAndRegulations = () => {
             {
               title: "Leave Policy",
               content: [
-                "Planned: 1 week notice required. Sudden/Sick: Medical certificate required.",
+                "Planned: 1 week notice required. Sudden/Sick: Medical certificate must be provided.",
               ],
             },
           ],
@@ -114,15 +120,17 @@ const RulesAndRegulations = () => {
           items: [
             {
               title: "Daily Update Email",
-              content: ["Mandatory daily submission"],
+              content: [
+                "Submit the mandatory Daily Update Email to the designated reporting channel.",
+              ],
             },
             {
-              title: "Sign in (Day)",
-              content: ["3:45 PM – 4:00 PM"],
+              title: "Sign out (Day)",
+              content: ["3:45 PM - 4:00 PM (Strictly enforced)."],
             },
             {
-              title: "Sign out (Night)",
-              content: ["10:00 PM – 10:15 PM"],
+              title: "Sign out(Night)",
+              content: ["9:45PM - 10:00 PM (Strictly enforced)."],
             },
           ],
         },

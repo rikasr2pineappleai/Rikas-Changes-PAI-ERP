@@ -115,6 +115,8 @@ function AppShell() {
             <Route path="/employees/:id/rating" element={<RoleProtectedRoute allowedRoles={['admin']}><Rating /></RoleProtectedRoute>} />
             <Route path="/employees/:id" element={<RoleProtectedRoute allowedRoles={['admin']}><EmployeeProfilePage /></RoleProtectedRoute>} />
             <Route path="/employees/:id/overview" element={<RoleProtectedRoute allowedRoles={['admin']}><EmployeeOverview /></RoleProtectedRoute>} />
+            {/* Self-view overview: any authenticated user (admin OR employee) can view their own profile */}
+            <Route path="/my-overview" element={<RoleProtectedRoute allowedRoles={['admin', 'employee']}><EmployeeOverview /></RoleProtectedRoute>} />
             <Route path="/employees/:id/edit" element={<RoleProtectedRoute allowedRoles={['admin']}><EditEmployee /></RoleProtectedRoute>} />
             <Route path="/attendance" element={<RoleProtectedRoute allowedRoles={['admin']}><AttendanceRouteResolver /></RoleProtectedRoute>} />
             <Route path="/admin/attendance" element={<RoleProtectedRoute allowedRoles={['admin']}><AttendanceAdmin /></RoleProtectedRoute>} />
@@ -129,8 +131,8 @@ function AppShell() {
 
 
             {/* New Route Added */}
-            <Route path="/org-hierarchy" element={<RoleProtectedRoute allowedRoles={['admin']}><OrganizationalHierarchy /></RoleProtectedRoute>} />
-            <Route path="/rules-and-regulations" element={<RoleProtectedRoute allowedRoles={['admin']}><RulesAndRegulationsPage /></RoleProtectedRoute>} />
+            <Route path="/org-hierarchy" element={<RoleProtectedRoute allowedRoles={['admin', 'employee']}><OrganizationalHierarchy /></RoleProtectedRoute>} />
+            <Route path="/rules-and-regulations" element={<RoleProtectedRoute allowedRoles={['admin', 'employee']}><RulesAndRegulationsPage /></RoleProtectedRoute>} />
 
             {/* Staff Self-Service Routes */}
             

@@ -790,6 +790,38 @@ export default function ProjectsDashboard() {
             const subtitle = p.description || p.subtitle || "";
             const managerName = p.managerName || "Project Manager";
 
+            // ---- Right-side meta logic (Figma) ----
+            // - No tasks            => show "Upcoming"
+            // - All tasks completed => show "Completed"
+            // - Otherwise           => show first task's assign date (MM/DD/YYYY)
+            const taskCount = Number(p.taskCount || 0);
+            const completedTaskCount = Number(p.completedTaskCount || 0);
+            const allDone =
+              p.allTasksCompleted === true ||
+              (taskCount > 0 && completedTaskCount === taskCount);
+
+            const formatAssignDate = (iso) => {
+              if (!iso) return "";
+              const d = new Date(iso);
+              if (Number.isNaN(d.getTime())) return iso;
+              const mm = String(d.getMonth() + 1).padStart(2, "0");
+              const dd = String(d.getDate()).padStart(2, "0");
+              const yyyy = d.getFullYear();
+              return `${mm}/${dd}/${yyyy}`;
+            };
+
+            let metaLabel = "";
+            let metaClass = "prj-meta-date";
+            if (taskCount === 0) {
+              metaLabel = "Upcoming";
+              metaClass = "prj-meta-upcoming";
+            } else if (allDone) {
+              metaLabel = "Completed";
+              metaClass = "prj-meta-completed";
+            } else {
+              metaLabel = formatAssignDate(p.firstTaskAssignedAt);
+            }
+
             return (
               <div
                 className="prj-card"
@@ -856,26 +888,11 @@ export default function ProjectsDashboard() {
                     </div>
                   </div>
 
-                  {/* Right side meta info */}
+                  {/* Right side meta info (Upcoming / first task date / Completed) */}
                   <div className="prj-rightMeta">
-                    <div className="prj-date">
-                      {p.start_date || p.startDate || ""}
+                    <div className={`prj-cardMeta ${metaClass}`}>
+                      {metaLabel}
                     </div>
-
-                    {/* Show project status if available */}
-                    {p.status ? (
-                      <div
-                        className={`prj-status ${
-                          String(p.status).toLowerCase() === "completed"
-                            ? "done"
-                            : "upcoming"
-                        }`}
-                      >
-                        {p.status}
-                      </div>
-                    ) : (
-                      <div className="prj-statusSpacer" />
-                    )}
                   </div>
                 </div>
               </div>

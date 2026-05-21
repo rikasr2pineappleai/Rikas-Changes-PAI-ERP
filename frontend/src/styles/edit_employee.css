@@ -47,10 +47,15 @@
 /* =============================
    MAIN GRID
 =============================*/
+/* Match the header box: same max-width and centering so the grid
+   aligns under the header instead of stretching wider on big screens. */
 .edit-grid {
-  margin-top: 20px;
+  margin: 20px auto ;
+  width: 100%;
+  max-width: 1384px;
   display: flex;
-  gap: 25px;
+  gap: 20px;
+  box-sizing: border-box;
 }
 
 /* Left Column */

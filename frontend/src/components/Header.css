@@ -1,7 +1,11 @@
 .header {
   position: sticky;
   top: 0;
-  z-index: 200;
+  /* The header hosts the notifications dropdown. It must stack above
+     in-page filter wraps (Employee page .cemp-filter-wrap z-index 200,
+     Leave page .filter-wrapper z-index 1000, Project page filter, etc.)
+     so an open dropdown is never covered by a filter button. */
+  z-index: 2000;
   height: 108px; /* Figma */
   width: 100%; /* equals 1448px when viewport is 1728px and sidebar is 280px */
   background: #FFFFFF; /* Figma */
@@ -92,6 +96,8 @@
   background-color: rgba(52, 126, 69, 0.1);
   border-color: #2D6A3B;
   box-shadow: 0 0 0 2px rgba(52, 126, 69, 0.2);
+  /* When the dropdown is open, lift the host so children stack above page UI */
+  z-index: 9999;
 }
 .notification-badge {
   position: absolute;
@@ -113,7 +119,9 @@
   position: absolute;
   top: 70px;
   right: 0;
-  z-index: 1000;
+  /* High z-index so the dropdown sits above page content
+     (filter buttons, table headers, modals trigger areas, etc.) */
+  z-index: 9999;
   cursor: default;
 }
 .notification-icon-img {

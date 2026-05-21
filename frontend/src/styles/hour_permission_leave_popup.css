@@ -251,6 +251,41 @@
   color: #111827;
 }
 
+/* ================= START / END TIME PAIR (like Figma) ================= */
+.hp-time-pair {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.hp-time-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.hp-time-col label {
+  font-size: 16px;
+  color: #6b7280;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.hp-time-col .hp-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.hp-time-divider {
+  width: 1px;
+  align-self: stretch;
+  background: #e5e7eb;
+  margin: 2px 0;
+}
+
 /* ================= STATUS ================= */
 .hp-status-proof-row {
   display: flex;

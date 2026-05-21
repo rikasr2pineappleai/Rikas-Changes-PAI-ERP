@@ -23,6 +23,65 @@ import LeaveSummaryCards from "../sections/leaves/LeaveSummaryCards";
 /* API */
 import { getAllLeaveRequests } from "../integration/leavesAPI";
 
+/* ---------- Helpers for displaying leave from / to in admin table ---------- */
+const MONTHS_SHORT = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+// Format a date like "01 Jan 2025"
+const formatFullDayDate = (value) => {
+  if (!value) return "N/A";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "N/A";
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mmm = MONTHS_SHORT[d.getMonth()];
+  const yyyy = d.getFullYear();
+  return `${dd} ${mmm} ${yyyy}`;
+};
+
+// Map half-day session to fixed display times
+// 1st Half (Morning) -> 7.00 A.M to 11.00 A.M
+// 2nd Half (Afternoon) -> 12.00 P.M to 4.00 P.M
+const getHalfDaySessionTimes = (session) => {
+  const s = (session || "").toString().trim().toLowerCase();
+  const isSecondHalf =
+    s.includes("2nd") ||
+    s.includes("second") ||
+    s.includes("afternoon") ||
+    s.includes("evening");
+  if (isSecondHalf) {
+    return { from: "12.00 P.M", to: "4.00 P.M" };
+  }
+  // default: 1st half / morning
+  return { from: "7.00 A.M", to: "11.00 A.M" };
+};
+
+// Build the "from" / "to" display values for a given backend leave row
+const buildLeaveFromTo = (leave) => {
+  if (leave.leave_mode === "full_day") {
+    return {
+      from: formatFullDayDate(leave.start_date),
+      to: formatFullDayDate(leave.end_date || leave.start_date),
+    };
+  }
+  if (leave.leave_mode === "half_day") {
+    return getHalfDaySessionTimes(leave.leave_session);
+  }
+  if (leave.leave_mode === "hours_permission") {
+    return {
+      from: leave.start_time ? leave.start_time : "N/A",
+      to: leave.end_time ? leave.end_time : "N/A",
+    };
+  }
+  return {
+    from: leave.start_date ? formatFullDayDate(leave.start_date) : "N/A",
+    to: leave.end_date
+      ? formatFullDayDate(leave.end_date)
+      : formatFullDayDate(leave.start_date),
+  };
+};
+
 export default function LeaveManagement() {
   const [activePeriod, setActivePeriod] = useState('all');
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,30 +124,14 @@ export default function LeaveManagement() {
         
         // Transform backend data to match frontend structure
         const transformedLeaves = response.rows.map(leave => {
-          // Format dates based on leave mode
-          let fromDisplay, toDisplay;
-          
-          if (leave.leave_mode === 'full_day') {
-            fromDisplay = leave.start_date ? new Date(leave.start_date).toLocaleDateString() : 'N/A';
-            toDisplay = leave.end_date ? new Date(leave.end_date).toLocaleDateString() : fromDisplay;
-          } else if (leave.leave_mode === 'half_day') {
-            fromDisplay = leave.start_date ? new Date(leave.start_date).toLocaleDateString() : 'N/A';
-            toDisplay = `${leave.leave_session || 'Morning'} Session`;
-          } else if (leave.leave_mode === 'hours_permission') {
-            fromDisplay = leave.start_time ? leave.start_time : 'N/A';
-            toDisplay = leave.end_time ? leave.end_time : 'N/A';
-          } else {
-            // For other leave modes
-            fromDisplay = leave.start_date ? new Date(leave.start_date).toLocaleDateString() : 'N/A';
-            toDisplay = leave.end_date ? new Date(leave.end_date).toLocaleDateString() : fromDisplay;
-          }
-          
+          const { from: fromDisplay, to: toDisplay } = buildLeaveFromTo(leave);
+
           return {
             id: leave.id,
             employee: leave.User ? `${leave.User.first_name || ''} ${leave.User.last_name || ''}`.trim() : 'Unknown Employee',
-            type: leave.leave_mode === 'full_day' ? 'Full Day' : 
-                  leave.leave_mode === 'half_day' ? 'Half Day' : 
-                  leave.leave_mode === 'hours_permission' ? 'Hours Permission' : 
+            type: leave.leave_mode === 'full_day' ? 'Full Day' :
+                  leave.leave_mode === 'half_day' ? 'Half Day' :
+                  leave.leave_mode === 'hours_permission' ? 'Hours Permission' :
                   leave.leave_mode,
             reason: leave.reason || 'N/A',
             from: fromDisplay,
@@ -153,24 +196,8 @@ export default function LeaveManagement() {
       
       // Transform backend data to match frontend structure
       const transformedLeaves = response.rows.map(leave => {
-        // Format dates based on leave mode
-        let fromDisplay, toDisplay;
-        
-        if (leave.leave_mode === 'full_day') {
-          fromDisplay = leave.start_date ? new Date(leave.start_date).toLocaleDateString() : 'N/A';
-          toDisplay = leave.end_date ? new Date(leave.end_date).toLocaleDateString() : fromDisplay;
-        } else if (leave.leave_mode === 'half_day') {
-          fromDisplay = leave.start_date ? new Date(leave.start_date).toLocaleDateString() : 'N/A';
-          toDisplay = `${leave.leave_session || 'Morning'} Session`;
-        } else if (leave.leave_mode === 'hours_permission') {
-          fromDisplay = leave.start_time ? leave.start_time : 'N/A';
-          toDisplay = leave.end_time ? leave.end_time : 'N/A';
-        } else {
-          // For other leave modes
-          fromDisplay = leave.start_date ? new Date(leave.start_date).toLocaleDateString() : 'N/A';
-          toDisplay = leave.end_date ? new Date(leave.end_date).toLocaleDateString() : fromDisplay;
-        }
-        
+        const { from: fromDisplay, to: toDisplay } = buildLeaveFromTo(leave);
+
         return {
           id: leave.id,
           employee: leave.User ? `${leave.User.first_name || ''} ${leave.User.last_name || ''}`.trim() : 'Unknown Employee',
@@ -455,14 +482,14 @@ export default function LeaveManagement() {
                   <table>
                     <thead>
                       <tr>
-                        <th>Employee Name</th>
-
                         <th>
                           <div className="header-with-icon">
-                            Leave Type
+                            Employee Name
                             <img src={subFilterIcon} alt="sort" />
                           </div>
                         </th>
+
+                        <th>Leave Type</th>
 
                         <th>Reason</th>
 
@@ -480,12 +507,7 @@ export default function LeaveManagement() {
                           </div>
                         </th>
 
-                        <th>
-                          <div className="header-with-icon">
-                            Status
-                            <img src={subFilterIcon} alt="sort" />
-                          </div>
-                        </th>
+                        <th>Status</th>
 
                         <th>Actions</th>
                       </tr>

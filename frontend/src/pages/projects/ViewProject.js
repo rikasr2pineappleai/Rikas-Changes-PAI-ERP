@@ -273,6 +273,25 @@ function TaskFilterDropdown({
   );
 }
 
+// Format a "YYYY-MM-DD" (or any Date-parseable) string as "DD MMM YYYY", e.g. "21 Jan 2026"
+const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const formatDisplayDate = (value) => {
+  if (!value || value === "—") return "—";
+  // Prefer manual parse of YYYY-MM-DD to avoid timezone shifts
+  const ymdMatch = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (ymdMatch) {
+    const y = ymdMatch[1];
+    const m = parseInt(ymdMatch[2], 10);
+    const d = parseInt(ymdMatch[3], 10);
+    if (m >= 1 && m <= 12) {
+      return `${String(d).padStart(2, "0")} ${MONTH_SHORT[m - 1]} ${y}`;
+    }
+  }
+  const dt = new Date(value);
+  if (isNaN(dt.getTime())) return value;
+  return `${String(dt.getDate()).padStart(2, "0")} ${MONTH_SHORT[dt.getMonth()]} ${dt.getFullYear()}`;
+};
+
 // Convert API task data into UI-friendly format
 // This function changes backend task data into a structure
 // that is easier to use in the frontend UI.
@@ -479,11 +498,16 @@ function ProjectMembersModal({
   // Temporary selected member ids
   const [temp, setTemp] = useState([]);
 
+  // Show more / show less toggle for the members list
+  const [showAll, setShowAll] = useState(false);
+  const INITIAL_VISIBLE = 7;
+
   // Reset state when modal opens
   useEffect(() => {
     if (open) {
       setQ("");
       setTemp((selectedIds || []).map(String));
+      setShowAll(false);
     }
   }, [open, selectedIds]);
 
@@ -531,7 +555,7 @@ function ProjectMembersModal({
           {/* Search input */}
           <div className="prj-memberSearch">
             <span className="prj-memberSearchIcon" aria-hidden="true">
-              🔍
+              <img src={searchIcon} alt="" />
             </span>
             <input
               placeholder="Search"
@@ -541,8 +565,8 @@ function ProjectMembersModal({
           </div>
 
           {/* Members list */}
-          <div className="prj-memberList">
-            {filtered.map((p) => {
+          <div className={`prj-memberList ${showAll ? "expanded" : ""}`}>
+            {(showAll ? filtered : filtered.slice(0, INITIAL_VISIBLE)).map((p) => {
               const active = temp.includes(String(p.id));
 
               return (
@@ -596,6 +620,19 @@ function ProjectMembersModal({
               <div className="prj-memberEmpty">No members found.</div>
             )}
           </div>
+
+          {/* Show more / Show less toggle */}
+          {filtered.length > INITIAL_VISIBLE && (
+            <div className="prj-memberShowMoreRow">
+              <button
+                type="button"
+                className="prj-memberShowMore"
+                onClick={() => setShowAll((v) => !v)}
+              >
+                {showAll ? "Show less" : "Show more"}
+              </button>
+            </div>
+          )}
 
           {/* Confirm selected members */}
           <button
@@ -1159,12 +1196,16 @@ export default function ViewProject() {
     try {
       if (!editingTask?.id) return;
 
+      // NOTE: `status` is intentionally NOT sent here.
+      // The Status field has been removed from the Update Task modal — the
+      // task's status is now owned by the assigned user via the user-side
+      // TaskPage board (moveTaskByEmployee). Admin editing the task must not
+      // overwrite the user's current board status.
       const payload = {
         title: taskForm.name.trim(),
         description: taskForm.description.trim(),
         assigned_to: Number(taskForm.assignedTo),
         priority: taskForm.priority,
-        status: taskForm.status,
         assigned_at: taskForm.startDate
           ? `${taskForm.startDate}T00:00:00.000Z`
           : null,
@@ -1266,8 +1307,19 @@ export default function ViewProject() {
       }
     });
 
-    return Array.from(map.values());
-  }, [members, tasks, people]);
+    // Pin the Project Manager to the FIRST position in the grid.
+    // Everyone else keeps their existing relative order (stable sort).
+    const list = Array.from(map.values());
+    const managerIdStr = String(project?.managerId ?? "");
+    if (managerIdStr) {
+      list.sort((a, b) => {
+        const aIsPM = String(a.id) === managerIdStr ? 1 : 0;
+        const bIsPM = String(b.id) === managerIdStr ? 1 : 0;
+        return bIsPM - aIsPM; // PM (1) before non-PM (0)
+      });
+    }
+    return list;
+  }, [members, tasks, people, project?.managerId]);
 
   // Remove a member from project
   const removeMember = async (userId) => {
@@ -1407,7 +1459,7 @@ export default function ViewProject() {
                 <tr key={t.id}>
                   <td data-label="Task No">{t.taskNo}</td>
                   <td data-label="Task Name">{t.name}</td>
-                  <td data-label="Start Date">{t.startDate}</td>
+                  <td data-label="Start Date">{formatDisplayDate(t.startDate)}</td>
 
                   <td data-label="Assigned">
                     <div className="prj-assignedCell">
@@ -1456,14 +1508,14 @@ export default function ViewProject() {
                     </div>
                   </td>
 
-                  <td data-label="Due Date">{t.dueDate}</td>
+                  <td data-label="Due Date">{formatDisplayDate(t.dueDate)}</td>
 
                   <td data-label="Priority">
                     <Badge
                       variant={
-                        t.priority === "High"
+                        String(t.priority).toLowerCase() === "high"
                           ? "high"
-                          : t.priority === "low"
+                          : String(t.priority).toLowerCase() === "low"
                             ? "low"
                             : "medium"
                       }
@@ -1472,6 +1524,12 @@ export default function ViewProject() {
                     </Badge>
                   </td>
 
+                  {/* Progress column reflects the assigned user's CURRENT status
+                      from the user-side TaskPage board. `t.progress` is derived
+                      from the backend task.status (see mapTaskFromApi above), so
+                      whenever the user moves the task on their kanban board
+                      (to_do -> in_progress -> review -> cto_review -> done) the
+                      new status shows up here on the next loadAll(). */}
                   <td data-label="Progress">
                     <Badge variant={getProgressVariant(t.progress)}>
                       {STATUS_LABELS[t.progress] || t.progress}
@@ -1551,15 +1609,50 @@ export default function ViewProject() {
                     {m.name ? m.name.charAt(0).toUpperCase() : "?"}
                   </div>
 
-                  {/* Only actual project members can be removed */}
+                  {/* Only actual project members can be removed.
+                      Figma: pink circular badge with a white trash icon,
+                      sitting at the bottom-right of the avatar. */}
                   {m._isAllocated ? (
                     <button
                       className="prj-memberRemoveBtn"
                       type="button"
                       title="Remove"
                       onClick={() => setConfirmDeleteMember(m)}
+                      aria-label={`Remove ${m.name}`}
                     >
-                      ×
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M3 6h18"
+                          stroke="#ffffff"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                        <path
+                          d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                          stroke="#ffffff"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                        <path
+                          d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"
+                          stroke="#ffffff"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M10 11v6M14 11v6"
+                          stroke="#ffffff"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
                     </button>
                   ) : null}
                 </div>
@@ -1575,36 +1668,34 @@ export default function ViewProject() {
               </div>
             ))}
 
-            {/* Add member button */}
+            {/* Add member button — Figma: dashed circle ring + user-with-plus glyph */}
             <button
               type="button"
               className="pm-addBtn"
               onClick={() => setMembersModalOpen(true)}
             >
               <span className="pm-addIcon" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  {/* Head */}
+                  <circle
+                    cx="10"
+                    cy="8"
+                    r="3.2"
+                    stroke="#111827"
+                    strokeWidth="1.6"
+                  />
+                  {/* Shoulders */}
                   <path
-                    d="M15 21a7 7 0 0 0-14 0"
-                    stroke="currentColor"
-                    strokeWidth="2"
+                    d="M4.5 18c0-3 2.5-5 5.5-5s5.5 2 5.5 5"
+                    stroke="#111827"
+                    strokeWidth="1.6"
                     strokeLinecap="round"
                   />
+                  {/* Plus */}
                   <path
-                    d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M19 8v6"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M16 11h6"
-                    stroke="currentColor"
-                    strokeWidth="2"
+                    d="M18.5 6v5M16 8.5h5"
+                    stroke="#111827"
+                    strokeWidth="1.6"
                     strokeLinecap="round"
                   />
                 </svg>
@@ -1830,10 +1921,28 @@ export default function ViewProject() {
             <div className="prj-fieldError">{taskFieldErrors.description}</div>
           )}
 
-          {/* Submit button */}
-          <button className="prj-primaryBtn prj-primaryBtnFull" type="submit">
-            Create Task
-          </button>
+          {/* Submit button
+              Label switches based on the selected Start Date:
+              - Start Date is in the future (> today) -> "Schedule Task"
+              - Otherwise (today or empty) -> "Create Task"
+              Comparing YYYY-MM-DD strings is safe and avoids timezone issues
+              because <input type="date"> already gives us a local YYYY-MM-DD. */}
+          {(() => {
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(
+              today.getMonth() + 1
+            ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+            const isFutureStart =
+              !!taskForm.startDate && taskForm.startDate > todayStr;
+            return (
+              <button
+                className="prj-primaryBtn prj-primaryBtnFull"
+                type="submit"
+              >
+                {isFutureStart ? "Schedule Task" : "Create Task"}
+              </button>
+            );
+          })()}
         </form>
       </Modal>
 
@@ -2014,30 +2123,9 @@ export default function ViewProject() {
             </div>
           </div>
 
-          <label className="prj-label">Status</label>
-          <button
-            type="button"
-            className={`prj-assigneeField ${
-              taskFieldErrors.status ? "prj-inputError" : ""
-            } ${taskForm.status ? "prj-hasValue" : ""}`}
-            onClick={() => setStatusModalOpen(true)}
-          >
-            <span
-              className={`prj-assigneePlaceholder ${statusLabel ? "has" : ""}`}
-            >
-              {statusLabel || "Select status"}
-            </span>
-            <img
-              className="prj-assigneeIcon"
-              src={dropDownIcon}
-              alt=""
-              aria-hidden="true"
-            />
-          </button>
-
-          {taskFieldErrors.status && (
-            <div className="prj-fieldError">{taskFieldErrors.status}</div>
-          )}
+          {/* Status field removed from Update Task modal — the task's status is
+              driven by the user from the user-side TaskPage board (drag/drop).
+              Admin no longer edits it from this modal. */}
 
           <label className="prj-label">Description</label>
           <textarea
