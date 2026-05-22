@@ -1,6 +1,7 @@
 
 /* ========================================================= */
-/* SERVICE LETTER TEMPLATE (ERP Accurate – 3 Column Layout)    */
+/* SERVICE LETTER TEMPLATE  –  Figma-accurate                */
+/* Primary colour: #347E45                                   */
 /* ========================================================= */
 
 /* ---------- GLOBAL FIX (VERTICAL SHAKE) ---------- */
@@ -14,19 +15,16 @@ html, body {
   scroll-behavior: smooth;
 }
 
-/* Body style when modal is open - prevents scrolling */
 body.modal-open {
   overflow: hidden !important;
 }
 
-/* REDUCED BLUR: Changed from 8px to 3px for less intense blur */
 body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
-  filter: blur(3px); /* Reduced from 8px to 3px */
+  filter: blur(3px);
   pointer-events: none;
   transition: filter 0.3s ease;
 }
 
-/* Clear any blur from within the modal */
 .pdf-modal-backdrop,
 .pdf-modal-backdrop *,
 .pdf-modal-overlay,
@@ -40,28 +38,70 @@ body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
   pointer-events: auto !important;
 }
 
-/* ---------- Wrapper ---------- */
+/* ── Outer Wrapper ─────────────────────────────────────── */
 .service-template-wrapper {
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 24px 28px;
+  border-radius: 12px;
+  padding: 28px 32px 32px;
   width: 100%;
   max-width: 3000px;
   box-sizing: border-box;
 }
 
-/* ---------- Form ---------- */
+/* ── Card Header  (title + search) ────────────────────── */
+.service-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.service-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.2px;
+}
+
+.service-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.service-search-wrapper svg {
+  position: absolute;
+  left: 10px;
+  pointer-events: none;
+}
+
+.service-search-input {
+  padding: 8px 14px 8px 34px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #374151;
+  width: 210px;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.service-search-input::placeholder { color: #9ca3af; }
+.service-search-input:focus        { border-color: #347E45; }
+
+/* ── Form ──────────────────────────────────────────────── */
 .service-template-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* ---------- Grid ---------- */
+/* ── 3-column grid ──────────────────────────────────────── */
 .service-grid {
   display: grid;
-   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px 24px;
 }
 
@@ -77,134 +117,253 @@ body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
   color: #1e293b;
 }
 
-.service-group input,
-.service-group select {
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 10px 12px;
-  font-size: 14px;
+/* ── Select (Name / Designation / Role) ─────────────────── */
+.service-select-wrapper {
+  position: relative;
 }
 
-.service-group input.service-field-error,
-.service-group select.service-field-error,
-.key-contribution-item input.service-field-error,
-.service-responsibilities textarea.service-field-error {
+.service-select {
+  width: 100%;
+  padding: 10px 36px 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  background: #ffffff;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.service-select option:first-child { color: #9ca3af; }
+.service-select:focus               { border-color: #347E45; }
+
+.service-select.service-field-error {
   border-color: #dc2626;
   background: #fef2f2;
 }
 
-.service-group input.service-field-error:focus,
-.service-group select.service-field-error:focus,
-.key-contribution-item input.service-field-error:focus,
-.service-responsibilities textarea.service-field-error:focus {
-  border-color: #b91c1c;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
-}
-
-/* ---------- Responsibilities ---------- */
-.responsibilities-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.resp-label {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.service-responsibilities textarea {
-  /* match key-contribution input width visually by subtracting icon/gap space */
-  width: calc(100% - 57px);
-  box-sizing: border-box;
-  min-height: 120px;
+/* Plain text input (Name field) — same visual styling as the dropdowns */
+.service-input {
+  width: 100%;
+  padding: 10px 12px;
   border: 1px solid #d1d5db;
-  border-radius: 10px;
-  padding: 12px;
+  border-radius: 8px;
   font-size: 14px;
-  resize: none;
+  color: #374151;
+  background: #ffffff;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
 }
 
-/* ---------- Key Contributions ---------- */
+.service-input::placeholder { color: #9ca3af; }
+.service-input:focus { border-color: #347E45; }
+
+.service-input.service-field-error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.service-select-arrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Date inputs ─────────────────────────────────────────── */
+.service-date-wrapper {
+  position: relative;
+}
+
+.service-date-input {
+  width: 100%;
+  padding: 10px 40px 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  background: #ffffff;
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.service-date-input:focus { border-color: #347E45; }
+
+/* hide the native calendar icon so our SVG shows cleanly */
+.service-date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  cursor: pointer;
+}
+
+.service-date-input.service-field-error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.service-date-icon {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Responsibilities section ────────────────────────────── */
 .service-key-contributions {
   display: flex;
   flex-direction: column;
-  gap: 0px;
+  gap: 0;
+  margin-top: 4px;
 }
 
+.resp-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+/* Each draggable row */
 .key-contribution-item {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
-  min-height: 71px;
-  
+  padding: 6px 0;
 }
 
-.options-icon {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
+.key-contribution-item.dragging {
+  opacity: 0.45;
+}
+
+/* Drag handle */
+.drag-handle-icon {
+  cursor: grab;
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
+  padding: 2px;
 }
 
+.drag-handle-icon:active { cursor: grabbing; }
+
+/* Responsibility text input */
 .key-contribution-item input {
   flex: 1;
-  padding: 10px 12px;
-  border-radius: 6px;
+  padding: 11px 14px;
   border: 1px solid #d1d5db;
+  border-radius: 8px;
   font-size: 14px;
+  color: #374151;
+  background: #ffffff;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s;
 }
 
+.key-contribution-item input::placeholder { color: #9ca3af; }
+.key-contribution-item input:focus        { border-color: #347E45; }
+
+.key-contribution-item input.service-field-error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+/* Delete button */
 .delete-icon-btn {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 4px;
-}
-
-.delete-icon-btn img {
-  width: 18px;
-  height: 18px;
-}
-
-.add-achievement-btn {
-  width: 98%;
-  padding: 10px 12px;
+  padding: 6px;
   border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  background: #03962b;
-  color: #ffffff;
-  border: none;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.delete-icon-btn:hover { background: #fef2f2; }
+
+/* ── Add Achievement button ──────────────────────────────── */
+.add-achievment-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 71px;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Roboto', 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  color: #347E45;
+  letter-spacing: 0.4px;
+  box-sizing: border-box;
+  transition: background 0.15s, border-color 0.15s;
+  margin-top: 2px;
 }
 
-.add-achievement-btn:hover {
-  background: #027a22;
+.add-achievment-btn:hover {
+  background: #f0faf2;
+  border-color: #347E45;
 }
 
+.add-achievment-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #347E45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.add-achievment-text {
+  font-family: 'Roboto', 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  color: #347E45;
+  letter-spacing: 0.4px;
+}
+
+/* ── Footer Action Buttons ───────────────────────────────── */
 .service-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
 .download-btn,
 .preview-btn,
 .email-btn,
 .save-btn {
-  width: 160px;
-  height: 50px;
+  width: 140px;
+  height: 46px;
   border-radius: 10px;
-  background-color: #347e45;
+  background-color: #347E45;
   border: none;
   cursor: pointer;
   display: flex;
@@ -212,28 +371,53 @@ body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
   justify-content: center;
   color: #ffffff;
   font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.2px;
+  transition: background-color 0.2s ease, transform 0.1s;
 }
 
-/* ---------- PDF Modal ---------- */
+.download-btn:hover,
+.preview-btn:hover,
+.email-btn:hover,
+.save-btn:hover {
+  background-color: #2b6a3a;
+}
+
+.preview-btn:active,
+.save-btn:active {
+  transform: scale(0.98);
+}
+
+.preview-btn:disabled {
+  background-color: #7fb88a;
+  cursor: not-allowed;
+}
+
+/* ── Error messages ──────────────────────────────────────── */
+.offer-input-error {
+  color: #b91c1c;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* ── PDF Modal ───────────────────────────────────────────── */
 .pdf-modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 99999; /* Extremely high z-index to cover everything */
+  z-index: 99999;
 }
 
-/* Dark overlay that covers entire screen - slightly lighter for less blur effect */
 .pdf-modal-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Reduced from 0.6 to 0.5 */
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .pdf-modal-container {
@@ -305,108 +489,353 @@ body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
-/* Download button positioned at bottom-left */
+/* Bottom-left placement of the download button inside the preview modal */
 .pdf-modal-footer {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  bottom: -64px;
+  left: 0;
   display: flex;
   justify-content: flex-start;
   z-index: 100003;
 }
 
+/* Icon-only square download button */
 .pdf-download-btn {
-  background-color: #347e45;
+  background-color: #347E45;
   color: white;
   border: none;
-  padding: 12px 30px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  min-width: 160px;
-}
-
-.pdf-download-btn:hover {
-  background-color: #2a6437;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-}
-
-
-.textarea-with-icon {
-  display: flex;
-  align-items: flex-start; /* align icon with top of textarea */
-  gap: 8px;                /* space between icon and textarea */
-}
-
-.textarea-with-icon .options-icon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0; /* keep icon size fixed */
-  margin-top: 6px; /* align vertically with textarea content */
-}
-
-.textarea-with-icon textarea {
-  flex: 1;
-  min-height: 120px;
-  border: 1px solid #d1d5db;
+  width: 56px;
+  height: 44px;
+  padding: 0;
   border-radius: 10px;
-  padding: 12px;
-  font-size: 14px;
-  resize: none;
-  /* constrain width so textarea + icon visually match key-contribution inputs */
-  box-sizing: border-box;
-  max-width: calc(100% - 57px);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  min-width: 0;
 }
 
+.pdf-download-btn:hover:not(:disabled) {
+  background-color: #2a6437;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+}
 
+.pdf-download-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 
-/* ---------- Responsive ---------- */
+.pdf-download-loading {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* ===========================================================
+   Success Modal — shown after the Download icon is clicked
+   =========================================================== */
+.sl-success-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100100;
+  padding: 16px;
+}
+
+.sl-success-modal {
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 36px 36px 28px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  font-family: "Roboto", sans-serif;
+}
+
+.sl-success-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sl-success-close:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.sl-success-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
+  margin: 4px 0 22px;
+  line-height: 1.35;
+}
+
+.sl-success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.sl-success-btn {
+  background-color: #347E45;
+  color: #ffffff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 120px;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.sl-success-btn:hover:not(:disabled) {
+  background-color: #2a6437;
+  transform: translateY(-1px);
+}
+
+.sl-success-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ===========================================================
+   HTML Service Letter Preview (rendered in the modal)
+   =========================================================== */
+/* =======================================================
+NEW SERVICE LETTER DESIGN
+======================================================= */
+
+.sl-preview-a4{
+width:210mm;
+min-height:297mm;
+background:white;
+position:relative;
+overflow:hidden;
+padding:18mm 18mm 24mm;
+font-family:Arial,sans-serif;
+box-shadow:0 10px 35px rgba(0,0,0,.25);
+}
+
+/* HEADER */
+
+.sl-header{
+display:flex;
+align-items:flex-start;
+position:relative;
+margin-bottom:20px;
+}
+
+.sl-logo-box{
+width:150px;
+z-index:3;
+background:white;
+}
+
+.sl-logo-box img{
+width:90px;
+object-fit:contain;
+}
+
+.sl-gradient-line{
+position:absolute;
+top:40px;
+left:150px;
+width:100%;
+height:4px;
+
+background:
+linear-gradient(
+90deg,
+#18a8dd,
+#47c96f,
+#7fd34f
+);
+}
+
+/* WATERMARK */
+
+.sl-center-logo{
+position:absolute;
+top:50%;
+left:50%;
+transform:
+translate(-50%,-50%)
+scale(1.55);
+
+opacity:.08;
+pointer-events:none;
+}
+
+.sl-center-logo img{
+width:370px;
+}
+
+.sl-bottom-watermark{
+position:absolute;
+bottom:240px;
+left:50%;
+
+transform:translateX(-50%);
+
+font-size:68px;
+font-weight:900;
+letter-spacing:8px;
+
+color:#8CC63F;
+opacity:.05;
+
+pointer-events:none;
+}
+
+/* CONTENT */
+
+.sl-content{
+position:relative;
+z-index:3;
+
+font-size:14px;
+line-height:1.6;
+color:#111827;
+}
+
+.sl-title{
+font-size:16px;
+font-weight:bold;
+margin-bottom:25px;
+}
+
+.sl-content p{
+margin-bottom:16px;
+text-align:justify;
+}
+
+.sl-content ol{
+padding-left:35px;
+margin-bottom:25px;
+}
+
+.sl-content li{
+margin-bottom:6px;
+}
+
+.sl-email{
+color:#0563C1;
+text-decoration:underline;
+}
+
+/* FOOTER */
+
+.sl-footer-wave{
+position:absolute;
+bottom:0;
+left:0;
+width:100%;
+z-index:1;
+}
+
+.sl-footer{
+position:absolute;
+bottom:25px;
+left:50px;
+right:50px;
+
+display:flex;
+justify-content:space-between;
+
+font-size:12px;
+font-weight:bold;
+color:#4BBA43;
+z-index:5;
+}
+
+/* Make the preview scroll inside the modal when content is long */
+.pdf-content .sl-preview-a4 {
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .sl-preview-body,
+  .sl-preview-footer {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  .sl-preview-footer-band {
+    margin-left: -24px;
+    margin-right: -24px;
+  }
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 992px) {
   .service-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .pdf-modal {
     width: 95%;
     max-width: 95%;
   }
 }
 
-
-/* ------------------ Mobile Fix: right side gap (slightly bigger buttons) ------------------ */
 @media (max-width: 768px) {
+  .service-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .service-search-input { width: 100%; }
+
   .service-buttons {
     flex-direction: column;
+    align-items: center;
     gap: 12px;
-    width: 100%;
-    padding: 0;
-    align-items: center; /* center buttons */
   }
 
   .download-btn,
   .preview-btn,
   .email-btn,
   .save-btn {
-    width: auto;           
-    min-width: 200px;       /* slightly bigger */
-    max-width: 280px;       /* slightly bigger */
-    padding: 14px 28px;     /* more padding for larger feel */
-    height: 55px;           /* slightly taller */
-    border-radius: 10px;
-    font-size: 10px;    /* keep rounded corners */
+    width: 100%;
+    max-width: 280px;
+    height: 50px;
+    font-size: 14px;
   }
 }
 
-
 @media (max-width: 480px) {
-  .pdf-modal {
-    max-height: 80vh;
-  }
-  
+  .service-template-wrapper { padding: 20px 16px 24px; }
+
+  .pdf-modal    { max-height: 80vh; }
+
   .pdf-close-btn {
     top: -35px;
     right: 5px;
@@ -414,22 +843,12 @@ body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
     height: 32px;
     font-size: 16px;
   }
-  
-  .pdf-modal-footer {
-    bottom: 10px;
-    left: 10px;
-  }
-  
+
+  .pdf-modal-footer { bottom: 10px; left: 10px; }
+
   .pdf-download-btn {
     padding: 10px 15px;
     font-size: 14px;
     min-width: 120px;
   }
-}
-
-/* ---------- Error Message Styling ---------- */
-.offer-input-error {
-  color: #b91c1c;
-  font-size: 12px;
-  margin-top: 4px;
 }

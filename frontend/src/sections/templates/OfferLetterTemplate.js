@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import "../../styles/offer_letter_template.css";
 
@@ -6,12 +6,8 @@ export default function OfferLetterTemplate() {
   const [showPreview, setShowPreview] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [employees, setEmployees] = useState([]);
-  const [employeesLoading, setEmployeesLoading] = useState(false);
-  const [employeesError, setEmployeesError] = useState("");
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [validationErrors, setValidationErrors] = useState({});
-  
+
   const [formData, setFormData] = useState({
     employeeName: "",
     address: "",
@@ -23,16 +19,12 @@ export default function OfferLetterTemplate() {
     reportingManager: "",
     reportingManagerEmail: "",
     salary: "",
-    responsibilities: ""
+    responsibilities: "",
   });
 
   const toDateInputValue = (value) => {
-    if (!value) {
-      return "";
-    }
-    if (value.includes("-")) {
-      return value;
-    }
+    if (!value) return "";
+    if (value.includes("-")) return value;
     const parts = value.split("/");
     if (parts.length === 3) {
       const [day, month, year] = parts;
@@ -41,82 +33,29 @@ export default function OfferLetterTemplate() {
     return value;
   };
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        setEmployeesLoading(true);
-        setEmployeesError("");
-        const token = localStorage.getItem('token');
-        const response = await axios.get(
-          'http://localhost:5001/api/templates/offer-letter/all-employees',
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
-        setEmployees(response.data?.data || []);
-      } catch (error) {
-        console.error('Error fetching employees:', error);
-        setEmployeesError('Failed to load employees');
-      } finally {
-        setEmployeesLoading(false);
-      }
-    };
-
-    fetchEmployees();
-  }, []);
-
-  const handleEmployeeSelect = (e) => {
-    const selectedId = e.target.value;
-    setSelectedEmployeeId(selectedId);
-    setPdfUrl(null);
-    setValidationErrors(prev => ({ ...prev, employeeName: "" }));
-
-    if (!selectedId) {
-      setFormData(prev => ({
-        ...prev,
-        employeeName: "",
-        address: "",
-        position: "",
-        joiningDate: "",
-        department: "",
-        reportingManager: "",
-        reportingManagerEmail: ""
-      }));
-      return;
-    }
-
-    const selectedEmployee = employees.find(emp => String(emp.userId) === String(selectedId));
-    if (selectedEmployee) {
-      setFormData(prev => ({
-        ...prev,
-        employeeName: selectedEmployee.employeeName || "",
-        address: selectedEmployee.address || "",
-        position: selectedEmployee.position || "",
-        joiningDate: toDateInputValue(selectedEmployee.joiningDate || ""),
-        department: selectedEmployee.department || "",
-        reportingManager: selectedEmployee.reportingManager || "",
-        reportingManagerEmail: selectedEmployee.reportingManagerEmail || ""
-      }));
-      setValidationErrors(prev => ({
-        ...prev,
-        employeeName: "",
-        address: "",
-        position: "",
-        joiningDate: "",
-        department: "",
-        reportingManager: "",
-        reportingManagerEmail: ""
-      }));
-    }
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setPdfUrl(null);
-    setValidationErrors(prev => ({ ...prev, [name]: "" }));
+    setValidationErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const clearForm = () => {
+    setFormData({
+      employeeName: "",
+      address: "",
+      letterDate: "",
+      position: "",
+      joiningDate: "",
+      endDate: "",
+      department: "",
+      reportingManager: "",
+      reportingManagerEmail: "",
+      salary: "",
+      responsibilities: "",
+    });
+    setValidationErrors({});
+    setPdfUrl(null);
   };
 
   const validateForm = () => {
@@ -126,11 +65,14 @@ export default function OfferLetterTemplate() {
       { name: "address", message: "Address is required" },
       { name: "letterDate", message: "Date is required" },
       { name: "position", message: "Role is required" },
-      { name: "salary", message: "Salary is required" },
       { name: "joiningDate", message: "Date of Joining is required" },
+      { name: "endDate", message: "Date of Ending is required" },
       { name: "department", message: "Department is required" },
       { name: "reportingManager", message: "Reporting Manager is required" },
-      { name: "reportingManagerEmail", message: "Reporting Manager Email is required" }
+      {
+        name: "reportingManagerEmail",
+        message: "Reporting Manager Email is required",
+      },
     ];
 
     requiredFields.forEach(({ name, message }) => {
@@ -151,45 +93,47 @@ export default function OfferLetterTemplate() {
   };
 
   const generatePDF = async () => {
-    if (!validateForm()) {
-      return null;
-    }
+    if (!validateForm()) return null;
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      
+      const token = localStorage.getItem("token");
+
       const response = await axios.post(
-        'http://localhost:5001/api/templates/offer-letter/generate',
+        "http://localhost:5001/api/templates/offer-letter/generate",
         formData,
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
-          responseType: 'blob'
+          responseType: "blob",
         }
       );
-      
-      const blob = new Blob([response.data], { type: 'application/pdf' });
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       setPdfUrl(url);
       return url;
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error("Error generating PDF:", error);
       if (error.response?.data instanceof Blob) {
         const errorText = await error.response.data.text();
         try {
           const errorData = JSON.parse(errorText);
-          if (errorData.errors) {
-            setValidationErrors(errorData.errors);
-          }
-          alert(errorData.message || 'Failed to generate PDF. Please check all required fields.');
+          if (errorData.errors) setValidationErrors(errorData.errors);
+          alert(
+            errorData.message ||
+              "Failed to generate PDF. Please check all required fields."
+          );
         } catch {
-          alert('Failed to generate PDF. Please check all required fields.');
+          alert("Failed to generate PDF. Please check all required fields.");
         }
       } else {
-        alert(error.response?.data?.message || 'Failed to generate PDF. Please check all required fields.');
+        alert(
+          error.response?.data?.message ||
+            "Failed to generate PDF. Please check all required fields."
+        );
       }
       return null;
     } finally {
@@ -199,9 +143,7 @@ export default function OfferLetterTemplate() {
 
   const handlePreview = async () => {
     const url = await generatePDF();
-    if (url) {
-      setShowPreview(true);
-    }
+    if (url) setShowPreview(true);
   };
 
   const handleClosePreview = () => {
@@ -214,235 +156,333 @@ export default function OfferLetterTemplate() {
 
   const handleDownloadPdf = async () => {
     let url = pdfUrl;
-    if (!url) {
-      url = await generatePDF();
-    }
-    
+    if (!url) url = await generatePDF();
     if (url) {
       const link = document.createElement("a");
       link.href = url;
-      link.download = `offer-letter-${formData.employeeName || 'document'}.pdf`;
+      link.download = `offer-letter-${formData.employeeName || "document"}.pdf`;
       link.click();
     }
   };
 
-  
+  /* ── icons ───────────────────────────────────────────────── */
+  const CalendarIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <rect
+        x="3"
+        y="5"
+        width="18"
+        height="16"
+        rx="2.5"
+        stroke="#347E45"
+        strokeWidth="1.8"
+      />
+      <path d="M8 3v4" stroke="#347E45" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M16 3v4" stroke="#347E45" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M11.4 11.6L12.4 11v6"
+        stroke="#347E45"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  const ChevronIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M5 7.5L10 12.5L15 7.5"
+        stroke="#6B7280"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 
   return (
     <>
       <div className="offer-template-wrapper">
-        {/* ---------- Header ---------- */}
+        {/* Header */}
         <div className="offer-template-header">
           <h3 className="offer-template-title">Offer Letter</h3>
         </div>
 
-        {/* ---------- Form ---------- */}
-        <form className="offer-template-form" onSubmit={(e) => e.preventDefault()}>
+        {/* Form */}
+        <form
+          className="offer-template-form"
+          onSubmit={(e) => e.preventDefault()}
+        >
           <div className="offer-grid">
+            {/* Row 1: Name | Address | Date */}
             <div className="offer-group">
               <label>Name</label>
-              <select
+              <input
+                type="text"
                 name="employeeName"
-                value={selectedEmployeeId}
-                onChange={handleEmployeeSelect}
-                disabled={employeesLoading}
-                className={validationErrors.employeeName ? "offer-field-error" : ""}
-              >
-                <option value="">
-                  {employeesLoading ? 'Loading employees...' : 'Select employee'}
-                </option>
-                {employees.map((employee) => (
-                  <option key={employee.userId} value={employee.userId}>
-                    {employee.employeeName}
-                  </option>
-                ))}
-              </select>
-              {employeesError && (
-                <span className="offer-input-error">{employeesError}</span>
-              )}
+                value={formData.employeeName}
+                onChange={handleInputChange}
+                placeholder="e.g., Sanjeevan"
+                className={`offer-input${
+                  validationErrors.employeeName ? " offer-field-error" : ""
+                }`}
+              />
               {validationErrors.employeeName && (
-                <span className="offer-input-error">{validationErrors.employeeName}</span>
+                <span className="offer-input-error">
+                  {validationErrors.employeeName}
+                </span>
               )}
             </div>
 
             <div className="offer-group">
               <label>Address</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
-                placeholder="e.g., Inuvil, Jaffna" 
-                className={validationErrors.address ? "offer-field-error" : ""}
+                placeholder="e.g., inuvil, Jaffna"
+                className={`offer-input${
+                  validationErrors.address ? " offer-field-error" : ""
+                }`}
               />
               {validationErrors.address && (
-                <span className="offer-input-error">{validationErrors.address}</span>
+                <span className="offer-input-error">
+                  {validationErrors.address}
+                </span>
               )}
             </div>
 
             <div className="offer-group">
               <label>Date</label>
-              <input 
-                type="date" 
-                name="letterDate"
-                value={toDateInputValue(formData.letterDate)}
-                onChange={handleInputChange}
-                className={validationErrors.letterDate ? "offer-field-error" : ""}
-              />
+              <div
+                className={`offer-date-wrapper${
+                  !formData.letterDate ? " is-empty" : ""
+                }`}
+              >
+                <input
+                  type="date"
+                  name="letterDate"
+                  value={toDateInputValue(formData.letterDate)}
+                  onChange={handleInputChange}
+                  placeholder="DD/MM/YYYY"
+                  className={`offer-date-input${
+                    !formData.letterDate ? " is-empty" : " has-value"
+                  }${validationErrors.letterDate ? " offer-field-error" : ""}`}
+                />
+                <span className="offer-date-icon">
+                  <CalendarIcon />
+                </span>
+              </div>
               {validationErrors.letterDate && (
-                <span className="offer-input-error">{validationErrors.letterDate}</span>
+                <span className="offer-input-error">
+                  {validationErrors.letterDate}
+                </span>
               )}
             </div>
 
+            {/* Row 2: Role | Date of Joining | Date of Ending */}
             <div className="offer-group">
               <label>Role</label>
-              <input 
-                type="text" 
-                name="position"
-                value={formData.position}
-                onChange={handleInputChange}
-                placeholder="e.g., Software Engineer" 
-                className={validationErrors.position ? "offer-field-error" : ""}
-              />
+              <div className="offer-select-wrapper">
+                <select
+                  name="position"
+                  value={formData.position}
+                  onChange={handleInputChange}
+                  className={`offer-select${
+                    validationErrors.position ? " offer-field-error" : ""
+                  }`}
+                >
+                  <option value="">Select Role</option>
+                  <option>Associate</option>
+                  <option>Manager</option>
+                  <option>Intern</option>
+                  <option>Software Engineer</option>
+                  <option>QA Engineer</option>
+                  <option>Project Manager</option>
+                  <option>Designer</option>
+                  <option>HR Specialist</option>
+                  <option>UI/UX Engineer</option>
+                </select>
+                <span className="offer-select-arrow">
+                  <ChevronIcon />
+                </span>
+              </div>
               {validationErrors.position && (
-                <span className="offer-input-error">{validationErrors.position}</span>
-              )}
-            </div>
-
-            <div className="offer-group">
-              <label>Salary</label>
-              <input 
-                type="text" 
-                name="salary"
-                value={formData.salary}
-                onChange={handleInputChange}
-                placeholder="e.g., LKR 100,000" 
-                className={validationErrors.salary ? "offer-field-error" : ""}
-              />
-              {validationErrors.salary && (
-                <span className="offer-input-error">{validationErrors.salary}</span>
+                <span className="offer-input-error">
+                  {validationErrors.position}
+                </span>
               )}
             </div>
 
             <div className="offer-group">
               <label>Date of Joining</label>
-              <input 
-                type="date" 
-                name="joiningDate"
-                value={toDateInputValue(formData.joiningDate)}
-                onChange={handleInputChange}
-                className={validationErrors.joiningDate ? "offer-field-error" : ""}
-              />
+              <div
+                className={`offer-date-wrapper${
+                  !formData.joiningDate ? " is-empty" : ""
+                }`}
+              >
+                <input
+                  type="date"
+                  name="joiningDate"
+                  value={toDateInputValue(formData.joiningDate)}
+                  onChange={handleInputChange}
+                  placeholder="DD/MM/YYYY"
+                  className={`offer-date-input${
+                    !formData.joiningDate ? " is-empty" : " has-value"
+                  }${validationErrors.joiningDate ? " offer-field-error" : ""}`}
+                />
+                <span className="offer-date-icon">
+                  <CalendarIcon />
+                </span>
+              </div>
               {validationErrors.joiningDate && (
-                <span className="offer-input-error">{validationErrors.joiningDate}</span>
+                <span className="offer-input-error">
+                  {validationErrors.joiningDate}
+                </span>
               )}
             </div>
 
             <div className="offer-group">
+              <label>Date of Ending</label>
+              <div
+                className={`offer-date-wrapper${
+                  !formData.endDate ? " is-empty" : ""
+                }`}
+              >
+                <input
+                  type="date"
+                  name="endDate"
+                  value={toDateInputValue(formData.endDate)}
+                  onChange={handleInputChange}
+                  placeholder="DD/MM/YYYY"
+                  className={`offer-date-input${
+                    !formData.endDate ? " is-empty" : " has-value"
+                  }${validationErrors.endDate ? " offer-field-error" : ""}`}
+                />
+                <span className="offer-date-icon">
+                  <CalendarIcon />
+                </span>
+              </div>
+              {validationErrors.endDate && (
+                <span className="offer-input-error">
+                  {validationErrors.endDate}
+                </span>
+              )}
+            </div>
+
+            {/* Row 3: Department | Reporting Manager | Reporting Manager Email */}
+            <div className="offer-group">
               <label>Department</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="department"
                 value={formData.department}
                 onChange={handleInputChange}
-                placeholder="e.g., IT Department" 
-                className={validationErrors.department ? "offer-field-error" : ""}
+                placeholder="e.g., IT Department"
+                className={`offer-input${
+                  validationErrors.department ? " offer-field-error" : ""
+                }`}
               />
               {validationErrors.department && (
-                <span className="offer-input-error">{validationErrors.department}</span>
+                <span className="offer-input-error">
+                  {validationErrors.department}
+                </span>
               )}
             </div>
 
             <div className="offer-group">
               <label>Reporting Manager</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="reportingManager"
                 value={formData.reportingManager}
                 onChange={handleInputChange}
-                placeholder="e.g., John Doe" 
-                className={validationErrors.reportingManager ? "offer-field-error" : ""}
+                placeholder="e.g., Sanjeevan"
+                className={`offer-input${
+                  validationErrors.reportingManager ? " offer-field-error" : ""
+                }`}
               />
               {validationErrors.reportingManager && (
-                <span className="offer-input-error">{validationErrors.reportingManager}</span>
+                <span className="offer-input-error">
+                  {validationErrors.reportingManager}
+                </span>
               )}
             </div>
 
             <div className="offer-group">
               <label>Reporting Manager Email</label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 name="reportingManagerEmail"
                 value={formData.reportingManagerEmail}
                 onChange={handleInputChange}
-                placeholder="e.g., example@pineappleai.com" 
-                className={validationErrors.reportingManagerEmail ? "offer-field-error" : ""}
+                placeholder="e.g., example@pineappleai.com"
+                className={`offer-input${
+                  validationErrors.reportingManagerEmail
+                    ? " offer-field-error"
+                    : ""
+                }`}
               />
               {validationErrors.reportingManagerEmail && (
-                <span className="offer-input-error">{validationErrors.reportingManagerEmail}</span>
+                <span className="offer-input-error">
+                  {validationErrors.reportingManagerEmail}
+                </span>
               )}
             </div>
           </div>
 
-          {/* ---------- Button Row ---------- */}
+          {/* Button row: Clear | Preview (right-aligned) */}
           <div className="offer-buttons">
-            <button type="button" className="cancel-btn">Cancel</button>
             <button
               type="button"
-              className="preview-btn"
+              className="offer-clear-btn"
+              onClick={clearForm}
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              className="offer-preview-btn"
               onClick={handlePreview}
               disabled={loading}
             >
-              {loading ? 'Generating...' : 'Preview'}
+              {loading ? "Generating..." : "Preview"}
             </button>
           </div>
         </form>
 
-        {/* ---------- Bottom Actions ---------- */}
+        {/* Save (outside the card, right-aligned) */}
         <div className="offer-actions">
-          <button 
-            type="button" 
-            className="download-btn"
-            onClick={handleDownloadPdf}
-            disabled={loading}
-          >
-            {loading ? 'Generating...' : 'Download'}
+          <button type="submit" className="save-btn">
+            Save
           </button>
-          <button type="button" className="email-btn">Email</button>
-          <button type="submit" className="save-btn">Save</button>
         </div>
       </div>
 
-      {/* ================================================= */}
-      {/* PDF PREVIEW MODAL                                 */}
-      {/* ================================================= */}
+      {/* PDF Preview Modal */}
       {showPreview && (
         <div className="pdf-modal-backdrop" onClick={handleClosePreview}>
           <div className="pdf-modal" onClick={(e) => e.stopPropagation()}>
-            {/* Close */}
             <button className="pdf-close-btn" onClick={handleClosePreview}>
               ✕
             </button>
 
-            {/* PDF Preview */}
             <div className="pdf-content">
               {pdfUrl ? (
-                <iframe 
-                  src={pdfUrl} 
+                <iframe
+                  src={pdfUrl}
                   title="Offer Letter Preview"
-                  style={{ width: '100%', height: '600px', border: 'none' }}
+                  style={{ width: "100%", height: "600px", border: "none" }}
                 />
               ) : (
                 <p>Loading PDF...</p>
               )}
             </div>
 
-            {/* Bottom-left Download */}
             <div className="pdf-modal-footer">
-              <button
-                className="pdf-download-btn"
-                onClick={handleDownloadPdf}
-              >
+              <button className="pdf-download-btn" onClick={handleDownloadPdf}>
                 Download
               </button>
             </div>

@@ -36,16 +36,17 @@
 }
 
 /* ---------- Grid ---------- */
+/* Figma: 3 columns × 3 rows */
 .offer-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px 24px;
 }
 
 .offer-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .offer-group label {
@@ -55,36 +56,132 @@
 }
 
 .offer-group input,
-.offer-group select {
+.offer-group select,
+.offer-input,
+.offer-select,
+.offer-date-input {
+  width: 100%;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 10px 12px;
   font-size: 14px;
   color: #1e293b;
+  background: #ffffff;
   outline: none;
-  transition: border 0.3s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.offer-input::placeholder,
+.offer-date-input::placeholder {
+  color: #c4c9d2;
+  opacity: 1;
+  font-weight: 400;
+}
+
+/* Placeholder text in Role select (first disabled option) */
+.offer-select:invalid,
+.offer-select option[value=""] {
+  color: #c4c9d2;
+}
+
+/* ---------- Force DD/MM/YYYY uppercase placeholder on empty date inputs ---------- */
+/* Hide native date format text while the field is empty, then overlay our own placeholder */
+.offer-date-input.is-empty::-webkit-datetime-edit-text,
+.offer-date-input.is-empty::-webkit-datetime-edit-month-field,
+.offer-date-input.is-empty::-webkit-datetime-edit-day-field,
+.offer-date-input.is-empty::-webkit-datetime-edit-year-field,
+.offer-date-input.is-empty::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.offer-date-wrapper.is-empty::before {
+  content: "DD/MM/YYYY";
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #c4c9d2;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  pointer-events: none;
+  font-family: inherit;
+  font-weight: 400;
+  z-index: 1;
+}
+
+/* Hide our DD/MM/YYYY overlay while the user is actively focused/picking */
+.offer-date-wrapper.is-empty:focus-within::before {
+  display: none;
 }
 
 .offer-group input:focus,
-.offer-group select:focus {
-  border-color: #03962b;
+.offer-group select:focus,
+.offer-input:focus,
+.offer-select:focus,
+.offer-date-input:focus {
+  border-color: #347E45;
 }
 
 .offer-group input.offer-field-error,
-.offer-group select.offer-field-error {
+.offer-group select.offer-field-error,
+.offer-input.offer-field-error,
+.offer-select.offer-field-error,
+.offer-date-input.offer-field-error {
   border-color: #dc2626;
   background: #fef2f2;
-}
-
-.offer-group input.offer-field-error:focus,
-.offer-group select.offer-field-error:focus {
-  border-color: #b91c1c;
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
 }
 
 .offer-input-error {
   color: #b91c1c;
   font-size: 12px;
+}
+
+/* Select wrapper (Role) — custom chevron on the right */
+.offer-select-wrapper {
+  position: relative;
+}
+.offer-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 36px;
+  cursor: pointer;
+}
+.offer-select option:first-child { color: #9ca3af; }
+.offer-select-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: inline-flex;
+}
+
+/* Date wrapper — calendar icon on the right (same as service letter) */
+.offer-date-wrapper {
+  position: relative;
+}
+.offer-date-input {
+  padding-right: 38px;
+  font-family: inherit;
+}
+.offer-date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;          /* hide native icon, use ours */
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 38px;
+  height: 100%;
+}
+.offer-date-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: inline-flex;
 }
 
 /* ---------- Top Buttons (Cancel / Preview) ---------- */
@@ -95,36 +192,40 @@
   margin-top: 16px;
 }
 
-.cancel-btn,
-.preview-btn {
+.offer-clear-btn,
+.offer-preview-btn {
   font-size: 14px;
   font-weight: 500;
-  padding: 10px 22px;
-  border-radius: 6px;
+  padding: 10px 28px;
+  border-radius: 8px;
   cursor: pointer;
   border: none;
   transition: all 0.3s ease;
+  min-width: 110px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Cancel */
-.cancel-btn {
+/* Clear — white with gray border to match Figma */
+.offer-clear-btn {
   background: #ffffff;
   border: 1px solid #d1d5db;
   color: #1e293b;
 }
 
-.cancel-btn:hover {
+.offer-clear-btn:hover {
   background: #f9fafb;
 }
 
-/* Preview */
-.preview-btn {
-  background: #03962b;
+/* Preview — Figma color */
+.offer-preview-btn {
+  background: #347E45;
   color: #ffffff;
 }
 
-.preview-btn:hover {
-  background: #027a23;
+.offer-preview-btn:hover {
+  background: #2a6437;
 }
 
 /* ========================================================= */

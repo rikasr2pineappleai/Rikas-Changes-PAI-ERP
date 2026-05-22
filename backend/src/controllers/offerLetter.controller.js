@@ -11,8 +11,8 @@ const requiredOfferLetterFields = [
   { name: 'address', label: 'Address' },
   { name: 'letterDate', label: 'Date' },
   { name: 'position', label: 'Role' },
-  { name: 'salary', label: 'Salary' },
   { name: 'joiningDate', label: 'Date of Joining' },
+  { name: 'endDate', label: 'Date of Ending' },
   { name: 'department', label: 'Department' },
   { name: 'reportingManager', label: 'Reporting Manager' },
   { name: 'reportingManagerEmail', label: 'Reporting Manager Email' }

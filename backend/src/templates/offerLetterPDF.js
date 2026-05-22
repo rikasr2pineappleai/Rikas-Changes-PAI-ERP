@@ -1,4 +1,70 @@
+/**
+ * INTERNSHIP OFFER LETTER TEMPLATE
+ * FINAL FIXED VERSION
+ * - Perfect A4 Alignment
+ * - Reduced unwanted gaps
+ * - Background image support
+ * - Puppeteer PDF Ready
+ * - Professional spacing
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+/* ------------------------------------------------ */
+/* BACKGROUND IMAGE */
+/* ------------------------------------------------ */
+
+const BACKGROUND_IMAGE_PATH = path.resolve(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'frontend',
+  'src',
+  'assets',
+  'images',
+  'background template.png'
+);
+
+const backgroundBase64 = fs
+  .readFileSync(BACKGROUND_IMAGE_PATH)
+  .toString('base64');
+
+/* ------------------------------------------------ */
+/* HELPERS */
+/* ------------------------------------------------ */
+
+const esc = (str) =>
+  String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+const formatDate = (value) => {
+
+  if (!value) return '';
+
+  const date = new Date(value);
+
+  if (isNaN(date.getTime())) {
+    return value;
+  }
+
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+
+  return `${dd}.${mm}.${yyyy}`;
+};
+
+/* ------------------------------------------------ */
+/* MAIN TEMPLATE */
+/* ------------------------------------------------ */
+
 const generateOfferLetterHTML = (data) => {
+
   const {
     employeeName,
     address,
@@ -14,177 +80,433 @@ const generateOfferLetterHTML = (data) => {
     generatedBy
   } = data;
 
+  /* RESPONSIBILITIES */
+
   const responsibilityList = responsibilities
     ? responsibilities
-        .split("\n")
+        .split('\n')
         .filter(r => r.trim())
-        .map(r => `<li>${r.trim()}</li>`)
-        .join("")
-    : "";
+        .map(r => `<div>• ${esc(r.trim())}</div>`)
+        .join('')
+    : `
+        <div>• Enter the start and end times of work into the system.</div>
+        <div>• Attend meetings on time.</div>
+        <div>• Send daily update emails before sign off.</div>
+      `;
 
   return `
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
+
 <head>
-<meta charset="UTF-8">
+
+<meta charset="UTF-8" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Internship Offer Letter</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  margin: 40px;
-  color: #000;
-}
 
-.section-title {
-  font-weight: bold;
-  margin-top: 15px;
-}
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
 
-ul {
-  margin-left: 20px;
-}
+    @page{
+        size:A4;
+        margin:0;
+    }
 
-p {
-  margin: 8px 0;
-}
+    html,body{
+
+        width:210mm;
+        height:297mm;
+
+        font-family:"Times New Roman", serif;
+
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+
+        background:#ffffff;
+    }
+
+    body{
+        margin:0;
+        padding:0;
+    }
+
+    /* PAGE */
+
+    .page{
+
+        position:relative;
+
+        width:210mm;
+        height:297mm;
+
+        overflow:hidden;
+
+        background-image:url("data:image/png;base64,${backgroundBase64}");
+
+        background-size:100% 100%;
+
+        background-repeat:no-repeat;
+    }
+
+    /* CONTENT */
+
+    .content{
+
+        position:absolute;
+
+        /* PERFECT A4 POSITION */
+
+        top:130px;
+
+        left:95px;
+
+        right:65px;
+
+        bottom:90px;
+
+        color:#111;
+
+        font-size:12.5px;
+
+        line-height:1.38;
+    }
+
+    .date{
+        margin-bottom:12px;
+    }
+
+    .name{
+        margin-bottom:3px;
+    }
+
+    .address{
+        margin-bottom:14px;
+    }
+
+    .paragraph{
+        margin-bottom:10px;
+        text-align:justify;
+    }
+
+    .section-title{
+
+        font-weight:bold;
+
+        margin-top:10px;
+
+        margin-bottom:5px;
+    }
+
+    .details{
+        margin-bottom:10px;
+    }
+
+    .details div{
+        margin-bottom:2px;
+    }
+
+    .list{
+
+        margin-left:14px;
+
+        margin-bottom:10px;
+    }
+
+    .list div{
+
+        margin-bottom:3px;
+
+        text-align:justify;
+    }
+
+    .signature{
+        margin-top:16px;
+    }
+
+    .signature-name{
+
+        margin-top:10px;
+
+        line-height:1.35;
+    }
+
+    .email{
+
+        color:#0a58ca;
+
+        text-decoration:underline;
+    }
+
+    strong{
+        font-weight:bold;
+    }
+
 </style>
+
 </head>
 
 <body>
 
-<!-- Date -->
-<p>${letterDate || new Date().toLocaleDateString("en-GB")}</p>
+<div class="page">
 
-<br/>
+    <div class="content">
 
-<!-- Name & Address -->
+        <div class="date">
+            ${formatDate(letterDate) || '[DATE]'}
+        </div>
 
-<p>
-<strong>${employeeName || "[Name]"}</strong><br/>
-${address || "[Address]"}
-</p>
+        <div class="name">
+            ${esc(employeeName || '[NAME]')}
+        </div>
 
-<br/>
+        <div class="address">
+            ${esc(address || '[ADDRESS]')}
+        </div>
 
-<!-- Greeting -->
+        <div class="paragraph">
+            Dear ${esc(employeeName || '[NAME]')},
+        </div>
 
-<p>Dear ${employeeName || "[Name]"},</p>
+        <div class="paragraph">
 
-<br/>
+            We are delighted to extend an internship opportunity at
 
-<!-- Intro -->
+            <strong>PineappleAI</strong>
 
-<p>
-We are delighted to extend an internship opportunity at PineappleAI within our
-${department || "[Department]"} department as a
-${position || "[Position]"}.
-Your background and interest in this field have caught our attention,
-and we are confident that your skills will benefit our team.
-</p>
+            within our
 
-<br/>
+            <strong>${esc(department || 'IT')}</strong>
 
-<!-- Position Info -->
+            department as a
 
-<p class="section-title">Position</p>
+            <strong>${esc(position || '[Role]')}</strong>.
 
-<ul>
-  <li>Title : ${position || "-"}</li>
-  <li>Start Date : ${joiningDate || "-"}</li>
-  <li>End Date : ${endDate || "-"}</li>
-  <li>Location : ${location || "Hybrid"}</li>
-</ul>
+            Your background and evident passion for this role
+            have caught our attention, and we are confident that
+            your skills and enthusiasm will greatly benefit our team.
 
-<br/>
+        </div>
 
-<!-- Terms -->
+        <div class="details">
 
-<p class="section-title">Terms of Internship</p>
+            <div>
+                <strong>Position:</strong>
+                ${esc(position || '[Role]')}
+            </div>
 
-<ul>
-  <li>Your work schedule will be 40 hours per week, 5 days a week from 7.00 AM to 4.00 PM.</li>
-  <li>A service letter will be provided upon successful completion of the internship.</li>
-  <li>Two months written notice is required prior to resignation.</li>
-</ul>
+            <div>
+                <strong>Start Date:</strong>
+                ${formatDate(joiningDate) || '[Date of Joining]'}
+            </div>
 
-<br/>
+            <div>
+                <strong>End Date:</strong>
+                ${formatDate(endDate) || '[Date of Ending]'}
+            </div>
 
-<!-- Responsibilities -->
+            <div>
+                <strong>Location:</strong>
+                ${esc(location || 'Hybrid')}
+            </div>
 
-<p class="section-title">Responsibilities</p>
+        </div>
 
-<ul>
-  ${responsibilityList}
-</ul>
+        <div class="section-title">
+            Terms of Internship
+        </div>
 
-<br/>
+        <div class="paragraph">
 
-<!-- Expectations -->
+            Your work schedule will be 40 hours per week,
+            5 days of the week from 7.00 AM to 4.00 PM.
 
-<p class="section-title">Expectations</p>
+        </div>
 
-<ul>
-  <li>Demonstrate professionalism and punctuality.</li>
-  <li>Communicate effectively with team members.</li>
-  <li>Protect confidential company information.</li>
-  <li>Follow company policies and standards.</li>
-</ul>
+        <div class="paragraph">
 
-<br/>
+            A service letter will be provided upon successful
+            completion of a 12-month internship term.
 
-<!-- Leave -->
+        </div>
 
-<p class="section-title">Leave</p>
+        <div class="paragraph">
 
-<ul>
-  <li>Leave requests must be approved by your reporting manager.</li>
-  <li>Maximum of 14 days annual leave per year.</li>
-  <li>Unapproved absences may affect evaluation.</li>
-</ul>
+            During the internship, interns must provide at least
+            two months' notice in writing before their intended
+            departure date.
 
-<br/>
+        </div>
 
-<!-- Reporting -->
+        <div class="section-title">
+            Responsibilities
+        </div>
 
-<p class="section-title">Reporting</p>
+        <div class="paragraph">
+            During your internship, you will have the responsibility to:
+        </div>
 
-<p>
-You will be reporting to
-<strong>${reportingManager || "Your Supervisor"}</strong>
-${reportingManagerEmail ? `(${reportingManagerEmail})` : ""}.
-Please communicate regularly and seek guidance when required.
-</p>
+        <div class="list">
 
-<br/>
+            ${responsibilityList}
 
-<!-- Closing -->
+        </div>
 
-<p>
-We are excited to welcome you to our team and look forward to working with you.
-Congratulations on your selection.
-</p>
+        <div class="section-title">
+            Expectations
+        </div>
 
-<p>
-If you have any questions, please contact us at
-<strong>ceo@pineappleai.cloud</strong>.
-</p>
+        <div class="list">
 
-<br/>
+            <div>
+                • Demonstrate professionalism and punctuality in all interactions.
+            </div>
 
-<!-- Signature -->
+            <div>
+                • Communicate effectively with team members and supervisors.
+            </div>
 
-<p>Sincerely,</p>
+            <div>
+                • Be proactive in seeking feedback and learning opportunities.
+            </div>
 
-<p>
-<strong>${generatedBy || "Nishany Seyoon"}</strong><br/>
-Chief HR Operational Officer<br/>
-ceo@pineappleai.cloud
-</p>
+            <div>
+                • Maintain confidentiality regarding sensitive company information.
+            </div>
+
+            <div>
+                • You can be terminated at any time if company policies are violated.
+            </div>
+
+        </div>
+
+        <div class="section-title">
+            Leave
+        </div>
+
+        <div class="paragraph">
+
+            Please send an email approving the leave request
+            to your Reporty, and remember to CC HR.
+
+        </div>
+
+        <div class="paragraph">
+
+            During the internship period, employees are permitted
+            to take a maximum of half a day off per month.
+
+        </div>
+
+        <div class="paragraph">
+
+            After the internship, employees are entitled to
+            7 casual leaves, 14 sick leaves, 14 annual leaves,
+            and all government-declared holidays per year.
+
+        </div>
+
+        <div class="paragraph">
+
+            Please ensure all leave requests are approved by
+            Reportee, with HR CC'd. Unapproved absences may
+            impact your internship evaluation.
+
+        </div>
+
+        <div class="section-title">
+            Reporting
+        </div>
+
+        <div class="paragraph">
+
+            You will be reporting to
+
+            <strong>
+                ${esc(reportingManager || 'S. Lakshan (CEO)')}
+            </strong>
+
+            at
+
+            <span class="email">
+                ${esc(reportingManagerEmail || 'ceo@pineappleai.cloud')}
+            </span>,
+
+            who will oversee your work and provide guidance
+            throughout your internship.
+
+        </div>
+
+        <div class="paragraph">
+
+            Your Reporty will be available to answer any questions
+            you may have and provide support as needed.
+
+        </div>
+
+        <div class="paragraph">
+
+            Please review this offer letter carefully and indicate
+            your acceptance by signing and returning the enclosed
+            copy within one week.
+
+        </div>
+
+        <div class="paragraph">
+
+            If you have any questions or concerns, please do not hesitate
+            to contact us at
+
+            <span class="email">
+                ceo@pineappleai.cloud
+            </span>
+
+        </div>
+
+        <div class="paragraph">
+
+            We are excited to welcome you to our team and look
+            forward to working with you.
+
+            Congratulations on your internship offer!
+
+        </div>
+
+        <div class="signature">
+
+            Sincerely,
+
+        </div>
+
+        <div class="signature-name">
+
+            ${esc(generatedBy || 'Nishany Seyoon')}<br>
+
+            Chief HR Operational Officer<br>
+
+            <span class="email">
+                ceo@pineappleai.cloud
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
 
 </body>
+
 </html>
 `;
 };
 
-module.exports = { generateOfferLetterHTML };
+module.exports = {
+  generateOfferLetterHTML
+};
