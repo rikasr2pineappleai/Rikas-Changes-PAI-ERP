@@ -1,0 +1,133 @@
+/* =========================================================
+   Project Status Overview — donut + legend card
+   ========================================================= */
+
+.proj-status-card {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 18px 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.proj-status-title {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  color: #1E293B;
+}
+
+.proj-status-body {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.proj-status-chart {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.proj-status-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.proj-status-center-value {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 30px;
+  color: #1E293B;
+}
+
+.proj-status-center-label {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+.proj-status-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.proj-status-legend-row {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.proj-status-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.proj-status-legend-name {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  color: #1E293B;
+  font-size: 13px;
+  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.proj-status-legend-value {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  color: #1E293B;
+  font-size: 13px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.proj-status-footer {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid #EEF1F5;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 14px;
+  color: #94A3B8;
+}
+
+@media (max-width: 1280px) {
+  .proj-status-body {
+    flex-direction: row;
+    gap: 16px;
+  }
+  .proj-status-chart {
+    width: 130px;
+    height: 130px;
+  }
+}
