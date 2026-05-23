@@ -335,74 +335,68 @@ export default function ServiceLetterTemplate() {
     </svg>
   );
 
-  /* ── preview modal — shows the actual generated PDF in an iframe ──── */
+  /* ── preview modal — clean PDF view (no browser PDF chrome) ─────── */
   const renderPreviewModal = () => {
     if (!showPreview) return null;
 
     return ReactDOM.createPortal(
-      <div className="pdf-modal-backdrop" onClick={handleClosePreview}>
-        <div className="pdf-modal-overlay" />
-        <div className="pdf-modal-container" onClick={(e) => e.stopPropagation()}>
-          <div className="pdf-modal">
-            <button className="pdf-close-btn" onClick={handleClosePreview}>
-              ✕
-            </button>
+      <div
+        className="pdf-modal-backdrop sl-preview-backdrop"
+        onClick={handleClosePreview}
+      >
+        <div
+          className="sl-preview-stack"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            className="sl-preview-close"
+            onClick={handleClosePreview}
+            aria-label="Close preview"
+          >
+            ✕
+          </button>
 
-            <div className="pdf-content">
-              {pdfUrl ? (
-                <iframe
-                  src={pdfUrl}
-                  title="Service Letter Preview"
-                  style={{
-                    width: "100%",
-                    height: "80vh",
-                    border: "none",
-                    background: "#ffffff",
-                    borderRadius: 8,
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: "100%",
-                    height: "80vh",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#fff",
-                    fontSize: 16,
-                  }}
-                >
-                  {loading ? "Generating PDF…" : "Preparing preview…"}
-                </div>
-              )}
-            </div>
+          <div className="sl-preview-doc">
+            {pdfUrl ? (
+              <iframe
+                // URL params hide the browser's PDF toolbar/nav-pane/scrollbar.
+                // view=FitH + zoom=page-width forces the page to fill the iframe width,
+                // and the oversized iframe (see .sl-preview-iframe CSS) pushes the dark
+                // Chrome PDF viewer chrome past the clipping edge — no black gap.
+                src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&statusbar=0&messages=0&view=FitH&zoom=page-width`}
+                title="Service Letter Preview"
+                className="sl-preview-iframe"
+                scrolling="no"
+              />
+            ) : (
+              <div className="sl-preview-loading">
+                {loading ? "Generating PDF…" : "Preparing preview…"}
+              </div>
+            )}
+          </div>
 
-            <div className="pdf-modal-footer">
-              <button
-                className="pdf-download-btn"
-                onClick={handleDownload}
-                disabled={loading || !pdfUrl}
-                title="Download PDF"
-                aria-label="Download PDF"
+          <div className="sl-preview-action-row">
+            <button
+              type="button"
+              className="sl-download-icon-btn"
+              onClick={handleDownload}
+              disabled={loading || !pdfUrl}
+              title="Download PDF"
+              aria-label="Download PDF"
+            >
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
               >
-                {loading ? (
-                  <span className="pdf-download-loading">…</span>
-                ) : (
-                  <svg
-                    width="26"
-                    height="26"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path d="M12 3v12" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
-                    <path d="M7 10l5 5 5-5" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </button>
-            </div>
+                <path d="M12 3v12" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+                <path d="M7 10l5 5 5-5" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>,
@@ -626,6 +620,9 @@ export default function ServiceLetterTemplate() {
               <h3 id="sl-success-title" className="sl-success-title">
                 Service letter has been generated successfully.
               </h3>
+              <p className="sl-success-subtitle">
+                You can download it now or Send your email for a copy.
+              </p>
 
               <div className="sl-success-actions">
                 <button

@@ -400,3 +400,224 @@
 .pdf-download-btn:hover {
   background: #2f6f3d;
 }
+
+/* =========================================================================
+   Offer Letter: clean preview modal (no browser PDF chrome)
+   - Centered document
+   - White ✕ at top-right of the page (outside the document)
+   - Green download-icon button at bottom-left (under the document)
+   ========================================================================= */
+
+.offer-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.offer-preview-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  max-height: 90vh;
+}
+
+.offer-preview-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.offer-preview-close:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.offer-preview-doc {
+  background: #ffffff !important; /* prevents any black peek-through */
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;                /* CROPS the Chrome PDF viewer chrome */
+  position: relative;              /* anchors the absolutely-positioned iframe */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  /* Match Figma spec exactly: 571.64 × 808, A4 aspect-ratio preserved.
+     Shrinks proportionally on small viewports via max-height / max-width. */
+  width: 571.64px;
+  height: 808px;
+  max-width: 94vw;
+  max-height: 88vh;
+  aspect-ratio: 210 / 297;
+}
+
+/* The iframe is scaled up just enough to push the Chrome PDF viewer's
+   dark page-padding past the bottom clipping edge. transform-origin: top
+   keeps the top of the letter pinned so no header content is lost, and
+   the bottom extension is clipped by .offer-preview-doc's overflow: hidden. */
+.offer-preview-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #ffffff !important;
+  display: block;
+  overflow: hidden;
+  transform: scale(1.08);
+  transform-origin: top center;
+}
+
+.offer-preview-loading {
+  color: #6b7280;
+  font-size: 14px;
+  text-align: center;
+}
+
+.offer-preview-action-row {
+  display: flex;
+  justify-content: flex-start;
+  /* Match the document's Figma width */
+  width: 571.64px;
+  max-width: 94vw;
+}
+
+.offer-download-icon-btn {
+  background: #347e45;
+  border: none;
+  border-radius: 14px;
+  width: 86px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(52, 126, 69, 0.35);
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.offer-download-icon-btn:hover {
+  background: #2f6f3d;
+}
+
+.offer-download-icon-btn:active {
+  transform: translateY(1px);
+}
+
+.offer-download-icon-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* =========================================================================
+   Offer Letter: "Offer letter has been generated successfully" modal
+   ========================================================================= */
+
+.ol-success-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ol-success-modal {
+  position: relative;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 36px 44px 32px 44px;
+  width: min(540px, 92vw);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+  text-align: left;
+}
+
+.ol-success-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ol-success-close:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.ol-success-title {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.ol-success-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: #4b5563;
+  margin: 0 0 28px 0;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.ol-success-actions {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.ol-success-btn {
+  flex: 1;
+  max-width: 200px;
+  background: #347e45;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ol-success-btn:hover {
+  background: #2f6f3d;
+}
+
+.ol-success-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

@@ -19,10 +19,10 @@ body.modal-open {
   overflow: hidden !important;
 }
 
+/* (Old blur effect removed — the new sl-preview backdrop handles dimming.
+   We still keep pointer-events disabled while a modal is open.) */
 body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
-  filter: blur(3px);
   pointer-events: none;
-  transition: filter 0.3s ease;
 }
 
 .pdf-modal-backdrop,
@@ -588,8 +588,16 @@ body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
   font-size: 17px;
   font-weight: 700;
   color: #111827;
-  margin: 4px 0 22px;
+  margin: 4px 0 8px;
   line-height: 1.35;
+}
+
+.sl-success-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: #4b5563;
+  margin: 0 0 22px;
+  line-height: 1.45;
 }
 
 .sl-success-actions {
@@ -851,4 +859,136 @@ z-index:5;
     font-size: 14px;
     min-width: 120px;
   }
+}
+
+/* =========================================================================
+   Service Letter: clean preview modal (mirrors Offer Letter preview)
+   - Centered document (A4 ratio, no scroll)
+   - White ✕ at top-right corner of the document
+   - Green download-icon button at bottom-left
+   ========================================================================= */
+
+.sl-preview-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(15, 23, 42, 0.55) !important; /* clean semi-transparent slate */
+  z-index: 99999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px;
+  backdrop-filter: none !important;
+}
+
+.sl-preview-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  max-height: 92vh;
+}
+
+.sl-preview-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.sl-preview-close:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.sl-preview-doc {
+  background: #ffffff !important; /* prevents any black peek-through */
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;                /* CROPS the Chrome PDF viewer chrome */
+  position: relative;              /* anchors the absolutely-positioned iframe */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  /* Match Figma spec exactly: 571.64 × 808, A4 aspect-ratio preserved.
+     Shrinks proportionally on small viewports via max-height / max-width. */
+  width: 571.64px;
+  height: 808px;
+  max-width: 94vw;
+  max-height: 88vh;
+  aspect-ratio: 210 / 297;
+}
+
+/* The iframe is scaled up just enough to push the Chrome PDF viewer's
+   dark page-padding past the bottom clipping edge. transform-origin: top
+   keeps the top of the letter pinned so no header content is lost, and
+   the bottom extension is clipped by .sl-preview-doc's overflow: hidden. */
+.sl-preview-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #ffffff !important;
+  display: block;
+  overflow: hidden;
+  transform: scale(1.08);
+  transform-origin: top center;
+}
+
+.sl-preview-loading {
+  color: #6b7280;
+  font-size: 14px;
+  text-align: center;
+}
+
+.sl-preview-action-row {
+  display: flex;
+  justify-content: flex-start;
+  /* Match the document's Figma width */
+  width: 571.64px;
+  max-width: 94vw;
+}
+
+.sl-download-icon-btn {
+  background: #347e45;
+  border: none;
+  border-radius: 14px;
+  width: 86px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(52, 126, 69, 0.35);
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.sl-download-icon-btn:hover {
+  background: #2f6f3d;
+}
+
+.sl-download-icon-btn:active {
+  transform: translateY(1px);
+}
+
+.sl-download-icon-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
 }

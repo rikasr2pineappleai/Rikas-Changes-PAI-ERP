@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import axios from "axios";
 import "../../styles/offer_letter_template.css";
 
 export default function OfferLetterTemplate() {
   const [showPreview, setShowPreview] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
@@ -154,15 +156,36 @@ export default function OfferLetterTemplate() {
     }
   };
 
-  const handleDownloadPdf = async () => {
-    let url = pdfUrl;
-    if (!url) url = await generatePDF();
-    if (url) {
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `offer-letter-${formData.employeeName || "document"}.pdf`;
-      link.click();
+  /* Clicking the green download-icon button in the PREVIEW modal does NOT
+     actually save the PDF. It closes the preview and opens the success
+     modal ("Offer letter has been generated successfully") which has the
+     real Download and Email buttons. */
+  const handleOpenSuccess = async () => {
+    if (!pdfUrl) {
+      const url = await generatePDF();
+      if (!url) return; // generation failed — keep modals closed
     }
+    setShowPreview(false);
+    setShowSuccessModal(true);
+  };
+
+  /* Triggered by the Download button INSIDE the success modal */
+  const handleConfirmDownload = async () => {
+    let url = pdfUrl || (await generatePDF());
+    if (!url) return;
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `offer-letter-${formData.employeeName || "document"}.pdf`;
+    link.click();
+  };
+
+  /* Triggered by the Email button INSIDE the success modal */
+  const handleEmailLetter = () => {
+    const subject = encodeURIComponent("Offer Letter");
+    const body = encodeURIComponent(
+      `Hi,\n\nPlease find the offer letter for ${formData.employeeName || "the candidate"} attached.\n\nRegards,\nPineappleAI HR`
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
   /* ── icons ───────────────────────────────────────────────── */
@@ -461,34 +484,115 @@ export default function OfferLetterTemplate() {
         </div>
       </div>
 
-      {/* PDF Preview Modal */}
+      {/* PDF Preview Modal — clean view (no browser PDF chrome) */}
       {showPreview && (
-        <div className="pdf-modal-backdrop" onClick={handleClosePreview}>
-          <div className="pdf-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="pdf-close-btn" onClick={handleClosePreview}>
+        <div className="pdf-modal-backdrop offer-preview-backdrop" onClick={handleClosePreview}>
+          <div
+            className="offer-preview-stack"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="offer-preview-close"
+              onClick={handleClosePreview}
+              aria-label="Close preview"
+            >
               ✕
             </button>
-
-            <div className="pdf-content">
+            <div className="offer-preview-doc">
               {pdfUrl ? (
                 <iframe
-                  src={pdfUrl}
+                  // URL params hide the browser's PDF toolbar/nav-pane/scrollbar.
+                  // view=FitH + zoom=page-width forces the page to fill the iframe width,
+                  // and the oversized iframe (see .offer-preview-iframe CSS) pushes the dark
+                  // Chrome PDF viewer chrome past the clipping edge — no black gap.
+                  src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&statusbar=0&messages=0&view=FitH&zoom=page-width`}
                   title="Offer Letter Preview"
-                  style={{ width: "100%", height: "600px", border: "none" }}
+                  className="offer-preview-iframe"
+                  scrolling="no"
                 />
               ) : (
-                <p>Loading PDF...</p>
+                <div className="offer-preview-loading">Loading PDF…</div>
               )}
             </div>
 
-            <div className="pdf-modal-footer">
-              <button className="pdf-download-btn" onClick={handleDownloadPdf}>
-                Download
+            <div className="offer-preview-action-row">
+              <button
+                type="button"
+                className="offer-download-icon-btn"
+                onClick={handleOpenSuccess}
+                disabled={loading || !pdfUrl}
+                title="Download PDF"
+                aria-label="Download PDF"
+              >
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path d="M12 3v12" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M7 10l5 5 5-5" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Success modal — opens after clicking the download-icon button */}
+      {showSuccessModal &&
+        ReactDOM.createPortal(
+          <div
+            className="ol-success-backdrop"
+            onClick={() => setShowSuccessModal(false)}
+          >
+            <div
+              className="ol-success-modal"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="ol-success-title"
+            >
+              <button
+                type="button"
+                className="ol-success-close"
+                onClick={() => setShowSuccessModal(false)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+
+              <h3 id="ol-success-title" className="ol-success-title">
+                Offer letter has been generated successfully.
+              </h3>
+              <p className="ol-success-subtitle">
+                You can download it now or Send your email for a copy.
+              </p>
+
+              <div className="ol-success-actions">
+                <button
+                  type="button"
+                  className="ol-success-btn"
+                  onClick={handleConfirmDownload}
+                  disabled={loading}
+                >
+                  {loading ? "Generating…" : "Download"}
+                </button>
+                <button
+                  type="button"
+                  className="ol-success-btn"
+                  onClick={handleEmailLetter}
+                >
+                  Email
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   );
 }
