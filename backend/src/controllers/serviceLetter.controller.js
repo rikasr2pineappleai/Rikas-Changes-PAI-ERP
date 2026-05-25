@@ -157,9 +157,13 @@ exports.generateServiceLetterPDF = async (req, res) => {
     let pdfBuffer;
     try {
       const page = await browser.newPage();
+      // Set viewport to exact Figma/PDF-point A4 dimensions (595 × 842)
+      await page.setViewport({ width: 595, height: 842, deviceScaleFactor: 1 });
       await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+      // Exact 595 × 842 px, no margins (layout handled in HTML)
       pdfBuffer = await page.pdf({
-        format: 'A4',
+        width: '595px',
+        height: '842px',
         printBackground: true,
         margin: { top: '0', right: '0', bottom: '0', left: '0' },
       });

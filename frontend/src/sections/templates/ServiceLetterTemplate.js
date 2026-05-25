@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
 import "../../styles/service_letter_template.css";
-import pineappleLogo from "../../assets/images/pineappleai.png";
 
 export default function ServiceLetterTemplate() {
   const [showPreview, setShowPreview]         = useState(false);
