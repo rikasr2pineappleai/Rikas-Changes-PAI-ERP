@@ -89,15 +89,15 @@
 }
 
 .leave-wrapper .summary-card--pending {
-  border-color: #c39b2b;
+  border-color: #997908;
 }
 
 .leave-wrapper .summary-card--approved {
-  border-color: #59a96a;
+  border-color: #347E45;
 }
 
 .leave-wrapper .summary-card--rejected {
-  border-color: #ff6673;
+  border-color: #F45B69;
 }
 
 /* HEADER */
@@ -223,9 +223,9 @@
   font-weight: 600;
 }
 
-.leave-wrapper .status-tag.approved { background: #dcfce7; color: #15803d; }
-.leave-wrapper .status-tag.pending  { background: #fef9c3; color: #a16207; }
-.leave-wrapper .status-tag.rejected { background: #fee2e2; color: #b91c1c; }
+.leave-wrapper .status-tag.approved { background: #dcfce7; color: #347E45; }
+.leave-wrapper .status-tag.pending  { background: #fef9c3; color: #997908; }
+.leave-wrapper .status-tag.rejected { background: #fee2e2; color: #F45B69; }
 
 /* ACTION BUTTONS CONTAINER */
 .leave-wrapper .action-buttons-container {
@@ -567,9 +567,9 @@
   .leave-wrapper .card-status.pending  { --status-text: "Pending"; }
   .leave-wrapper .card-status.rejected { --status-text: "Rejected"; }
 
-  .leave-wrapper .card-status.approved::after { background: #dcfce7; color: #15803d; }
-  .leave-wrapper .card-status.pending::after  { background: #fef9c3; color: #a16207; }
-  .leave-wrapper .card-status.rejected::after { background: #fee2e2; color: #b91c1c; }
+  .leave-wrapper .card-status.approved::after { background: #dcfce7; color: #347E45; }
+  .leave-wrapper .card-status.pending::after  { background: #fef9c3; color: #997908; }
+  .leave-wrapper .card-status.rejected::after { background: #fee2e2; color: #F45B69; }
 
   .leave-wrapper .leave-table-container > .pagination-container {
     display: none;

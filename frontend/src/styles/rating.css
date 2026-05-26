@@ -243,16 +243,22 @@
 }
 
 .submit-area button {
-  background: #15803d;
-  color: white;
+  background: #979494;
+  color: #ffffff;
   border: none;
   padding: 12px 60px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  transition: background 0.2s ease;
 }
 
-.submit-area button:hover {
+.submit-area button.active {
+  background: #15803d;
+  color: #ffffff;
+}
+
+.submit-area button.active:hover {
   background: #166534;
 }
 

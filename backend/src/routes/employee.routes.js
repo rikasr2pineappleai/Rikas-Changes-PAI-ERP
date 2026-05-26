@@ -158,8 +158,31 @@ router.route('/:id/profile-photo')
     uploadEmployeeProfilePhoto
   );
 
+// Self-or-admin guard for employee overview:
+// - Admins can view any employee's overview
+// - Non-admins (employees) can ONLY view their own overview (id === req.user.id)
+const allowSelfOrAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+  // Admin: allow everything
+  if (req.user.role === 'admin') {
+    return next();
+  }
+  // Self: allow only when the requested id matches the logged-in user's id
+  const requestedId = String(req.params.id);
+  const ownId = String(req.user.id);
+  if (requestedId === ownId) {
+    return next();
+  }
+  return res.status(403).json({
+    success: false,
+    message: 'User not authorized to access this route',
+  });
+};
+
 // Employee overview (should be last to avoid catching specific routes)
 router.route('/:id')
-  .get(protect, authorize('admin'), getEmployeeOverview);
+  .get(protect, allowSelfOrAdmin, getEmployeeOverview);
 
 module.exports = router;

@@ -82,6 +82,7 @@
 // export default Header;
 
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import "./Header.css";
 import defaultProfile from "../assets/images/default_profile.png";
@@ -92,6 +93,36 @@ import apiClient from "../utils/apiClient";
 
 const Header = ({ onToggleSidebar }) => {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Toggle Employee Overview page when clicking the user-card.
+  // - First click  -> navigate to /my-overview (show overview for the logged-in user)
+  // - Second click -> navigate back / away (hide overview)
+  // We use /my-overview (not /employees/:id/overview) so that non-admins
+  // can also view their own overview without hitting the admin role guard.
+  const overviewPath = "/my-overview";
+
+  // TEMPORARY: user-card click is DISABLED on the admin side.
+  // Only non-admins (employees) can toggle the overview by clicking the card.
+  // To re-enable for admins later, simply remove the `isAdmin` short-circuit below.
+  const isAdmin = user && user.role === "admin";
+
+  const handleUserCardClick = () => {
+    if (!user) return;
+    if (isAdmin) return; // <-- admin: do nothing (temporarily disabled)
+    const isOnOverview = location.pathname === overviewPath;
+    if (isOnOverview) {
+      // Hide: go back if there's history, otherwise fall back to a safe default
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate("/performance");
+      }
+    } else {
+      navigate(overviewPath);
+    }
+  };
 
   // State for database info and project version
   const [dbInfo, setDbInfo] = useState({
@@ -262,8 +293,30 @@ const Header = ({ onToggleSidebar }) => {
         )}
       </div>
 
-      {/* User card: avatar + name + role */}
-      <div className="user-card">
+      {/* User card: avatar + name + role
+          Click toggles the Employee Overview page (show / hide).
+          NOTE: temporarily DISABLED for admin users — for them this is a plain,
+          non-clickable card with no pointer / role / tooltip. */}
+      <div
+        className={`user-card ${
+          !isAdmin && location.pathname === overviewPath ? "active" : ""
+        }`}
+        onClick={isAdmin ? undefined : handleUserCardClick}
+        role={isAdmin ? undefined : "button"}
+        tabIndex={isAdmin ? undefined : 0}
+        onKeyDown={
+          isAdmin
+            ? undefined
+            : (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleUserCardClick();
+                }
+              }
+        }
+        title={isAdmin ? undefined : "View employee overview"}
+        style={isAdmin ? undefined : { cursor: "pointer" }}
+      >
         <div className="avatar-box">
           <img
             src={getProfileImage()}

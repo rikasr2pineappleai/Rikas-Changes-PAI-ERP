@@ -56,8 +56,8 @@ const fetchEmployeeDetailsForServiceLetter = async (userId) => {
 
     const joiningDate = user.EmployeeDetail?.joined_date;
     const endDate = user.EmployeeDetail?.end_date;
-    const reportingManager = user.ReportTo && user.ReportTo.first_name 
-      ? `${user.ReportTo.first_name}${user.ReportTo.last_name && user.ReportTo.last_name !== 'null' ? ` ${user.ReportTo.last_name}` : ''}`.trim() 
+    const reportingManager = user.ReportTo && user.ReportTo.first_name
+      ? `${user.ReportTo.first_name}${user.ReportTo.last_name && user.ReportTo.last_name !== 'null' ? ` ${user.ReportTo.last_name}` : ''}`.trim()
       : '';
     const reportingManagerEmail = user.ReportTo?.email || '';
 
@@ -96,9 +96,9 @@ const fetchAllEmployeesForServiceLetterDropdown = async () => {
       const firstName = employee.first_name || '';
       const lastName = employee.last_name && employee.last_name !== 'null' ? ` ${employee.last_name}` : '';
       const fullName = `${firstName}${lastName}`.trim();
-      
+
       console.log('Mapping employee:', { id: employee.id, firstName, rawLastName: employee.last_name, lastName, fullName });
-      
+
       return {
         userId: employee.id,
         employeeName: fullName,
@@ -116,11 +116,9 @@ const fetchAllEmployeesForServiceLetterDropdown = async () => {
 // @route   POST /api/templates/service-letter/generate
 // @access  Private (Admin)
 exports.generateServiceLetterPDF = async (req, res) => {
-  let browser;
   try {
     let data = req.body;
     console.log('Received service letter data:', JSON.stringify(data, null, 2));
-    console.log('Responsibilities received:', data.responsibilities);
 
     // If employee_id is provided, fetch details from database
     if (data.employee_id) {
@@ -130,7 +128,6 @@ exports.generateServiceLetterPDF = async (req, res) => {
         data = {
           ...employeeDetails,
           ...data,
-          // Ensure we keep manual overrides but use DB data as defaults
           employeeName: data.employeeName || employeeDetails.employeeName,
           position: data.position || employeeDetails.position,
           department: data.department || employeeDetails.department,
@@ -150,49 +147,39 @@ exports.generateServiceLetterPDF = async (req, res) => {
       });
     }
 
-    // Generate HTML content
-    console.log('Generating HTML with data:', {
-      employeeName: data.employeeName,
-      position: data.position,
-      department: data.department,
-      responsibilities: data.responsibilities
-    });
+    // Generate HTML, then render via puppeteer
     const htmlContent = generateServiceLetterHTML(data);
 
-    // Launch puppeteer
-    browser = await puppeteer.launch({
+    const browser = await puppeteer.launch({
       headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
-
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-    // Generate PDF
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '20px',
-        right: '20px',
-        bottom: '20px',
-        left: '20px'
-      }
-    });
-
-    await browser.close();
-
-    // Set headers for PDF download
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=service-letter-${data.employeeName.replace(/\s+/g, '-')}.pdf`);
-    
-    res.send(pdfBuffer);
-
-  } catch (error) {
-    if (browser) {
+    let pdfBuffer;
+    try {
+      const page = await browser.newPage();
+      // Set viewport to exact Figma/PDF-point A4 dimensions (595 × 842)
+      await page.setViewport({ width: 595, height: 842, deviceScaleFactor: 1 });
+      await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+      // Exact 595 × 842 px, no margins (layout handled in HTML)
+      pdfBuffer = await page.pdf({
+        width: '595px',
+        height: '842px',
+        printBackground: true,
+        margin: { top: '0', right: '0', bottom: '0', left: '0' },
+      });
+    } finally {
       await browser.close();
     }
-    const errorResponse = handleControllerError(error, "generate service letter PDF");
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=service-letter-${(data.employeeName || 'employee').replace(/\s+/g, '-')}.pdf`
+    );
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error('Service letter PDF error:', error);
+    const errorResponse = handleControllerError(error, 'generate service letter PDF');
     res.status(500).json(errorResponse);
   }
 };

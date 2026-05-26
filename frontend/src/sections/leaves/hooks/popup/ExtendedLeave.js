@@ -453,8 +453,8 @@ export default function ExtendedLeave({ onClose = () => {} }) {
         </h2>
 
         <form className="Eform" onSubmit={handleSubmit} noValidate>
-          {/* Leave category */}
-          <label className="Elabel">Leave Category</label>
+          {/* Leave Type */}
+          <label className="Elabel">Leave Type</label>
           <div className="Eselect">
             <input
               className="Eselect-input"

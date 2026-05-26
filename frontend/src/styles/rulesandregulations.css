@@ -48,14 +48,18 @@
 }
 
 /* ---------- MAIN CARD ---------- */
+/* The card now occupies the same horizontal box as the header so the page
+   content is properly left-aligned (no centered max-width gutter). */
 .rules-card {
   font-family: 'Roboto', sans-serif;
-  max-width: 1253px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   background: #ffffff;
   border-radius: 15px;
   border: 1px solid #e5e7eb;
   padding: 28px;
+  box-sizing: border-box;
 }
 
 .rules-card-content {

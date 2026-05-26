@@ -19,6 +19,33 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
     return ["Pending", "Rejected", "Approved"].includes(normalized) ? normalized : "Pending";
   };
 
+  // Format time to "HH.MM AM/PM" (e.g. "09.00 AM", "10.00 PM")
+  const formatTime = (value) => {
+    if (!value) return "N/A";
+    const str = String(value).trim();
+
+    // Try to parse "HH:MM[:SS] [AM|PM]" or 24-hour "HH:MM[:SS]"
+    const ampmMatch = str.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp][Mm])?$/);
+    if (ampmMatch) {
+      let hours = parseInt(ampmMatch[1], 10);
+      const minutes = ampmMatch[2];
+      let suffix = ampmMatch[3] ? ampmMatch[3].toUpperCase() : null;
+
+      if (!suffix) {
+        // 24-hour input -> derive AM/PM
+        suffix = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12;
+        if (hours === 0) hours = 12;
+      }
+
+      const hh = String(hours).padStart(2, "0");
+      return `${hh}.${minutes} ${suffix}`;
+    }
+
+    // Fallback: replace any existing colon with a dot
+    return str.replace(/:/g, ".");
+  };
+
   const rejectedInputRef = useRef(null);
 
   const [selectedStatus, setSelectedStatus] = useState(() => normalizeStatus(data?.status));
@@ -219,28 +246,24 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
             </div>
           </div>
 
-          {/* ROW 2: Date (left) | Start Time (right) */}
+          {/* ROW 2: Date (left) | Start Time + End Time (right) */}
           <div className="hp-row">
             <div>
               <label>Date</label>
               <p className="hp-value">{loading ? 'Loading...' : error ? 'Error loading date' : (displayData.start_date || displayData.from || 'N/A')}</p>
             </div>
 
-            <div>
-              <label>Start Time</label>
-              <p className="hp-value">{displayData.start_time || displayData.from || 'N/A'}</p>
+            <div className="hp-time-pair">
+              <div className="hp-time-col">
+                <label>Start Time</label>
+                <p className="hp-value">{formatTime(displayData.start_time || displayData.from)}</p>
+              </div>
+              <div className="hp-time-divider" aria-hidden="true" />
+              <div className="hp-time-col">
+                <label>End Time</label>
+                <p className="hp-value">{formatTime(displayData.end_time || displayData.to)}</p>
+              </div>
             </div>
-          </div>
-
-          {/* ROW 3: End Time only (left) */}
-          <div className="hp-row">
-            <div>
-              <label>End Time</label>
-              <p className="hp-end-date">{displayData.end_time || displayData.to || 'N/A'}</p>
-            </div>
-
-            {/* intentionally empty right column to keep layout consistent */}
-            <div aria-hidden="true" />
           </div>
 
           <label className="hp-status-label">Status</label>

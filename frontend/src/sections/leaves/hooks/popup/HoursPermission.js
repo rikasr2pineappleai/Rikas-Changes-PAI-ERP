@@ -924,8 +924,8 @@ export default function HoursPermissionPopup({ onClose = () => {} }) {
         <h2 className="h-title">New leave request</h2>
 
         <form className="h-form" onSubmit={submitHandler} noValidate>
-          {/* Category */}
-          <label className="h-label">Leave Category</label>
+          {/* Leave Type */}
+          <label className="h-label">Leave Type</label>
           <div className="h-input h-select" style={{ position: "relative" }}>
             <input
               type="text"

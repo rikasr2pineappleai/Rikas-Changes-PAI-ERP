@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import employeeAPI from "../integration/employeeAPI";
 import PromotionProgress from "../components/PromotionProgress";
 import EmployeeDocumentsModal from "../modals/EmployeeDocumentsModal";
+import useAuth from "../hooks/useAuth";
 
 import "../styles/employee_overview.css";
 
@@ -20,7 +21,15 @@ import rulesIcon from "../assets/icons/rulesandregulationsicon.png";
 
 export default function EmployeeOverview() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id: paramId } = useParams();
+  const { user } = useAuth();
+  // If no :id is in the URL (self-view via /my-overview), fall back to the
+  // logged-in user's id so non-admins can view their own overview.
+  const id = paramId || user?.id;
+  // Self-view = visiting /my-overview (no :id in URL).
+  // On the user side we hide the eov-header (back btn + title) and the
+  // Attendance / Ratings green buttons.
+  const isSelfView = !paramId;
   const [employeeData, setEmployeeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,6 +37,8 @@ export default function EmployeeOverview() {
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
 
   useEffect(() => {
+    // Wait until we have an id (either from the URL or from the logged-in user).
+    if (!id) return;
     const fetchEmployeeData = async () => {
       try {
         setLoading(true);
@@ -77,16 +88,18 @@ export default function EmployeeOverview() {
     return (
       <div className="eov-page">
         <div className="eov-width">
-          <div className="eov-header">
-            <button
-              type="button"
-              className="eov-back-btn"
-              onClick={() => navigate("/employees")}
-            >
-              <img src={backIcon} alt="Back" className="eov-back-icon" />
-            </button>
-            <h2 className="eov-title">Employee Overview</h2>
-          </div>
+          {!isSelfView && (
+            <div className="eov-header">
+              <button
+                type="button"
+                className="eov-back-btn"
+                onClick={() => navigate("/employees")}
+              >
+                <img src={backIcon} alt="Back" className="eov-back-icon" />
+              </button>
+              <h2 className="eov-title">Employee Overview</h2>
+            </div>
+          )}
           <div className="loading">Loading employee data...</div>
         </div>
       </div>
@@ -97,16 +110,18 @@ export default function EmployeeOverview() {
     return (
       <div className="eov-page">
         <div className="eov-width">
-          <div className="eov-header">
-            <button
-              type="button"
-              className="eov-back-btn"
-              onClick={() => navigate("/employees")}
-            >
-              <img src={backIcon} alt="Back" className="eov-back-icon" />
-            </button>
-            <h2 className="eov-title">Employee Overview</h2>
-          </div>
+          {!isSelfView && (
+            <div className="eov-header">
+              <button
+                type="button"
+                className="eov-back-btn"
+                onClick={() => navigate("/employees")}
+              >
+                <img src={backIcon} alt="Back" className="eov-back-icon" />
+              </button>
+              <h2 className="eov-title">Employee Overview</h2>
+            </div>
+          )}
           <div className="error">Error: {error}</div>
         </div>
       </div>
@@ -117,16 +132,18 @@ export default function EmployeeOverview() {
     return (
       <div className="eov-page">
         <div className="eov-width">
-          <div className="eov-header">
-            <button
-              type="button"
-              className="eov-back-btn"
-              onClick={() => navigate("/employees")}
-            >
-              <img src={backIcon} alt="Back" className="eov-back-icon" />
-            </button>
-            <h2 className="eov-title">Employee Overview</h2>
-          </div>
+          {!isSelfView && (
+            <div className="eov-header">
+              <button
+                type="button"
+                className="eov-back-btn"
+                onClick={() => navigate("/employees")}
+              >
+                <img src={backIcon} alt="Back" className="eov-back-icon" />
+              </button>
+              <h2 className="eov-title">Employee Overview</h2>
+            </div>
+          )}
           <div className="error">Employee data not found</div>
         </div>
       </div>
@@ -252,16 +269,18 @@ export default function EmployeeOverview() {
   return (
     <div className="eov-page">
       <div className="eov-width">
-        <div className="eov-header">
-          <button
-            type="button"
-            className="eov-back-btn"
-            onClick={() => navigate("/employees")}
-          >
-            <img src={backIcon} alt="Back" className="eov-back-icon" />
-          </button>
-          <h2 className="eov-title">Employee Overview</h2>
-        </div>
+        {!isSelfView && (
+          <div className="eov-header">
+            <button
+              type="button"
+              className="eov-back-btn"
+              onClick={() => navigate("/employees")}
+            >
+              <img src={backIcon} alt="Back" className="eov-back-icon" />
+            </button>
+            <h2 className="eov-title">Employee Overview</h2>
+          </div>
+        )}
 
         <div className="eov-container">
           <div className="eov-left">
@@ -285,26 +304,30 @@ export default function EmployeeOverview() {
             </div>
 
             <div className="eov-buttons">
-              <button
-                className="eov-green-btn"
-                onClick={() => navigate(`/attendance?employeeId=${id}`)}
-              >
-                <img src={attendanceIcon} alt="" />
-                <span>Attendance</span>
-              </button>
+              {!isSelfView && (
+                <button
+                  className="eov-green-btn"
+                  onClick={() => navigate(`/attendance?employeeId=${id}`)}
+                >
+                  <img src={attendanceIcon} alt="" />
+                  <span>Attendance</span>
+                </button>
+              )}
 
               <button className="eov-green-btn" onClick={() => navigate("/org-hierarchy")}>
                 <img src={structureIcon} alt="" />
                 <span>Reporting Structure</span>
               </button>
 
-              <button
-                className="eov-green-btn"
-                onClick={() => navigate(`/employees/${id}/rating`)}
-              >
-                <img src={ratingIcon} alt="" />
-                <span>Ratings</span>
-              </button>
+              {!isSelfView && (
+                <button
+                  className="eov-green-btn"
+                  onClick={() => navigate(`/employees/${id}/rating`)}
+                >
+                  <img src={ratingIcon} alt="" />
+                  <span>Ratings</span>
+                </button>
+              )}
 
               <button
                 className="eov-green-btn"

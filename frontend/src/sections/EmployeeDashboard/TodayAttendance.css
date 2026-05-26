@@ -218,14 +218,14 @@
   bottom: 40px;
 }
 
-/* Take a Break Button - Initial State (Gray) */
+/* Take a Break / Back to Work Button - Dark Navy */
 .ta-btn-break {
   position: absolute;
   width: 170px;
   height: 56px;
   left: 419px;
   bottom: 0;
-  background: #979494;
+  background: #1E293B;
   border: none;
   border-radius: 15px;
   font-family: 'Roboto', sans-serif;
@@ -243,11 +243,11 @@
 }
 
 .ta-btn-break:hover {
-  background: #7a7777;
+  background: #0f172a;
 }
 
 .ta-btn-break:active {
-  background: #6a6767;
+  background: #0f172a;
 }
 
 .ta-btn-break:disabled {
@@ -297,12 +297,16 @@
 }
 
 /* Check Out Button - Error State (Red) when on break */
-.ta-btn-checkout.error {
+.ta-btn-checkout.error,
+.ta-btn-checkout.error:disabled {
   background: #F45B69;
+  color: #FFFFFF;
+  opacity: 1;
 }
 
 .ta-btn-checkout.error:hover {
   background: #e84a57;
+  color: #FFFFFF;
 }
 
 /* Disabled After Checkout State */

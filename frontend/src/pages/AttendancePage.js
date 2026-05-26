@@ -195,29 +195,27 @@ const AttendancePage = () => {
     fetchAttendanceData();
   }, [effectiveEmployeeId, currentPage]);
   
-  // Helper function to format break duration from seconds to HH:MM format
+  // Helper function to format break duration: "HH:MM Min" if < 1 hour, "HH:MM Hrs" if >= 1 hour
   const formatBreakDuration = (seconds) => {
-    if (!seconds) return '00:00';
-    
+    if (!seconds) return '00:00 Min';
+
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
-    // If hours is 0, only show minutes
-    if (hours === 0) {
-      return `${minutes.toString().padStart(2, '0')}:00`;
-    }
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+    const hh = hours.toString().padStart(2, '0');
+    const mm = minutes.toString().padStart(2, '0');
+
+    return hours === 0 ? `${hh}:${mm} Min` : `${hh}:${mm} Hrs`;
   };
-  
-  // Helper function to format working hours to HH:MM format
+
+  // Helper function to format working hours as "HH.MM Hrs"
   const formatWorkingHours = (hoursFloat) => {
-    if (!hoursFloat) return '00:00';
-    
+    if (!hoursFloat) return '00.00 Hrs';
+
     const hours = Math.floor(hoursFloat);
     const minutes = Math.round((hoursFloat - hours) * 60);
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+    return `${hours.toString().padStart(2, '0')}.${minutes.toString().padStart(2, '0')} Hrs`;
   };
 
   const [totalPages, setTotalPages] = useState(1);

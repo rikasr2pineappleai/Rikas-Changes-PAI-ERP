@@ -11,8 +11,8 @@ const requiredOfferLetterFields = [
   { name: 'address', label: 'Address' },
   { name: 'letterDate', label: 'Date' },
   { name: 'position', label: 'Role' },
-  { name: 'salary', label: 'Salary' },
   { name: 'joiningDate', label: 'Date of Joining' },
+  { name: 'endDate', label: 'Date of Ending' },
   { name: 'department', label: 'Department' },
   { name: 'reportingManager', label: 'Reporting Manager' },
   { name: 'reportingManagerEmail', label: 'Reporting Manager Email' }
@@ -197,18 +197,16 @@ exports.generateOfferLetterPDF = async (req, res) => {
     });
 
     const page = await browser.newPage();
+    // Set viewport to exact Figma/PDF-point A4 dimensions (595 × 842)
+    await page.setViewport({ width: 595, height: 842, deviceScaleFactor: 1 });
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
-    // Generate PDF
+    // Generate PDF — exact 595 × 842 px, no margins (layout handled in HTML)
     const pdfBuffer = await page.pdf({
-      format: 'A4',
+      width: '595px',
+      height: '842px',
       printBackground: true,
-      margin: {
-        top: '20px',
-        right: '20px',
-        bottom: '20px',
-        left: '20px'
-      }
+      margin: { top: '0', right: '0', bottom: '0', left: '0' }
     });
 
     await browser.close();
