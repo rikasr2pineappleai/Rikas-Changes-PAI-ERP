@@ -196,15 +196,19 @@
 .offer-preview-btn {
   font-size: 14px;
   font-weight: 500;
-  padding: 10px 28px;
-  border-radius: 8px;
+  padding: 10px 32px;
+  border-radius: 6px;
   cursor: pointer;
   border: none;
   transition: all 0.3s ease;
-  min-width: 110px;
+  width: 120px;
+  height: 42px;
+  min-width: 120px;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 /* Clear — white with gray border to match Figma */
@@ -273,14 +277,21 @@
   background: #347E45;
 }
 
-/* Save (Primary) */
-.save-btn {
+/* Save (Primary) — scoped to .offer-actions so it doesn't leak into other pages */
+.offer-actions .save-btn {
   background: #347E45;
   color: #ffffff;
   padding: 10px 32px;
+  width: 120px;
+  height: 42px;
+  min-width: 120px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.save-btn:hover {
+.offer-actions .save-btn:hover {
   background: #347E45;
 }
 
@@ -453,37 +464,47 @@
 }
 
 .offer-preview-doc {
-  background: #ffffff !important; /* prevents any black peek-through */
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  overflow: hidden;                /* CROPS the Chrome PDF viewer chrome */
+  /* No visible frame — the PDF itself is what the user sees.
+     Background is transparent so only the PDF page shows on the backdrop. */
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;                /* CROPS scrollbar / PDF chrome */
   position: relative;              /* anchors the absolutely-positioned iframe */
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-  /* Match Figma spec exactly: 571.64 × 808, A4 aspect-ratio preserved.
+  /* Figma spec: 595 × 842 (A4 in points), aspect-ratio preserved.
      Shrinks proportionally on small viewports via max-height / max-width. */
-  width: 571.64px;
-  height: 808px;
+  width: 595px;
+  height: 842px;
   max-width: 94vw;
   max-height: 88vh;
-  aspect-ratio: 210 / 297;
+  aspect-ratio: 595 / 842;
+  opacity: 1;
 }
 
-/* The iframe is scaled up just enough to push the Chrome PDF viewer's
-   dark page-padding past the bottom clipping edge. transform-origin: top
-   keeps the top of the letter pinned so no header content is lost, and
-   the bottom extension is clipped by .offer-preview-doc's overflow: hidden. */
+/* The iframe is made WIDER and TALLER than the container so the Chrome
+   PDF viewer's right-side scrollbar and bottom padding fall outside the
+   container's overflow:hidden clip. The PDF content itself still fills
+   the visible 595×842 frame because the PDF is generated at that exact
+   size with zero margins. */
 .offer-preview-iframe {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: calc(100% + 20px);         /* hides right scrollbar */
+  height: calc(100% + 20px);        /* hides bottom padding/scrollbar */
   border: none;
   background: #ffffff !important;
   display: block;
   overflow: hidden;
-  transform: scale(1.08);
-  transform-origin: top center;
+  scrollbar-width: none;            /* Firefox */
+  -ms-overflow-style: none;         /* IE/Edge */
+}
+
+.offer-preview-iframe::-webkit-scrollbar {
+  display: none;                    /* Chrome/Safari */
+  width: 0;
+  height: 0;
 }
 
 .offer-preview-loading {
@@ -496,7 +517,7 @@
   display: flex;
   justify-content: flex-start;
   /* Match the document's Figma width */
-  width: 571.64px;
+  width: 595px;
   max-width: 94vw;
 }
 

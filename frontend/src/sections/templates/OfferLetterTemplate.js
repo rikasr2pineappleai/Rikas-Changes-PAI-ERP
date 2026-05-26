@@ -179,13 +179,16 @@ export default function OfferLetterTemplate() {
     link.click();
   };
 
-  /* Triggered by the Email button INSIDE the success modal */
+  /* Triggered by the Email button INSIDE the success modal.
+     Opens Gmail's web compose window with ceo@pineappleai.cloud pre-filled. */
   const handleEmailLetter = () => {
+    const to = "ceo@pineappleai.cloud";
     const subject = encodeURIComponent("Offer Letter");
     const body = encodeURIComponent(
       `Hi,\n\nPlease find the offer letter for ${formData.employeeName || "the candidate"} attached.\n\nRegards,\nPineappleAI HR`
     );
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`;
+    window.open(gmailUrl, "_blank", "noopener,noreferrer");
   };
 
   /* ── icons ───────────────────────────────────────────────── */

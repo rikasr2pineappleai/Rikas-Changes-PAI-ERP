@@ -330,8 +330,8 @@ strong{
     <div class="paragraph">
       We are delighted to extend an internship opportunity at <strong>PineappleAI</strong>
       within our <strong>${esc(department||'[Department]')}</strong> department as a
-      <strong>${esc(position||'[Designation]')}</strong>. Your background and evident passion
-      for [Designation] have caught our attention, and we are confident that your skills and
+      ${esc(position||'[Designation]')}. Your background and evident passion
+      for ${esc(position||'[Designation]')} have caught our attention, and we are confident that your skills and
       enthusiasm will greatly benefit our team.
     </div>
 
@@ -391,23 +391,24 @@ strong{
     <div class="section-title">Reporting</div>
     <div class="paragraph">
       You will be reporting to <strong>${esc(reportingManager||'[Reportee]')}</strong>
-      [<span class="email">${esc(reportingManagerEmail||'Reportee mail')}</span>], who will observe
+      [<span>${esc(reportingManagerEmail||'Reportee mail')}</span>], who will observe
       your work and provide guidance throughout your internship. Your Reporty will be available to
       answer any questions you may have and provide support as needed. Please review this offer letter
       carefully and indicate your acceptance by signing and returning the enclosed copy by
       <strong>one week</strong>. if you hav any questions or concerns, please do not hesitate to
-      contact me at <span class="email">ceo@pineappleai.cloud</span>
+      contact me at <span><strong>ceo@pineappleai.cloud</strong></span>
     </div>
     <div class="paragraph">
+    <br></br>
       We are excited to welcome you to our team and look forward to working with you.
       Congratulations on your internship offer!
     </div>
 
     <div class="signature">sincerely,</div>
     <div class="signature-name">
-      ${esc(generatedBy||'Thileksana Suntharamouleegan')}<br/>
+      Thileksana Suntharamouleegan<br/>
       Chief HR Operational Officer<br/>
-      <span class="email">ceo@pineappleai.cloud</span>
+      <span>ceo@pineappleai.cloud</span>
     </div>
   </div>
 
@@ -417,34 +418,37 @@ strong{
   <!-- FOOTER WHITE CARD -->
   <div class="footer-card"></div>
 
-  <!-- FOOTER CONTACTS — Figma exact positions -->
-  <!-- @aibest : top777 left63 -->
+  <!-- FOOTER CONTACTS — Figma exact positions
+       Icons styled with #8BC243 brand-green background and white glyphs. -->
+
+  <!-- @aibest — peak/up-arrow logo (no background) -->
   <div class="fc" style="top:777px;left:63px;">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" fill="#3D8656"/>
-      <path d="M8 1a7 7 0 1 0 4.95 11.95l-.7-.7A6 6 0 1 1 14 8v1a1 1 0 0 1-2 0V8a4 4 0 1 0-.93 2.59l.71.71A5.97 5.97 0 0 0 14 9a6 6 0 0 0-6-6z" fill="#3D8656"/>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M3.5 11 L8 4.5 L12.5 11" stroke="#8BC145" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     </svg>@aibest
   </div>
 
-  <!-- ceo@pineappleai.cloud : top775 left233 -->
+  <!-- ceo@pineappleai.cloud — envelope (no background) -->
   <div class="fc" style="top:775px;left:233px;">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M2 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v.5L8 8.5 2 4.5V4zm0 1.5 5.5 3.75a1 1 0 0 0 1 0L14 5.5V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5.5z" fill="#3D8656"/>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="3" y="4.5" width="10" height="7" rx="1" stroke="#8BC145" stroke-width="1.1" fill="none"/>
+      <path d="M3.3 5 L8 9 L12.7 5" stroke="#8BC145" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     </svg>ceo@pineappleai.cloud
   </div>
 
-  <!-- www.pineappleai.cloud : top796 left63 -->
+  <!-- www.pineappleai.cloud — globe (no background) -->
   <div class="fc" style="top:796px;left:63px;">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="8" r="6.5" stroke="#3D8656" stroke-width="1.2"/>
-      <path d="M8 1.5C8 1.5 5.5 4 5.5 8s2.5 6.5 2.5 6.5M8 1.5C8 1.5 10.5 4 10.5 8s-2.5 6.5-2.5 6.5M1.5 8h13" stroke="#3D8656" stroke-width="1.2"/>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="5" stroke="#8BC145" stroke-width="1" fill="none"/>
+      <ellipse cx="8" cy="8" rx="2.2" ry="5" stroke="#8BC145" stroke-width="1" fill="none"/>
+      <line x1="3" y1="8" x2="13" y2="8" stroke="#8BC145" stroke-width="1"/>
     </svg>www.pineappleai.cloud
   </div>
 
-  <!-- +94-778-800-205 : top796 left233 -->
+  <!-- +94-778-800-205 — phone (no background) -->
   <div class="fc" style="top:796px;left:233px;">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z" fill="#3D8656"/>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M6.2 4.4 C5.5 4.4 4.8 5.1 4.8 5.8 C4.8 8.9 7.1 11.2 10.2 11.2 C10.9 11.2 11.6 10.5 11.6 9.8 L10 8.9 L9 9.9 C8 9.5 6.5 8 6.1 7 L7.1 6 L6.2 4.4 Z" fill="#8BC145"/>
     </svg>+94-778-800-205
   </div>
 

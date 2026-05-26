@@ -202,13 +202,15 @@ export default function ServiceLetterTemplate() {
   };
 
   const handleEmailLetter = () => {
-    // Open the user's mail client with a pre-filled subject; the actual
-    // attachment flow can be hooked up later (e.g. backend mail endpoint).
+    // Opens Gmail's web compose window with ceo@pineappleai.cloud pre-filled
+    // as the recipient. Attachment flow can be hooked up later via backend.
+    const to = "ceo@pineappleai.cloud";
     const subject = encodeURIComponent("Service Letter");
     const body = encodeURIComponent(
       `Hi,\n\nPlease find the service letter for ${formData.employeeName || "the employee"} attached.\n\nRegards,\nPineappleAI HR`
     );
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`;
+    window.open(gmailUrl, "_blank", "noopener,noreferrer");
   };
 
   const handlePreview = async () => {

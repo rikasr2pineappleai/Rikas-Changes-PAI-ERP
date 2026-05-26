@@ -196,7 +196,7 @@ const generateServiceLetterHTML = (data) => {
   <!-- CONTENT -->
   <div class="content">
     <div class="title">Service Letter</div>
-    <div class="date">[${esc(letterDate)}]</div>
+    <div class="date">${esc(letterDate)}</div>
 
     <div class="paragraph">Dear ${esc(employeeName)},</div>
 
@@ -212,20 +212,18 @@ const generateServiceLetterHTML = (data) => {
     <div class="paragraph">
       Throughout their tenure, ${esc(employeeName)} demonstrated strong technical expertise in
       frontend and backend development, problem-solving abilities, and a commitment to delivering
-      high-quality mobile and web applications.
+      high-quality mobile and web applications.They played a key role in designing, developing and maintaining scalable applications.
     </div>
 
     <div class="paragraph">
       Their ability to collaborate with cross-functional teams, optimize application performance,
       and implement best coding practices made them a valuable asset to our organization.
       We appreciate their contributions and wish them success in their future endeavors.
+      Please feel free to contact us at <strong>ceo@pineappleai.cloud</strong>
     </div>
 
-    <div class="paragraph">
-      Please feel free to contact us at <span>ceo@pineappleai.cloud</span>
-    </div>
-
-    <div class="paragraph">We wish ${esc(employeeName)} all the best in their future endeavors.</div>
+  
+    <div class="paragraph">We wish ${esc(employeeName)} all the best in [her/his] future endeavors.</div>
 
     <div class="signature">Sincerely,</div>
     <div class="signature-name">
@@ -241,30 +239,37 @@ const generateServiceLetterHTML = (data) => {
   <!-- FOOTER WHITE CARD -->
   <div class="footer-card"></div>
 
-  <!-- FOOTER CONTACTS — Figma exact positions -->
+  <!-- FOOTER CONTACTS — Figma exact positions
+       Icons rendered in #8BC145 green with NO background. -->
+
+  <!-- @aibest — peak/up-arrow logo (no background) -->
   <div class="fc" style="top:777px;left:63px;">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" fill="#3D8656"/>
-      <path d="M8 1a7 7 0 1 0 4.95 11.95l-.7-.7A6 6 0 1 1 14 8v1a1 1 0 0 1-2 0V8a4 4 0 1 0-.93 2.59l.71.71A5.97 5.97 0 0 0 14 9a6 6 0 0 0-6-6z" fill="#3D8656"/>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M3.5 11 L8 4.5 L12.5 11" stroke="#8BC145" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     </svg>@aibest
   </div>
 
+  <!-- ceo@pineappleai.cloud — envelope (no background) -->
   <div class="fc" style="top:775px;left:233px;">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M2 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v.5L8 8.5 2 4.5V4zm0 1.5 5.5 3.75a1 1 0 0 0 1 0L14 5.5V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5.5z" fill="#3D8656"/>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="3" y="4.5" width="10" height="7" rx="1" stroke="#8BC145" stroke-width="1.1" fill="none"/>
+      <path d="M3.3 5 L8 9 L12.7 5" stroke="#8BC145" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     </svg>ceo@pineappleai.cloud
   </div>
 
+  <!-- www.pineappleai.cloud — globe (no background) -->
   <div class="fc" style="top:796px;left:63px;">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="8" r="6.5" stroke="#3D8656" stroke-width="1.2"/>
-      <path d="M8 1.5C8 1.5 5.5 4 5.5 8s2.5 6.5 2.5 6.5M8 1.5C8 1.5 10.5 4 10.5 8s-2.5 6.5-2.5 6.5M1.5 8h13" stroke="#3D8656" stroke-width="1.2"/>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="5" stroke="#8BC145" stroke-width="1" fill="none"/>
+      <ellipse cx="8" cy="8" rx="2.2" ry="5" stroke="#8BC145" stroke-width="1" fill="none"/>
+      <line x1="3" y1="8" x2="13" y2="8" stroke="#8BC145" stroke-width="1"/>
     </svg>www.pineappleai.cloud
   </div>
 
+  <!-- +94-778-800-205 — phone (no background) -->
   <div class="fc" style="top:796px;left:233px;">
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z" fill="#3D8656"/>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M6.2 4.4 C5.5 4.4 4.8 5.1 4.8 5.8 C4.8 8.9 7.1 11.2 10.2 11.2 C10.9 11.2 11.6 10.5 11.6 9.8 L10 8.9 L9 9.9 C8 9.5 6.5 8 6.1 7 L7.1 6 L6.2 4.4 Z" fill="#8BC145"/>
     </svg>+94-778-800-205
   </div>
 
