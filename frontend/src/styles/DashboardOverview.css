@@ -168,11 +168,11 @@
 }
 
 /* Column width hints (flexible because of table-layout: fixed) */
-.col-employee { width: 28%; min-width: 115px; }
+.col-employee { width: 32%; min-width: 115px; }
 .col-designation { width: 22%; }
-.col-worktype { width: 14%; }
-.col-checkin { width: 18%; }
-.col-status { width: 18%; }
+.col-checkin { width: 14%; }
+.col-checkout { width: 18%; }
+.col-status { width: 8%; }
 
 /* Body rows */
 .attendance-table tbody tr.attendance-row {
@@ -256,8 +256,8 @@
   flex-grow: 0;
 }
 
-/* Checkin/checkout/worktype small text style */
-.checkin-cell, .checkout-cell, .worktype-cell {
+/* Checkin/checkout small text style */
+.checkin-cell, .checkout-cell {
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 400;
@@ -269,39 +269,6 @@
   flex: none;
   order: 0;
   flex-grow: 0;
-}
-
-/* Bottom-right "View All" link with chevron — matches Figma */
-.attendance-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding: 8px 4px 0 0;
-  margin-top: 4px;
-}
-
-.view-all-link {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Roboto', sans-serif;
-  font-weight: 500;
-  font-size: 13px;
-  color: #347E45;
-  padding: 6px 4px;
-  outline: none;
-}
-
-.view-all-link:hover {
-  color: #2A6437;
-}
-
-.view-all-link:focus-visible {
-  outline: 2px solid #347E45;
-  outline-offset: 2px;
-  border-radius: 4px;
 }
 
 /* Status badge */

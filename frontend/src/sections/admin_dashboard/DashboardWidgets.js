@@ -48,89 +48,61 @@ import TPicon from "../../assets/icons/projects.png";    // total projects
 
 import { fetchTodayAttendanceCount } from '../../integration/attendanceAPI';
 import employeeAPI from '../../integration/employeeAPI';
-import { fetchProjectsDashboard } from '../../integration/projectAPI';
 
 export default function DashboardWidgets() {
-  const today = new Date().toLocaleDateString();
-
   const [widgets, setWidgets] = useState([
-    { id: 1, title: "Total Employee",   value: 0, icon: TEicon,  update: "Just now" },
-    { id: 2, title: "Total Applicant",  value: 0, icon: TAicon,  update: "Just now" },
+    { id: 1, title: "Total Employee", value: 0, icon: TEicon, update: "Just now" },
+    { id: 2, title: "Total Applicant", value: 100, icon: TAicon, update: "Just now" },
     { id: 3, title: "Today Attendance", value: 0, icon: TATicon, update: "Just now" },
-    { id: 4, title: "Total Projects",   value: 0, icon: TPicon,  update: "Just now" },
+    { id: 4, title: "Total Projects", value: 25, icon: TPicon, update: "Just now" },
   ]);
-  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(false);
-
+  
   useEffect(() => {
-    let cancelled = false;
-
     const fetchDashboardData = async () => {
-      setLoading(true);
-
-      // Run all requests in parallel — one failure doesn't block the others
-      const [employeeRes, attendanceRes, projectsRes] = await Promise.all([
-        employeeAPI.getEmployeeCount().catch((err) => {
-          console.error('Error fetching employee count:', err);
-          return null;
-        }),
-        fetchTodayAttendanceCount().catch((err) => {
+      try {
+        setLoading(true);
+        
+        // Fetch attendance count
+        let attendanceResponse = null;
+        try {
+          attendanceResponse = await fetchTodayAttendanceCount();
+        } catch (err) {
           console.error('Error fetching attendance count:', err);
-          return null;
-        }),
-        fetchProjectsDashboard().catch((err) => {
-          console.error('Error fetching projects dashboard:', err);
-          return null;
-        }),
-      ]);
-
-      if (cancelled) return;
-
-      // Projects backend returns { success, stats: { totalProjects, ... } }
-      const projectCount =
-        projectsRes?.stats?.totalProjects ??
-        projectsRes?.stats?.total ??
-        (Array.isArray(projectsRes?.projects) ? projectsRes.projects.length : 0);
-
-      setWidgets((prev) =>
-        prev.map((widget) => {
-          if (widget.id === 1) {
-            return {
-              ...widget,
-              value: employeeRes?.data?.count ?? 0,
-              update: today,
-            };
-          }
-          if (widget.id === 3) {
-            return {
-              ...widget,
-              value: attendanceRes?.data?.count ?? 0,
-              update: today,
-            };
-          }
-          if (widget.id === 4) {
-            return {
-              ...widget,
-              value: projectCount,
-              update: today,
-            };
-          }
-          // id === 2 (Total Applicant) — no backend yet, keep current value
-          return widget;
-        })
-      );
-
-      setLoading(false);
+        }
+        
+        // Fetch employee count
+        let employeeResponse = null;
+        try {
+          employeeResponse = await employeeAPI.getEmployeeCount();
+        } catch (err) {
+          console.error('Error fetching employee count:', err);
+        }
+        
+        setWidgets(prevWidgets => 
+          prevWidgets.map(widget => {
+            if (widget.id === 3) {
+              // Today Attendance widget
+              return { ...widget, value: attendanceResponse?.data?.count || 0, update: new Date().toLocaleDateString() };
+            } else if (widget.id === 1) {
+              // Total Employee widget
+              return { ...widget, value: employeeResponse?.data?.count || 0, update: new Date().toLocaleDateString() };
+            }
+            return widget;
+          })
+        );
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-
+    
     fetchDashboardData();
-    return () => {
-      cancelled = true;
-    };
-  }, [today]);
+  }, []);
 
   return (
-    <div className="widget-section" role="region" aria-label="Dashboard widgets">
+    <div className="widget-section" role="region" aria-label="Dashboard widgets" style={{ width: '100%', maxWidth: '100%', margin: '0', padding: '20px', boxSizing: 'border-box' }}>
       <div className="widget-grid">
         {widgets.map((w) => (
           <article className="widget-box" key={w.id}>
@@ -140,11 +112,11 @@ export default function DashboardWidgets() {
               </div>
               <div className="widget-title">{w.title}</div>
             </div>
-
+    
             <div className="widget-value" aria-live="polite">{w.value}</div>
-
+    
             <div className="divider" />
-
+    
             <div className="widget-update">Update: {w.update}</div>
           </article>
         ))}

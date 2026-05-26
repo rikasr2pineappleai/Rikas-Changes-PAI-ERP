@@ -1,93 +1,51 @@
-/* =========================================================
-   Admin Dashboard — top-level grid layout (Figma redesign)
-   ========================================================= */
-
-.admin-dashboard-page {
-  padding: 16px;
+/* dashboard styles placeholder */
+.page-container { 
+  padding: 16px; 
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px; /* Reduced spacing between sections */
   width: 100%;
-  max-width: 100%;
-  margin: 0;
+  max-width: 100%; /* Allow full width on wider screens */
+  margin: 0; /* Ensure no centering that could cause misalignment */
   box-sizing: border-box;
+  overflow: visible; /* Prevent internal scrolling */
+  height: auto; /* Allow flexible height */
 }
 
-/* --- TOP ROW: KPI cards (flex-grow) + Project Status (fixed-ish) --- */
-.admin-dashboard-top-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 16px;
-  align-items: stretch;
-}
-
-.admin-dashboard-widgets-col,
-.admin-dashboard-status-col {
-  min-width: 0;
-  display: flex;
-}
-
-/* --- BOTTOM ROW: Attendance + sidebar (Absentees + Quick Message) --- */
-.admin-dashboard-bottom-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 16px;
-  align-items: stretch;
-}
-
-.admin-dashboard-overview-col {
-  min-width: 0;
-  display: flex;
-}
-
-.admin-dashboard-side-col {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 0;
-}
-
-/* Backwards compatibility for old class names still referenced elsewhere */
-.page-container {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.widgets-section {
   width: 100%;
-  max-width: 100%;
-  margin: 0;
+  max-width: 100%; /* Allow full width on wider screens */
   box-sizing: border-box;
+  overflow: visible; /* Prevent internal scrolling */
+  height: auto; /* Allow flexible height */
 }
 
-.widgets-section,
 .overview-section {
   width: 100%;
-  max-width: 100%;
+  max-width: 100%; /* Allow full width on wider screens */
   box-sizing: border-box;
+  overflow: visible; /* Prevent internal scrolling */
+  height: auto; /* Allow flexible height */
 }
 
-/* --- RESPONSIVE: collapse to single column on smaller screens --- */
-@media (max-width: 1280px) {
-  .admin-dashboard-top-row,
-  .admin-dashboard-bottom-row {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* Responsive adjustments for larger screens */
 @media (min-width: 1401px) {
-  .admin-dashboard-page {
-    padding: 20px;
-  }
-  .admin-dashboard-top-row,
-  .admin-dashboard-bottom-row {
-    grid-template-columns: minmax(0, 1fr) 360px;
-    gap: 20px;
+  .page-container {
+    padding: 20px; /* Increase padding on larger screens */
   }
 }
 
+/* Mobile responsive adjustments */
 @media (max-width: 768px) {
-  .admin-dashboard-page {
+  .page-container {
     padding: 12px;
-    gap: 12px;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .widgets-section,
+  .overview-section {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }

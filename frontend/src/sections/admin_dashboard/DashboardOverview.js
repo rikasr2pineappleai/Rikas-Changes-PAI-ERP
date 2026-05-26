@@ -255,11 +255,6 @@ export default function DashboardOverview() {
                 `${user.first_name || "N/A"} ${user.last_name || ""}`.trim() ||
                 "Unknown Employee",
               designation: user.designation || "N/A",
-              workType:
-                record.work_type ||
-                record.workType ||
-                user.work_type ||
-                "Office",
               checkInTime: clockInTime, // Actual check-in time
               checkOutTime: clockOutTime,
               status:
@@ -295,6 +290,15 @@ export default function DashboardOverview() {
         <h2 id="attendance-title" className="attendance-title">
           Attendance Overview
         </h2>
+
+        <button
+          type="button"
+          className="view-all-button"
+          aria-label="View all attendance"
+          onClick={handleViewAll}
+        >
+          View All
+        </button>
       </div>
 
       {loading && (
@@ -333,8 +337,8 @@ export default function DashboardOverview() {
                 <tr>
                   <th className="col-employee">Employee Name</th>
                   <th className="col-designation">Designation</th>
-                  <th className="col-worktype">Work Type</th>
-                  <th className="col-checkin">Check In Time</th>
+                  <th className="col-checkin">Check In</th>
+                  <th className="col-checkout">Check Out</th>
                   <th className="col-status">Status</th>
                 </tr>
               </thead>
@@ -360,8 +364,8 @@ export default function DashboardOverview() {
                       {emp.designation}
                     </td>
 
-                    <td className="worktype-cell">{emp.workType}</td>
                     <td className="checkin-cell">{emp.checkInTime}</td>
+                    <td className="checkout-cell">{emp.checkOutTime}</td>
 
                     <td className="status-cell">
                       <span
@@ -378,33 +382,6 @@ export default function DashboardOverview() {
                 ))}
               </tbody>
             </table>
-          </div>
-
-          {/* View All link bottom-right (matches Figma) */}
-          <div className="attendance-footer">
-            <button
-              type="button"
-              className="view-all-link"
-              onClick={handleViewAll}
-              aria-label="View all attendance"
-            >
-              View All
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 20 20"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M7.5 5L12.5 10L7.5 15"
-                  stroke="#347E45"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
           </div>
 
           {/* Mobile Cards */}
@@ -429,13 +406,13 @@ export default function DashboardOverview() {
                 </div>
 
                 <div className="card-detail">
-                  <span className="card-label">Work Type</span>
-                  <div className="card-value">{emp.workType}</div>
+                  <span className="card-label">Check In</span>
+                  <div className="card-value">{emp.checkInTime}</div>
                 </div>
 
                 <div className="card-detail">
-                  <span className="card-label">Check In Time</span>
-                  <div className="card-value">{emp.checkInTime}</div>
+                  <span className="card-label">Check Out</span>
+                  <div className="card-value">{emp.checkOutTime}</div>
                 </div>
 
                 <div className="card-detail">
