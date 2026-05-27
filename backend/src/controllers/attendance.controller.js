@@ -526,13 +526,21 @@ const handleDatabaseError = (error, operation) => {
   };
 };
 
+const getLocalDateString = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // @desc    Clock in employee
 // @route   POST /api/attendance/employee/clock-in
 // @access  Private (Employees)
 exports.clockIn = async (req, res) => {
   try {
     const userId = req.user.id;
-    const currentDate = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD
+    const currentDate = getLocalDateString();
     
     // Check if user already clocked in today
     const existingRecord = await AttendanceRecord.findOne({
@@ -616,7 +624,7 @@ exports.clockIn = async (req, res) => {
 exports.clockOut = async (req, res) => {
   try {
     const userId = req.user.id;
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = getLocalDateString();
     
     // Find today's attendance record
     const attendanceRecord = await AttendanceRecord.findOne({
@@ -679,7 +687,7 @@ exports.clockOut = async (req, res) => {
 exports.startBreak = async (req, res) => {
   try {
     const userId = req.user.id;
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = getLocalDateString();
     
     // Find today's attendance record
     const attendanceRecord = await AttendanceRecord.findOne({
@@ -738,7 +746,7 @@ exports.startBreak = async (req, res) => {
 exports.endBreak = async (req, res) => {
   try {
     const userId = req.user.id;
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = getLocalDateString();
     
     // Find today's attendance record
     const attendanceRecord = await AttendanceRecord.findOne({
@@ -799,7 +807,7 @@ exports.endBreak = async (req, res) => {
 exports.getTodayAttendance = async (req, res) => {
   try {
     const userId = req.user.id;
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = getLocalDateString();
     
     // Find today's attendance record
     const attendanceRecord = await AttendanceRecord.findOne({
@@ -1060,7 +1068,7 @@ exports.getAttendanceByDepartment = async (req, res) => {
 // @access  Private (Admin)
 exports.getTodayAttendanceCount = async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalDateString();
     
     const count = await AttendanceRecord.count({
       where: {
