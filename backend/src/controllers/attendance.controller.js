@@ -526,12 +526,58 @@ const handleDatabaseError = (error, operation) => {
   };
 };
 
-const getLocalDateString = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+const ATTENDANCE_TIME_ZONE = process.env.ATTENDANCE_TIME_ZONE || 'Asia/Colombo';
+
+const getAttendanceDateTimeParts = (date = new Date()) => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: ATTENDANCE_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23'
+  }).formatToParts(date);
+
+  return parts.reduce((acc, part) => {
+    if (part.type !== 'literal') {
+      acc[part.type] = part.value;
+    }
+    return acc;
+  }, {});
+};
+
+const getLocalDateString = (date = new Date()) => {
+  const { year, month, day } = getAttendanceDateTimeParts(date);
   return `${year}-${month}-${day}`;
+};
+
+const getAttendanceStatus = (clockInTime = new Date()) => {
+  const { hour, minute } = getAttendanceDateTimeParts(clockInTime);
+  const clockInTotalMinutes = Number(hour) * 60 + Number(minute);
+  const onTimeStartTotalMinutes = 6 * 60 + 45;
+  const onTimeEndTotalMinutes = 7 * 60;
+
+  if (clockInTotalMinutes >= onTimeStartTotalMinutes && clockInTotalMinutes <= onTimeEndTotalMinutes) {
+    return 'on_time';
+  }
+
+  if (clockInTotalMinutes < onTimeStartTotalMinutes) {
+    return 'early_arrival';
+  }
+
+  return 'late';
+};
+
+const serializeAttendanceRecord = (record) => {
+  if (!record) return null;
+
+  const data = typeof record.toJSON === 'function' ? record.toJSON() : { ...record };
+  if (data.clock_in) {
+    data.status = getAttendanceStatus(new Date(data.clock_in));
+  }
+
+  return data;
 };
 
 // @desc    Clock in employee
@@ -559,27 +605,7 @@ exports.clockIn = async (req, res) => {
     
     const clockInTime = new Date();
     
-    // Determine status based on new thresholds: on-time window is 6:45 AM to 7:00 AM (inclusive)
-    const onTimeStart = new Date();
-    onTimeStart.setHours(6, 45, 0, 0); // 6:45 AM - start of on-time window
-    const onTimeEnd = new Date();
-    onTimeEnd.setHours(7, 0, 0, 0); // 7:00 AM - end of on-time window
-    
-    // Extract time components for comparison (hours and minutes only)
-    const clockInHours = clockInTime.getHours();
-    const clockInMinutes = clockInTime.getMinutes();
-    const clockInTotalMinutes = clockInHours * 60 + clockInMinutes;
-    const onTimeStartTotalMinutes = 6 * 60 + 45; // 6:45 AM = 405 minutes from midnight
-    const onTimeEndTotalMinutes = 7 * 60 + 0; // 7:00 AM = 420 minutes from midnight
-    
-    let status;
-    if (clockInTotalMinutes >= onTimeStartTotalMinutes && clockInTotalMinutes <= onTimeEndTotalMinutes) {
-      status = 'on_time'; // On time if within the window (inclusive)
-    } else if (clockInTotalMinutes < onTimeStartTotalMinutes) {
-      status = 'early_arrival'; // Early arrival if before the window
-    } else {
-      status = 'late'; // Late if after the window
-    }
+    const status = getAttendanceStatus(clockInTime);
     
     let attendanceRecord;
     
@@ -820,7 +846,7 @@ exports.getTodayAttendance = async (req, res) => {
     
     res.status(200).json({
       success: true,
-      data: attendanceRecord || null
+      data: serializeAttendanceRecord(attendanceRecord)
     });
   } catch (error) {
     const errorResponse = handleDatabaseError(error, 'get today attendance');
@@ -854,7 +880,7 @@ exports.getAttendanceSummary = async (req, res) => {
       success: true,
       data: {
         total_days_worked: totalDaysWorked,
-        recent_records: recentRecords
+        recent_records: recentRecords.map(serializeAttendanceRecord)
       }
     });
   } catch (error) {
@@ -889,7 +915,7 @@ exports.getAllAttendanceRecords = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        attendance_records: rows,
+        attendance_records: rows.map(serializeAttendanceRecord),
         pagination: {
           page,
           limit,
@@ -932,7 +958,7 @@ exports.getEmployeeAttendanceRecords = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        attendance_records: rows,
+        attendance_records: rows.map(serializeAttendanceRecord),
         pagination: {
           page,
           limit,
@@ -967,7 +993,7 @@ exports.getAllEmployeesAttendanceRecords = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        attendance_records: attendanceRecords
+        attendance_records: attendanceRecords.map(serializeAttendanceRecord)
       }
     });
   } catch (error) {

@@ -217,6 +217,27 @@ import "../../styles/DashboardOverview.css";
 
 import defaultImg from "../../assets/images/default_profile.png";
 
+const formatAttendanceStatus = (status) => {
+  const normalizedStatus = String(status || "").toLowerCase();
+
+  if (normalizedStatus === "on_time") return "On Time";
+  if (normalizedStatus === "late") return "Late";
+  if (normalizedStatus === "early_arrival") return "Early Arrival";
+  if (normalizedStatus === "early_departure") return "Early Departure";
+  if (normalizedStatus === "absent") return "Absent";
+
+  return status || "Unknown";
+};
+
+const getStatusClassName = (status) => {
+  const normalizedStatus = String(status || "").toLowerCase();
+
+  if (normalizedStatus === "late") return "late";
+  if (normalizedStatus === "early_arrival") return "early-arrival";
+
+  return "on-time";
+};
+
 export default function DashboardOverview() {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
@@ -257,12 +278,8 @@ export default function DashboardOverview() {
               designation: user.designation || "N/A",
               checkInTime: clockInTime, // Actual check-in time
               checkOutTime: clockOutTime,
-              status:
-                record.status === "on_time"
-                  ? "On Time"
-                  : record.status === "late"
-                  ? "Late"
-                  : record.status,
+              status: formatAttendanceStatus(record.status),
+              statusClassName: getStatusClassName(record.status),
               avatar: profileImage,
             };
           }
@@ -369,11 +386,7 @@ export default function DashboardOverview() {
 
                     <td className="status-cell">
                       <span
-                        className={`status-badge ${
-                          emp.status.toLowerCase().includes("late")
-                            ? "late"
-                            : "on-time"
-                        }`}
+                        className={`status-badge ${emp.statusClassName}`}
                       >
                         {emp.status}
                       </span>
@@ -419,11 +432,7 @@ export default function DashboardOverview() {
                   <span className="card-label">Status</span>
                   <div className="card-value">
                     <span
-                      className={`status-badge ${
-                        emp.status.toLowerCase().includes("late")
-                          ? "late"
-                          : "on-time"
-                      }`}
+                      className={`status-badge ${emp.statusClassName}`}
                     >
                       {emp.status}
                     </span>

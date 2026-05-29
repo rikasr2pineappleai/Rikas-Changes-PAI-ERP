@@ -308,6 +308,13 @@
   color: #F45B69;
 }
 
+.status-badge.early-arrival {
+  width: 88px;
+  height: 24px;
+  background: rgba(63, 194, 138, 0.1);
+  color: #347E45;
+}
+
 /* MOBILE CARDS (hidden by default) */
 .attendance-cards {
   display: none;
