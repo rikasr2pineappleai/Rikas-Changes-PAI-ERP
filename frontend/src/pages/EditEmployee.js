@@ -1613,18 +1613,44 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   <div className="small-field">
                     <label>Employment Duration</label>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <input
-                        type="date"
-                        name="employment_start"
-                        placeholder="Start Date"
-                        style={{ flex: 1 }}
-                      />
-                      <input
-                        type="date"
-                        name="employment_end"
-                        placeholder="End Date (or leave blank if current)"
-                        style={{ flex: 1 }}
-                      />
+                      <div style={{ flex: 1, position: 'relative' }}>
+                        <input
+                          type="date"
+                          name="employment_start"
+                          id="employment_start_input"
+                          placeholder="Start Date"
+                          className="date-input"
+                          style={{ width: '100%', paddingRight: 36 }}
+                        />
+                        <img
+                          src={calendarIcon}
+                          alt=""
+                          style={{ width: 20, height: 20, position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', zIndex: 2 }}
+                          onClick={() => {
+                            const inp = document.getElementById("employment_start_input");
+                            if (inp?.showPicker) inp.showPicker(); else { inp.focus(); inp.click(); }
+                          }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, position: 'relative' }}>
+                        <input
+                          type="date"
+                          name="employment_end"
+                          id="employment_end_input"
+                          placeholder="End Date (or leave blank if current)"
+                          className="date-input"
+                          style={{ width: '100%', paddingRight: 36 }}
+                        />
+                        <img
+                          src={calendarIcon}
+                          alt=""
+                          style={{ width: 20, height: 20, position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', zIndex: 2 }}
+                          onClick={() => {
+                            const inp = document.getElementById("employment_end_input");
+                            if (inp?.showPicker) inp.showPicker(); else { inp.focus(); inp.click(); }
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1779,13 +1805,25 @@ if (hasExistingAllocation || hasAnyProjectData) {
                 />
               </div>
 
-              <div className="small-field">
+              <div className="small-field" style={{ position: 'relative' }}>
                 <label>Start Date</label>
                 <input
                   type="date"
                   name="startDate"
+                  id="project_start_date_input"
                   value={projectInfo.startDate}
                   onChange={handleProjectChange}
+                  className="date-input"
+                  style={{ paddingRight: 36 }}
+                />
+                <img
+                  src={calendarIcon}
+                  className="icon"
+                  alt=""
+                  onClick={() => {
+                    const inp = document.getElementById("project_start_date_input");
+                    if (inp?.showPicker) inp.showPicker(); else { inp.focus(); inp.click(); }
+                  }}
                 />
               </div>
 
@@ -1865,22 +1903,48 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   <div className="small-field">
                     <label>Allocation History</label>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <input
-                        type="date"
-                        name="allocation_start"
-                        placeholder="Allocation Start"
-                        value={detailedProjectInfo.allocation_start}
-                        onChange={handleDetailedProjectChange}
-                        style={{ flex: 1 }}
-                      />
-                      <input
-                        type="date"
-                        name="allocation_end"
-                        placeholder="Allocation End (or leave blank)"
-                        value={detailedProjectInfo.allocation_end}
-                        onChange={handleDetailedProjectChange}
-                        style={{ flex: 1 }}
-                      />
+                      <div style={{ flex: 1, position: 'relative' }}>
+                        <input
+                          type="date"
+                          name="allocation_start"
+                          id="allocation_start_input"
+                          placeholder="Allocation Start"
+                          value={detailedProjectInfo.allocation_start}
+                          onChange={handleDetailedProjectChange}
+                          className="date-input"
+                          style={{ width: '100%', paddingRight: 36 }}
+                        />
+                        <img
+                          src={calendarIcon}
+                          alt=""
+                          style={{ width: 20, height: 20, position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', zIndex: 2 }}
+                          onClick={() => {
+                            const inp = document.getElementById("allocation_start_input");
+                            if (inp?.showPicker) inp.showPicker(); else { inp.focus(); inp.click(); }
+                          }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, position: 'relative' }}>
+                        <input
+                          type="date"
+                          name="allocation_end"
+                          id="allocation_end_input"
+                          placeholder="Allocation End (or leave blank)"
+                          value={detailedProjectInfo.allocation_end}
+                          onChange={handleDetailedProjectChange}
+                          className="date-input"
+                          style={{ width: '100%', paddingRight: 36 }}
+                        />
+                        <img
+                          src={calendarIcon}
+                          alt=""
+                          style={{ width: 20, height: 20, position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', zIndex: 2 }}
+                          onClick={() => {
+                            const inp = document.getElementById("allocation_end_input");
+                            if (inp?.showPicker) inp.showPicker(); else { inp.focus(); inp.click(); }
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
 
