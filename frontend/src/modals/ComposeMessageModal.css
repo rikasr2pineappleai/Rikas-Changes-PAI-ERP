@@ -1,0 +1,391 @@
+/* ComposeMessageModal.css */
+
+/* ─── Overlay ─────────────────────────────────────────────────────────── */
+.cm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* ─── Modal box ────────────────────────────────────────────────────────── */
+.cm-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+
+/* ─── Title ────────────────────────────────────────────────────────────── */
+.cm-title {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  color: #1E293B;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Field group ──────────────────────────────────────────────────────── */
+.cm-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cm-label {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #1E293B;
+}
+
+.cm-required {
+  color: #EF4444;
+  margin-left: 2px;
+}
+
+/* ─── Radio row ────────────────────────────────────────────────────────── */
+.cm-radio-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.cm-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #1E293B;
+  user-select: none;
+}
+
+.cm-radio-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #DADADA;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+  cursor: pointer;
+  position: relative;
+}
+
+.cm-radio-checked {
+  border-color: #1DA462;
+  background: #1DA462;
+  box-shadow: inset 0 0 0 3px #fff;
+}
+
+/* ─── Dropdown trigger ─────────────────────────────────────────────────── */
+.cm-dropdown-wrap {
+  position: relative;
+}
+
+.cm-select-trigger {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  border: 1px solid #DADADA;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  box-sizing: border-box;
+  gap: 8px;
+  background: #fff;
+}
+
+.cm-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+  align-items: center;
+}
+
+.cm-placeholder {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  color: #BDBDBD;
+}
+
+/* chips */
+.cm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #F3F4F6;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: #1E293B;
+  max-width: 160px;
+}
+
+.cm-chip-main { font-weight: 500; }
+.cm-chip-sub  { font-weight: 400; color: #6B7280; font-size: 11px; }
+
+.cm-chip-x {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #9CA3AF;
+  padding: 0;
+  line-height: 1;
+  margin-left: 2px;
+}
+.cm-chip-x:hover { color: #EF4444; }
+
+/* chevron */
+.cm-chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.cm-chevron-up {
+  transform: rotate(180deg);
+}
+
+/* ─── Drop panel ───────────────────────────────────────────────────────── */
+.cm-drop-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #DADADA;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+  z-index: 100;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cm-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.cm-search-input {
+  border: none;
+  outline: none;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  color: #1E293B;
+  flex: 1;
+  background: transparent;
+}
+
+.cm-drop-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.cm-check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.cm-check-row:hover { background: #F9FAFB; }
+
+/* checkbox */
+.cm-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #DADADA;
+  border-radius: 3px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  position: relative;
+  background: #fff;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cm-checkbox-checked {
+  background: #1DA462;
+  border-color: #1DA462;
+}
+.cm-checkbox-checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 1px;
+  width: 5px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+.cm-check-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  color: #1E293B;
+}
+.cm-check-sub {
+  font-size: 11px;
+  color: #6B7280;
+}
+
+/* footer inside dropdown */
+.cm-drop-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-top: 1px solid #F3F4F6;
+  background: #fff;
+}
+
+.cm-sel-count {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1DA462;
+}
+
+.cm-clear-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6B7280;
+  padding: 0;
+}
+.cm-clear-btn:hover { color: #EF4444; }
+
+/* ─── Text inputs ──────────────────────────────────────────────────────── */
+.cm-input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #DADADA;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #1E293B;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.cm-input:focus { border-color: #1DA462; }
+
+.cm-textarea {
+  width: 100%;
+  border: 1px solid #DADADA;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #1E293B;
+  box-sizing: border-box;
+  outline: none;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 0.15s;
+}
+.cm-textarea:focus { border-color: #1DA462; }
+
+/* ─── Attach files ─────────────────────────────────────────────────────── */
+.cm-attach-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1.5px dashed #DADADA;
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.cm-attach-box:hover { border-color: #1DA462; }
+
+.cm-attach-text {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  color: #1E293B;
+  line-height: 1.5;
+}
+
+/* ─── Error ────────────────────────────────────────────────────────────── */
+.cm-error {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  color: #EF4444;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Actions row ──────────────────────────────────────────────────────── */
+.cm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.cm-cancel-btn {
+  background: none;
+  border: 1px solid #DADADA;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1E293B;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cm-cancel-btn:hover { background: #F9FAFB; }
+.cm-cancel-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.cm-send-btn {
+  background: #1DA462;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cm-send-btn:hover:not(:disabled) { background: #17935a; }
+.cm-send-btn:disabled { background: #9CA3AF; cursor: not-allowed; }
+
+/* ─── Responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .cm-modal {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+  .cm-title { font-size: 18px; }
+}

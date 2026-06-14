@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/DashboardWidgets.css";
 
-import TEicon from "../../assets/icons/teicon.png";      // total employee
-import TAicon from "../../assets/icons/applicant.png";   // total applicant
-import TATicon from "../../assets/icons/attendence.png"; // today attendance
-import TPicon from "../../assets/icons/projects.png";    // total projects
+import TEicon  from "../../assets/icons/users_02.png";        // total employee
+import TAicon  from "../../assets/icons/briefcase_04.png";    // total applicant
+import TATicon from "../../assets/icons/calendar-check.png";  // today attendance
+import TPicon  from "../../assets/icons/file_01.png";         // total projects
 
 import { fetchTodayAttendanceCount } from '../../integration/attendanceAPI';
 import employeeAPI from '../../integration/employeeAPI';
@@ -93,10 +93,10 @@ export default function DashboardWidgets() {
   }, []);
 
   return (
-    <div className="widget-section" role="region" aria-label="Dashboard widgets" style={{ width: '100%', maxWidth: '100%', margin: '0', padding: '20px', boxSizing: 'border-box' }}>
+    <div className="widget-section" role="region" aria-label="Dashboard widgets">
       <div className="widget-grid">
         {widgets.map((w) => (
-          <article className="widget-box" key={w.id}>
+          <article className="widget-box" key={w.id} data-id={w.id}>
             <div className="widget-top">
               <div className="icon-wrap" aria-hidden="true">
                 <img src={w.icon} alt={`${w.title} icon`} />

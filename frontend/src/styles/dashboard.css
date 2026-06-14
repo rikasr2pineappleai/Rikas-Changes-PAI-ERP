@@ -1,51 +1,72 @@
-/* dashboard styles placeholder */
-.page-container { 
-  padding: 16px; 
+/* dashboard.css  – Version 2.0  (two-column Figma layout) */
+
+/* ─── Page wrapper ────────────────────────────────────────────────────── */
+.page-container {
+  padding: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+  height: auto;
+}
+
+/* ─── Main two-column grid ────────────────────────────────────────────── */
+.dashboard-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;   /* left fills, right is fixed ~340px */
+  gap: 16px;
+  width: 100%;
+  align-items: start;
+}
+
+/* ─── Left column: widgets + attendance ──────────────────────────────── */
+.dashboard-left-col {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Reduced spacing between sections */
-  width: 100%;
-  max-width: 100%; /* Allow full width on wider screens */
-  margin: 0; /* Ensure no centering that could cause misalignment */
-  box-sizing: border-box;
-  overflow: visible; /* Prevent internal scrolling */
-  height: auto; /* Allow flexible height */
+  gap: 16px;
+  min-width: 0;
 }
 
-.widgets-section {
-  width: 100%;
-  max-width: 100%; /* Allow full width on wider screens */
-  box-sizing: border-box;
-  overflow: visible; /* Prevent internal scrolling */
-  height: auto; /* Allow flexible height */
-}
-
+.widgets-section,
 .overview-section {
   width: 100%;
-  max-width: 100%; /* Allow full width on wider screens */
   box-sizing: border-box;
-  overflow: visible; /* Prevent internal scrolling */
-  height: auto; /* Allow flexible height */
 }
 
-/* Responsive adjustments for larger screens */
+/* ─── Right column ───────────────────────────────────────────────────── */
+.dashboard-right-col {
+  min-width: 0;
+  width: 100%;
+}
+
+/* ─── Responsive breakpoints ─────────────────────────────────────────── */
+
+/* Large screens: wider right panel */
 @media (min-width: 1401px) {
-  .page-container {
-    padding: 20px; /* Increase padding on larger screens */
+  .page-container { padding: 20px; }
+  .dashboard-main-grid {
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
   }
 }
 
-/* Mobile responsive adjustments */
+/* Medium / laptop: single column */
+@media (max-width: 1100px) {
+  .dashboard-main-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-right-col {
+    width: 100%;
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
   .page-container {
     padding: 12px;
-    max-width: 100%;
     overflow-x: hidden;
   }
-  
-  .widgets-section,
-  .overview-section {
-    max-width: 100%;
-    overflow-x: hidden;
+  .dashboard-main-grid {
+    gap: 12px;
   }
 }
