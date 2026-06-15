@@ -2,7 +2,7 @@
 
 /* ─── Page wrapper ────────────────────────────────────────────────────── */
 .page-container {
-  padding: 16px;
+  padding: 18px 0 0;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -10,11 +10,15 @@
   height: auto;
 }
 
+.page-content > .page-container {
+  padding-top: 18px;
+}
+
 /* ─── Main two-column grid ────────────────────────────────────────────── */
 .dashboard-main-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;   /* left fills, right is fixed ~340px */
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 450px;
+  gap: 20px;
   width: 100%;
   align-items: start;
 }
@@ -23,7 +27,7 @@
 .dashboard-left-col {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 30px;
   min-width: 0;
 }
 
@@ -43,15 +47,15 @@
 
 /* Large screens: wider right panel */
 @media (min-width: 1401px) {
-  .page-container { padding: 20px; }
+  .page-container { padding: 18px 0 0; }
   .dashboard-main-grid {
-    grid-template-columns: 1fr 380px;
+    grid-template-columns: minmax(0, 1fr) 450px;
     gap: 20px;
   }
 }
 
 /* Medium / laptop: single column */
-@media (max-width: 1100px) {
+@media (max-width: 1250px) {
   .dashboard-main-grid {
     grid-template-columns: 1fr;
   }

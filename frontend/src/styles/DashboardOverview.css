@@ -4,7 +4,7 @@
 /* Version: 1.0.8 */
 
 :root {
-  --attendance-height: 522px;
+  --attendance-height: 724px;
   --attendance-padding: 20px;
   --attendance-radius: 16px;
   --attendance-border: 1px solid #DADADA;
@@ -68,7 +68,7 @@
   justify-content: space-between;
   gap: 12px;
   padding-right: 0;
-  min-height: 40px;
+  min-height: 24px;
 }
 
 /* Title - Updated to match Figma */
@@ -76,8 +76,8 @@
   font-family: 'Roboto'; /* Match Figma font family */
   font-style: normal; /* Match Figma font style */
   font-weight: 600; /* Match Figma font weight */
-  font-size: 20px; /* Match Figma font size */
-  line-height: 23px; /* Match Figma line height */
+  font-size: 16px;
+  line-height: 20px;
   color: #1E293B; /* Match Figma color */
   margin: 0; /* Remove default margins */
   padding: 0; /* Remove default padding */
@@ -134,9 +134,13 @@
 
 /* Table wrapper: removed internal scrolling */
 .attendance-table-wrapper {
-  margin-top: 4px;
+  margin-top: 8px;
   /* Removed flex: 1 to prevent internal scrolling */
   overflow: visible; /* Ensure no internal scrolling */
+}
+
+.attendance-section .attendance-table-wrapper {
+  overflow-x: hidden;
 }
 
 /* Table core */
@@ -147,15 +151,20 @@
   min-width: 100%;
 }
 
+.attendance-section .attendance-table {
+  width: 100%;
+  min-width: 0 !important;
+}
+
 /* Header cells */
 .attendance-table thead th {
   text-align: left;
-  padding: 12px 10px;
+  padding: 10px 0;
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 300;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 13px;
+  line-height: 18px;
   /* identical to box height, or 150% */
   color: #979494;
   border-bottom: 1px solid rgba(0,0,0,0.05);
@@ -168,25 +177,24 @@
 }
 
 /* Column width hints (flexible because of table-layout: fixed) */
-.col-employee { width: 32%; min-width: 115px; }
-.col-designation { width: 22%; }
-.col-checkin { width: 14%; }
-.col-checkout { width: 18%; }
-.col-status { width: 8%; }
+.col-employee { width: 27%; min-width: 150px; }
+.col-designation { width: 29%; }
+.col-worktype { width: 18%; }
+.col-checkin { width: 16%; }
+.col-status { width: 10%; }
 
 /* Body rows */
 .attendance-table tbody tr.attendance-row {
   border-bottom: 1px solid rgba(0,0,0,0.04);
   /* Changed from fixed height to min-height to prevent overflow */
-  min-height: 74px;
-  height: auto;
+  height: 55px;
 }
 
 /* Body cells */
 .attendance-table tbody td {
-  padding: 12px 10px;
+  padding: 8px 0;
   vertical-align: middle;
-  font-size: 14px;
+  font-size: 13px;
   color: #2b3942;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -203,13 +211,13 @@
 .employee-cell .employee-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0; /* allows ellipsis to work on child text */
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
@@ -222,8 +230,8 @@
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 300;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 13px;
+  line-height: 18px;
   /* identical to box height, or 150% */
   color: #1E293B;
   width: 103px;
@@ -242,8 +250,8 @@
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 19px;
+  font-size: 13px;
+  line-height: 18px;
   /* identical to box height */
   color: #1E293B;
   width: 141px;
@@ -257,12 +265,12 @@
 }
 
 /* Checkin/checkout small text style */
-.checkin-cell, .checkout-cell {
+.checkin-cell, .worktype-cell {
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 19px;
+  font-size: 13px;
+  line-height: 18px;
   /* identical to box height */
   color: #1E293B;
   white-space: nowrap;
@@ -283,8 +291,8 @@
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 300;
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 11px;
+  line-height: 16px;
   /* identical to box height, or 150% */
   display: flex;
   align-items: center;
@@ -295,15 +303,15 @@
 
 /* On time / Late colors */
 .status-badge.on-time {
-  width: 66px;
-  height: 24px;
+  width: 58px;
+  height: 22px;
   background: rgba(63, 194, 138, 0.1);
   color: #347E45;
 }
 
 .status-badge.late {
-  width: 39px;
-  height: 24px;
+  width: 36px;
+  height: 22px;
   background: rgba(244, 91, 105, 0.1);
   color: #F45B69;
 }
@@ -320,47 +328,40 @@
   display: none;
 }
 
+.attendance-sort {
+  color: #979494;
+  font-size: 12px;
+  margin-left: 2px;
+}
+
+.attendance-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.attendance-view-all {
+  border: 0;
+  background: transparent;
+  color: #347E45;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0;
+}
+
+.attendance-view-all span {
+  font-size: 18px;
+  line-height: 10px;
+  vertical-align: -1px;
+}
+
 /* Responsive helpers for larger screens */
 @media (min-width: 1401px) {
   .attendance-section {
-    height: auto;
-    min-height: 550px; /* Increase minimum height on larger screens */
-    padding: 25px; /* Increase padding on larger screens */
-  }
-  
-  /* Increase font sizes for larger screens */
-  .attendance-title {
-    font-size: 24px; /* Larger title on bigger screens */
-    line-height: 28px;
-  }
-  
-  /* Increase table header font sizes */
-  .attendance-table thead th {
-    font-size: 18px; /* Larger header text */
-    line-height: 26px;
-  }
-  
-  /* Increase body cell font sizes */
-  .attendance-table tbody td {
-    font-size: 16px; /* Larger body text */
-  }
-  
-  /* Increase employee name font size */
-  .employee-name {
-    font-size: 18px;
-    line-height: 26px;
-  }
-  
-  /* Increase designation font size */
-  .designation-cell {
-    font-size: 18px;
-    line-height: 21px;
-  }
-  
-  /* Increase checkin/checkout font size */
-  .checkin-cell, .checkout-cell {
-    font-size: 18px;
-    line-height: 21px;
+    min-height: var(--attendance-height);
+    padding: var(--attendance-padding);
   }
 }
 
@@ -372,9 +373,7 @@
   }
 
   /* let table be scrollable horizontally on small screens */
-  .attendance-table {
-    min-width: 900px;
-  }
+  .attendance-table { min-width: 0; }
   
   /* Prevent internal vertical scrolling */
   .attendance-table-wrapper {
@@ -383,91 +382,6 @@
   }
   
   /* Maintain header styling on smaller screens */
-  .attendance-table thead th {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 300;
-    font-size: 16px;
-    line-height: 24px;
-    color: #979494;
-    height: 24px;
-  }
-  
-  /* Maintain cell styling on smaller screens */
-  .employee-name {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 300;
-    font-size: 16px;
-    line-height: 24px;
-    color: #1E293B;
-    width: 103px;
-    height: 24px;
-    flex: none;
-    order: 1;
-    flex-grow: 0;
-  }
-  
-  .designation-cell {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 19px;
-    color: #1E293B;
-    width: 141px;
-    height: 19px;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-  }
-  
-  .checkin-cell, .checkout-cell {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 19px;
-    color: #1E293B;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-  }
-  
-  /* Maintain status badge styling on smaller screens */
-  .status-badge {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 3px 8px;
-    gap: 10px;
-    border-radius: 4px;
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 300;
-    font-size: 12px;
-    line-height: 18px;
-    display: flex;
-    align-items: center;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-  }
-  
-  .status-badge.on-time {
-    width: 66px;
-    height: 24px;
-    background: rgba(63, 194, 138, 0.1);
-    color: #347E45;
-  }
-  
-  .status-badge.late {
-    width: 39px;
-    height: 24px;
-    background: rgba(244, 91, 105, 0.1);
-    color: #F45B69;
-  }
 }
 
 @media (max-width: 1024px) {

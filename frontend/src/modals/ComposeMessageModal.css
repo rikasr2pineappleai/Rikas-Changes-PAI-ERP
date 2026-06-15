@@ -4,7 +4,8 @@
 .cm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(30, 41, 59, 0.24);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,24 +17,25 @@
 /* ─── Modal box ────────────────────────────────────────────────────────── */
 .cm-modal {
   background: #ffffff;
-  border-radius: 16px;
-  padding: 32px;
+  border: 1px solid #B8B8B8;
+  border-radius: 6px;
+  padding: 22px;
   width: 100%;
-  max-width: 540px;
+  max-width: 558px;
   max-height: 90vh;
   overflow-y: auto;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  gap: 17px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.14);
 }
 
 /* ─── Title ────────────────────────────────────────────────────────────── */
 .cm-title {
   font-family: 'Roboto', sans-serif;
   font-weight: 600;
-  font-size: 22px;
+  font-size: 21px;
   color: #1E293B;
   margin: 0;
   padding: 0;
@@ -49,7 +51,7 @@
 .cm-label {
   font-family: 'Roboto', sans-serif;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
   color: #1E293B;
 }
 
@@ -60,9 +62,10 @@
 
 /* ─── Radio row ────────────────────────────────────────────────────────── */
 .cm-radio-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 28px;
+  gap: 12px;
 }
 
 .cm-radio-label {
@@ -74,6 +77,10 @@
   font-size: 14px;
   color: #1E293B;
   user-select: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
 }
 
 .cm-radio-circle {
@@ -102,9 +109,9 @@
 .cm-select-trigger {
   display: flex;
   align-items: center;
-  min-height: 44px;
+  min-height: 45px;
   border: 1px solid #DADADA;
-  border-radius: 10px;
+  border-radius: 6px;
   padding: 8px 12px;
   cursor: pointer;
   box-sizing: border-box;
@@ -132,16 +139,25 @@
   align-items: center;
   gap: 4px;
   background: #F3F4F6;
-  border-radius: 6px;
-  padding: 3px 8px;
+  border-radius: 5px;
+  padding: 5px 8px;
   font-family: 'Roboto', sans-serif;
   font-size: 12px;
   color: #1E293B;
-  max-width: 160px;
+  max-width: 175px;
 }
 
-.cm-chip-main { font-weight: 500; }
-.cm-chip-sub  { font-weight: 400; color: #6B7280; font-size: 11px; }
+.cm-chip-main,
+.cm-chip-sub {
+  display: block;
+}
+.cm-chip-person {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.cm-chip-main { font-weight: 500; line-height: 12px; }
+.cm-chip-sub  { font-weight: 400; color: #6B7280; font-size: 9px; line-height: 10px; }
 
 .cm-chip-x {
   background: none;
@@ -167,12 +183,12 @@
 /* ─── Drop panel ───────────────────────────────────────────────────────── */
 .cm-drop-panel {
   position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
+  top: calc(100% + 8px);
+  left: 40px;
+  right: 68px;
   background: #fff;
   border: 1px solid #DADADA;
-  border-radius: 10px;
+  border-radius: 5px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.10);
   z-index: 100;
   overflow: hidden;
@@ -184,8 +200,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
-  border-bottom: 1px solid #F3F4F6;
+  min-height: 46px;
+  margin: 10px 12px 4px;
+  padding: 0 14px;
+  border: 1px solid #DADADA;
+  border-radius: 5px;
 }
 
 .cm-search-input {
@@ -199,7 +218,7 @@
 }
 
 .cm-drop-list {
-  max-height: 200px;
+  max-height: 170px;
   overflow-y: auto;
 }
 
@@ -207,7 +226,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 8px 14px;
   cursor: pointer;
   transition: background 0.1s;
 }
@@ -244,10 +263,11 @@
 
 .cm-check-label {
   font-family: 'Roboto', sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   color: #1E293B;
 }
 .cm-check-sub {
+  display: block;
   font-size: 11px;
   color: #6B7280;
 }
@@ -286,7 +306,7 @@
   width: 100%;
   height: 44px;
   border: 1px solid #DADADA;
-  border-radius: 10px;
+  border-radius: 6px;
   padding: 0 14px;
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
@@ -300,7 +320,7 @@
 .cm-textarea {
   width: 100%;
   border: 1px solid #DADADA;
-  border-radius: 10px;
+  border-radius: 6px;
   padding: 12px 14px;
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
@@ -308,7 +328,7 @@
   box-sizing: border-box;
   outline: none;
   resize: vertical;
-  min-height: 120px;
+  min-height: 124px;
   transition: border-color 0.15s;
 }
 .cm-textarea:focus { border-color: #1DA462; }
@@ -319,8 +339,9 @@
   align-items: center;
   gap: 10px;
   border: 1.5px dashed #DADADA;
-  border-radius: 10px;
-  padding: 14px 16px;
+  border-radius: 6px;
+  padding: 10px 12px;
+  min-height: 46px;
   cursor: pointer;
   box-sizing: border-box;
   transition: border-color 0.15s;
@@ -348,14 +369,15 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .cm-cancel-btn {
   background: none;
   border: 1px solid #DADADA;
-  border-radius: 10px;
-  padding: 10px 24px;
+  border-radius: 6px;
+  min-width: 96px;
+  padding: 9px 20px;
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -369,8 +391,9 @@
 .cm-send-btn {
   background: #1DA462;
   border: none;
-  border-radius: 10px;
-  padding: 10px 24px;
+  border-radius: 6px;
+  min-width: 104px;
+  padding: 9px 18px;
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -379,7 +402,7 @@
   transition: background 0.15s;
 }
 .cm-send-btn:hover:not(:disabled) { background: #17935a; }
-.cm-send-btn:disabled { background: #9CA3AF; cursor: not-allowed; }
+.cm-send-btn:disabled { background: #A9AAAC; cursor: not-allowed; }
 
 /* ─── Responsive ───────────────────────────────────────────────────────── */
 @media (max-width: 600px) {

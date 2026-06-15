@@ -34,20 +34,20 @@
   width: 100%;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 15px;
+  gap: 46px;
   align-content: start;
 }
 
 /* ── Individual widget box ── */
 .widget-box {
   width: 100%;
-  min-height: 160px;
+  min-height: 176px;
   background: #ffffff;
   border-radius: 10px;
   border-width: 1.5px;
   border-style: solid;
   border-color: #DADADA; /* fallback */
-  padding: 18px 22px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -66,13 +66,13 @@
 .widget-top {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
 }
 
 /* icon wrapper pill */
 .icon-wrap {
-  width: 56px;
-  height: 44px;
+  width: 42px;
+  height: 40px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -87,8 +87,8 @@
 .widget-box[data-id="4"] .icon-wrap { background: #FFE8F6; }  /* light pink   */
 
 .icon-wrap img {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
 }
 
@@ -96,7 +96,7 @@
 .widget-title {
   font-family: 'Roboto', sans-serif;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.3;
   color: #1E293B;
   margin: 0;
@@ -107,10 +107,10 @@
 .widget-value {
   font-family: 'Roboto', sans-serif;
   font-weight: 600;
-  font-size: 32px;
-  line-height: 38px;
+  font-size: 30px;
+  line-height: 35px;
   color: #1E293B;
-  margin: 6px 0 0 0;
+  margin: 4px 0 0;
   padding: 0;
 }
 
@@ -118,8 +118,8 @@
 .divider {
   height: 1px;
   background: currentColor;
-  margin: 10px -22px;
-  width: calc(100% + 44px);
+  margin: 6px -12px;
+  width: calc(100% + 24px);
   border: none;
   box-sizing: content-box;
   opacity: 0.35;
@@ -172,6 +172,10 @@
     gap: 12px;
   }
   .widget-value { font-size: 28px; }
+}
+
+@media (max-width: 1500px) and (min-width: 1251px) {
+  .widget-grid { gap: 20px; }
 }
 
 @media (max-width: 768px) {

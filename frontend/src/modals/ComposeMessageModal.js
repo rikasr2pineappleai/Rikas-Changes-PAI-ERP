@@ -25,11 +25,19 @@ export default function ComposeMessageModal({ onClose }) {
   /* ── Fetch departments & employees ── */
   useEffect(() => {
     apiClient.get('/departments')
-      .then(r => setDepartments(safeList(r.data?.departments ?? r.data)))
+      .then(r => setDepartments(safeList(
+        r.data?.data?.departments ??
+        r.data?.departments ??
+        r.data
+      )))
       .catch(() => {});
     apiClient.get('/employees?limit=200')
       .then(r => {
-        const list = safeList(r.data?.employees ?? r.data?.data ?? r.data);
+        const list = safeList(
+          r.data?.data?.employees ??
+          r.data?.employees ??
+          r.data
+        );
         setEmployees(list.map(e => ({
           id:          e.id ?? e.user_id,
           name:        `${e.first_name ?? ''} ${e.last_name ?? ''}`.trim() || 'Unknown',
@@ -45,6 +53,18 @@ export default function ComposeMessageModal({ onClose }) {
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        if (dropOpen) setDropOpen(false);
+        else onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [dropOpen, onClose]);
 
   /* ── Filtered lists ── */
   const filteredDeps = departments.filter(d =>
@@ -96,12 +116,14 @@ export default function ComposeMessageModal({ onClose }) {
     const d = departments.find(x => x.id === id);
     return d?.name ?? d?.department_name ?? id;
   };
-  const empLabel = (id) => {
-    const e = employees.find(x => x.id === id);
-    return e ? `${e.name}${e.designation ? ` (${e.designation})` : ''}` : id;
-  };
-
   const selectedCount = sendTo === 'departments' ? selectedDeps.length : selectedEmps.length;
+  const hasRecipients = selectedCount > 0;
+
+  const changeRecipientType = (type) => {
+    setSendTo(type);
+    setDropOpen(false);
+    setError('');
+  };
 
   return (
     <div className="cm-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -113,21 +135,29 @@ export default function ComposeMessageModal({ onClose }) {
           <label className="cm-label">Send To <span className="cm-required">*</span></label>
           <div className="cm-radio-row">
             {/* Departments */}
-            <label className="cm-radio-label">
+            <button
+              type="button"
+              className="cm-radio-label"
+              onClick={() => changeRecipientType('departments')}
+              aria-pressed={sendTo === 'departments'}
+            >
               <span
                 className={`cm-radio-circle ${sendTo === 'departments' ? 'cm-radio-checked' : ''}`}
-                onClick={() => { setSendTo('departments'); setDropOpen(false); }}
               />
-              <span onClick={() => { setSendTo('departments'); setDropOpen(false); }}>Departments</span>
-            </label>
+              <span>Departments</span>
+            </button>
             {/* Individuals */}
-            <label className="cm-radio-label">
+            <button
+              type="button"
+              className="cm-radio-label"
+              onClick={() => changeRecipientType('individuals')}
+              aria-pressed={sendTo === 'individuals'}
+            >
               <span
                 className={`cm-radio-circle ${sendTo === 'individuals' ? 'cm-radio-checked' : ''}`}
-                onClick={() => { setSendTo('individuals'); setDropOpen(false); }}
               />
-              <span onClick={() => { setSendTo('individuals'); setDropOpen(false); }}>Individuals</span>
-            </label>
+              <span>Individuals</span>
+            </button>
           </div>
 
           {/* ── Dropdown ── */}
@@ -141,7 +171,7 @@ export default function ComposeMessageModal({ onClose }) {
                 {sendTo === 'departments' && selectedDeps.map(id => (
                   <span key={id} className="cm-chip">
                     {depName(id)}
-                    <button className="cm-chip-x" onClick={(e) => { e.stopPropagation(); removeDep(id); }}>×</button>
+                    <button type="button" aria-label={`Remove ${depName(id)}`} className="cm-chip-x" onClick={(e) => { e.stopPropagation(); removeDep(id); }}>×</button>
                   </span>
                 ))}
                 {sendTo === 'individuals' && selectedEmps.length === 0 && (
@@ -149,9 +179,11 @@ export default function ComposeMessageModal({ onClose }) {
                 )}
                 {sendTo === 'individuals' && selectedEmps.map(id => (
                   <span key={id} className="cm-chip">
-                    <span className="cm-chip-main">{employees.find(e=>e.id===id)?.name ?? id}</span>
-                    <span className="cm-chip-sub">{employees.find(e=>e.id===id)?.designation ?? ''}</span>
-                    <button className="cm-chip-x" onClick={(e) => { e.stopPropagation(); removeEmp(id); }}>×</button>
+                    <span className="cm-chip-person">
+                      <span className="cm-chip-main">{employees.find(e=>e.id===id)?.name ?? id}</span>
+                      <span className="cm-chip-sub">{employees.find(e=>e.id===id)?.designation ?? ''}</span>
+                    </span>
+                    <button type="button" aria-label="Remove employee" className="cm-chip-x" onClick={(e) => { e.stopPropagation(); removeEmp(id); }}>×</button>
                   </span>
                 ))}
               </div>
@@ -276,7 +308,7 @@ export default function ComposeMessageModal({ onClose }) {
         {/* ── Actions ── */}
         <div className="cm-actions">
           <button className="cm-cancel-btn" onClick={onClose} disabled={sending}>Cancel</button>
-          <button className="cm-send-btn"   onClick={handleSend} disabled={sending}>
+          <button className="cm-send-btn" onClick={handleSend} disabled={sending || !hasRecipients}>
             {sending ? 'Sending…' : 'Send Message'}
           </button>
         </div>

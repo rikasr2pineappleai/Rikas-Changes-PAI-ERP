@@ -29,7 +29,7 @@ function DonutChart({ segments, total }) {
   };
 
   return (
-    <svg viewBox="0 0 180 180" width="190" height="190" className="donut-svg">
+    <svg viewBox="0 0 180 180" className="donut-svg">
       {arcs.map((arc, i) => {
         const gap = circ - arc.dash;
         const pct = total > 0 ? Math.round((arc.value / total) * 100) : 0;
@@ -164,7 +164,7 @@ export default function DashboardRightPanel() {
     <div className="right-panel">
 
       {/* ── Project Status Overview ── */}
-      <section className="rp-card">
+      <section className="rp-card status-overview-card">
         <h3 className="rp-card-title">Project Status Overview</h3>
         {loading ? (
           <p className="rp-loading">Loading…</p>
@@ -184,7 +184,7 @@ export default function DashboardRightPanel() {
       </section>
 
       {/* ── Project Progress ── */}
-      <section className="rp-card">
+      <section className="rp-card project-progress-card">
         <h3 className="rp-card-title">Project Progress</h3>
         {loading ? (
           <p className="rp-loading">Loading…</p>
@@ -237,7 +237,7 @@ export default function DashboardRightPanel() {
             </table>
             {projects.length > 0 && (
               <div className="pp-footer">
-                <button className="pp-view-all">View All ›</button>
+                <button className="pp-view-all">View All <span aria-hidden="true">›</span></button>
               </div>
             )}
           </>
@@ -248,12 +248,12 @@ export default function DashboardRightPanel() {
       <section className="rp-card qm-card">
         <div className="qm-body">
           <div className="qm-icon-wrap">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="24" cy="24" r="24" fill="#E8F8EF" />
+            <svg width="64" height="52" viewBox="0 0 64 52" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
-                d="M36 12L12 22.5L22 26M36 12L28 36L22 26M36 12L22 26"
-                stroke="#1DA462"
-                strokeWidth="2.2"
+                d="M4 20.5L58 2L39.2 50L28.5 30.5L4 20.5ZM28.5 30.5L58 2"
+                fill="#347E45"
+                stroke="#347E45"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
