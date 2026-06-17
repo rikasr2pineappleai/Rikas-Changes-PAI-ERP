@@ -575,6 +575,13 @@ const generateToken = (userId) => {
   });
 };
 
+exports.refreshSession = async (req, res) => {
+  return res.status(200).json({
+    success: true,
+    token: generateToken(req.user.id),
+  });
+};
+
 // Hash password - this is the centralized password hashing function
 const hashPassword = async (password) => {
   const salt = await bcrypt.genSalt(10);

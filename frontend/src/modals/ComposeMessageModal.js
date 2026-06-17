@@ -1,14 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import apiClient from '../utils/apiClient';
+import attachIcon from '../assets/icons/eva_attach-2-outline.png';
 import './ComposeMessageModal.css';
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
 const safeList = (v) => (Array.isArray(v) ? v : []);
 
+const MESSAGE_DEPARTMENT_NAMES = [
+  'QA Department',
+  'Designing Department',
+  'Developing Department',
+  'Cyber Security & Network Department',
+  'BA & PM Department',
+];
+
 export default function ComposeMessageModal({ onClose }) {
   const [sendTo,       setSendTo]       = useState('departments'); // 'departments' | 'individuals'
-  const [departments,  setDepartments]  = useState([]);
   const [employees,    setEmployees]    = useState([]);
+  const [departments,  setDepartments]  = useState([]);
   const [selectedDeps, setSelectedDeps] = useState([]);
   const [selectedEmps, setSelectedEmps] = useState([]);
   const [depSearch,    setDepSearch]    = useState('');
@@ -22,27 +31,44 @@ export default function ComposeMessageModal({ onClose }) {
   const dropRef = useRef(null);
   const fileRef = useRef(null);
 
-  /* ── Fetch departments & employees ── */
+  /* ── Fetch recipients ── */
   useEffect(() => {
-    apiClient.get('/departments')
-      .then(r => setDepartments(safeList(
-        r.data?.data?.departments ??
-        r.data?.departments ??
-        r.data
-      )))
-      .catch(() => {});
-    apiClient.get('/employees?limit=200')
-      .then(r => {
+    Promise.all([
+      apiClient.get('/employees?limit=200&status=active'),
+      apiClient.get('/departments'),
+    ])
+      .then(([employeeResponse, departmentResponse]) => {
         const list = safeList(
-          r.data?.data?.employees ??
-          r.data?.employees ??
-          r.data
+          employeeResponse.data?.data?.employees ??
+          employeeResponse.data?.employees ??
+          employeeResponse.data
         );
         setEmployees(list.map(e => ({
           id:          e.id ?? e.user_id,
           name:        `${e.first_name ?? ''} ${e.last_name ?? ''}`.trim() || 'Unknown',
           designation: e.designation ?? e.job_title ?? '',
+          email:       e.email ?? '',
+          departmentId: Number(e.department_id),
         })));
+
+        const departmentList = safeList(
+          departmentResponse.data?.data?.departments ??
+          departmentResponse.data?.departments ??
+          departmentResponse.data
+        );
+        setDepartments(
+          departmentList
+            .filter(d => MESSAGE_DEPARTMENT_NAMES.includes(d.name ?? d.dept_name))
+            .sort(
+              (a, b) =>
+                MESSAGE_DEPARTMENT_NAMES.indexOf(a.name ?? a.dept_name) -
+                MESSAGE_DEPARTMENT_NAMES.indexOf(b.name ?? b.dept_name)
+            )
+            .map(d => ({
+              id: Number(d.id),
+              name: d.name ?? d.dept_name,
+            }))
+        );
       })
       .catch(() => {});
   }, []);
@@ -85,27 +111,41 @@ export default function ComposeMessageModal({ onClose }) {
     setSelectedEmps(selectedEmps.length === employees.length ? [] : employees.map(e => e.id));
 
   /* ── Send ── */
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!subject.trim() || !message.trim()) { setError('Subject and message are required.'); return; }
     if (sendTo === 'departments' && selectedDeps.length === 0) { setError('Select at least one department.'); return; }
     if (sendTo === 'individuals'  && selectedEmps.length === 0) { setError('Select at least one employee.'); return; }
+
+    const recipientEmails = employees
+      .filter(employee =>
+        sendTo === 'departments'
+          ? selectedDeps.includes(employee.departmentId)
+          : selectedEmps.includes(employee.id)
+      )
+      .map(employee => employee.email)
+      .filter(Boolean);
+    const uniqueEmails = [...new Set(recipientEmails)];
+
+    if (uniqueEmails.length === 0) {
+      setError('No email addresses were found for the selected recipients.');
+      return;
+    }
+
     setError('');
     setSending(true);
-    try {
-      const fd = new FormData();
-      fd.append('subject', subject);
-      fd.append('message', message);
-      fd.append('send_to', sendTo);
-      if (sendTo === 'departments') fd.append('department_ids', JSON.stringify(selectedDeps));
-      else                          fd.append('employee_ids',   JSON.stringify(selectedEmps));
-      files.forEach(f => fd.append('attachments', f));
-      await apiClient.post('/messages', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      onClose();
-    } catch (err) {
-      setError(err?.response?.data?.message ?? 'Failed to send message. Please try again.');
-    } finally {
-      setSending(false);
-    }
+
+    const attachmentNote = files.length > 0
+      ? `\n\nAttachments to add manually in Gmail:\n${files.map(file => `- ${file.name}`).join('\n')}`
+      : '';
+    const gmailUrl =
+      'https://mail.google.com/mail/?view=cm&fs=1' +
+      `&to=${encodeURIComponent(uniqueEmails.join(','))}` +
+      `&su=${encodeURIComponent(subject.trim())}` +
+      `&body=${encodeURIComponent(`${message.trim()}${attachmentNote}`)}`;
+
+    window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+    setSending(false);
+    onClose();
   };
 
   /* ── Chip remove ── */
@@ -218,7 +258,9 @@ export default function ComposeMessageModal({ onClose }) {
                       : selectedEmps.length === employees.length && employees.length > 0)
                     ? 'cm-checkbox-checked' : ''
                   }`} />
-                  <span className="cm-check-label">Select All</span>
+                  <span className="cm-check-label">
+                    Select All
+                  </span>
                 </label>
 
                 {/* Items */}
@@ -284,10 +326,7 @@ export default function ComposeMessageModal({ onClose }) {
 
         {/* ── Attach Files ── */}
         <div className="cm-attach-box" onClick={() => fileRef.current?.click()}>
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M15.5 9.5l-7 7a5 5 0 01-7-7l7-7a3.5 3.5 0 015 5l-7.07 7.07a2 2 0 01-2.83-2.83L11 5"
-              stroke="#979494" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <img className="cm-attach-icon" src={attachIcon} alt="" aria-hidden="true" />
           <span className="cm-attach-text">
             {files.length > 0
               ? files.map(f => f.name).join(', ')

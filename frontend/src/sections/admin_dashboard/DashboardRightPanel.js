@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchProjectsDashboard } from '../../integration/projectAPI';
 import ComposeMessageModal from '../../modals/ComposeMessageModal';
+import quickMessageIcon from '../../assets/icons/streamline_mail-send-email-message-solid.png';
 import '../../styles/DashboardRightPanel.css';
 
 // ─── Donut chart ───────────────────────────────────────────────────────────
@@ -89,20 +91,32 @@ function ProgressBar({ percent, color }) {
   );
 }
 
-// ─── Days left from end_date ───────────────────────────────────────────────
-function calcDaysLeft(endDate) {
-  if (!endDate) return null;
-  const end = new Date(endDate);
-  const now = new Date();
-  end.setHours(0, 0, 0, 0);
-  now.setHours(0, 0, 0, 0);
-  return Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+// ─── Task-based project status ─────────────────────────────────────────────
+function getProjectTaskStatus(project) {
+  const taskCount = Number(project?.taskCount ?? 0);
+  const completedTaskCount = Number(project?.completedTaskCount ?? 0);
+
+  if (taskCount === 0) return 'upcoming';
+  if (
+    project?.allTasksCompleted === true ||
+    completedTaskCount >= taskCount
+  ) {
+    return 'completed';
+  }
+
+  return 'active';
 }
 
 // ─── Main right panel ──────────────────────────────────────────────────────
 export default function DashboardRightPanel() {
+  const navigate = useNavigate();
   const [projects, setProjects]   = useState([]);
-  const [stats, setStats]         = useState(null);   // raw res.stats from API
+  const [projectStatusCounts, setProjectStatusCounts] = useState({
+    completed: 0,
+    active: 0,
+    upcoming: 0,
+    total: 0,
+  });
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading]     = useState(true);
 
@@ -110,46 +124,55 @@ export default function DashboardRightPanel() {
     setLoading(true);
     fetchProjectsDashboard()
       .then(res => {
-        // ✅ Use pre-computed stats object returned directly by the API
-        // res.stats keys: completed, active, planning, on_hold, cancelled, totalProjects
-        setStats(res?.stats || {});
-        setProjects(Array.isArray(res?.projects) ? res.projects.slice(0, 9) : []);
+        const allProjects = Array.isArray(res?.projects) ? res.projects : [];
+        const counts = allProjects.reduce(
+          (acc, project) => {
+            acc[getProjectTaskStatus(project)] += 1;
+            acc.total += 1;
+            return acc;
+          },
+          { completed: 0, active: 0, upcoming: 0, total: 0 }
+        );
+
+        setProjectStatusCounts(counts);
+        setProjects(
+          allProjects
+            .filter(project => getProjectTaskStatus(project) === 'active')
+            .slice(0, 9)
+        );
       })
       .catch(err => console.error('DashboardRightPanel:', err))
       .finally(() => setLoading(false));
   }, []);
 
-  // ✅ Map DB ENUM status values → Figma legend labels + colors
-  // DB:  completed | active    | planning | on_hold
-  // UI:  Completed | Ongoing   | Pending  | On Hold
-  const completedCount = stats?.completed || 0;
-  const activeCount    = stats?.active    || 0;
-  const planningCount  = stats?.planning  || 0;
-  const onHoldCount    = stats?.on_hold   || 0;
-  const totalCount     = stats?.totalProjects
-    || (completedCount + activeCount + planningCount + onHoldCount);
+  // Use the same task-based status rules as the Projects page.
+  const completedCount = projectStatusCounts.completed;
+  const activeCount    = projectStatusCounts.active;
+  const planningCount  = projectStatusCounts.upcoming;
+  const totalCount     = projectStatusCounts.total;
 
   const donutSegments = [
     { label: 'Completed Projects', value: completedCount, color: '#4CAF50' },
     { label: 'Ongoing Projects',   value: activeCount,    color: '#2196F3' },
     { label: 'Pending Projects',   value: planningCount,  color: '#FFC107' },
-    { label: 'On Hold Projects',   value: onHoldCount,    color: '#F44336' },
   ];
 
-  // Progress bar colour by % completion
-  const progressColor = (pct) => {
-    if (pct >= 80) return '#4CAF50';
-    if (pct >= 50) return '#2196F3';
-    if (pct >= 30) return '#FFC107';
-    return '#F44336';
-  };
+  const progressColors = [
+    '#2196F3',
+    '#4CAF50',
+    '#FF9800',
+    '#9C27B0',
+    '#00BCD4',
+    '#F44336',
+    '#3F51B5',
+    '#8BC34A',
+    '#FF5722',
+  ];
 
   // Badge class by days remaining
   const timeLeftClass = (days) => {
     if (days === null) return 'tl-grey';
-    if (days <  0)     return 'tl-red';
     if (days <= 3)     return 'tl-red';
-    if (days <= 7)     return 'tl-orange';
     return 'tl-green';
   };
 
@@ -205,12 +228,12 @@ export default function DashboardRightPanel() {
                     <td colSpan={4} className="pp-empty">No projects found</td>
                   </tr>
                 ) : (
-                  projects.map(p => {
+                  projects.map((p, index) => {
                     // ✅ Exact field names from mapProjectForDashboard()
                     const done     = Number(p.completedTaskCount ?? 0);
                     const total    = Number(p.taskCount ?? 0);
                     const pct      = total > 0 ? Math.round((done / total) * 100) : 0;
-                    const daysLeft = calcDaysLeft(p.end_date);
+                    const daysLeft = p.totalTaskDaysLeft ?? null;
 
                     return (
                       <tr key={p.id} className="pp-row">
@@ -219,7 +242,10 @@ export default function DashboardRightPanel() {
                         </td>
                         <td className="pp-td pp-prog-cell">
                           <div className="pp-prog-wrap">
-                            <ProgressBar percent={pct} color={progressColor(pct)} />
+                            <ProgressBar
+                              percent={pct}
+                              color={progressColors[index % progressColors.length]}
+                            />
                             <span className="pp-pct">{pct}%</span>
                           </div>
                         </td>
@@ -237,7 +263,13 @@ export default function DashboardRightPanel() {
             </table>
             {projects.length > 0 && (
               <div className="pp-footer">
-                <button className="pp-view-all">View All <span aria-hidden="true">›</span></button>
+                <button
+                  type="button"
+                  className="pp-view-all"
+                  onClick={() => navigate('/projects')}
+                >
+                  View All <span aria-hidden="true">›</span>
+                </button>
               </div>
             )}
           </>
@@ -248,16 +280,12 @@ export default function DashboardRightPanel() {
       <section className="rp-card qm-card">
         <div className="qm-body">
           <div className="qm-icon-wrap">
-            <svg width="64" height="52" viewBox="0 0 64 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M4 20.5L58 2L39.2 50L28.5 30.5L4 20.5ZM28.5 30.5L58 2"
-                fill="#347E45"
-                stroke="#347E45"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <img
+              className="qm-icon"
+              src={quickMessageIcon}
+              alt=""
+              aria-hidden="true"
+            />
           </div>
           <div className="qm-text">
             <span className="qm-title">Quick Message</span>

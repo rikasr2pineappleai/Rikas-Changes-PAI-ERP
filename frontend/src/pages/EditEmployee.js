@@ -14,6 +14,17 @@ import dropdownIcon from "../assets/icons/dropdown.png";
 import sDropdownIcon from "../assets/icons/s_dropdown.png";
 import profilePic from "../assets/icons/profile.jpg";
 
+const EDIT_EMPLOYEE_DEPARTMENT_NAMES = new Set([
+  "QA Department",
+  "Designing Department",
+  "Developing Department",
+  "Cyber Security & Network Department",
+  "BA & PM Department",
+]);
+const PHONE_PATTERN = /^\+94 \d{2} \d{7}$/;
+const PHONE_ERROR =
+  "Phone number must follow +94 XX XXXXXXX format (e.g., +94 77 1234567).";
+
 export default function EditEmployee() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -32,6 +43,7 @@ export default function EditEmployee() {
     first_name: "",
     last_name: "",
     email: "",
+    emp_id: "",
     gender: "",
     dob: "",
     phone: "",
@@ -143,6 +155,7 @@ export default function EditEmployee() {
           first_name: user.first_name || "",
           last_name: user.last_name || "",
           email: user.email || "",
+          emp_id: user.emp_id || "",
           gender: (user.EmployeeDetail?.gender || "").toString().toLowerCase(),
           dob: user.EmployeeDetail?.dob || "",
           phone: user.EmployeeDetail?.phone || "",
@@ -481,7 +494,19 @@ export default function EditEmployee() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    let nextValue = value;
+
+    if (name === "phone") {
+      nextValue = value.replace(/[^\d+\s]/g, "");
+      nextValue = nextValue.replace(/\+/g, (match, offset) =>
+        offset === 0 ? match : "",
+      );
+      nextValue = nextValue.replace(/\s+/g, " ");
+      nextValue = nextValue.replace(/^\s+/, "");
+      nextValue = nextValue.slice(0, 15);
+    }
+
+    setFormData({ ...formData, [name]: nextValue });
 
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -500,11 +525,10 @@ export default function EditEmployee() {
     }
 
     if (name === 'phone') {
-      const phoneValue = value ? value.trim() : "";
+      const phoneValue = nextValue ? nextValue.trim() : "";
       if (phoneValue) {
-        const digitCount = phoneValue.replace(/\D/g, '').length;
-        if (!/^\+\d{1,4}(\s\d+)+$/.test(phoneValue) || digitCount < 7 || digitCount > 15) {
-          setErrors((prev) => ({ ...prev, phone: "Phone number must start with + and country code, followed by spaces and digits (e.g., +94 77 1234567). Total digits must be between 7 and 15." }));
+        if (!PHONE_PATTERN.test(phoneValue)) {
+          setErrors((prev) => ({ ...prev, phone: PHONE_ERROR }));
         } else {
           setErrors((prev) => {
             const newErrors = { ...prev };
@@ -804,9 +828,8 @@ export default function EditEmployee() {
 
     const phoneValue = formData.phone ? formData.phone.trim() : "";
     if (phoneValue) {
-      const digitCount = phoneValue.replace(/\D/g, '').length;
-      if (!/^\+\d{1,4}(\s\d+)+$/.test(phoneValue) || digitCount < 7 || digitCount > 15) {
-        newErrors.phone = "Phone number must start with + and country code, followed by spaces and digits (e.g., +94 77 1234567). Total digits must be between 7 and 15.";
+      if (!PHONE_PATTERN.test(phoneValue)) {
+        newErrors.phone = PHONE_ERROR;
       } else {
         delete newErrors.phone;
       }
@@ -829,7 +852,7 @@ export default function EditEmployee() {
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
-        emp_id: employeeData?.emp_id || "",
+        emp_id: formData.emp_id || employeeData?.emp_id || "",
         gender: formData.gender,
         dob: formData.dob,
         phone: formData.phone,
@@ -1203,10 +1226,12 @@ if (hasExistingAllocation || hasAnyProjectData) {
   ];
 
   // Build department options from departments state
-  const departmentOptions = departments.map((d) => ({
-    value: d.id,
-    label: d.name,
-  }));
+  const departmentOptions = departments
+    .filter((department) => EDIT_EMPLOYEE_DEPARTMENT_NAMES.has(department.name))
+    .map((department) => ({
+      value: department.id,
+      label: department.name,
+    }));
 
   return (
     <div className="edit-wrapper">
@@ -1443,6 +1468,9 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="e.g., +94 77 1234567"
+                  inputMode="tel"
+                  pattern="^\+94 \d{2} \d{7}$"
+                  maxLength={15}
                 />
                 {errors.phone && <small className="error-text" style={{ color: 'red', fontSize: '12px' }}>{errors.phone}</small>}
               </div>
@@ -1978,6 +2006,7 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   first_name: employeeData?.first_name || "",
                   last_name: employeeData?.last_name || "",
                   email: employeeData?.email || "",
+                  emp_id: employeeData?.emp_id || "",
                   gender: (employeeData?.EmployeeDetail?.gender || "").toString().toLowerCase(),
                   dob: employeeData?.EmployeeDetail?.dob || "",
                   phone: employeeData?.EmployeeDetail?.phone || "",

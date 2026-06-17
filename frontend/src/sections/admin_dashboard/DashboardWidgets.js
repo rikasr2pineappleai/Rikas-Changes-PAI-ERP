@@ -35,9 +35,15 @@ export default function DashboardWidgets() {
       try {
         setLoading(true);
 
-        const [attendanceResult, employeeResult, projectsResult] = await Promise.allSettled([
+        const [
+          attendanceResult,
+          employeeResult,
+          allMembersResult,
+          projectsResult,
+        ] = await Promise.allSettled([
           fetchTodayAttendanceCount(),
           employeeAPI.getEmployeeCount(),
+          employeeAPI.getEmployeeCount("all"),
           fetchProjectsDashboard(),
         ]);
 
@@ -49,6 +55,10 @@ export default function DashboardWidgets() {
           console.error('Error fetching employee count:', employeeResult.reason);
         }
 
+        if (allMembersResult.status === 'rejected') {
+          console.error('Error fetching all member count:', allMembersResult.reason);
+        }
+
         if (projectsResult.status === 'rejected') {
           console.error('Error fetching project count:', projectsResult.reason);
         }
@@ -57,6 +67,8 @@ export default function DashboardWidgets() {
           attendanceResult.status === 'fulfilled' ? attendanceResult.value : null;
         const employeeResponse =
           employeeResult.status === 'fulfilled' ? employeeResult.value : null;
+        const allMembersResponse =
+          allMembersResult.status === 'fulfilled' ? allMembersResult.value : null;
         const projectsResponse =
           projectsResult.status === 'fulfilled' ? projectsResult.value : null;
 
@@ -75,7 +87,7 @@ export default function DashboardWidgets() {
             } else if (widget.id === 1) {
               return { ...widget, value: getNestedCount(employeeResponse), update: updatedAt };
             } else if (widget.id === 2) {
-              return { ...widget, value: 0, update: updatedAt };
+              return { ...widget, value: getNestedCount(allMembersResponse), update: updatedAt };
             } else if (widget.id === 4) {
               return { ...widget, value: Number(projectCount) || 0, update: updatedAt };
             }

@@ -5,9 +5,10 @@ const {
   EmployeeHistory,
   Document,
   Department,
-    ProjectAllocation,
-    Project,
-    Notification,
+  ProjectAllocation,
+  Project,
+  Notification,
+  sequelize,
 } = require("../models");
 const { upload } = require("../utils/fileUpload");
 const {
@@ -196,6 +197,7 @@ exports.updateEmployeePersonal = async (req, res) => {
         message: "Employee not found",
       });
     }
+    const effectiveEmpId = emp_id || currentUser.emp_id;
 
     // Check if status is changing to 'inactive' or 'terminated' and was previously 'active'
     const isBecomingFormerEmployee =
@@ -225,7 +227,7 @@ exports.updateEmployeePersonal = async (req, res) => {
 
     // Check if another employee already has this email or emp_id (excluding current user)
     let whereClause = {
-      [Op.or]: [{ email: email }, { emp_id: emp_id }],
+      [Op.or]: [{ email: email }, { emp_id: effectiveEmpId }],
     };
 
     // Exclude current user from the check
@@ -256,7 +258,7 @@ exports.updateEmployeePersonal = async (req, res) => {
       first_name,
       last_name: last_name || null,
       email,
-      emp_id,
+      emp_id: effectiveEmpId,
       password_hash,
       status: status || currentUser.status, // Update status if provided, otherwise keep existing status
       designation: designation || null,
@@ -1303,15 +1305,109 @@ exports.getEmployeeOverview = async (req, res) => {
 // @access  Private (Admin)
 exports.getAllEmployees = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
     const offset = (page - 1) * limit;
-    const status = req.query.status; // Optional status filter (active, inactive, terminated)
+    const status = req.query.status?.trim();
+    const designation = req.query.designation?.trim();
+    const managementRole = req.query.management_role?.trim();
+    const search = req.query.search?.trim();
 
-    let whereClause = { role: "employee" };
+    const baseWhereClause = { role: "employee" };
 
     if (status) {
-      whereClause.status = status;
+      baseWhereClause.status = status;
+    }
+
+    const filterOptionRows = await User.findAll({
+      where: baseWhereClause,
+      attributes: ["designation", "role", "management_role"],
+      raw: true,
+    });
+
+    const whereClause = { ...baseWhereClause };
+
+    if (designation) {
+      whereClause.designation = designation;
+    }
+
+    if (managementRole) {
+      whereClause.management_role = managementRole;
+    }
+
+    let searchOrder = [["created_at", "DESC"]];
+
+    if (search) {
+      const searchPattern = `%${search}%`;
+      const fullNameSearchCondition = sequelize.where(
+        sequelize.fn(
+          "LOWER",
+          sequelize.fn(
+            "CONCAT_WS",
+            " ",
+            sequelize.col("User.first_name"),
+            sequelize.col("User.last_name")
+          )
+        ),
+        {
+          [Op.like]: searchPattern.toLowerCase(),
+        }
+      );
+      const managerMatches = await User.findAll({
+        where: {
+          [Op.or]: [
+            { emp_id: { [Op.like]: searchPattern } },
+            { first_name: { [Op.like]: searchPattern } },
+            { last_name: { [Op.like]: searchPattern } },
+            fullNameSearchCondition,
+          ],
+        },
+        attributes: ["id"],
+        raw: true,
+      });
+      const managerIds = managerMatches.map((manager) => manager.id);
+      const searchConditions = [
+        { emp_id: { [Op.like]: searchPattern } },
+        { first_name: { [Op.like]: searchPattern } },
+        { last_name: { [Op.like]: searchPattern } },
+        fullNameSearchCondition,
+        { email: { [Op.like]: searchPattern } },
+        { designation: { [Op.like]: searchPattern } },
+        { management_role: { [Op.like]: searchPattern } },
+      ];
+
+      if (managerIds.length > 0) {
+        searchConditions.push({ report_to: { [Op.in]: managerIds } });
+      }
+
+      whereClause[Op.or] = searchConditions;
+
+      const exactSearch = sequelize.escape(search.toLowerCase());
+      const prefixSearch = sequelize.escape(`${search.toLowerCase()}%`);
+      const containsSearch = sequelize.escape(`%${search.toLowerCase()}%`);
+      const managerRank = managerIds.length
+        ? `WHEN \`User\`.\`report_to\` IN (${managerIds.join(",")}) THEN 5`
+        : "";
+
+      searchOrder = [
+        [
+          sequelize.literal(`CASE
+            WHEN LOWER(TRIM(CONCAT_WS(' ', \`User\`.\`first_name\`, \`User\`.\`last_name\`))) = ${exactSearch} THEN 0
+            WHEN LOWER(\`User\`.\`first_name\`) = ${exactSearch} THEN 0
+            WHEN LOWER(TRIM(CONCAT_WS(' ', \`User\`.\`first_name\`, \`User\`.\`last_name\`))) LIKE ${prefixSearch} THEN 1
+            WHEN LOWER(\`User\`.\`first_name\`) LIKE ${prefixSearch} THEN 1
+            WHEN LOWER(TRIM(CONCAT_WS(' ', \`User\`.\`first_name\`, \`User\`.\`last_name\`))) LIKE ${containsSearch} THEN 2
+            WHEN LOWER(\`User\`.\`emp_id\`) = ${exactSearch} THEN 3
+            WHEN LOWER(\`User\`.\`emp_id\`) LIKE ${prefixSearch} THEN 4
+            ${managerRank}
+            ELSE 6
+          END`),
+          "ASC",
+        ],
+        ["first_name", "ASC"],
+        ["last_name", "ASC"],
+        ["created_at", "DESC"],
+      ];
     }
 
     const { count, rows } = await User.findAndCountAll({
@@ -1340,7 +1436,7 @@ exports.getAllEmployees = async (req, res) => {
           ],
         },
       ],
-      order: [["created_at", "DESC"]],
+      order: searchOrder,
     });
 
     // Format the response to include profile_image field for each employee
@@ -1364,6 +1460,27 @@ exports.getAllEmployees = async (req, res) => {
           total: count,
           pages: Math.ceil(count / limit),
         },
+        filter_options: {
+          designations: [
+            ...new Set(
+              filterOptionRows
+                .map((employee) => employee.designation)
+                .filter(Boolean)
+            ),
+          ].sort(),
+          roles: [
+            ...new Set(
+              filterOptionRows.map((employee) => employee.role).filter(Boolean)
+            ),
+          ].sort(),
+          management_roles: [
+            ...new Set(
+              filterOptionRows
+                .map((employee) => employee.management_role)
+                .filter(Boolean)
+            ),
+          ].sort(),
+        },
       },
     });
   } catch (error) {
@@ -1377,16 +1494,22 @@ exports.getAllEmployees = async (req, res) => {
 // @access  Private (Admin)
 exports.getEmployeeCount = async (req, res) => {
   try {
+    const status = req.query.status?.trim() || "active";
+    const whereClause = { role: "employee" };
+
+    if (status !== "all") {
+      whereClause.status = status;
+    }
+
     const count = await User.count({
-      where: {
-        role: "employee",
-      },
+      where: whereClause,
     });
 
     res.status(200).json({
       success: true,
       data: {
         count: count,
+        status,
       },
     });
   } catch (error) {

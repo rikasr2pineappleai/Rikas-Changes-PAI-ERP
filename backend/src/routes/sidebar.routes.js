@@ -26,7 +26,6 @@ router.route('/menu').get(protect, (req, res) => {
       { path: '/tasks', label: 'My Tasks', icon: 'task' },
       { path: '/leaves', label: 'Leaves', icon: 'leave' },
       { path: '/performance', label: 'Performance', icon: 'performance' },
-      { path: '/settings', label: 'Settings', icon: 'setting' },
       { path: '/logout', label: 'Logout', icon: 'logout' }
     ];
 

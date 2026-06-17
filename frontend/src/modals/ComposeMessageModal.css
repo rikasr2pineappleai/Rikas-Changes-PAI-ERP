@@ -348,6 +348,13 @@
 }
 .cm-attach-box:hover { border-color: #1DA462; }
 
+.cm-attach-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex: 0 0 18px;
+}
+
 .cm-attach-text {
   font-family: 'Roboto', sans-serif;
   font-size: 13px;

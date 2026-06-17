@@ -222,7 +222,7 @@ const formatAttendanceStatus = (status) => {
 
   if (normalizedStatus === "on_time") return "On Time";
   if (normalizedStatus === "late") return "Late";
-  if (normalizedStatus === "early_arrival") return "Early Arrival";
+  if (normalizedStatus === "early_arrival") return "On Time";
   if (normalizedStatus === "early_departure") return "Early Departure";
   if (normalizedStatus === "absent") return "Absent";
 
@@ -233,7 +233,7 @@ const getStatusClassName = (status) => {
   const normalizedStatus = String(status || "").toLowerCase();
 
   if (normalizedStatus === "late") return "late";
-  if (normalizedStatus === "early_arrival") return "early-arrival";
+  if (normalizedStatus === "early_arrival") return "on-time";
 
   return "on-time";
 };
@@ -307,7 +307,6 @@ export default function DashboardOverview() {
         <h2 id="attendance-title" className="attendance-title">
           Attendance Overview
         </h2>
-
       </div>
 
       {loading && (
@@ -438,18 +437,19 @@ export default function DashboardOverview() {
             ))}
           </div>
 
-          <div className="attendance-footer">
-            <button
-              type="button"
-              className="attendance-view-all"
-              aria-label="View all attendance"
-              onClick={handleViewAll}
-            >
-              View All <span aria-hidden="true">›</span>
-            </button>
-          </div>
         </>
       )}
+
+      <div className="attendance-footer">
+        <button
+          type="button"
+          className="view-all-button"
+          aria-label="View all attendance"
+          onClick={handleViewAll}
+        >
+          View All <span aria-hidden="true">&gt;</span>
+        </button>
+      </div>
     </section>
   );
 }

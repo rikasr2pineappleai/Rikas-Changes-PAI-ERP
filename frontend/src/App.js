@@ -12,6 +12,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 // import ProtectedRoute from './components/ProtectedRoute'; // No longer used, replaced with RoleProtectedRoute
 import RoleProtectedRoute from './components/RoleProtectedRoute';
+import SessionTimeoutWarning from './components/SessionTimeoutWarning';
 
 // Pages
 import AdminDashboard from './pages/AdminDashboard';
@@ -87,6 +88,7 @@ function AppShell() {
 
   return (
     <div className="app-container">
+      {!hideChrome && <SessionTimeoutWarning />}
       {!hideChrome && (
         <>
           <Sidebar isOpen={isSidebarOpen} onNavigate={() => setSidebarOpen(false)} />

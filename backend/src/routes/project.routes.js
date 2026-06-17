@@ -5,6 +5,7 @@ const express = require("express");
 // Create a new router object
 // This router will contain all project-related routes
 const router = express.Router();
+const { protect, authorize } = require("../middleware/auth.middleware");
 
 // Import controller functions
 // These functions contain the actual backend logic
@@ -33,7 +34,7 @@ router.get("/:id", getProjectById);
 // Route: Create new project
 // This route is used to add a new project
 // Example URL: POST /projects
-router.post("/", createProject);
+router.post("/", protect, authorize("admin"), createProject);
 
 // Route: Update existing project
 // This route is used to update a project by ID
