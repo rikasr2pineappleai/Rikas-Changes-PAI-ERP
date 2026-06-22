@@ -1,9 +1,32 @@
 const Joi = require('joi');
 
+const employeeNamePattern =
+  /^\p{L}[\p{L}\p{M}]*(?: \p{L}[\p{L}\p{M}]*)*$/u;
+const employeeNameMessages = {
+  'string.empty': 'Name is required',
+  'string.max': 'Name cannot exceed 50 characters',
+  'string.pattern.base': 'Name can contain letters and single spaces only'
+};
+const phonePattern = /^\+94 \d{2} \d{7}$/;
+const phoneMessage = 'Phone number must follow +94 XX XXXXXXX format (e.g., +94 77 1234567).';
+
 // Validation for personal information
 const personalInfoSchema = Joi.object({
-  first_name: Joi.string().min(1).max(50).required(),
-  last_name: Joi.string().min(1).max(50).optional().allow(null, ''),
+  first_name: Joi.string()
+    .trim()
+    .min(1)
+    .max(50)
+    .pattern(employeeNamePattern)
+    .required()
+    .messages(employeeNameMessages),
+  last_name: Joi.string()
+    .trim()
+    .min(1)
+    .max(50)
+    .pattern(employeeNamePattern)
+    .optional()
+    .allow(null, '')
+    .messages(employeeNameMessages),
   email: Joi.string().email().required(),
   emp_id: Joi.string()
     .min(3)
@@ -17,7 +40,13 @@ const personalInfoSchema = Joi.object({
     }),
   gender: Joi.string().valid('male', 'female', 'other').optional().allow(null),
   dob: Joi.date().iso().optional().allow(null),
-  phone: Joi.string().max(20).optional().allow(null, ''),
+  phone: Joi.string()
+    .pattern(phonePattern)
+    .required()
+    .messages({
+      'string.empty': 'Phone number is required',
+      'string.pattern.base': phoneMessage
+    }),
   address: Joi.string().optional().allow(null, ''),
   password: Joi.string()
     .min(8)
@@ -78,14 +107,28 @@ const updateDocumentsSchema = Joi.object({
 
 // Validation for updating personal information (password optional)
 const updatePersonalInfoSchema = Joi.object({
-  first_name: Joi.string().min(1).max(50).required(),
-  last_name: Joi.string().max(50).optional().allow(null, ''),
+  first_name: Joi.string()
+    .trim()
+    .min(1)
+    .max(50)
+    .pattern(employeeNamePattern)
+    .required()
+    .messages(employeeNameMessages),
+  last_name: Joi.string()
+    .trim()
+    .max(50)
+    .pattern(employeeNamePattern)
+    .optional()
+    .allow(null, '')
+    .messages(employeeNameMessages),
   email: Joi.string().required(),
   emp_id: Joi.string()
+    .empty('')
+    .allow(null)
     .min(3)
     .max(30)
     .pattern(/^[A-Za-z0-9._-]+$/)
-    .required()
+    .optional()
     .messages({
       'string.pattern.base': 'Employee ID can only contain letters, numbers, dots, underscores, and hyphens',
       'string.min': 'Employee ID must be at least 3 characters long',
@@ -93,7 +136,13 @@ const updatePersonalInfoSchema = Joi.object({
     }),
   gender: Joi.string().valid('male', 'female', 'other').optional().allow(null, ''),
   dob: Joi.string().optional().allow(null, ''),
-  phone: Joi.string().max(20).optional().allow(null, ''),
+  phone: Joi.string()
+    .pattern(phonePattern)
+    .optional()
+    .allow(null, '')
+    .messages({
+      'string.pattern.base': phoneMessage
+    }),
   address: Joi.string().optional().allow(null, ''),
   designation: Joi.string().max(100).optional().allow(null, ''),
   management_role: Joi.string().max(100).optional().allow(null, ''),

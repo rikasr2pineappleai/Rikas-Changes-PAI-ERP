@@ -81,7 +81,7 @@
 
 // export default Header;
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import "./Header.css";
@@ -134,6 +134,7 @@ const Header = ({ onToggleSidebar }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const notificationRef = useRef(null);
 
   // Fetch notifications from backend
   const fetchNotifications = async () => {
@@ -169,13 +170,32 @@ const Header = ({ onToggleSidebar }) => {
     const handleClickOutside = () => {
       setShowNotifications(false);
     };
+    const handleScroll = (event) => {
+      if (
+        event.target instanceof Node &&
+        notificationRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setShowNotifications(false);
+    };
+    const handleResize = () => setShowNotifications(false);
+
     if (showNotifications) {
       window.addEventListener("click", handleClickOutside);
+      window.addEventListener("scroll", handleScroll, true);
+      window.addEventListener("resize", handleResize);
     }
     return () => {
       window.removeEventListener("click", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("resize", handleResize);
     };
   }, [showNotifications]);
+
+  useEffect(() => {
+    setShowNotifications(false);
+  }, [location.pathname]);
 
   // Fetch database info from backend
   useEffect(() => {
@@ -241,7 +261,7 @@ const Header = ({ onToggleSidebar }) => {
   };
 
   return (
-    <header className="header">
+    <header className={`header ${showNotifications ? "notifications-open" : ""}`}>
       {/* Mobile hamburger toggle */}
       <button
         type="button"
@@ -270,6 +290,7 @@ const Header = ({ onToggleSidebar }) => {
 
       {/* Notification square (green border) with centered icon */}
       <div 
+        ref={notificationRef}
         className={`notification-box ${showNotifications ? 'active' : ''}`} 
         onClick={toggleNotifications}
         title="View Notifications"

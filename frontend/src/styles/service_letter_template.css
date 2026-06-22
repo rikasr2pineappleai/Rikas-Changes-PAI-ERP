@@ -870,7 +870,7 @@ z-index:5;
 
 /* =========================================================================
    Service Letter: clean preview modal (mirrors Offer Letter preview)
-   - Centered document (A4 ratio, no scroll)
+   - Viewport-fitted document with vertical scrolling
    - White ✕ at top-right corner of the document
    - Green download-icon button at bottom-left
    ========================================================================= */
@@ -896,8 +896,12 @@ z-index:5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  max-height: 92vh;
+  gap: 14px;
+  width: 595px;
+  max-width: 94vw;
+  height: min(92vh, 930px);
+  max-height: calc(100vh - 32px);
+  min-height: 0;
 }
 
 .sl-preview-close {
@@ -925,47 +929,28 @@ z-index:5;
 }
 
 .sl-preview-doc {
-  /* No visible frame — the PDF itself is what the user sees.
-     Background is transparent so only the PDF page shows on the backdrop. */
-  background: transparent;
+  background: #ffffff;
   border: none;
-  border-radius: 0;
-  box-shadow: none;
-  overflow: hidden;                /* CROPS scrollbar / PDF chrome */
-  position: relative;              /* anchors the absolutely-positioned iframe */
-  /* Figma spec: 595 × 842 (A4 in points), aspect-ratio preserved.
-     Shrinks proportionally on small viewports via max-height / max-width. */
-  width: 595px;
-  height: 842px;
-  max-width: 94vw;
-  max-height: 88vh;
-  aspect-ratio: 595 / 842;
+  border-radius: 4px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   opacity: 1;
 }
 
-/* The iframe is made WIDER and TALLER than the container so the Chrome
-   PDF viewer's right-side scrollbar and bottom padding fall outside the
-   container's overflow:hidden clip. The PDF content itself still fills
-   the visible 595×842 frame because the PDF is generated at that exact
-   size with zero margins. */
 .sl-preview-iframe {
   position: absolute;
   top: 0;
   left: 0;
-  width: calc(100% + 20px);         /* hides right scrollbar */
-  height: calc(100% + 20px);        /* hides bottom padding/scrollbar */
+  width: 100%;
+  height: 100%;
   border: none;
   background: #ffffff !important;
   display: block;
-  overflow: hidden;
-  scrollbar-width: none;            /* Firefox */
-  -ms-overflow-style: none;         /* IE/Edge */
-}
-
-.sl-preview-iframe::-webkit-scrollbar {
-  display: none;                    /* Chrome/Safari */
-  width: 0;
-  height: 0;
+  overflow: auto;
 }
 
 .sl-preview-loading {
@@ -977,9 +962,8 @@ z-index:5;
 .sl-preview-action-row {
   display: flex;
   justify-content: flex-start;
-  /* Match the document's Figma width */
-  width: 595px;
-  max-width: 94vw;
+  width: 100%;
+  flex: 0 0 auto;
 }
 
 .sl-download-icon-btn {

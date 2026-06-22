@@ -543,7 +543,7 @@
 .emppage-container .femp-filter-wrap {
   position: relative;
   flex-shrink: 0;
-  z-index: 200;
+  z-index: 20;
 }
 
 .emppage-container .femp-filter-btn {

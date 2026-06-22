@@ -15,7 +15,7 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  max-width: 1300px; /* optional max width */
+  max-width: none;
   background-color: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 10px;
@@ -51,7 +51,7 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  max-width: 1300px;
+  max-width: none;
   background-color: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 10px;
@@ -95,7 +95,7 @@
   border-radius: 10px;
   border: 1px solid #e5e7eb;
   width: 100%;
-  max-width: 1300px; /* match header width */
+  max-width: none;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -239,7 +239,7 @@
   margin-top: 20px;
   text-align: right;
   width: 100%;
-  max-width: 1300px;
+  max-width: none;
 }
 
 .submit-area button {

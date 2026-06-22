@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/DashboardWidgets.css";
 
-import TEicon from "../../assets/icons/teicon.png";      // total employee
-import TAicon from "../../assets/icons/applicant.png";   // total applicant
-import TATicon from "../../assets/icons/attendence.png"; // today attendance
-import TPicon from "../../assets/icons/projects.png";    // total projects
+import TEicon  from "../../assets/icons/users_02.png";        // total employee
+import TAicon  from "../../assets/icons/briefcase_04.png";    // total applicant
+import TATicon from "../../assets/icons/calendar-check.png";  // today attendance
+import TPicon  from "../../assets/icons/file_01.png";         // total projects
 
 import { fetchTodayAttendanceCount } from '../../integration/attendanceAPI';
 import employeeAPI from '../../integration/employeeAPI';
@@ -35,9 +35,15 @@ export default function DashboardWidgets() {
       try {
         setLoading(true);
 
-        const [attendanceResult, employeeResult, projectsResult] = await Promise.allSettled([
+        const [
+          attendanceResult,
+          employeeResult,
+          allMembersResult,
+          projectsResult,
+        ] = await Promise.allSettled([
           fetchTodayAttendanceCount(),
           employeeAPI.getEmployeeCount(),
+          employeeAPI.getEmployeeCount("all"),
           fetchProjectsDashboard(),
         ]);
 
@@ -49,6 +55,10 @@ export default function DashboardWidgets() {
           console.error('Error fetching employee count:', employeeResult.reason);
         }
 
+        if (allMembersResult.status === 'rejected') {
+          console.error('Error fetching all member count:', allMembersResult.reason);
+        }
+
         if (projectsResult.status === 'rejected') {
           console.error('Error fetching project count:', projectsResult.reason);
         }
@@ -57,6 +67,8 @@ export default function DashboardWidgets() {
           attendanceResult.status === 'fulfilled' ? attendanceResult.value : null;
         const employeeResponse =
           employeeResult.status === 'fulfilled' ? employeeResult.value : null;
+        const allMembersResponse =
+          allMembersResult.status === 'fulfilled' ? allMembersResult.value : null;
         const projectsResponse =
           projectsResult.status === 'fulfilled' ? projectsResult.value : null;
 
@@ -75,7 +87,7 @@ export default function DashboardWidgets() {
             } else if (widget.id === 1) {
               return { ...widget, value: getNestedCount(employeeResponse), update: updatedAt };
             } else if (widget.id === 2) {
-              return { ...widget, value: 0, update: updatedAt };
+              return { ...widget, value: getNestedCount(allMembersResponse), update: updatedAt };
             } else if (widget.id === 4) {
               return { ...widget, value: Number(projectCount) || 0, update: updatedAt };
             }
@@ -93,10 +105,10 @@ export default function DashboardWidgets() {
   }, []);
 
   return (
-    <div className="widget-section" role="region" aria-label="Dashboard widgets" style={{ width: '100%', maxWidth: '100%', margin: '0', padding: '20px', boxSizing: 'border-box' }}>
+    <div className="widget-section" role="region" aria-label="Dashboard widgets">
       <div className="widget-grid">
         {widgets.map((w) => (
-          <article className="widget-box" key={w.id}>
+          <article className="widget-box" key={w.id} data-id={w.id}>
             <div className="widget-top">
               <div className="icon-wrap" aria-hidden="true">
                 <img src={w.icon} alt={`${w.title} icon`} />

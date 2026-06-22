@@ -243,6 +243,11 @@ select {
   color: #979494;
 }
 
+.employee-page input[aria-invalid="true"] {
+  border-color: #dc2626;
+  outline-color: #dc2626;
+}
+
 /* Icon inputs */
 .input-icon {
   position: relative;

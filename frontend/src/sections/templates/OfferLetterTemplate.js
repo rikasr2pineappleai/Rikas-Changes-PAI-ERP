@@ -505,14 +505,11 @@ export default function OfferLetterTemplate() {
             <div className="offer-preview-doc">
               {pdfUrl ? (
                 <iframe
-                  // URL params hide the browser's PDF toolbar/nav-pane/scrollbar.
-                  // view=FitH + zoom=page-width forces the page to fill the iframe width,
-                  // and the oversized iframe (see .offer-preview-iframe CSS) pushes the dark
-                  // Chrome PDF viewer chrome past the clipping edge — no black gap.
-                  src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&statusbar=0&messages=0&view=FitH&zoom=page-width`}
+                  // Keep the PDF fitted to the preview width with native vertical scrolling.
+                  src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&statusbar=0&messages=0&view=FitH&zoom=page-width`}
                   title="Offer Letter Preview"
                   className="offer-preview-iframe"
-                  scrolling="no"
+                  scrolling="auto"
                 />
               ) : (
                 <div className="offer-preview-loading">Loading PDF…</div>

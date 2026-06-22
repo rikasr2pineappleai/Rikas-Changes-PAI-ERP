@@ -496,7 +496,7 @@
 // };
 
 
-const { AttendanceRecord, User, sequelize } = require('../models');
+const { AttendanceRecord, User, Department, sequelize } = require('../models');
 const { Op, fn, col, where } = require('sequelize');
 
 // Utility function to handle database errors
@@ -904,11 +904,18 @@ exports.getAllAttendanceRecords = async (req, res) => {
       order: [['date', 'DESC'], ['created_at', 'DESC']],
       include: [{
         model: User,
-        attributes: ['id', 'emp_id', 'first_name', 'last_name', 'designation'],
-        include: [{
-          model: User.sequelize.models.EmployeeDetail,
-          attributes: ['image_path']
-        }]
+        attributes: ['id', 'emp_id', 'first_name', 'last_name', 'email', 'designation'],
+        include: [
+          {
+            model: User.sequelize.models.EmployeeDetail,
+            attributes: ['image_path']
+          },
+          {
+            model: Department,
+            as: 'Department',
+            attributes: ['dept_name']
+          }
+        ]
       }]
     });
     
@@ -947,11 +954,18 @@ exports.getEmployeeAttendanceRecords = async (req, res) => {
       order: [['date', 'DESC']],
       include: [{
         model: User,
-        attributes: ['id', 'emp_id', 'first_name', 'last_name', 'designation'],
-        include: [{
-          model: User.sequelize.models.EmployeeDetail,
-          attributes: ['image_path']
-        }]
+        attributes: ['id', 'emp_id', 'first_name', 'last_name', 'email', 'designation'],
+        include: [
+          {
+            model: User.sequelize.models.EmployeeDetail,
+            attributes: ['image_path']
+          },
+          {
+            model: Department,
+            as: 'Department',
+            attributes: ['dept_name']
+          }
+        ]
       }]
     });
     
@@ -982,11 +996,18 @@ exports.getAllEmployeesAttendanceRecords = async (req, res) => {
       order: [['date', 'DESC'], ['created_at', 'DESC']],
       include: [{
         model: User,
-        attributes: ['id', 'emp_id', 'first_name', 'last_name', 'designation'],
-        include: [{
-          model: User.sequelize.models.EmployeeDetail,
-          attributes: ['image_path']
-        }]
+        attributes: ['id', 'emp_id', 'first_name', 'last_name', 'email', 'designation'],
+        include: [
+          {
+            model: User.sequelize.models.EmployeeDetail,
+            attributes: ['image_path']
+          },
+          {
+            model: Department,
+            as: 'Department',
+            attributes: ['dept_name']
+          }
+        ]
       }]
     });
     
@@ -1122,11 +1143,18 @@ exports.getEmployeeById = async (req, res) => {
   try {
     const employeeId = req.params.employeeId;
     const user = await User.findByPk(employeeId, {
-      attributes: ['id', 'emp_id', 'first_name', 'last_name', 'designation'],
-      include: [{
-        model: User.sequelize.models.EmployeeDetail,
-        attributes: ['image_path']
-      }]
+      attributes: ['id', 'emp_id', 'first_name', 'last_name', 'email', 'designation'],
+      include: [
+        {
+          model: User.sequelize.models.EmployeeDetail,
+          attributes: ['image_path']
+        },
+        {
+          model: Department,
+          as: 'Department',
+          attributes: ['dept_name']
+        }
+      ]
     });
 
     if (!user) {

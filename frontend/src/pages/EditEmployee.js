@@ -14,6 +14,17 @@ import dropdownIcon from "../assets/icons/dropdown.png";
 import sDropdownIcon from "../assets/icons/s_dropdown.png";
 import profilePic from "../assets/icons/profile.jpg";
 
+const EDIT_EMPLOYEE_DEPARTMENT_NAMES = new Set([
+  "QA Department",
+  "Designing Department",
+  "Developing Department",
+  "Cyber Security & Network Department",
+  "BA & PM Department",
+]);
+const PHONE_PATTERN = /^\+94 \d{2} \d{7}$/;
+const PHONE_ERROR =
+  "Phone number must follow +94 XX XXXXXXX format (e.g., +94 77 1234567).";
+
 export default function EditEmployee() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -32,6 +43,7 @@ export default function EditEmployee() {
     first_name: "",
     last_name: "",
     email: "",
+    emp_id: "",
     gender: "",
     dob: "",
     phone: "",
@@ -72,8 +84,6 @@ export default function EditEmployee() {
 
   // State for detailed project information
   const [detailedProjectInfo, setDetailedProjectInfo] = useState({
-    previous_projects: "",
-    completed_projects: "",
     project_role: "",
     project_description: "",
     project_contributions: "",
@@ -143,6 +153,7 @@ export default function EditEmployee() {
           first_name: user.first_name || "",
           last_name: user.last_name || "",
           email: user.email || "",
+          emp_id: user.emp_id || "",
           gender: (user.EmployeeDetail?.gender || "").toString().toLowerCase(),
           dob: user.EmployeeDetail?.dob || "",
           phone: user.EmployeeDetail?.phone || "",
@@ -242,9 +253,10 @@ export default function EditEmployee() {
   console.log("=== FOUND PROJECT ALLOCATIONS ===");
   console.log("Total allocations:", user.ProjectAllocations.length);
   
-  // Try to find the allocation with previous_projects or completed_projects data
+  // Prefer an allocation containing editable project detail data.
   const allocationWithDetails = user.ProjectAllocations.find(
-    alloc => alloc.previous_projects || alloc.completed_projects || alloc.project_role
+    alloc => alloc.project_role || alloc.project_description ||
+      alloc.project_contributions || alloc.technologies_used
   );
   
   // If no allocation with details exists, use the most recent one (highest ID)
@@ -263,8 +275,6 @@ export default function EditEmployee() {
   console.log("Using allocation index:", user.ProjectAllocations.indexOf(allocation));
   console.log("Allocation ID:", allocationId);
   console.log("Full allocation object:", JSON.stringify(allocation, null, 2));
-  console.log("allocation.previous_projects:", allocation.previous_projects);
-  console.log("allocation.completed_projects:", allocation.completed_projects);
   console.log("allocation.project_role:", allocation.project_role);
   console.log("allocation.project_description:", allocation.project_description);
   console.log("allocation.project_contributions:", allocation.project_contributions);
@@ -290,8 +300,6 @@ export default function EditEmployee() {
 
   // Load detailed project information
   console.log("Setting detailedProjectInfo with:", {
-    previous_projects: allocation.previous_projects || "",
-    completed_projects: allocation.completed_projects || "",
     project_role: allocation.project_role || "",
     project_description: allocation.project_description || "",
     project_contributions: allocation.project_contributions || "",
@@ -303,8 +311,6 @@ export default function EditEmployee() {
 
   setDetailedProjectInfo(prev => ({
     ...prev,
-    previous_projects: allocation.previous_projects || "",
-    completed_projects: allocation.completed_projects || "",
     project_role: allocation.project_role || "",
     project_description: allocation.project_description || "",
     project_contributions: allocation.project_contributions || "",
@@ -315,8 +321,7 @@ export default function EditEmployee() {
   }));
 
   // Auto-expand the project detail section when there is existing detail data
-  if (allocation.previous_projects || allocation.completed_projects ||
-      allocation.project_role || allocation.project_description ||
+  if (allocation.project_role || allocation.project_description ||
       allocation.project_contributions || allocation.technologies_used) {
     setExpandedSections(prev => ({ ...prev, project: true }));
   }
@@ -481,7 +486,19 @@ export default function EditEmployee() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    let nextValue = value;
+
+    if (name === "phone") {
+      nextValue = value.replace(/[^\d+\s]/g, "");
+      nextValue = nextValue.replace(/\+/g, (match, offset) =>
+        offset === 0 ? match : "",
+      );
+      nextValue = nextValue.replace(/\s+/g, " ");
+      nextValue = nextValue.replace(/^\s+/, "");
+      nextValue = nextValue.slice(0, 15);
+    }
+
+    setFormData({ ...formData, [name]: nextValue });
 
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -500,11 +517,10 @@ export default function EditEmployee() {
     }
 
     if (name === 'phone') {
-      const phoneValue = value ? value.trim() : "";
+      const phoneValue = nextValue ? nextValue.trim() : "";
       if (phoneValue) {
-        const digitCount = phoneValue.replace(/\D/g, '').length;
-        if (!/^\+\d{1,4}(\s\d+)+$/.test(phoneValue) || digitCount < 7 || digitCount > 15) {
-          setErrors((prev) => ({ ...prev, phone: "Phone number must start with + and country code, followed by spaces and digits (e.g., +94 77 1234567). Total digits must be between 7 and 15." }));
+        if (!PHONE_PATTERN.test(phoneValue)) {
+          setErrors((prev) => ({ ...prev, phone: PHONE_ERROR }));
         } else {
           setErrors((prev) => {
             const newErrors = { ...prev };
@@ -804,9 +820,8 @@ export default function EditEmployee() {
 
     const phoneValue = formData.phone ? formData.phone.trim() : "";
     if (phoneValue) {
-      const digitCount = phoneValue.replace(/\D/g, '').length;
-      if (!/^\+\d{1,4}(\s\d+)+$/.test(phoneValue) || digitCount < 7 || digitCount > 15) {
-        newErrors.phone = "Phone number must start with + and country code, followed by spaces and digits (e.g., +94 77 1234567). Total digits must be between 7 and 15.";
+      if (!PHONE_PATTERN.test(phoneValue)) {
+        newErrors.phone = PHONE_ERROR;
       } else {
         delete newErrors.phone;
       }
@@ -829,7 +844,7 @@ export default function EditEmployee() {
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
-        emp_id: employeeData?.emp_id || "",
+        emp_id: formData.emp_id || employeeData?.emp_id || "",
         gender: formData.gender,
         dob: formData.dob,
         phone: formData.phone,
@@ -930,7 +945,6 @@ if (projectInfo.reportingManagerId || projectInfo.currentProject || projectInfo.
 // Check if we have an existing allocation to update
 const hasExistingAllocation = employeeData?.ProjectAllocations && employeeData.ProjectAllocations.length > 0;
 const hasAnyProjectData = projectInfo.currentProject || projectInfo.startDate ||
-  detailedProjectInfo.previous_projects || detailedProjectInfo.completed_projects ||
   detailedProjectInfo.project_role || detailedProjectInfo.project_description ||
   detailedProjectInfo.project_contributions || detailedProjectInfo.technologies_used;
 
@@ -940,8 +954,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
       current_project: projectInfo.currentProject?.trim() || null,
       start_date: projectInfo.startDate || null,
       report_to: projectInfo.reportingManagerId ? Number(projectInfo.reportingManagerId) : null,
-      previous_projects: detailedProjectInfo.previous_projects?.trim() || null,
-      completed_projects: detailedProjectInfo.completed_projects?.trim() || null,
       project_role: expandedSections.project ? (detailedProjectInfo.project_role?.trim() || null) : undefined,
       project_description: expandedSections.project ? (detailedProjectInfo.project_description?.trim() || null) : undefined,
       project_contributions: expandedSections.project ? (detailedProjectInfo.project_contributions?.trim() || null) : undefined,
@@ -974,7 +986,8 @@ if (hasExistingAllocation || hasAnyProjectData) {
     if (employeeAllocations.length > 0) {
       const alloc =
         employeeAllocations.find(
-          a => a.previous_projects || a.completed_projects || a.project_role
+          a => a.project_role || a.project_description ||
+            a.project_contributions || a.technologies_used
         ) || employeeAllocations[employeeAllocations.length - 1];
       resolvedAllocationId = alloc.id;
     } else if (currentAllocationId) {
@@ -994,26 +1007,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
       const updateResponse = await employeeAPI.updateEmployeeProjectAllocation(id, resolvedAllocationId, projectPayload);
       console.log("✅ Update response:", updateResponse);
       console.log("Updated allocation data:", updateResponse.data);
-      
-      // Verify the data was actually saved
-      const savedAllocation = updateResponse.data?.data || updateResponse.data;
-      const savedPrevProjects = savedAllocation?.previous_projects;
-      const savedCompletedProjects = savedAllocation?.completed_projects;
-      
-      console.log("✅ VERIFICATION - Data saved correctly:");
-      console.log("   previous_projects:", savedPrevProjects);
-      console.log("   completed_projects:", savedCompletedProjects);
-      
-      if (savedPrevProjects !== projectPayload.previous_projects) {
-        console.warn("⚠️ WARNING: previous_projects mismatch!");
-        console.warn("   Expected:", projectPayload.previous_projects);
-        console.warn("   Got:", savedPrevProjects);
-      }
-      if (savedCompletedProjects !== projectPayload.completed_projects) {
-        console.warn("⚠️ WARNING: completed_projects mismatch!");
-        console.warn("   Expected:", projectPayload.completed_projects);
-        console.warn("   Got:", savedCompletedProjects);
-      }
     } else {
       console.log("Creating new project allocation");
       const createResponse = await employeeAPI.addEmployeeProjectAllocation(id, projectPayload);
@@ -1047,12 +1040,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
       
       console.log("✅ Fresh employee data received:", updatedUserData);
       console.log("ProjectAllocations after save:", updatedUserData.ProjectAllocations);
-      if (updatedUserData.ProjectAllocations?.length > 0) {
-        const lastAlloc = updatedUserData.ProjectAllocations[updatedUserData.ProjectAllocations.length - 1];
-        console.log("Last allocation:", lastAlloc);
-        console.log("previous_projects:", lastAlloc.previous_projects);
-        console.log("completed_projects:", lastAlloc.completed_projects);
-      }
 
       setEmployeeData(updatedUserData);
 
@@ -1203,10 +1190,12 @@ if (hasExistingAllocation || hasAnyProjectData) {
   ];
 
   // Build department options from departments state
-  const departmentOptions = departments.map((d) => ({
-    value: d.id,
-    label: d.name,
-  }));
+  const departmentOptions = departments
+    .filter((department) => EDIT_EMPLOYEE_DEPARTMENT_NAMES.has(department.name))
+    .map((department) => ({
+      value: department.id,
+      label: department.name,
+    }));
 
   return (
     <div className="edit-wrapper">
@@ -1443,6 +1432,9 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="e.g., +94 77 1234567"
+                  inputMode="tel"
+                  pattern="^\+94 \d{2} \d{7}$"
+                  maxLength={15}
                 />
                 {errors.phone && <small className="error-text" style={{ color: 'red', fontSize: '12px' }}>{errors.phone}</small>}
               </div>
@@ -1827,30 +1819,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
                 />
               </div>
 
-              <div className="small-field">
-                <label>Previous Projects</label>
-                <textarea
-                  name="previous_projects"
-                  placeholder="List your previous projects (one per line)"
-                  rows="3"
-                  value={detailedProjectInfo.previous_projects}
-                  onChange={handleDetailedProjectChange}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                />
-              </div>
-
-              <div className="small-field">
-                <label>Completed Projects</label>
-                <textarea
-                  name="completed_projects"
-                  placeholder="List completed projects with brief descriptions"
-                  rows="3"
-                  value={detailedProjectInfo.completed_projects}
-                  onChange={handleDetailedProjectChange}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                />
-              </div>
-
               {/* Expanded Project Details */}
               {expandedSections.project && (
                 <div className="expanded-section">
@@ -1978,6 +1946,7 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   first_name: employeeData?.first_name || "",
                   last_name: employeeData?.last_name || "",
                   email: employeeData?.email || "",
+                  emp_id: employeeData?.emp_id || "",
                   gender: (employeeData?.EmployeeDetail?.gender || "").toString().toLowerCase(),
                   dob: employeeData?.EmployeeDetail?.dob || "",
                   phone: employeeData?.EmployeeDetail?.phone || "",
