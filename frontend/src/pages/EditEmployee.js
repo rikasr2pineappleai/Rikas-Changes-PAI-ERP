@@ -84,8 +84,6 @@ export default function EditEmployee() {
 
   // State for detailed project information
   const [detailedProjectInfo, setDetailedProjectInfo] = useState({
-    previous_projects: "",
-    completed_projects: "",
     project_role: "",
     project_description: "",
     project_contributions: "",
@@ -255,9 +253,10 @@ export default function EditEmployee() {
   console.log("=== FOUND PROJECT ALLOCATIONS ===");
   console.log("Total allocations:", user.ProjectAllocations.length);
   
-  // Try to find the allocation with previous_projects or completed_projects data
+  // Prefer an allocation containing editable project detail data.
   const allocationWithDetails = user.ProjectAllocations.find(
-    alloc => alloc.previous_projects || alloc.completed_projects || alloc.project_role
+    alloc => alloc.project_role || alloc.project_description ||
+      alloc.project_contributions || alloc.technologies_used
   );
   
   // If no allocation with details exists, use the most recent one (highest ID)
@@ -276,8 +275,6 @@ export default function EditEmployee() {
   console.log("Using allocation index:", user.ProjectAllocations.indexOf(allocation));
   console.log("Allocation ID:", allocationId);
   console.log("Full allocation object:", JSON.stringify(allocation, null, 2));
-  console.log("allocation.previous_projects:", allocation.previous_projects);
-  console.log("allocation.completed_projects:", allocation.completed_projects);
   console.log("allocation.project_role:", allocation.project_role);
   console.log("allocation.project_description:", allocation.project_description);
   console.log("allocation.project_contributions:", allocation.project_contributions);
@@ -303,8 +300,6 @@ export default function EditEmployee() {
 
   // Load detailed project information
   console.log("Setting detailedProjectInfo with:", {
-    previous_projects: allocation.previous_projects || "",
-    completed_projects: allocation.completed_projects || "",
     project_role: allocation.project_role || "",
     project_description: allocation.project_description || "",
     project_contributions: allocation.project_contributions || "",
@@ -316,8 +311,6 @@ export default function EditEmployee() {
 
   setDetailedProjectInfo(prev => ({
     ...prev,
-    previous_projects: allocation.previous_projects || "",
-    completed_projects: allocation.completed_projects || "",
     project_role: allocation.project_role || "",
     project_description: allocation.project_description || "",
     project_contributions: allocation.project_contributions || "",
@@ -328,8 +321,7 @@ export default function EditEmployee() {
   }));
 
   // Auto-expand the project detail section when there is existing detail data
-  if (allocation.previous_projects || allocation.completed_projects ||
-      allocation.project_role || allocation.project_description ||
+  if (allocation.project_role || allocation.project_description ||
       allocation.project_contributions || allocation.technologies_used) {
     setExpandedSections(prev => ({ ...prev, project: true }));
   }
@@ -953,7 +945,6 @@ if (projectInfo.reportingManagerId || projectInfo.currentProject || projectInfo.
 // Check if we have an existing allocation to update
 const hasExistingAllocation = employeeData?.ProjectAllocations && employeeData.ProjectAllocations.length > 0;
 const hasAnyProjectData = projectInfo.currentProject || projectInfo.startDate ||
-  detailedProjectInfo.previous_projects || detailedProjectInfo.completed_projects ||
   detailedProjectInfo.project_role || detailedProjectInfo.project_description ||
   detailedProjectInfo.project_contributions || detailedProjectInfo.technologies_used;
 
@@ -963,8 +954,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
       current_project: projectInfo.currentProject?.trim() || null,
       start_date: projectInfo.startDate || null,
       report_to: projectInfo.reportingManagerId ? Number(projectInfo.reportingManagerId) : null,
-      previous_projects: detailedProjectInfo.previous_projects?.trim() || null,
-      completed_projects: detailedProjectInfo.completed_projects?.trim() || null,
       project_role: expandedSections.project ? (detailedProjectInfo.project_role?.trim() || null) : undefined,
       project_description: expandedSections.project ? (detailedProjectInfo.project_description?.trim() || null) : undefined,
       project_contributions: expandedSections.project ? (detailedProjectInfo.project_contributions?.trim() || null) : undefined,
@@ -997,7 +986,8 @@ if (hasExistingAllocation || hasAnyProjectData) {
     if (employeeAllocations.length > 0) {
       const alloc =
         employeeAllocations.find(
-          a => a.previous_projects || a.completed_projects || a.project_role
+          a => a.project_role || a.project_description ||
+            a.project_contributions || a.technologies_used
         ) || employeeAllocations[employeeAllocations.length - 1];
       resolvedAllocationId = alloc.id;
     } else if (currentAllocationId) {
@@ -1017,26 +1007,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
       const updateResponse = await employeeAPI.updateEmployeeProjectAllocation(id, resolvedAllocationId, projectPayload);
       console.log("✅ Update response:", updateResponse);
       console.log("Updated allocation data:", updateResponse.data);
-      
-      // Verify the data was actually saved
-      const savedAllocation = updateResponse.data?.data || updateResponse.data;
-      const savedPrevProjects = savedAllocation?.previous_projects;
-      const savedCompletedProjects = savedAllocation?.completed_projects;
-      
-      console.log("✅ VERIFICATION - Data saved correctly:");
-      console.log("   previous_projects:", savedPrevProjects);
-      console.log("   completed_projects:", savedCompletedProjects);
-      
-      if (savedPrevProjects !== projectPayload.previous_projects) {
-        console.warn("⚠️ WARNING: previous_projects mismatch!");
-        console.warn("   Expected:", projectPayload.previous_projects);
-        console.warn("   Got:", savedPrevProjects);
-      }
-      if (savedCompletedProjects !== projectPayload.completed_projects) {
-        console.warn("⚠️ WARNING: completed_projects mismatch!");
-        console.warn("   Expected:", projectPayload.completed_projects);
-        console.warn("   Got:", savedCompletedProjects);
-      }
     } else {
       console.log("Creating new project allocation");
       const createResponse = await employeeAPI.addEmployeeProjectAllocation(id, projectPayload);
@@ -1070,12 +1040,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
       
       console.log("✅ Fresh employee data received:", updatedUserData);
       console.log("ProjectAllocations after save:", updatedUserData.ProjectAllocations);
-      if (updatedUserData.ProjectAllocations?.length > 0) {
-        const lastAlloc = updatedUserData.ProjectAllocations[updatedUserData.ProjectAllocations.length - 1];
-        console.log("Last allocation:", lastAlloc);
-        console.log("previous_projects:", lastAlloc.previous_projects);
-        console.log("completed_projects:", lastAlloc.completed_projects);
-      }
 
       setEmployeeData(updatedUserData);
 
@@ -1852,30 +1816,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
                     const inp = document.getElementById("project_start_date_input");
                     if (inp?.showPicker) inp.showPicker(); else { inp.focus(); inp.click(); }
                   }}
-                />
-              </div>
-
-              <div className="small-field">
-                <label>Previous Projects</label>
-                <textarea
-                  name="previous_projects"
-                  placeholder="List your previous projects (one per line)"
-                  rows="3"
-                  value={detailedProjectInfo.previous_projects}
-                  onChange={handleDetailedProjectChange}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-                />
-              </div>
-
-              <div className="small-field">
-                <label>Completed Projects</label>
-                <textarea
-                  name="completed_projects"
-                  placeholder="List completed projects with brief descriptions"
-                  rows="3"
-                  value={detailedProjectInfo.completed_projects}
-                  onChange={handleDetailedProjectChange}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
                 />
               </div>
 

@@ -14,8 +14,8 @@
 =============================*/
 .edit-header-box {
   width: 100%;
-  max-width: 1384px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   background: #fff;
   border: 1px solid #dadada;
   border-radius: 10px;
@@ -47,12 +47,11 @@
 /* =============================
    MAIN GRID
 =============================*/
-/* Match the header box: same max-width and centering so the grid
-   aligns under the header instead of stretching wider on big screens. */
+/* Keep the form grid aligned with the full-width header. */
 .edit-grid {
-  margin: 20px auto ;
+  margin: 20px 0;
   width: 100%;
-  max-width: 1384px;
+  max-width: none;
   display: flex;
   gap: 20px;
   box-sizing: border-box;
