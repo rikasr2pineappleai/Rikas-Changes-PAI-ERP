@@ -341,6 +341,20 @@ const getProgressVariant = (progress) => {
   return "notstarted";
 };
 
+const normalizeTaskStatus = (status) => {
+  const value = String(status || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (value === "testing" || value === "in_review") return "review";
+  if (value === "blocked") return "cto_review";
+  if (value === "completed") return "done";
+  if (value === "pending") return "to_do";
+  if (value === "inprogress") return "in_progress";
+  return value;
+};
+
 // Assignee picker modal
 // This modal lets user choose one employee as task assignee.
 function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
@@ -986,8 +1000,7 @@ export default function ViewProject() {
       .filter((t) => {
         if (
           taskFilters.status &&
-          String(t.progress).toLowerCase() !==
-            String(taskFilters.status).toLowerCase()
+          normalizeTaskStatus(t.progress) !== normalizeTaskStatus(taskFilters.status)
         )
           return false;
         if (
@@ -1124,7 +1137,7 @@ export default function ViewProject() {
     () => [
       { value: "to_do", label: "To Do" },
       { value: "in_progress", label: "In Progress" },
-      { value: "testing", label: "In Review" },
+      { value: "review", label: "In Review" },
       { value: "blocked", label: "CTO Review" },
       { value: "done", label: "Completed" },
     ],

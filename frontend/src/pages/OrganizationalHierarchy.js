@@ -29,9 +29,9 @@ const OrganizationalHierarchy = () => {
     { id: 1, name: "Lakshan", role: "CEO", position: "org-ceo", isCEO: true },
     { id: 2, name: "Praveen", role: "COO", position: "org-coo" },
     { id: 3, name: "Nayanan", role: "CTO", position: "org-cto" },
-    { id: 4, name: "Niroshan", role: "Project Manager", position: "org-project-manager" },
+  { id: 4, name: "Shahmi", role: "Project Manager", position: "org-project-manager" },
     { id: 5, name: "Praveen", role: "CCOO", position: "org-ccoo" },
-    { id: 6, name: "Sanjeevan", role: "UI/UX Team Lead", position: "org-uiux-lead", isTeamLead: true },
+  { id: 6, name: "Rijas", role: "UI/UX Team Lead", position: "org-uiux-lead", isTeamLead: true },
     { id: 7, name: "Praveen", role: "CHROO", position: "org-chroo" },
     { id: 8, name: "Praveen", role: "CMOO", position: "org-cmoo" },
     { id: 9, name: "Praveen", role: "CFOO", position: "org-cfoo" },
@@ -42,8 +42,8 @@ const OrganizationalHierarchy = () => {
     Lakshan: lakshan,
     Praveen: nivethiga,
     Nayanan: nayanan,
-    Niroshan: niroshan,
-    Sanjeevan: sanjeevan,
+  Shahmi: niroshan,
+  Rijas: sanjeevan,
   };
 
   const Card = ({ name, role, isCEO = false, isTeamLead = false }) => {

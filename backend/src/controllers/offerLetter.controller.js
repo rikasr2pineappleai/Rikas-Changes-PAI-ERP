@@ -197,11 +197,11 @@ exports.generateOfferLetterPDF = async (req, res) => {
     });
 
     const page = await browser.newPage();
-    // Set viewport to exact Figma/PDF-point A4 dimensions (595 × 842)
+    // Set viewport to exact Figma/PDF-point A4 dimensions (595 x 842)
     await page.setViewport({ width: 595, height: 842, deviceScaleFactor: 1 });
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
-    // Generate PDF — exact 595 × 842 px, no margins (layout handled in HTML)
+    // Generate PDF - exact 595 x 842 px, no margins (layout handled in HTML)
     const pdfBuffer = await page.pdf({
       width: '595px',
       height: '842px',
@@ -222,6 +222,41 @@ exports.generateOfferLetterPDF = async (req, res) => {
       await browser.close();
     }
     const errorResponse = handleControllerError(error, "generate offer letter PDF");
+    res.status(500).json(errorResponse);
+  }
+};
+
+// @desc    Generate Offer Letter HTML preview
+// @route   POST /api/templates/offer-letter/preview
+// @access  Private (Admin)
+exports.generateOfferLetterPreview = async (req, res) => {
+  try {
+    const { employee_id, ...manualOverrides } = req.body;
+
+    let dbEmployeeData = {};
+    if (employee_id) {
+      dbEmployeeData = await fetchEmployeeDetails(employee_id) || {};
+    }
+
+    const mergedData = {
+      ...dbEmployeeData,
+      ...manualOverrides,
+      generatedBy: manualOverrides.generatedBy || 'HR Department'
+    };
+
+    const validationErrors = getOfferLetterValidationErrors(mergedData);
+    if (Object.keys(validationErrors).length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please fill all mandatory offer letter fields',
+        errors: validationErrors
+      });
+    }
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(generateOfferLetterHTML(mergedData));
+  } catch (error) {
+    const errorResponse = handleControllerError(error, "generate offer letter preview");
     res.status(500).json(errorResponse);
   }
 };

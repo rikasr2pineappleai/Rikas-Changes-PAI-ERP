@@ -24,6 +24,18 @@ const EDIT_EMPLOYEE_DEPARTMENT_NAMES = new Set([
 const PHONE_PATTERN = /^\+94 \d{2} \d{7}$/;
 const PHONE_ERROR =
   "Phone number must follow +94 XX XXXXXXX format (e.g., +94 77 1234567).";
+const NAME_PATTERN =
+  /^\p{L}[\p{L}\p{M}]*(?: \p{L}[\p{L}\p{M}]*)*$/u;
+
+const validateName = (value) => {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) return "Name is required.";
+  if (trimmedValue.length > 50) return "Name cannot exceed 50 characters.";
+  if (!NAME_PATTERN.test(trimmedValue)) {
+    return "Name can contain letters and spaces only.";
+  }
+  return "";
+};
 
 export default function EditEmployee() {
   const { id } = useParams();
@@ -582,12 +594,27 @@ export default function EditEmployee() {
   };
 
   const handleNameChange = (e) => {
-    const [first, ...last] = e.target.value.split(" ");
+    const rawValue = e.target.value;
+    const nextValue = rawValue
+      .replace(/[^\p{L}\p{M}\s]/gu, "")
+      .replace(/\s+/g, " ")
+      .replace(/^\s/, "")
+      .slice(0, 50);
+    const [first, ...last] = nextValue.split(" ");
+
     setFormData({
       ...formData,
       first_name: first || "",
       last_name: last.join(" ") || "",
     });
+
+    const attemptedInvalidCharacter = /[^\p{L}\p{M}\s]/u.test(rawValue);
+    setErrors((prev) => ({
+      ...prev,
+      name: attemptedInvalidCharacter
+        ? "Name can contain letters and spaces only."
+        : validateName(nextValue),
+    }));
   };
 
   const handleProfileImageClick = () => {
@@ -805,6 +832,14 @@ export default function EditEmployee() {
 
   const validateForm = () => {
     const newErrors = { ...errors };
+
+    const fullName = `${formData.first_name || ""} ${formData.last_name || ""}`.trim();
+    const nameError = validateName(fullName);
+    if (nameError) {
+      newErrors.name = nameError;
+    } else {
+      delete newErrors.name;
+    }
 
     const emailValue = formData.email ? formData.email.trim() : "";
     if (!emailValue) {
@@ -1275,7 +1310,7 @@ if (hasExistingAllocation || hasAnyProjectData) {
             <h3>Employee Information</h3>
 
             <div className="info-grid">
-              <div className="info-field success">
+              <div className={`info-field ${errors.name ? 'error' : 'success'}`}>
                 <label>Name</label>
                 <input
                   type="text"
@@ -1283,6 +1318,7 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   onChange={handleNameChange}
                   placeholder="Full Name"
                 />
+                {errors.name && <small className="error-text" style={{ color: 'red', fontSize: '12px' }}>{errors.name}</small>}
               </div>
 
               <div className="info-field success">

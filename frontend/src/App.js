@@ -64,6 +64,14 @@ function AppShell() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const hideChrome = location.pathname.startsWith('/login') || location.pathname.startsWith('/logout');
+  const currentUserRole = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || '{}')?.role;
+    } catch (error) {
+      return null;
+    }
+  })();
+  const appRoleClass = !hideChrome && currentUserRole ? `app-container--${currentUserRole}` : '';
 
   // Lock body scroll when sidebar is open on mobile
   useEffect(() => {
@@ -87,7 +95,7 @@ function AppShell() {
   }, [isSidebarOpen]);
 
   return (
-    <div className="app-container">
+    <div className={`app-container ${appRoleClass}`}>
       {!hideChrome && <SessionTimeoutWarning />}
       {!hideChrome && (
         <>

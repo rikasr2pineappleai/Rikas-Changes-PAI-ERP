@@ -7,6 +7,7 @@ export default function OfferLetterTemplate() {
   const [showPreview, setShowPreview] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [previewHtml, setPreviewHtml] = useState("");
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
 
@@ -39,6 +40,7 @@ export default function OfferLetterTemplate() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setPdfUrl(null);
+    setPreviewHtml("");
     setValidationErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -58,6 +60,7 @@ export default function OfferLetterTemplate() {
     });
     setValidationErrors({});
     setPdfUrl(null);
+    setPreviewHtml("");
   };
 
   const validateForm = () => {
@@ -143,7 +146,46 @@ export default function OfferLetterTemplate() {
     }
   };
 
+  const generatePreviewHTML = async () => {
+    if (!validateForm()) return null;
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+
+      const response = await axios.post(
+        "http://localhost:5001/api/templates/offer-letter/preview",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          responseType: "text",
+        }
+      );
+
+      setPreviewHtml(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error generating preview:", error);
+      if (error.response?.data?.errors) {
+        setValidationErrors(error.response.data.errors);
+      }
+      alert(
+        error.response?.data?.message ||
+          "Failed to generate preview. Please check all required fields."
+      );
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePreview = async () => {
+    const html = await generatePreviewHTML();
+    if (!html) return;
+
     const url = await generatePDF();
     if (url) setShowPreview(true);
   };
@@ -154,6 +196,7 @@ export default function OfferLetterTemplate() {
       window.URL.revokeObjectURL(pdfUrl);
       setPdfUrl(null);
     }
+    setPreviewHtml("");
   };
 
   /* Clicking the green download-icon button in the PREVIEW modal does NOT
@@ -503,13 +546,12 @@ export default function OfferLetterTemplate() {
               ✕
             </button>
             <div className="offer-preview-doc">
-              {pdfUrl ? (
+              {previewHtml ? (
                 <iframe
-                  // Keep the PDF fitted to the preview width with native vertical scrolling.
-                  src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&statusbar=0&messages=0&view=FitH&zoom=page-width`}
+                  srcDoc={previewHtml}
                   title="Offer Letter Preview"
                   className="offer-preview-iframe"
-                  scrolling="auto"
+                  scrolling="no"
                 />
               ) : (
                 <div className="offer-preview-loading">Loading PDF…</div>

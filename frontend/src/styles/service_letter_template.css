@@ -878,66 +878,65 @@ z-index:5;
 .sl-preview-backdrop {
   position: fixed !important;
   inset: 0 !important;
-  top: 0 !important;
-  left: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  background: rgba(15, 23, 42, 0.55) !important; /* clean semi-transparent slate */
+  background: rgba(229, 232, 236, 0.72) !important;
   z-index: 99999 !important;
   display: flex !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   justify-content: center !important;
-  padding: 24px;
-  backdrop-filter: none !important;
+  padding: 110px 24px 28px;
+  backdrop-filter: blur(4px);
+  overflow: auto;
 }
 
 .sl-preview-stack {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 14px;
   width: 595px;
-  max-width: 94vw;
-  height: min(92vh, 930px);
-  max-height: calc(100vh - 32px);
+  max-width: calc(100vw - 96px);
+  height: auto;
   min-height: 0;
 }
 
 .sl-preview-close {
   position: absolute;
-  top: -14px;
-  right: -14px;
-  width: 36px;
-  height: 36px;
+  top: 28px;
+  right: -30px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: #ffffff;
-  color: #4b5563;
-  border: 1px solid #e5e7eb;
-  font-size: 15px;
+  background: #eef0f2;
+  color: #a4a8ae;
+  border: 1px solid #cdd2d7;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   z-index: 10001;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
 }
 
 .sl-preview-close:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: #ffffff;
+  color: #4b5563;
 }
 
 .sl-preview-doc {
   background: #ffffff;
-  border: none;
-  border-radius: 4px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+  border: 1px solid #4b5563;
+  border-radius: 0;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
   overflow: hidden;
   position: relative;
-  width: 100%;
-  flex: 1 1 auto;
-  min-height: 0;
+  width: 595px;
+  max-width: 100%;
+  height: 842px;
   opacity: 1;
 }
 
@@ -950,7 +949,7 @@ z-index:5;
   border: none;
   background: #ffffff !important;
   display: block;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .sl-preview-loading {
@@ -969,15 +968,20 @@ z-index:5;
 .sl-download-icon-btn {
   background: #347e45;
   border: none;
-  border-radius: 14px;
-  width: 86px;
-  height: 56px;
+  border-radius: 6px;
+  width: 44px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(52, 126, 69, 0.35);
+  box-shadow: 0 2px 5px rgba(52, 126, 69, 0.28);
   transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.sl-download-icon-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .sl-download-icon-btn:hover {
