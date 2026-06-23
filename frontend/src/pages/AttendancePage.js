@@ -122,7 +122,7 @@
 
 // export default AttendancePage;
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Pagination from '../components/Pagination';
 import backIcon from '../assets/icons/title_back.png';
@@ -130,6 +130,42 @@ import sortIcon from '../assets/icons/A-Z.png';
 import './Pages.css';
 import './AttendancePage.css';
 import { fetchEmployeeAttendanceRecords } from '../integration/attendanceAPI';
+
+const formatAttendanceDate = (value) => {
+  if (!value) return 'N/A';
+
+  const rawValue = String(value);
+  const datePart = rawValue.includes('T') ? rawValue.slice(0, 10) : rawValue;
+  const dateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(datePart);
+  const date = dateMatch
+    ? new Date(Number(dateMatch[1]), Number(dateMatch[2]) - 1, Number(dateMatch[3]))
+    : new Date(value);
+
+  if (Number.isNaN(date.getTime())) return rawValue;
+
+  return date.toLocaleDateString('en-US', {
+    month: 'long',
+    day: '2-digit',
+    year: 'numeric'
+  });
+};
+
+const formatAttendanceStatus = (status) => {
+  const normalizedStatus = String(status || '').toLowerCase();
+
+  if (normalizedStatus === 'early_arrival' || normalizedStatus === 'on_time') {
+    return 'On Time';
+  }
+
+  if (normalizedStatus === 'late') return 'Late';
+
+  return status || 'Unknown';
+};
+
+const getAttendanceStatusClassName = (status) =>
+  `attendance-status attendance-status--${String(status || '')
+    .toLowerCase()
+    .replace(/\s+/g, '')}`;
 
 const AttendancePage = () => {
   const navigate = useNavigate();
@@ -160,12 +196,12 @@ const AttendancePage = () => {
           if (response && response.data && response.data.attendance_records) {
             // Transform backend data to match frontend format
             const transformedData = response.data.attendance_records.map(record => ({
-              date: record.date ? new Date(record.date).toLocaleDateString('en-GB') : 'N/A',
+              date: formatAttendanceDate(record.date),
               checkIn: record.clock_in ? new Date(record.clock_in).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A',
               checkOut: record.clock_out ? new Date(record.clock_out).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A',
               break: formatBreakDuration(record.total_break_duration || 0),
               workingHours: record.working_hours ? formatWorkingHours(record.working_hours) : 'N/A',
-              status: record.status || 'Unknown'
+              status: formatAttendanceStatus(record.status)
             }));
             
             setAttendanceData(transformedData);
@@ -193,7 +229,7 @@ const AttendancePage = () => {
     };
     
     fetchAttendanceData();
-  }, [effectiveEmployeeId, currentPage]);
+  }, [effectiveEmployeeId, currentPage, urlEmployeeId]);
   
   // Helper function to format break duration: "HH:MM Min" if < 1 hour, "HH:MM Hrs" if >= 1 hour
   const formatBreakDuration = (seconds) => {
@@ -288,7 +324,7 @@ const AttendancePage = () => {
                   <div className="attendance-table-cell">{row.break}</div>
                   <div className="attendance-table-cell">{row.workingHours}</div>
                   <div className="attendance-table-cell attendance-table-cell--status">
-                    <span className={`attendance-status attendance-status--${row.status.toLowerCase().replace(' ', '')}`}>
+                    <span className={getAttendanceStatusClassName(row.status)}>
                       {row.status}
                     </span>
                   </div>
@@ -309,7 +345,7 @@ const AttendancePage = () => {
             <div className="attendance-card" key={`card-${row.date}-${index}`}>
               <div className="attendance-card-header">
                 <span className="attendance-card-date">{row.date}</span>
-                <span className={`attendance-status attendance-status--${row.status.toLowerCase().replace(' ', '')}`}>
+                <span className={getAttendanceStatusClassName(row.status)}>
                   {row.status}
                 </span>
               </div>

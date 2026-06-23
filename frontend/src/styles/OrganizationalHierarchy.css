@@ -15,7 +15,7 @@
 
 .org-header-card {
   width: 100%;
-  max-width: 1396px;
+  max-width: none;
   min-height: 80px;
   background: #fff;
   border: 1px solid #dadada;
@@ -49,7 +49,7 @@
 
 .org-chart-wrapper {
   width: 100%;
-  max-width: 1396px;
+  max-width: none;
   background: #FFFFFF;
   border: 1px solid #DADADA;
   border-radius: 10px;

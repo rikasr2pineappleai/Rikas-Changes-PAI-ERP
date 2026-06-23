@@ -1,7 +1,9 @@
 const express = require('express');
 const {
   generateOfferLetterPDF,
+  generateOfferLetterPreview,
   generateServiceLetterPDF,
+  generateServiceLetterPreview,
   saveOfferLetterTemplate,
   saveServiceLetterTemplate,
   getOfferLetterTemplates,
@@ -20,6 +22,9 @@ const router = express.Router();
 // Offer Letter Routes - Specific routes first
 router.route('/offer-letter/generate')
   .post(protect, authorize('admin'), generateOfferLetterPDF);
+
+router.route('/offer-letter/preview')
+  .post(protect, authorize('admin'), generateOfferLetterPreview);
 
 router.route('/offer-letter/template')
   .post(protect, authorize('admin'), saveOfferLetterTemplate);
@@ -42,6 +47,9 @@ router.route('/offer-letter/employee/:employee_id')
 // Service Letter Routes - Specific routes first
 router.route('/service-letter/generate')
   .post(protect, authorize('admin'), generateServiceLetterPDF);
+
+router.route('/service-letter/preview')
+  .post(protect, authorize('admin'), generateServiceLetterPreview);
 
 router.route('/service-letter/template')
   .post(protect, authorize('admin'), saveServiceLetterTemplate);

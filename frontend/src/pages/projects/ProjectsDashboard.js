@@ -40,6 +40,45 @@ import {
 // employeeAPI - used to get employee list from backend
 import employeeAPI from "../../integration/employeeAPI";
 
+const PROJECT_NAME_PATTERN =
+  /^[\p{L}\p{M}\p{N} &+.,:'()/_#-]+$/u;
+
+const validateProjectName = (value) => {
+  const projectName = value.trim();
+  if (!projectName) return "Project name is required.";
+  if (projectName.length > 150) {
+    return "Project name cannot exceed 150 characters.";
+  }
+  if (!PROJECT_NAME_PATTERN.test(projectName)) {
+    return "Use letters, numbers, spaces, and permitted punctuation only.";
+  }
+  if (!/[\p{L}\p{N}]/u.test(projectName)) {
+    return "Project name must contain at least one letter or number.";
+  }
+  return "";
+};
+
+const PROJECT_FILTER_OPTIONS = [
+  { value: "active", label: "Active" },
+  { value: "completed", label: "Completed" },
+  { value: "upcoming", label: "Upcoming" },
+];
+
+const getProjectTaskStatus = (project) => {
+  const taskCount = Number(project?.taskCount ?? 0);
+  const completedTaskCount = Number(project?.completedTaskCount ?? 0);
+
+  if (taskCount === 0) return "upcoming";
+  if (
+    project?.allTasksCompleted === true ||
+    completedTaskCount >= taskCount
+  ) {
+    return "completed";
+  }
+
+  return "active";
+};
+
 // Small external link icon component
 // This SVG icon is shown on each project card.
 // When clicked, it opens the selected project page.
@@ -57,20 +96,25 @@ function ExternalLinkIcon() {
 // MemberPickerModal Component
 // This modal is used to select a project member / manager.
 // It shows a search box and list of employees.
-function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
+function MemberPickerModal({
+  open,
+  onClose,
+  people,
+  memberIds,
+  onConfirm,
+}) {
   // q = search text typed by the user
   const [q, setQ] = useState("");
 
-  // temp = temporarily selected member id inside the modal
-  const [temp, setTemp] = useState("");
+  const [tempMemberIds, setTempMemberIds] = useState([]);
 
   // When modal opens, reset search field and set current selected value
   useEffect(() => {
     if (open) {
       setQ("");
-      setTemp(value ? String(value) : "");
+      setTempMemberIds((memberIds || []).map(String));
     }
-  }, [open, value]);
+  }, [open, memberIds]);
 
   // Filter employee list based on search text
   const filtered = useMemo(() => {
@@ -87,6 +131,15 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
         .includes(s),
     );
   }, [q, people]);
+
+  const toggleMember = (id) => {
+    const selectedId = String(id);
+    setTempMemberIds((current) =>
+      current.includes(selectedId)
+        ? current.filter((item) => item !== selectedId)
+        : [...current, selectedId],
+    );
+  };
 
   // If modal is not open, show nothing
   if (!open) return null;
@@ -124,13 +177,13 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
           <div className="prj-memberList">
             {filtered.map((p) => {
               // Check whether this employee is currently selected
-              const active = String(p.id) === String(temp);
+              const active = tempMemberIds.includes(String(p.id));
 
               return (
                 <div
                   key={p.id}
                   className={`prj-memberRow ${active ? "active" : ""}`}
-                  onClick={() => setTemp(String(p.id))}
+                  onClick={() => toggleMember(p.id)}
                   role="button"
                   tabIndex={0}
                 >
@@ -184,17 +237,17 @@ function MemberPickerModal({ open, onClose, people, value, onConfirm }) {
           <button
             type="button"
             className="prj-primaryBtn prj-primaryBtnFull"
-            disabled={!temp}
+            disabled={!tempMemberIds.length}
             style={{
-              opacity: !temp ? 0.6 : 1,
-              cursor: !temp ? "not-allowed" : "pointer",
+              opacity: !tempMemberIds.length ? 0.6 : 1,
+              cursor: !tempMemberIds.length ? "not-allowed" : "pointer",
             }}
             onClick={() => {
-              // Do nothing if no employee is selected
-              if (!temp) return;
+              if (!tempMemberIds.length) return;
 
-              // Send selected employee id back to parent component
-              onConfirm(temp);
+              onConfirm({
+                memberIds: tempMemberIds,
+              });
 
               // Close modal
               onClose();
@@ -238,12 +291,7 @@ function FilterModal({ open, onClose, filters, onFiltersChange }) {
     onClose();
   };
 
-  const statusOptions = [
-    { value: "active", label: "Active" },
-    { value: "completed", label: "Completed" },
-    { value: "upcoming", label: "Upcoming" },
-    { value: "on-hold", label: "On Hold" },
-  ];
+  const statusOptions = PROJECT_FILTER_OPTIONS;
 
   return (
     <div className="prj-modalOverlay" onMouseDown={onClose}>
@@ -311,12 +359,7 @@ function FilterModal({ open, onClose, filters, onFiltersChange }) {
 }
 
 function ProjectFilterDropdown({ open, onClose, filters, onFiltersChange }) {
-  const statusOptions = [
-    { value: "active", label: "Active" },
-    { value: "completed", label: "Completed" },
-    { value: "upcoming", label: "Upcoming" },
-    { value: "on-hold", label: "On Hold" },
-  ];
+  const statusOptions = PROJECT_FILTER_OPTIONS;
 
   const dropdownRef = useRef(null);
 
@@ -400,6 +443,7 @@ export default function ProjectsDashboard() {
     name: "",
     description: "",
     managerId: "",
+    memberIds: [],
   });
 
   // Stores all projects received from backend
@@ -428,6 +472,7 @@ export default function ProjectsDashboard() {
     name: "",
     description: "",
     managerId: "",
+    memberIds: "",
   });
 
   // This function removes the error for one specific field only
@@ -576,8 +621,7 @@ export default function ProjectsDashboard() {
       // Filter by status
       if (
         filters.status &&
-        String(p.status || "").toLowerCase() !==
-          String(filters.status).toLowerCase()
+        getProjectTaskStatus(p) !== filters.status
       )
         return false;
 
@@ -602,22 +646,22 @@ export default function ProjectsDashboard() {
 
   // Validate new project form
   const validateProjectForm = () => {
-    const next = { name: "", description: "", managerId: "" };
+    const next = { name: "", description: "", managerId: "", memberIds: "" };
 
     // Validate project name
-    if (!form.name.trim()) next.name = "Project name is required.";
+    next.name = validateProjectName(form.name);
 
     // Validate description
     if (!form.description.trim()) next.description = "Description is required.";
 
-    // Validate selected manager/member
-    if (!form.managerId) next.managerId = "Please select a project member.";
+    // Validate selected project members
+    if (!form.memberIds.length) next.memberIds = "Please select at least one project member.";
 
     // Save validation errors into state
     setFieldErrors(next);
 
     // Return true only if all fields are valid
-    return !next.name && !next.description && !next.managerId;
+    return !next.name && !next.description && !next.managerId && !next.memberIds;
   };
 
   // Function: Create new project
@@ -637,7 +681,8 @@ export default function ProjectsDashboard() {
         status: "planning",
         start_date: null,
         end_date: null,
-        managerId: Number(form.managerId),
+        managerId: null,
+        memberIds: (form.memberIds || []).map(Number),
       };
 
       // Call backend API to create project
@@ -648,10 +693,10 @@ export default function ProjectsDashboard() {
         setNewProjectOpen(false);
 
         // Reset form data
-        setForm({ name: "", description: "", managerId: "" });
+        setForm({ name: "", description: "", managerId: "", memberIds: [] });
 
         // Reset field errors
-        setFieldErrors({ name: "", description: "", managerId: "" });
+        setFieldErrors({ name: "", description: "", managerId: "", memberIds: "" });
 
         // Reload project list
         await loadProjects();
@@ -660,16 +705,32 @@ export default function ProjectsDashboard() {
         setError(res?.message || "Create project failed");
       }
     } catch (err) {
-      // Show API/server error
-      setError(err?.response?.data?.message || err.message || "Server error");
+      const responseError = err?.response?.data;
+      if (responseError?.field === "name") {
+        setFieldErrors((prev) => ({
+          ...prev,
+          name: responseError.message,
+        }));
+      } else {
+        setError(responseError?.message || err.message || "Server error");
+      }
     }
   };
 
-  // Get selected member details from people list
-  const selectedMember = useMemo(() => {
-    if (!form.managerId) return null;
-    return people.find((p) => String(p.id) === String(form.managerId)) || null;
-  }, [form.managerId, people]);
+  // Get selected project member details from people list
+  const selectedMembers = useMemo(
+    () =>
+      people.filter((person) =>
+        (form.memberIds || []).some((id) => String(id) === String(person.id)),
+      ),
+    [form.memberIds, people],
+  );
+
+  const selectedMembersLabel = selectedMembers.length
+    ? selectedMembers.length === 1
+      ? selectedMembers[0].name
+      : `${selectedMembers[0].name} + ${selectedMembers.length - 1} more`
+    : "Choose members";
 
   // Render UI
   return (
@@ -690,7 +751,7 @@ export default function ProjectsDashboard() {
 
               // Reset errors when opening modal
               setError("");
-              setFieldErrors({ name: "", description: "", managerId: "" });
+              setFieldErrors({ name: "", description: "", managerId: "", memberIds: "" });
 
               // Load people if not already available
               if (!people?.length) loadPeople();
@@ -794,11 +855,7 @@ export default function ProjectsDashboard() {
             // - No tasks            => show "Upcoming"
             // - All tasks completed => show "Completed"
             // - Otherwise           => show first task's assign date (MM/DD/YYYY)
-            const taskCount = Number(p.taskCount || 0);
-            const completedTaskCount = Number(p.completedTaskCount || 0);
-            const allDone =
-              p.allTasksCompleted === true ||
-              (taskCount > 0 && completedTaskCount === taskCount);
+            const taskStatus = getProjectTaskStatus(p);
 
             const formatAssignDate = (iso) => {
               if (!iso) return "";
@@ -812,10 +869,10 @@ export default function ProjectsDashboard() {
 
             let metaLabel = "";
             let metaClass = "prj-meta-date";
-            if (taskCount === 0) {
+            if (taskStatus === "upcoming") {
               metaLabel = "Upcoming";
               metaClass = "prj-meta-upcoming";
-            } else if (allDone) {
+            } else if (taskStatus === "completed") {
               metaLabel = "Completed";
               metaClass = "prj-meta-completed";
             } else {
@@ -922,18 +979,26 @@ export default function ProjectsDashboard() {
             className={`prj-input ${fieldErrors.name ? "prj-inputError" : ""}`}
             placeholder="Enter your project name"
             value={form.name}
+            maxLength={150}
+            aria-invalid={Boolean(fieldErrors.name)}
+            aria-describedby={
+              fieldErrors.name ? "new-project-name-error" : undefined
+            }
             onChange={(e) => {
-              // Update form state
-              setForm((s) => ({ ...s, name: e.target.value }));
-
-              // Remove name error once user starts typing
-              if (fieldErrors.name) clearFieldError("name");
+              const name = e.target.value;
+              setForm((s) => ({ ...s, name }));
+              setFieldErrors((prev) => ({
+                ...prev,
+                name: validateProjectName(name),
+              }));
             }}
           />
 
           {/* Show name field validation error */}
           {fieldErrors.name && (
-            <div className="prj-fieldError">{fieldErrors.name}</div>
+            <div id="new-project-name-error" className="prj-fieldError">
+              {fieldErrors.name}
+            </div>
           )}
 
           {/* Description label */}
@@ -967,19 +1032,18 @@ export default function ProjectsDashboard() {
           <button
             type="button"
             className={`prj-assigneeField ${
-              form.managerId ? "prj-hasValue" : ""
-            } ${fieldErrors.managerId ? "prj-inputError" : ""}`}
+              form.memberIds.length ? "prj-hasValue" : ""
+            } ${fieldErrors.memberIds ? "prj-inputError" : ""}`}
             onClick={() => setMemberPickerOpen(true)}
           >
             <span className="prj-assigneeValue">
-              {selectedMember?.name || "Choose a person"}
+              {selectedMembersLabel}
             </span>
             <img className="prj-assigneeIcon" src={dropDownIcon} alt="" />
           </button>
 
-          {/* Show manager field validation error */}
-          {fieldErrors.managerId && (
-            <div className="prj-fieldError">{fieldErrors.managerId}</div>
+          {fieldErrors.memberIds && (
+            <div className="prj-fieldError">{fieldErrors.memberIds}</div>
           )}
 
 
@@ -995,13 +1059,15 @@ export default function ProjectsDashboard() {
           open={memberPickerOpen}
           onClose={() => setMemberPickerOpen(false)}
           people={people}
-          value={form.managerId}
-          onConfirm={(id) => {
-            // Save selected member id into form
-            setForm((s) => ({ ...s, managerId: String(id) }));
+          memberIds={form.memberIds}
+          onConfirm={({ memberIds }) => {
+            setForm((s) => ({
+              ...s,
+              managerId: "",
+              memberIds: (memberIds || []).map(String),
+            }));
 
-            // Remove manager validation error
-            if (fieldErrors.managerId) clearFieldError("managerId");
+            if (fieldErrors.memberIds) clearFieldError("memberIds");
           }}
         />
       </BaseModal>

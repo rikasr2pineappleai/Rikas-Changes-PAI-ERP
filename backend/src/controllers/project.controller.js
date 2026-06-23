@@ -7,6 +7,24 @@ const db = require("../models");
 // Get needed models from DB
 const { Project, ProjectAllocation, User, Task, EmployeeDetail } = db;
 
+const PROJECT_NAME_PATTERN =
+  /^[\p{L}\p{M}\p{N} &+.,:'()/_#-]+$/u;
+
+const validateProjectName = (value) => {
+  const projectName = String(value || "").trim();
+  if (!projectName) return "Project name is required.";
+  if (projectName.length > 150) {
+    return "Project name cannot exceed 150 characters.";
+  }
+  if (!PROJECT_NAME_PATTERN.test(projectName)) {
+    return "Project name contains unsupported characters.";
+  }
+  if (!/[\p{L}\p{N}]/u.test(projectName)) {
+    return "Project name must contain at least one letter or number.";
+  }
+  return "";
+};
+
 // Base URL for serving uploaded files
 const SERVER_BASE_URL = process.env.SERVER_BASE_URL || "http://localhost:5001";
 
@@ -21,6 +39,19 @@ const toISODateOnly = (d) => {
   if (!d) return null;
   if (typeof d === "string") return d.slice(0, 10);
   return new Date(d).toISOString().slice(0, 10);
+};
+
+const daysFromToday = (date) => {
+  if (!date) return null;
+
+  const dueDate = new Date(date);
+  if (Number.isNaN(dueDate.getTime())) return null;
+
+  const today = new Date();
+  dueDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  return Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
 };
 
 // ✅ Map DB Task -> Frontend Task format (from ViewProject.js expects these keys)
@@ -125,6 +156,20 @@ const mapProjectForDashboard = async (project) => {
   const firstTaskAssignedAt = firstTask
     ? toISODateOnly(firstTask.assigned_at)
     : null;
+  const taskDeadlines = await Task.findAll({
+    where: {
+      project_id: project.id,
+      status: { [Op.ne]: "done" },
+      deadline: { [Op.ne]: null },
+    },
+    attributes: ["deadline"],
+  });
+  const taskDaysLeft = taskDeadlines
+    .map((task) => daysFromToday(task.deadline))
+    .filter((days) => days !== null);
+  const totalTaskDaysLeft = taskDaysLeft.length
+    ? taskDaysLeft.reduce((total, days) => total + days, 0)
+    : null;
 
   return {
     id: project.id,
@@ -147,6 +192,7 @@ const mapProjectForDashboard = async (project) => {
     completedTaskCount,
     firstTaskAssignedAt,
     allTasksCompleted: taskCount > 0 && completedTaskCount === taskCount,
+    totalTaskDaysLeft,
 
     managerId: managerUser?.id || null,
     managerName: userFullName(managerUser) || null,
@@ -244,7 +290,7 @@ exports.getProjectById = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ["id", "emp_id", "first_name", "last_name", "email"],
+          attributes: ["id", "emp_id", "first_name", "last_name", "email", "designation"],
         },
       ],
       order: [["id", "ASC"]],
@@ -300,14 +346,29 @@ exports.getProjectById = async (req, res) => {
 
 // ✅ CREATE PROJECT
 exports.createProject = async (req, res) => {
+  const t = await db.sequelize.transaction();
+  let committed = false;
+
   try {
     const body = req.body || {};
-    // Validate project name
-    if (!body.name || !String(body.name).trim()) {
-      return res
-        .status(400)
-        .json({ success: false, message: "name is required" });
+    const projectNameError = validateProjectName(body.name);
+    if (projectNameError) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: projectNameError,
+        field: "name",
+      });
     }
+
+    const managerId = Number(body.managerId) || null;
+    const memberIds = Array.isArray(body.memberIds)
+      ? body.memberIds.map((id) => Number(id)).filter((id) => id && !Number.isNaN(id))
+      : [];
+    const allocationUserIds = [
+      ...new Set([managerId, ...memberIds].filter(Boolean)),
+    ];
+
     // Create project record
     const project = await Project.create({
       project_name: String(body.name).trim(),
@@ -316,15 +377,50 @@ exports.createProject = async (req, res) => {
       start_date: body.start_date || null,
       end_date: body.end_date || null,
       status: body.status || "planning",
-      pm_user_id: body.managerId || null,
+      pm_user_id: managerId,
+    }, { transaction: t });
+
+    if (allocationUserIds.length > 0) {
+      await ProjectAllocation.bulkCreate(
+        allocationUserIds.map((userId) => ({
+          project_id: project.id,
+          user_id: userId,
+          role_in_project: userId === managerId ? "Project Manager" : "Team Member",
+        })),
+        { transaction: t }
+      );
+    }
+
+    await t.commit();
+    committed = true;
+
+    const createdProject = await Project.findByPk(project.id, {
+      include: [
+        {
+          model: ProjectAllocation,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "emp_id", "first_name", "last_name", "email", "designation"],
+            },
+          ],
+        },
+      ],
     });
+
     // Send success response
     return res.status(201).json({
       success: true,
       message: "Project created successfully",
-      project,
+      project: createdProject || project,
     });
   } catch (error) {
+    if (!committed) {
+      try {
+        await t.rollback();
+      } catch (_) {}
+    }
+
     console.error("createProject error:", error);
     return res.status(500).json({
       success: false,
@@ -339,6 +435,17 @@ exports.updateProject = async (req, res) => {
   try {
     const id = Number(req.params.id);
     const body = req.body || {};
+
+    if (body.name !== undefined) {
+      const projectNameError = validateProjectName(body.name);
+      if (projectNameError) {
+        return res.status(400).json({
+          success: false,
+          message: projectNameError,
+          field: "name",
+        });
+      }
+    }
 
     const project = await Project.findByPk(id);
     if (!project)
@@ -457,9 +564,10 @@ exports.replaceProjectAllocations = async (req, res) => {
       include: [
         {
           model: db.User,
-          attributes: ["id", "emp_id", "first_name", "last_name", "email"],
+          attributes: ["id", "emp_id", "first_name", "last_name", "email", "designation"],
         },
       ],
+      order: [["id", "ASC"]],
       transaction: t,
     });
 

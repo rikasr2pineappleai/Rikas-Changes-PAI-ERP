@@ -341,6 +341,20 @@ const getProgressVariant = (progress) => {
   return "notstarted";
 };
 
+const normalizeTaskStatus = (status) => {
+  const value = String(status || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (value === "testing" || value === "in_review") return "review";
+  if (value === "blocked") return "cto_review";
+  if (value === "completed") return "done";
+  if (value === "pending") return "to_do";
+  if (value === "inprogress") return "in_progress";
+  return value;
+};
+
 // Assignee picker modal
 // This modal lets user choose one employee as task assignee.
 function AssigneePickerModal({ open, onClose, people, value, onConfirm }) {
@@ -892,7 +906,9 @@ export default function ViewProject() {
           fallback?.name ||
           u.email ||
           `User ${id}`,
-        role: a.role_in_project || fallback?.role || "Employee",
+        role: u.designation || fallback?.designation || "Employee",
+        designation: u.designation || fallback?.designation || "",
+        projectRole: a.role_in_project || "",
         profile_pic: u.profile_pic || fallback?.profile_pic || "",
       };
     });
@@ -950,7 +966,9 @@ export default function ViewProject() {
             u.email ||
             `User ${u.id}`,
           profile_pic: buildAvatar(u),
-          role: u.role || u.designation || "",
+          role: u.designation || "",
+          designation: u.designation || "",
+          loginRole: u.role || "",
         }));
 
         setPeople(normalized);
@@ -982,8 +1000,7 @@ export default function ViewProject() {
       .filter((t) => {
         if (
           taskFilters.status &&
-          String(t.progress).toLowerCase() !==
-            String(taskFilters.status).toLowerCase()
+          normalizeTaskStatus(t.progress) !== normalizeTaskStatus(taskFilters.status)
         )
           return false;
         if (
@@ -1120,7 +1137,7 @@ export default function ViewProject() {
     () => [
       { value: "to_do", label: "To Do" },
       { value: "in_progress", label: "In Progress" },
-      { value: "testing", label: "In Review" },
+      { value: "review", label: "In Review" },
       { value: "blocked", label: "CTO Review" },
       { value: "done", label: "Completed" },
     ],
@@ -1300,7 +1317,8 @@ export default function ViewProject() {
         map.set(uid, {
           id: Number(uid),
           name: p?.name || `User ${uid}`,
-          role: p?.role || "Employee",
+          role: p?.designation || p?.role || "Employee",
+          designation: p?.designation || "",
           profile_pic: p?.profile_pic || "",
           _isAllocated: false,
         });
@@ -1660,9 +1678,7 @@ export default function ViewProject() {
                 <div className="prj-memberText">
                   <div className="prj-memberChipName">{m.name}</div>
                   <div className="prj-memberChipRole">
-                    {String(m.id) === String(project?.managerId)
-                      ? "Project Manager"
-                      : m.role || "Employee"}
+                    {m.designation || m.role || "Employee"}
                   </div>
                 </div>
               </div>

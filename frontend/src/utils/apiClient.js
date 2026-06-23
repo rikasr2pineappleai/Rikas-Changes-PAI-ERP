@@ -139,9 +139,9 @@ class ApiClient {
     // Otherwise get from localStorage
     const token = localStorage.getItem("token");
 
-    // If token exists but is expired, remove it
+    // Remove only tokens that have actually expired.
     if (token && this.isTokenExpired(token)) {
-      console.warn('Token found but is expired, removing it');
+      console.warn('Expired token found, removing it');
       this.removeToken();
       return null;
     }
@@ -180,12 +180,10 @@ class ApiClient {
       }
 
       const currentTime = Math.floor(Date.now() / 1000);
-      // Add a 5-minute buffer before actual expiration
-      const buffer = 5 * 60; // 5 minutes in seconds
-      const isExpired = decoded.exp < (currentTime + buffer);
+      const isExpired = decoded.exp <= currentTime;
       
       if (isExpired) {
-        console.log('Token is expired or about to expire within 5 minutes');
+        console.log('Token is expired');
       }
       
       return isExpired;
@@ -200,6 +198,41 @@ class ApiClient {
     localStorage.setItem("token", token);
     // Also store in memory for faster access
     this.token = token;
+  }
+
+  getTokenRemainingMs(token = this.token || localStorage.getItem("token")) {
+    const decoded = token ? this.decodeToken(token) : null;
+    return decoded?.exp ? decoded.exp * 1000 - Date.now() : null;
+  }
+
+  async refreshSession() {
+    const token = this.token || localStorage.getItem("token");
+    if (!token || this.isTokenExpired(token)) return false;
+    if (this.refreshPromise) return this.refreshPromise;
+
+    this.refreshPromise = fetch(`${this.baseURL}/auth/refresh`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok || !data?.token) return false;
+        this.setToken(data.token);
+        window.dispatchEvent(new CustomEvent("session-refreshed"));
+        return true;
+      })
+      .catch(() => false)
+      .finally(() => {
+        this.refreshPromise = null;
+      });
+
+    return this.refreshPromise;
+  }
+
+  async refreshSessionIfNeeded(thresholdMs = 60 * 60 * 1000) {
+    const remainingMs = this.getTokenRemainingMs();
+    if (remainingMs === null || remainingMs > thresholdMs) return true;
+    return this.refreshSession();
   }
 
   // Remove token from localStorage
@@ -237,6 +270,10 @@ class ApiClient {
 
   // Generic request method
   async request(endpoint, options = {}) {
+    if (options.includeAuth !== false && endpoint !== "/auth/refresh") {
+      await this.refreshSessionIfNeeded();
+    }
+
     const url = `${this.baseURL}${endpoint}`;
     const config = {
       headers: this.getHeaders(options.includeAuth !== false),
@@ -266,15 +303,18 @@ class ApiClient {
       if (response.status === 401) {
         console.error("401 Unauthorized - Token may be invalid");
         console.error("Response details:", data || "No response body");
-        this.removeToken();
-        window.location.href = "/login";
+        window.dispatchEvent(new CustomEvent("session-expired"));
         throw new Error("Unauthorized");
       }
 
       if (!response.ok) {
-        throw new Error(
-          data?.message || `Request failed with status ${response.status}`
+        const error = new Error(
+          data?.error ||
+            data?.message ||
+            `Request failed with status ${response.status}`
         );
+        error.response = { status: response.status, data };
+        throw error;
       }
 
       return { data, response };

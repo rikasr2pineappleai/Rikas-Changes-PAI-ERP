@@ -184,6 +184,46 @@ exports.generateServiceLetterPDF = async (req, res) => {
   }
 };
 
+// @desc    Generate Service Letter HTML preview
+// @route   POST /api/templates/service-letter/preview
+// @access  Private (Admin)
+exports.generateServiceLetterPreview = async (req, res) => {
+  try {
+    let data = req.body;
+
+    if (data.employee_id) {
+      const employeeDetails = await fetchEmployeeDetailsForServiceLetter(data.employee_id);
+      if (employeeDetails) {
+        data = {
+          ...employeeDetails,
+          ...data,
+          employeeName: data.employeeName || employeeDetails.employeeName,
+          position: data.position || employeeDetails.position,
+          department: data.department || employeeDetails.department,
+          joiningDate: data.joiningDate || employeeDetails.joiningDate,
+          endDate: data.endDate || employeeDetails.endDate
+        };
+      }
+    }
+
+    const validationErrors = getServiceLetterValidationErrors(data);
+    if (Object.keys(validationErrors).length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please fill all mandatory service letter fields',
+        errors: validationErrors
+      });
+    }
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(generateServiceLetterHTML(data));
+  } catch (error) {
+    console.error('Service letter preview error:', error);
+    const errorResponse = handleControllerError(error, 'generate service letter preview');
+    res.status(500).json(errorResponse);
+  }
+};
+
 // @desc    Save Service Letter Template
 // @route   POST /api/templates/service-letter/template
 // @access  Private (Admin)

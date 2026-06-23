@@ -97,6 +97,7 @@ const EmployeesPage = () => {
           {view === 'current' ? (
             <CurrentEmpList
               page={currentPage}
+              setPage={setCurrentPage}
               setTotalPages={setTotalPages}
               key={`current-${location.state?.refresh ? 'refresh' : 'normal'}`} // Force re-render when refresh is needed
             />

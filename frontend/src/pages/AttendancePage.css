@@ -11,7 +11,7 @@
 
 .attendance-header-card {
   width: 100%;
-  max-width: 1396px;
+  max-width: none;
   min-height: 80px;
   background: #fff;
   border: 1px solid #dadada;
@@ -23,7 +23,7 @@
   box-sizing: border-box;
 }
 
-.attendance-back-button {
+.attendance-page .attendance-back-button {
   width: 32px;
   height: 32px;
   display: flex;
@@ -35,9 +35,9 @@
   cursor: pointer;
 }
 
-.attendance-back-button img {
-  width: 100%;
-  height: 100%;
+.attendance-page .attendance-back-button img {
+  width: 32px;
+  height: 32px;
   object-fit: contain;
 }
 
@@ -52,7 +52,7 @@
 
 .attendance-table-wrapper {
   width: 100%;
-  max-width: 1396px;
+  max-width: none;
   overflow-x: auto;
 }
 
@@ -69,7 +69,7 @@
 .attendance-card-list {
   display: none;
   width: 100%;
-  max-width: 1396px;
+  max-width: none;
   gap: 0.5rem;
 }
 
@@ -333,7 +333,11 @@
   }
 
   .attendance-header-title { font-size: 18px; }
-  .attendance-back-button { width: 24px; height: 24px; }
+  .attendance-page .attendance-back-button,
+  .attendance-page .attendance-back-button img {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 @media (max-width: 480px) {

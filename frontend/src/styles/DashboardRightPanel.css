@@ -1,0 +1,335 @@
+/* DashboardRightPanel.css – Version 2.0 */
+
+/* ─── Right panel wrapper ─────────────────────────────────────────────── */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── Shared card ─────────────────────────────────────────────────────── */
+.rp-card {
+  background: #ffffff;
+  border: 1px solid #DADADA;
+  border-radius: 10px;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.rp-card-title {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: #1E293B;
+  margin: 0;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid #DADADA;
+}
+
+.rp-loading {
+  font-size: 13px;
+  color: #979494;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.status-overview-card {
+  min-height: 304px;
+}
+
+.project-progress-card {
+  min-height: 438px;
+}
+
+/* ─── Donut chart section ─────────────────────────────────────────────── */
+.status-chart-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  padding: 4px 10px 8px;
+  min-height: 260px;
+}
+
+.donut-svg {
+  width: 240px;
+  height: 240px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+/* Centre "Total" label */
+.donut-total-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  fill: #979494;
+}
+
+/* Centre big number */
+.donut-total-value {
+  font-family: 'Roboto', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  fill: #1E293B;
+}
+
+/* On-segment percentage */
+.donut-seg-pct {
+  font-family: 'Roboto', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  fill: #ffffff;
+}
+
+/* On-segment count e.g. (02) */
+.donut-seg-count {
+  font-family: 'Roboto', sans-serif;
+  font-size: 8px;
+  font-weight: 400;
+  fill: #ffffff;
+}
+
+/* Legend */
+.legend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1;
+  min-width: 0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #1E293B;
+  line-height: 1.4;
+  margin-left: 0;
+  white-space: nowrap;
+}
+
+/* ─── Project Progress table ──────────────────────────────────────────── */
+.pp-table {
+  width: calc(100% - 24px);
+  margin: 8px 12px 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.pp-th {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  color: #1E293B;
+  text-align: left;
+  padding: 0 4px 7px 0;
+  white-space: nowrap;
+}
+
+.pp-name-th  { width: 31%; }
+.pp-prog-th  { width: 31%; }
+.pp-tasks-th { width: 14%; text-align: center; }
+.pp-time-th  { width: 24%; text-align: right; }
+
+.pp-row {
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.pp-td {
+  font-family: 'Roboto', sans-serif;
+  font-size: 10px;
+  color: #1E293B;
+  padding: 7px 4px 7px 0;
+  vertical-align: middle;
+}
+
+.pp-name-cell {
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* progress bar */
+.pp-prog-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.prog-bar-bg {
+  flex: 1;
+  height: 5px;
+  background: #EFEFEF;
+  border-radius: 999px;
+  overflow: hidden;
+  min-width: 30px;
+}
+
+.prog-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.pp-pct {
+  font-size: 9px;
+  color: #979494;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 26px;
+}
+
+.pp-tasks-cell {
+  text-align: center;
+  font-size: 10px;
+  color: #1E293B;
+}
+
+.pp-time-cell {
+  text-align: right;
+  padding-right: 0;
+}
+
+/* time-left badges — matching Figma */
+.tl-badge {
+  display: inline-block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 3px 5px;
+  white-space: nowrap;
+}
+
+/* ≤3 days → red */
+.tl-red    { background: rgba(244, 67,  54,  0.12); color: #D32F2F; }
+/* 4–7 days → orange / amber */
+.tl-orange { background: rgba(255, 152,  0,  0.12); color: #E65100; }
+/* >7 days → green */
+.tl-green  { background: rgba(76,  175,  80, 0.12); color: #2E7D32; }
+.tl-grey   { background: rgba(100, 116, 139, 0.10); color: #64748B; }
+
+.pp-empty {
+  text-align: center;
+  font-size: 12px;
+  color: #979494;
+  padding: 16px 0;
+}
+
+.pp-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin: 6px 14px 10px;
+}
+
+.pp-view-all {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-size: 10px;
+  color: #1DA462;
+  font-weight: 500;
+  padding: 0;
+}
+.pp-view-all:hover { text-decoration: underline; }
+
+/* ─── Quick Message card ──────────────────────────────────────────────── */
+.qm-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 168px;
+  padding: 14px 16px;
+}
+
+.qm-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qm-icon-wrap { flex-shrink: 0; }
+
+.qm-icon {
+  display: block;
+  width: 64px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.qm-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 0;
+}
+
+.qm-title {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: #1E293B;
+  display: block;
+}
+
+.qm-sub {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: #979494;
+  line-height: 1.5;
+  display: block;
+}
+
+/* Compose Message button — dark green, full width */
+.qm-btn {
+  display: block;
+  width: 292px;
+  align-self: center;
+  background: #347E45;
+  color: #ffffff;
+  border: none;
+  border-radius: 7px;
+  padding: 9px 12px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s ease;
+  letter-spacing: 0.2px;
+}
+.qm-btn:hover { background: #17935a; }
+
+@media (max-width: 1500px) {
+  .donut-svg {
+    width: 210px;
+    height: 210px;
+  }
+
+  .legend-label { font-size: 12px; }
+  .qm-btn { width: min(292px, 100%); }
+}

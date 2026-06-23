@@ -216,55 +216,9 @@ export default function EmployeeOverview() {
     allocation?.Project?.start_date ||
     null;
 
-  // Previous Projects - format for display (handle both newline-separated and plain text)
-  const previousProjects = (() => {
-    if (!allocation?.previous_projects) return [];
-    const value = String(allocation.previous_projects).trim();
-    if (!value) return [];
-    // Split by newlines and filter empty lines
-    const projects = value
-      .split('\n')
-      .map(p => p.trim())
-      .filter(p => p.length > 0);
-    console.log("📋 Previous Projects Processing:", {
-      raw: allocation.previous_projects,
-      trimmed: value,
-      split: projects
-    });
-    return projects;
-  })();
-
-  // Completed Projects - format for display (handle both newline-separated and plain text)
-  const completedProjects = (() => {
-    if (!allocation?.completed_projects) return [];
-    const value = String(allocation.completed_projects).trim();
-    if (!value) return [];
-    // Split by newlines and filter empty lines
-    const projects = value
-      .split('\n')
-      .map(p => p.trim())
-      .filter(p => p.length > 0);
-    console.log("✅ Completed Projects Processing:", {
-      raw: allocation.completed_projects,
-      trimmed: value,
-      split: projects
-    });
-    return projects;
-  })();
-
   console.log("Final currentProject:", currentProject);
   console.log("Final startDate:", startDate);
-  console.log("Previous projects:", previousProjects);
-  console.log("Completed projects:", completedProjects);
   console.log("========================");
-  
-  // Final debug check before render
-  console.log("🔍 OVERVIEW DISPLAY CHECK:");
-  console.log("  - allocation object exists:", !!allocation);
-  console.log("  - allocation.previous_projects:", allocation?.previous_projects);
-  console.log("  - allocation.completed_projects:", allocation?.completed_projects);
-  console.log("  - previousProjects array:", previousProjects);
-  console.log("  - completedProjects array:", completedProjects);
 
   return (
     <div className="eov-page">
@@ -589,23 +543,6 @@ export default function EmployeeOverview() {
                   <p>{formatDate(startDate)}</p>
                 </div>
 
-                <div className="eov-info">
-                  <label>Previous Projects</label>
-                  {previousProjects && previousProjects.length > 0 ? (
-                    <p style={{ whiteSpace: 'pre-line' }}>{previousProjects.join(', ')}</p>
-                  ) : (
-                    <p>N/A</p>
-                  )}
-                </div>
-
-                <div className="eov-info">
-                  <label>Completed Projects</label>
-                  {completedProjects && completedProjects.length > 0 ? (
-                    <p style={{ whiteSpace: 'pre-line' }}>{completedProjects.join(', ')}</p>
-                  ) : (
-                    <p>N/A</p>
-                  )}
-                </div>
               </div>
             </section>
           </div>

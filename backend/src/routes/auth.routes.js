@@ -31,6 +31,7 @@ const {
   resetPassword,
   changePassword,
   getMe,
+  refreshSession,
 } = require("../controllers/auth.controller");
 const { protect } = require("../middleware/auth.middleware");
 const {
@@ -57,5 +58,6 @@ router.post(
   changePassword
 );
 router.get("/me", protect, getMe);
+router.post("/refresh", protect, refreshSession);
 
 module.exports = router;

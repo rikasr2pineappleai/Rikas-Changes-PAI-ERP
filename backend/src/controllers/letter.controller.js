@@ -5,6 +5,7 @@ const serviceLetterController = require('./serviceLetter.controller');
 
 // Re-export Offer Letter functions
 exports.generateOfferLetterPDF = offerLetterController.generateOfferLetterPDF;
+exports.generateOfferLetterPreview = offerLetterController.generateOfferLetterPreview;
 exports.saveOfferLetterTemplate = offerLetterController.saveOfferLetterTemplate;
 exports.getOfferLetterTemplates = offerLetterController.getOfferLetterTemplates;
 exports.getEmployeeDetailsForOfferLetter = offerLetterController.getEmployeeDetailsForOfferLetter;
@@ -13,6 +14,7 @@ exports.debugListAllEmployees = offerLetterController.debugListAllEmployees;
 
 // Re-export Service Letter functions
 exports.generateServiceLetterPDF = serviceLetterController.generateServiceLetterPDF;
+exports.generateServiceLetterPreview = serviceLetterController.generateServiceLetterPreview;
 exports.saveServiceLetterTemplate = serviceLetterController.saveServiceLetterTemplate;
 exports.getServiceLetterTemplates = serviceLetterController.getServiceLetterTemplates;
 exports.getAllEmployeesForServiceLetterDropdown = serviceLetterController.getAllEmployeesForServiceLetterDropdown;

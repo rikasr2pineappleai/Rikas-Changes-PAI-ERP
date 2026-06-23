@@ -4,10 +4,10 @@
 /* Version: 1.0.8 */
 
 :root {
-  --attendance-height: 522px;
+  --attendance-height: 724px;
   --attendance-padding: 20px;
   --attendance-radius: 16px;
-  --attendance-border: 1px solid #DADADA;
+  --attendance-border: 1px solid #dadada;
 }
 
 /* Global reset for this component's subtree */
@@ -32,8 +32,16 @@
   gap: 10px;
   transform: rotate(0deg);
   opacity: 1;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
-    Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  font-family:
+    "Roboto",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Helvetica Neue",
+    Arial,
+    "Noto Sans",
+    "Liberation Sans",
+    sans-serif;
   color: #222831;
 
   /* prevent any external spacing from pushing layout */
@@ -46,8 +54,6 @@
   align-items: stretch;
   /* Remove any default browser styles that might affect alignment */
   margin: 0;
-  /* Force consistent rendering */
-  display: block;
   /* Remove fixed height to prevent internal scrolling */
   height: auto;
 }
@@ -68,17 +74,17 @@
   justify-content: space-between;
   gap: 12px;
   padding-right: 0;
-  min-height: 40px;
+  min-height: 24px;
 }
 
 /* Title - Updated to match Figma */
 .attendance-title {
-  font-family: 'Roboto'; /* Match Figma font family */
+  font-family: "Roboto"; /* Match Figma font family */
   font-style: normal; /* Match Figma font style */
   font-weight: 600; /* Match Figma font weight */
-  font-size: 20px; /* Match Figma font size */
-  line-height: 23px; /* Match Figma line height */
-  color: #1E293B; /* Match Figma color */
+  font-size: 16px;
+  line-height: 20px;
+  color: #1e293b; /* Match Figma color */
   margin: 0; /* Remove default margins */
   padding: 0; /* Remove default padding */
   flex: none;
@@ -86,45 +92,35 @@
   flex-grow: 1;
 }
 
-/* View All button - Final fix to match Figma exactly */
+/* View All button - simple text link style */
 .view-all-button {
   box-sizing: border-box;
-  /* Auto layout */
   display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
   align-items: center;
-  padding: 6px 10px;
-  gap: 10px;
-  width: 84px;
-  height: 36px;
-  border: 1px solid #DADADA;
-  border-radius: 10px;
+  gap: 4px;
+  padding: 0;
+  border: none;
   background: transparent;
+  color: #1da462;
   cursor: pointer;
-  box-shadow: none;
-  
-  /* Inside auto layout */
-  flex: none;
-  order: 1;
-  flex-grow: 0;
-  
-  /* Text styling - Matched to Figma exactly */
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-style: normal;
-  font-weight: 300;
+  font-weight: 500;
   font-size: 14px;
-  line-height: 22px;
-  /* identical to box height, or 157% */
-  text-align: center;
-  text-transform: capitalize;
-  color: #1E293B;
-  
-  /* Prevent text wrapping */
+  line-height: 20px;
+  text-decoration: none;
   white-space: nowrap;
-  
-  /* Remove default button styles */
-  outline: none;
+}
+
+.view-all-button:hover,
+.view-all-button:focus {
+  text-decoration: underline;
+}
+
+.view-all-button span {
+  display: inline-flex;
+  font-size: 16px;
+  line-height: 1;
 }
 
 /* Remove default focus styles */
@@ -134,31 +130,40 @@
 
 /* Table wrapper: removed internal scrolling */
 .attendance-table-wrapper {
-  margin-top: 4px;
+  margin-top: 8px;
   /* Removed flex: 1 to prevent internal scrolling */
   overflow: visible; /* Ensure no internal scrolling */
+}
+
+.attendance-section .attendance-table-wrapper {
+  overflow-x: hidden;
 }
 
 /* Table core */
 .attendance-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;    /* fixed layout keeps columns predictable */
+  table-layout: fixed; /* fixed layout keeps columns predictable */
   min-width: 100%;
+}
+
+.attendance-section .attendance-table {
+  width: 100%;
+  min-width: 0 !important;
 }
 
 /* Header cells */
 .attendance-table thead th {
   text-align: left;
-  padding: 12px 10px;
-  font-family: 'Roboto';
+  padding: 10px 0;
+  font-family: "Roboto";
   font-style: normal;
   font-weight: 300;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 13px;
+  line-height: 18px;
   /* identical to box height, or 150% */
   color: #979494;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   background: transparent;
   vertical-align: bottom;
   height: 24px;
@@ -168,25 +173,35 @@
 }
 
 /* Column width hints (flexible because of table-layout: fixed) */
-.col-employee { width: 32%; min-width: 115px; }
-.col-designation { width: 22%; }
-.col-checkin { width: 14%; }
-.col-checkout { width: 18%; }
-.col-status { width: 8%; }
+.col-employee {
+  width: 27%;
+  min-width: 150px;
+}
+.col-designation {
+  width: 29%;
+}
+.col-worktype {
+  width: 18%;
+}
+.col-checkin {
+  width: 16%;
+}
+.col-status {
+  width: 10%;
+}
 
 /* Body rows */
 .attendance-table tbody tr.attendance-row {
-  border-bottom: 1px solid rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
   /* Changed from fixed height to min-height to prevent overflow */
-  min-height: 74px;
-  height: auto;
+  height: 55px;
 }
 
 /* Body cells */
 .attendance-table tbody td {
-  padding: 12px 10px;
+  padding: 8px 0;
   vertical-align: middle;
-  font-size: 14px;
+  font-size: 13px;
   color: #2b3942;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -203,29 +218,29 @@
 .employee-cell .employee-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0; /* allows ellipsis to work on child text */
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
   object-fit: cover;
 }
 
 /* Name text */
 .employee-name {
-  font-family: 'Roboto';
+  font-family: "Roboto";
   font-style: normal;
   font-weight: 300;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 13px;
+  line-height: 18px;
   /* identical to box height, or 150% */
-  color: #1E293B;
+  color: #1e293b;
   width: 103px;
   height: 24px;
   overflow: hidden;
@@ -239,13 +254,13 @@
 
 /* Designation */
 .designation-cell {
-  font-family: 'Roboto';
+  font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 19px;
+  font-size: 13px;
+  line-height: 18px;
   /* identical to box height */
-  color: #1E293B;
+  color: #1e293b;
   width: 141px;
   height: 19px;
   overflow: hidden;
@@ -257,14 +272,15 @@
 }
 
 /* Checkin/checkout small text style */
-.checkin-cell, .checkout-cell {
-  font-family: 'Roboto';
+.checkin-cell,
+.worktype-cell {
+  font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 19px;
+  font-size: 13px;
+  line-height: 18px;
   /* identical to box height */
-  color: #1E293B;
+  color: #1e293b;
   white-space: nowrap;
   flex: none;
   order: 0;
@@ -280,11 +296,11 @@
   padding: 3px 8px;
   gap: 10px;
   border-radius: 4px;
-  font-family: 'Roboto';
+  font-family: "Roboto";
   font-style: normal;
   font-weight: 300;
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 11px;
+  line-height: 16px;
   /* identical to box height, or 150% */
   display: flex;
   align-items: center;
@@ -295,24 +311,24 @@
 
 /* On time / Late colors */
 .status-badge.on-time {
-  width: 66px;
-  height: 24px;
+  width: 58px;
+  height: 22px;
   background: rgba(63, 194, 138, 0.1);
-  color: #347E45;
+  color: #347e45;
 }
 
 .status-badge.late {
-  width: 39px;
-  height: 24px;
+  width: 36px;
+  height: 22px;
   background: rgba(244, 91, 105, 0.1);
-  color: #F45B69;
+  color: #f45b69;
 }
 
 .status-badge.early-arrival {
   width: 88px;
   height: 24px;
   background: rgba(63, 194, 138, 0.1);
-  color: #347E45;
+  color: #347e45;
 }
 
 /* MOBILE CARDS (hidden by default) */
@@ -320,47 +336,41 @@
   display: none;
 }
 
+.attendance-sort {
+  color: #979494;
+  font-size: 12px;
+  margin-left: 2px;
+}
+
+.attendance-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.attendance-view-all {
+  border: 0;
+  background: transparent;
+  color: #347e45;
+  cursor: pointer;
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0;
+}
+
+.attendance-view-all span {
+  font-size: 18px;
+  line-height: 10px;
+  vertical-align: -1px;
+}
+
 /* Responsive helpers for larger screens */
 @media (min-width: 1401px) {
   .attendance-section {
-    height: auto;
-    min-height: 550px; /* Increase minimum height on larger screens */
-    padding: 25px; /* Increase padding on larger screens */
-  }
-  
-  /* Increase font sizes for larger screens */
-  .attendance-title {
-    font-size: 24px; /* Larger title on bigger screens */
-    line-height: 28px;
-  }
-  
-  /* Increase table header font sizes */
-  .attendance-table thead th {
-    font-size: 18px; /* Larger header text */
-    line-height: 26px;
-  }
-  
-  /* Increase body cell font sizes */
-  .attendance-table tbody td {
-    font-size: 16px; /* Larger body text */
-  }
-  
-  /* Increase employee name font size */
-  .employee-name {
-    font-size: 18px;
-    line-height: 26px;
-  }
-  
-  /* Increase designation font size */
-  .designation-cell {
-    font-size: 18px;
-    line-height: 21px;
-  }
-  
-  /* Increase checkin/checkout font size */
-  .checkin-cell, .checkout-cell {
-    font-size: 18px;
-    line-height: 21px;
+    min-height: var(--attendance-height);
+    padding: var(--attendance-padding);
   }
 }
 
@@ -373,101 +383,16 @@
 
   /* let table be scrollable horizontally on small screens */
   .attendance-table {
-    min-width: 900px;
+    min-width: 0;
   }
-  
+
   /* Prevent internal vertical scrolling */
   .attendance-table-wrapper {
     overflow-x: auto; /* Only allow horizontal scrolling if needed */
     overflow-y: visible; /* Prevent vertical scrolling */
   }
-  
+
   /* Maintain header styling on smaller screens */
-  .attendance-table thead th {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 300;
-    font-size: 16px;
-    line-height: 24px;
-    color: #979494;
-    height: 24px;
-  }
-  
-  /* Maintain cell styling on smaller screens */
-  .employee-name {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 300;
-    font-size: 16px;
-    line-height: 24px;
-    color: #1E293B;
-    width: 103px;
-    height: 24px;
-    flex: none;
-    order: 1;
-    flex-grow: 0;
-  }
-  
-  .designation-cell {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 19px;
-    color: #1E293B;
-    width: 141px;
-    height: 19px;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-  }
-  
-  .checkin-cell, .checkout-cell {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 19px;
-    color: #1E293B;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-  }
-  
-  /* Maintain status badge styling on smaller screens */
-  .status-badge {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 3px 8px;
-    gap: 10px;
-    border-radius: 4px;
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 300;
-    font-size: 12px;
-    line-height: 18px;
-    display: flex;
-    align-items: center;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-  }
-  
-  .status-badge.on-time {
-    width: 66px;
-    height: 24px;
-    background: rgba(63, 194, 138, 0.1);
-    color: #347E45;
-  }
-  
-  .status-badge.late {
-    width: 39px;
-    height: 24px;
-    background: rgba(244, 91, 105, 0.1);
-    color: #F45B69;
-  }
 }
 
 @media (max-width: 1024px) {
@@ -492,7 +417,7 @@
   .attendance-card {
     display: flex;
     flex-direction: column;
-    border: 1px solid #DADADA;
+    border: 1px solid #dadada;
     border-radius: 12px;
     padding: 16px;
     box-sizing: border-box;
@@ -555,7 +480,7 @@
     min-width: 40px;
     border-radius: 50%;
     flex-shrink: 0;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
     object-fit: cover;
     display: flex;
     align-items: center;
@@ -564,12 +489,12 @@
   }
 
   .employee-header .employee-name {
-    font-family: 'Roboto';
+    font-family: "Roboto";
     font-style: normal;
     font-weight: 600;
     font-size: 18px;
     line-height: 1.4;
-    color: #1E293B;
+    color: #1e293b;
     margin: 0;
     flex: 1 1 auto;
     min-width: 0;
@@ -603,13 +528,13 @@
     width: 100%;
     box-sizing: border-box;
   }
-  
+
   .attendance-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .view-all-button {
     align-self: flex-end;
   }
@@ -636,7 +561,7 @@
     min-width: 0;
     padding: 14px;
     margin: 0;
-    border: 1px solid #DADADA;
+    border: 1px solid #dadada;
     border-radius: 12px;
     background: #ffffff;
     box-sizing: border-box;
@@ -715,11 +640,11 @@
     width: auto !important;
     max-width: 100% !important;
     height: auto !important;
-    font-family: 'Roboto', sans-serif !important;
+    font-family: "Roboto", sans-serif !important;
     font-size: 16px !important;
     font-weight: 600 !important;
     line-height: 1.4 !important;
-    color: #1E293B !important;
+    color: #1e293b !important;
     margin: 0 !important;
     padding: 0 !important;
     word-wrap: break-word !important;
@@ -743,19 +668,19 @@
     line-height: 18px;
     width: auto;
   }
-  
+
   .status-badge.on-time {
     min-width: 60px;
     height: 24px;
     background: rgba(63, 194, 138, 0.1);
-    color: #347E45;
+    color: #347e45;
   }
-  
+
   .status-badge.late {
     min-width: 35px;
     height: 24px;
     background: rgba(244, 91, 105, 0.1);
-    color: #F45B69;
+    color: #f45b69;
   }
 
   .card-value .status-badge {

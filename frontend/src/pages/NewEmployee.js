@@ -11,6 +11,46 @@ import calendarIcon from "../assets/icons/calender.png";
 import refreshIcon from "../assets/icons/password.png";
 import defaultProfile from "../assets/icons/profile_default.png";
 
+const NAME_PATTERN =
+  /^\p{L}[\p{L}\p{M}]*(?: \p{L}[\p{L}\p{M}]*)*$/u;
+const PHONE_PATTERN = /^\+94 \d{2} \d{7}$/;
+const PHONE_ERROR =
+  "Phone number must follow +94 XX XXXXXXX format (e.g., +94 77 1234567).";
+
+const validateName = (value) => {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) return "Name is required.";
+  if (trimmedValue.length > 50) return "Name cannot exceed 50 characters.";
+  if (!NAME_PATTERN.test(trimmedValue)) {
+    return "Name can contain letters and single spaces only.";
+  }
+  return "";
+};
+
+const validatePhone = (value) => {
+  const phoneValue = value ? value.trim() : "";
+  if (!phoneValue) return "Phone number is required.";
+
+  if (!PHONE_PATTERN.test(phoneValue)) {
+    return PHONE_ERROR;
+  }
+
+  return "";
+};
+
+const validatePassword = (value) => {
+  if (!value) return "Password is required.";
+  if (value.length < 8) return "Password must be at least 8 characters long.";
+  if (value.length > 128) return "Password cannot exceed 128 characters.";
+  if (!/[a-z]/.test(value)) return "Password must contain at least one lowercase letter.";
+  if (!/[A-Z]/.test(value)) return "Password must contain at least one uppercase letter.";
+  if (!/[0-9]/.test(value)) return "Password must contain at least one number.";
+  if (!/[!@#$%^&*]/.test(value)) {
+    return "Password must contain at least one special character (!@#$%^&*).";
+  }
+  return "";
+};
+
 export default function NewEmployee() {
   const navigate = useNavigate();
   const dateInputRef = useRef(null); // For calendar
@@ -74,23 +114,60 @@ export default function NewEmployee() {
   // ✅ Handle Input Change
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let nextValue = value;
+
+    if (name === "phone") {
+      nextValue = value.replace(/[^\d+\s]/g, "");
+      nextValue = nextValue.replace(/\+/g, (match, offset) =>
+        offset === 0 ? match : "",
+      );
+      nextValue = nextValue.replace(/\s+/g, " ");
+      nextValue = nextValue.replace(/^\s+/, "");
+
+      nextValue = nextValue.slice(0, 15);
+    } else if (name === "name") {
+      nextValue = value
+        .replace(/[^\p{L}\p{M}\s]/gu, "")
+        .replace(/\s+/g, " ")
+        .replace(/^\s/, "")
+        .slice(0, 50);
+    }
     
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: nextValue }));
     
     // Update the context with the changed data
     dispatch({
       type: actionTypes.SET_STEP1_DATA,
-      payload: { [name]: value }
+      payload: { [name]: nextValue }
     });
 
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+    if (name === "phone") {
+      setErrors((prev) => ({ ...prev, phone: validatePhone(nextValue) }));
+      return;
+    }
+
+    if (name === "name") {
+      const attemptedInvalidCharacter = /[^\p{L}\p{M}\s]/u.test(value);
+      setErrors((prev) => ({
+        ...prev,
+        name: attemptedInvalidCharacter
+          ? "Name can contain letters and spaces only."
+          : validateName(nextValue),
+      }));
+      return;
+    }
+
+    if (name === "password") {
+      setErrors((prev) => ({
+        ...prev,
+        password: validatePassword(nextValue),
+      }));
+      return;
     }
     
     // Real-time validation for personal information email
     if (name === 'email') {
-      const emailValue = value ? value.trim() : "";
+      const emailValue = nextValue ? nextValue.trim() : "";
       if (emailValue) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
         if (!emailRegex.test(emailValue)) {
@@ -106,6 +183,11 @@ export default function NewEmployee() {
       } else {
         setErrors((prev) => ({ ...prev, email: "Email is required." }));
       }
+      return;
+    }
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -213,6 +295,7 @@ export default function NewEmployee() {
       type: actionTypes.SET_STEP1_DATA,
       payload: { password: newPass }
     });
+    setErrors((prev) => ({ ...prev, password: "" }));
   };
 
   // ✅ Open File Explorer
@@ -254,18 +337,12 @@ export default function NewEmployee() {
   // ✅ Simple Validation
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required.";
+    const nameError = validateName(formData.name);
+    if (nameError) newErrors.name = nameError;
     if (!formData.gender) newErrors.gender = "Gender is required.";
     if (!formData.dob) newErrors.dob = "Date of Birth is required.";
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required.";
-    } else {
-      const phoneValue = formData.phone.trim();
-      const digitCount = phoneValue.replace(/\D/g, '').length;
-      if (!/^\+\d{1,4}(\s\d+)+$/.test(phoneValue) || digitCount < 7 || digitCount > 15) {
-        newErrors.phone = "Phone number must start with + and country code, followed by spaces and digits (e.g., +94 77 1234567). Total digits must be between 7 and 15.";
-      }
-    }
+    const phoneError = validatePhone(formData.phone);
+    if (phoneError) newErrors.phone = phoneError;
     if (!formData.address.trim()) newErrors.address = "Address is required.";
     if (!formData.email.trim()) newErrors.email = "Email is required.";
     else {
@@ -279,20 +356,8 @@ export default function NewEmployee() {
     else if (formData.empId.trim().length < 3) newErrors.empId = "Employee ID must be at least 3 characters long.";
     else if (formData.empId.trim().length > 30) newErrors.empId = "Employee ID cannot exceed 30 characters.";
     else if (!/^PAI\d{3}$/.test(formData.empId.trim())) newErrors.empId = "Employee ID must follow the format PAI### (e.g., PAI001).";
-    if (!formData.password.trim()) newErrors.password = "Password is required.";
-    else if (formData.password.trim().length < 8) newErrors.password = "Password must be at least 8 characters long.";
-    else if (formData.password.trim().length > 128) newErrors.password = "Password cannot exceed 128 characters.";
-    else {
-      const password = formData.password.trim();
-      const hasLowercase = /[a-z]/.test(password);
-      const hasUppercase = /[A-Z]/.test(password);
-      const hasNumber = /[0-9]/.test(password);
-      const hasSpecialChar = /[!@#$%\\^&*]/.test(password);
-      
-      if (!hasLowercase || !hasUppercase || !hasNumber || !hasSpecialChar) {
-        newErrors.password = "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character";
-      }
-    }
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) newErrors.password = passwordError;
     if (!formData.userEmail.trim())
       newErrors.userEmail = "User Email is required.";
     else if (!/^[A-Za-z0-9._%+-]+\.pineappleai@gmail\.com$/.test(formData.userEmail.trim()))
@@ -309,7 +374,7 @@ export default function NewEmployee() {
       try {
         // Prepare data for API call
         const employeeData = {
-          first_name: formData.name,
+          first_name: formData.name.trim(),
           email: formData.userEmail,
           emp_id: formData.empId,
           gender: formData.gender,
@@ -365,6 +430,12 @@ export default function NewEmployee() {
       alert("Please fill all required fields correctly.");
     }
   };
+
+  const hasInvalidRequiredFields = Boolean(
+    validateName(formData.name) ||
+      validatePhone(formData.phone) ||
+      validatePassword(formData.password)
+  );
 
   return (
     <div className="employee-page">
@@ -452,8 +523,15 @@ export default function NewEmployee() {
               placeholder="e.g., Sanjeevan"
               value={formData.name}
               onChange={handleChange}
+              maxLength={50}
+              aria-invalid={Boolean(errors.name)}
+              aria-describedby={errors.name ? "new-employee-name-error" : undefined}
             />
-            {errors.name && <small className="error">{errors.name}</small>}
+            {errors.name && (
+              <small id="new-employee-name-error" className="error">
+                {errors.name}
+              </small>
+            )}
           </div>
 
           {/* Gender */}
@@ -501,9 +579,12 @@ export default function NewEmployee() {
             <input
               type="text"
               name="phone"
-              placeholder="e.g., +94 XX XXXXXXX"
+              placeholder="e.g., +94 77 1234567"
               value={formData.phone}
               onChange={handleChange}
+              inputMode="tel"
+              pattern="^\+94 \d{2} \d{7}$"
+              maxLength={15}
             />
             {errors.phone && <small className="error">{errors.phone}</small>}
           </div>
@@ -571,6 +652,7 @@ export default function NewEmployee() {
                 value={formData.password}
                 onChange={handleChange}
                 className="password-input"
+                maxLength={128}
               />
 
               <img
@@ -618,7 +700,7 @@ export default function NewEmployee() {
           <button
             className="create-btn"
             onClick={handleCreate}
-            disabled={loading}
+            disabled={loading || hasInvalidRequiredFields}
           >
             {loading ? "Creating..." : "Create"}
           </button>

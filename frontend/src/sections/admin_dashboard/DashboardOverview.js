@@ -222,7 +222,7 @@ const formatAttendanceStatus = (status) => {
 
   if (normalizedStatus === "on_time") return "On Time";
   if (normalizedStatus === "late") return "Late";
-  if (normalizedStatus === "early_arrival") return "Early Arrival";
+  if (normalizedStatus === "early_arrival") return "On Time";
   if (normalizedStatus === "early_departure") return "Early Departure";
   if (normalizedStatus === "absent") return "Absent";
 
@@ -233,7 +233,7 @@ const getStatusClassName = (status) => {
   const normalizedStatus = String(status || "").toLowerCase();
 
   if (normalizedStatus === "late") return "late";
-  if (normalizedStatus === "early_arrival") return "early-arrival";
+  if (normalizedStatus === "early_arrival") return "on-time";
 
   return "on-time";
 };
@@ -248,7 +248,7 @@ export default function DashboardOverview() {
     const fetchAttendanceData = async () => {
       try {
         setLoading(true);
-        const response = await fetchAllAttendanceRecords(1, 7); // Get 7 most recent records
+        const response = await fetchAllAttendanceRecords(1, 10);
 
         // Transform the attendance data to match the expected format
         const transformedData = response.data.attendance_records.map(
@@ -276,7 +276,7 @@ export default function DashboardOverview() {
                 `${user.first_name || "N/A"} ${user.last_name || ""}`.trim() ||
                 "Unknown Employee",
               designation: user.designation || "N/A",
-              checkInTime: clockInTime, // Actual check-in time
+              checkInTime: clockInTime,// Actual check-in time
               checkOutTime: clockOutTime,
               status: formatAttendanceStatus(record.status),
               statusClassName: getStatusClassName(record.status),
@@ -307,15 +307,6 @@ export default function DashboardOverview() {
         <h2 id="attendance-title" className="attendance-title">
           Attendance Overview
         </h2>
-
-        <button
-          type="button"
-          className="view-all-button"
-          aria-label="View all attendance"
-          onClick={handleViewAll}
-        >
-          View All
-        </button>
       </div>
 
       {loading && (
@@ -355,8 +346,10 @@ export default function DashboardOverview() {
                   <th className="col-employee">Employee Name</th>
                   <th className="col-designation">Designation</th>
                   <th className="col-checkin">Check In</th>
-                  <th className="col-checkout">Check Out</th>
-                  <th className="col-status">Status</th>
+                  <th className="col-checkout">Check out</th>
+                  <th className="col-status">
+                    Status <span className="attendance-sort" aria-hidden="true">⇅</span>
+                  </th>
                 </tr>
               </thead>
 
@@ -418,12 +411,14 @@ export default function DashboardOverview() {
                   <div className="card-value">{emp.designation}</div>
                 </div>
 
+                
+
                 <div className="card-detail">
                   <span className="card-label">Check In</span>
                   <div className="card-value">{emp.checkInTime}</div>
                 </div>
-
-                <div className="card-detail">
+                
+                 <div className="card-detail">
                   <span className="card-label">Check Out</span>
                   <div className="card-value">{emp.checkOutTime}</div>
                 </div>
@@ -441,8 +436,20 @@ export default function DashboardOverview() {
               </div>
             ))}
           </div>
+
         </>
       )}
+
+      <div className="attendance-footer">
+        <button
+          type="button"
+          className="view-all-button"
+          aria-label="View all attendance"
+          onClick={handleViewAll}
+        >
+          View All <span aria-hidden="true">&gt;</span>
+        </button>
+      </div>
     </section>
   );
 }

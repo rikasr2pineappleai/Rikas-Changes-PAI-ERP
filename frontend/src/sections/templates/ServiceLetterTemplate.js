@@ -7,6 +7,7 @@ export default function ServiceLetterTemplate() {
   const [showPreview, setShowPreview]         = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [pdfUrl, setPdfUrl]                   = useState(null);
+  const [previewHtml, setPreviewHtml]         = useState("");
   const [loading, setLoading]                 = useState(false);
   const [employees, setEmployees]             = useState([]);
   const [employeesLoading, setEmployeesLoading] = useState(false);
@@ -38,6 +39,7 @@ export default function ServiceLetterTemplate() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     setPdfUrl(null);
+    setPreviewHtml("");
     setValidationErrors(prev => ({ ...prev, [name]: "" }));
   };
 
@@ -88,6 +90,7 @@ export default function ServiceLetterTemplate() {
     const selectedId = e.target.value;
     setSelectedEmployeeId(selectedId);
     setPdfUrl(null);
+    setPreviewHtml("");
     setValidationErrors(prev => ({ ...prev, employeeName: "" }));
     if (!selectedId) {
       setFormData(prev => ({ ...prev, employeeName: "", position: "" }));
@@ -118,6 +121,7 @@ export default function ServiceLetterTemplate() {
     const str = keyContributions.filter(c => c.trim()).join("\n");
     setFormData(prev => ({ ...prev, responsibilities: str }));
     setPdfUrl(null);
+    setPreviewHtml("");
     setValidationErrors(prev => ({ ...prev, responsibilities: "" }));
   }, [keyContributions]);
 
@@ -174,6 +178,32 @@ export default function ServiceLetterTemplate() {
     }
   };
 
+  const generatePreviewHTML = async () => {
+    if (!validateForm()) return null;
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:5001/api/templates/service-letter/preview",
+        formData,
+        {
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          responseType: "text",
+        }
+      );
+      setPreviewHtml(response.data);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        setValidationErrors(error.response.data.errors);
+      }
+      alert(error.response?.data?.message || "Failed to generate preview.");
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /* Clicking the green arrow (pdf-download-btn) in the preview modal does
      NOT actually download the file yet — it closes the preview modal and
      opens the success/Email modal. The real download is triggered by the
@@ -214,19 +244,17 @@ export default function ServiceLetterTemplate() {
   };
 
   const handlePreview = async () => {
-    // Preview shows the SAME PDF the user will download, so the modal renders
-    // the backend-generated PDF in an iframe. This guarantees what you see
-    // matches what you get.
-    if (!validateForm()) return;
-    setShowPreview(true);
-    if (!pdfUrl) {
-      await generatePDF();
-    }
+    const html = await generatePreviewHTML();
+    if (!html) return;
+
+    const url = await generatePDF();
+    if (url) setShowPreview(true);
   };
 
   const handleClosePreview = () => {
     setShowPreview(false);
     if (pdfUrl) { window.URL.revokeObjectURL(pdfUrl); setPdfUrl(null); }
+    setPreviewHtml("");
   };
 
   /* ── contributions ──────────────────────────────────────── */
@@ -359,13 +387,9 @@ export default function ServiceLetterTemplate() {
           </button>
 
           <div className="sl-preview-doc">
-            {pdfUrl ? (
+            {previewHtml ? (
               <iframe
-                // URL params hide the browser's PDF toolbar/nav-pane/scrollbar.
-                // view=FitH + zoom=page-width forces the page to fill the iframe width,
-                // and the oversized iframe (see .sl-preview-iframe CSS) pushes the dark
-                // Chrome PDF viewer chrome past the clipping edge — no black gap.
-                src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&statusbar=0&messages=0&view=FitH&zoom=page-width`}
+                srcDoc={previewHtml}
                 title="Service Letter Preview"
                 className="sl-preview-iframe"
                 scrolling="no"

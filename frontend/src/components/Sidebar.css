@@ -59,6 +59,19 @@
   -webkit-overflow-scrolling: touch;
 }
 
+@media (min-width: 769px) {
+  .app-container--admin .sidebar {
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .app-container--admin .sidebar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
 /* Header area (logo/title) matching 108px block with bottom divider */
 .sidebar-header {
   height: 108px;

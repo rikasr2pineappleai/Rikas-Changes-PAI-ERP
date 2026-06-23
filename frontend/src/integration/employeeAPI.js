@@ -157,12 +157,25 @@ class EmployeeAPI {
     }
   }
 
-  // Get all employees with optional status filter
-  async getAllEmployees(page = 1, limit = 10, status = null) {
+  // Get all employees with optional server-side filters
+  async getAllEmployees(page = 1, limit = 10, status = null, filters = {}) {
     try {
-      let url = `/employees?page=${page}&limit=${limit}`;
-      if (status) url += `&status=${status}`;
-      const { data: response } = await apiClient.get(url);
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+      });
+
+      if (status) params.set("status", status);
+
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && String(value).trim()) {
+          params.set(key, String(value).trim());
+        }
+      });
+
+      const { data: response } = await apiClient.get(
+        `/employees?${params.toString()}`
+      );
       return response;
     } catch (error) {
       throw error;
@@ -209,9 +222,10 @@ class EmployeeAPI {
   }
 
   // Get total employee count
-  async getEmployeeCount() {
+  async getEmployeeCount(status = null) {
     try {
-      const { data: response } = await apiClient.get("/employees/count");
+      const query = status ? `?status=${encodeURIComponent(status)}` : "";
+      const { data: response } = await apiClient.get(`/employees/count${query}`);
       return response;
     } catch (error) {
       console.error("Error fetching employee count:", error);

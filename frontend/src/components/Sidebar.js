@@ -30,6 +30,20 @@ const iconMap = {
   performance: performanceIcon
 };
 
+const getCurrentUserRole = () => {
+  try {
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    return currentUser.role;
+  } catch (error) {
+    return null;
+  }
+};
+
+const filterMenuForRole = (items, role) => {
+  if (role === 'admin') return items;
+  return items.filter((item) => item.path !== '/settings');
+};
+
 const Sidebar = ({ isOpen, onNavigate }) => {
   const [menuItems, setMenuItems] = useState([]);
   // State for database info and project version
@@ -69,16 +83,25 @@ const Sidebar = ({ isOpen, onNavigate }) => {
       try {
         const response = await getSidebarMenu();
         if (response.success) {
-          setMenuItems(response.data.menuItems);
+          setMenuItems(filterMenuForRole(response.data.menuItems, getCurrentUserRole()));
         }
       } catch (error) {
         console.error('Error fetching sidebar menu:', error);
         // Fallback to hardcoded menu if API fails
-        const fallbackMenu = [
+        const currentUserRole = getCurrentUserRole();
+        const fallbackMenu = currentUserRole === 'admin' ? [
           { path: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
           { path: '/employees', label: 'Employees', icon: 'employee' },
           { path: '/leave', label: 'Leaves', icon: 'leave' },
+          { path: '/projects', label: 'Projects', icon: 'project' },
+          { path: '/templates', label: 'Templates', icon: 'project' },
           { path: '/settings', label: 'Settings', icon: 'setting' },
+          { path: '/logout', label: 'Logout', icon: 'logout' }
+        ] : [
+          { path: '/employee-dashboard', label: 'Dashboard', icon: 'dashboard' },
+          { path: '/tasks', label: 'My Tasks', icon: 'task' },
+          { path: '/leaves', label: 'Leaves', icon: 'leave' },
+          { path: '/performance', label: 'Performance', icon: 'performance' },
           { path: '/logout', label: 'Logout', icon: 'logout' }
         ];
         setMenuItems(fallbackMenu);
