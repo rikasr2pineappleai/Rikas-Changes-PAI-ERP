@@ -434,20 +434,7 @@ export default function ServiceLetterTemplate() {
     <>
       <div className={`service-template-wrapper ${showPreview ? "blurred" : ""}`}>
 
-        {/* Card Header */}
-        <div className="service-card-header">
-          <span className="service-card-title">Service Letter</span>
-          <div className="service-search-wrapper">
-            <SearchIcon />
-            <input
-              className="service-search-input"
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
+       
 
         <form className="service-template-form" onSubmit={e => e.preventDefault()}>
 

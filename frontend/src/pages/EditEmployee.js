@@ -1487,16 +1487,16 @@ if (hasExistingAllocation || hasAnyProjectData) {
               </div>
 
               <div className="info-field success">
-                <label>Role</label>
+                <label>Management Role</label>
 
                 <CustomSelect
-                  name="role"
-                  value={formData.role}
+                  name="management_role"
+                  value={formData.management_role}
                   onChange={handleChange}
-                  options={roleOptions}
-                  placeholder="Select Role"
-                  menuClassName="custom-select-menu-role"
-                  className="role-select"
+                  options={managementRoleOptions}
+                  placeholder="Select Management Role"
+                  menuClassName="custom-select-menu-management-role"
+                  className="management-select"
                 />
               </div>
 
@@ -1529,20 +1529,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
 
                 {/* keep the small loading text (similar to previous) */}
                 {departmentsLoading && <small>Loading departments...</small>}
-              </div>
-
-              <div className="info-field success">
-                <label>Management Role</label>
-
-                <CustomSelect
-                  name="management_role"
-                  value={formData.management_role}
-                  onChange={handleChange}
-                  options={managementRoleOptions}
-                  placeholder="Select Management Role"
-                  menuClassName="custom-select-menu-management-role"
-                  className="management-select"
-                />
               </div>
 
             </div>
