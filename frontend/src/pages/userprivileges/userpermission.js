@@ -5,7 +5,7 @@ import editIcon from "../../assets/icons/edit_white.png";
 import viewIcon from "../../assets/icons/permision.png";
 import toggleIcon from "../../assets/icons/toggle.png";
 import boxIcon from "../../assets/icons/box.png";
-import backIcon from "../../assets/icons/green_left_arrow.png";  
+import backIcon from "../../assets/icons/green_left_arrow.png";
 import "./privilege.css";
 
 export default function Userpermission({ activeTab }) {
@@ -25,6 +25,7 @@ export default function Userpermission({ activeTab }) {
   const [editId, setEditId] = useState("");
   const [editRole, setEditRole] = useState("");
   const [deleteId, setDeleteId] = useState("");
+  const [roleError, setRoleError] = useState("");
 
   const [viewRole, setViewRole] = useState(null);
 
@@ -40,7 +41,7 @@ export default function Userpermission({ activeTab }) {
       "Reports",
       "Analytics",
     ],
-    []
+    [],
   );
 
   const actions = useMemo(() => ["View", "Edit", "Delete", "Approve"], []);
@@ -76,9 +77,22 @@ export default function Userpermission({ activeTab }) {
     }, 2200);
   };
 
+  const isValidRoleName = (name) => /^[A-Za-z ]+$/.test(name);
+
   const onAddRole = () => {
     const name = newRole.trim();
-    if (!name) return;
+    if (!name || !isValidRoleName(name)) {
+      setRoleError("Name can contain letters and spaces only.");
+      return;
+    }
+
+    const duplicate = roles.some(
+      (r) => r.role.toLowerCase() === name.toLowerCase(),
+    );
+    if (duplicate) {
+      setRoleError("A role with this name already exists.");
+      return;
+    }
 
     const maxNum = roles.reduce((mx, r) => {
       const n = parseInt(String(r.id).replace(/\D/g, ""), 10);
@@ -97,13 +111,27 @@ export default function Userpermission({ activeTab }) {
   const onStartEdit = (r) => {
     setEditId(r.id);
     setEditRole(r.role);
+    setRoleError("");
   };
 
   const onUpdateRole = () => {
     const name = editRole.trim();
-    if (!name || !editId) return;
+    if (!name || !isValidRoleName(name)) {
+      setRoleError("Name can contain letters and spaces only.");
+      return;
+    }
 
-    setRoles((prev) => prev.map((r) => (r.id === editId ? { ...r, role: name } : r)));
+    const duplicate = roles.some(
+      (r) => r.id !== editId && r.role.toLowerCase() === name.toLowerCase(),
+    );
+    if (duplicate) {
+      setRoleError("A role with this name already exists.");
+      return;
+    }
+
+    setRoles((prev) =>
+      prev.map((r) => (r.id === editId ? { ...r, role: name } : r)),
+    );
     setEditId("");
     setEditRole("");
     showToast("success", "Your role was updated successfully");
@@ -126,8 +154,14 @@ export default function Userpermission({ activeTab }) {
   const togglePermission = (moduleName, actionName) => {
     setPermissions((prev) => {
       const nextValue = !prev?.[moduleName]?.[actionName];
-      showToast("success", `${actionName} permission ${nextValue ? "enabled" : "disabled"} for ${moduleName}`);
-      return { ...prev, [moduleName]: { ...prev[moduleName], [actionName]: nextValue } };
+      showToast(
+        "success",
+        `${actionName} permission ${nextValue ? "enabled" : "disabled"} for ${moduleName}`,
+      );
+      return {
+        ...prev,
+        [moduleName]: { ...prev[moduleName], [actionName]: nextValue },
+      };
     });
   };
 
@@ -191,7 +225,9 @@ export default function Userpermission({ activeTab }) {
               <tr>
                 <th>Modules</th>
                 {actions.map((a) => (
-                  <th key={a} className="center">{a}</th>
+                  <th key={a} className="center">
+                    {a}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -199,22 +235,33 @@ export default function Userpermission({ activeTab }) {
               {modules.map((m) => (
                 <tr key={m}>
                   <td className="module-cell">
-                    <img src={toggleIcon} alt="toggle" className="priv-eye-icon-img" />
+                    <img
+                      src={toggleIcon}
+                      alt="toggle"
+                      className="priv-eye-icon-img"
+                    />
                     {m}
-                    </td>
+                  </td>
                   {actions.map((a) => (
                     <td key={a} className="center">
                       <div
-  role="button"
-  tabIndex={0}
-  onClick={() => togglePermission(m, a)}
-  onKeyDown={(e) => (e.key === "Enter" ? togglePermission(m, a) : null)}
-  className={`perm-checkbox ${permissions?.[m]?.[a] ? "is-checked" : ""}`}
->
-  {permissions?.[m]?.[a] && (
-    <img src={boxIcon} alt="checked" width="12" height="12" />
-  )}
-</div>
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => togglePermission(m, a)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" ? togglePermission(m, a) : null
+                        }
+                        className={`perm-checkbox ${permissions?.[m]?.[a] ? "is-checked" : ""}`}
+                      >
+                        {permissions?.[m]?.[a] && (
+                          <img
+                            src={boxIcon}
+                            alt="checked"
+                            width="12"
+                            height="12"
+                          />
+                        )}
+                      </div>
                     </td>
                   ))}
                 </tr>
@@ -228,7 +275,12 @@ export default function Userpermission({ activeTab }) {
           {modules.map((m) => (
             <div key={m} className="priv-perm-card">
               <div className="priv-perm-card__header">
-                <span className="priv-eye-icon" style={{ borderColor: "#555", color: "#ccc" }}>⦿</span>
+                <span
+                  className="priv-eye-icon"
+                  style={{ borderColor: "#555", color: "#ccc" }}
+                >
+                  ⦿
+                </span>
                 {m}
               </div>
               <div className="priv-perm-card__body">
@@ -239,7 +291,12 @@ export default function Userpermission({ activeTab }) {
                       type="checkbox"
                       checked={!!permissions?.[m]?.[a]}
                       onChange={() => togglePermission(m, a)}
-                      style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#19b56a" }}
+                      style={{
+                        width: 16,
+                        height: 16,
+                        cursor: "pointer",
+                        accentColor: "#19b56a",
+                      }}
                     />
                   </div>
                 ))}
@@ -271,24 +328,54 @@ export default function Userpermission({ activeTab }) {
               <div className="priv-form-row">
                 <input
                   value={newRole}
-                  onChange={(e) => setNewRole(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setNewRole(value);
+                    setRoleError(
+                      value && !isValidRoleName(value.trim())
+                        ? "Name can contain letters and spaces only."
+                        : "",
+                    );
+                  }}
                   placeholder="Enter new role"
-                  className="priv-input"
+                  className={`priv-input ${roleError ? "priv-input-error" : ""}`}
                 />
-                <button type="button" onClick={onAddRole} className="priv-btn-green">
+                <button
+                  type="button"
+                  onClick={onAddRole}
+                  className="priv-btn-green"
+                >
                   Add Role
                 </button>
               </div>
+              {roleError && <div className="priv-field-error">{roleError}</div>}
             </>
           ) : (
             <>
               <div className="priv-box-title">Update your Role</div>
               <div className="priv-form-row">
-                <input value={editRole} onChange={(e) => setEditRole(e.target.value)} className="priv-input" />
-                <button type="button" onClick={onUpdateRole} className="priv-btn-green">
+                <input
+                  value={editRole}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setEditRole(value);
+                    setRoleError(
+                      value && !isValidRoleName(value.trim())
+                        ? "Name can contain letters and spaces only."
+                        : "",
+                    );
+                  }}
+                  className={`priv-input ${roleError ? "priv-input-error" : ""}`}
+                />
+                <button
+                  type="button"
+                  onClick={onUpdateRole}
+                  className="priv-btn-green"
+                >
                   Change
                 </button>
               </div>
+              {roleError && <div className="priv-field-error">{roleError}</div>}
             </>
           )}
         </div>
@@ -333,7 +420,10 @@ export default function Userpermission({ activeTab }) {
                         type="button"
                         className="priv-icon-btn priv-icon-btn--delete"
                         title="delete"
-                        onClick={(e) => { e.stopPropagation(); setDeleteId(r.id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteId(r.id);
+                        }}
                       >
                         <img src={deleteIcon} alt="delete" />
                       </button>
@@ -373,7 +463,10 @@ export default function Userpermission({ activeTab }) {
                     type="button"
                     className="priv-icon-btn priv-icon-btn--delete"
                     title="delete"
-                    onClick={(e) => { e.stopPropagation(); setDeleteId(r.id); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteId(r.id);
+                    }}
                   >
                     <img src={deleteIcon} alt="delete" />
                   </button>
@@ -384,7 +477,11 @@ export default function Userpermission({ activeTab }) {
         </div>
       </div>
 
-      <ConfirmDeleteModal open={!!deleteId} onClose={() => setDeleteId("")} onConfirm={onDeleteRole} />
+      <ConfirmDeleteModal
+        open={!!deleteId}
+        onClose={() => setDeleteId("")}
+        onConfirm={onDeleteRole}
+      />
 
       {toast.show && (
         <Toast
@@ -398,7 +495,16 @@ export default function Userpermission({ activeTab }) {
 }
 
 /* ── Permission screen ────────────────────────────────────────────────────── */
-function RolePermissionsScreen({ role, modules, actions, permissions, onToggle, onToggleRow, onBack, onAutoSave }) {
+function RolePermissionsScreen({
+  role,
+  modules,
+  actions,
+  permissions,
+  onToggle,
+  onToggleRow,
+  onBack,
+  onAutoSave,
+}) {
   const saveTimer = useRef(null);
   const latestPermsRef = useRef(permissions);
 
@@ -428,13 +534,13 @@ function RolePermissionsScreen({ role, modules, actions, permissions, onToggle, 
     <div className="perm-page">
       <div className="perm-header">
         <button
-  type="button"
-  className="perm-back-btn"
-  onClick={onBack}
-  title="Back"
->
-  <img src={backIcon} alt="back" className="perm-back-icon" />
-</button>
+          type="button"
+          className="perm-back-btn"
+          onClick={onBack}
+          title="Back"
+        >
+          <img src={backIcon} alt="back" className="perm-back-icon" />
+        </button>
         <div className="perm-title-wrap">
           <div className="perm-title">User Permissions — {role.role}</div>
         </div>
@@ -448,13 +554,17 @@ function RolePermissionsScreen({ role, modules, actions, permissions, onToggle, 
               <tr>
                 <th className="left"> Modules</th>
                 {actions.map((a) => (
-                  <th key={a} className="center">{a}</th>
+                  <th key={a} className="center">
+                    {a}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {modules.map((m) => {
-                const rowAllChecked = actions.every((a) => !!permissions?.[m]?.[a]);
+                const rowAllChecked = actions.every(
+                  (a) => !!permissions?.[m]?.[a],
+                );
                 return (
                   <tr key={m}>
                     <td className="perm-module">
@@ -463,13 +573,17 @@ function RolePermissionsScreen({ role, modules, actions, permissions, onToggle, 
                         role="button"
                         tabIndex={0}
                         onClick={() => handleToggleRow(m)}
-                        onKeyDown={(e) => (e.key === "Enter" ? handleToggleRow(m) : null)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" ? handleToggleRow(m) : null
+                        }
                         title="Toggle all permissions"
                       >
-                        <div className={`perm-switch ${rowAllChecked ? "is-active" : ""}`}>
-  <span className="perm-switch__thumb" />
-</div>
-                    <span>{m}</span>
+                        <div
+                          className={`perm-switch ${rowAllChecked ? "is-active" : ""}`}
+                        >
+                          <span className="perm-switch__thumb" />
+                        </div>
+                        <span>{m}</span>
                       </div>
                     </td>
                     {actions.map((a) => {
@@ -478,13 +592,17 @@ function RolePermissionsScreen({ role, modules, actions, permissions, onToggle, 
                         <td key={a} className="center">
                           <div
                             role="button"
-  tabIndex={0}
-  onClick={(e) => { e.stopPropagation(); handleToggleCell(m, a); }}
-  onKeyDown={(e) => (e.key === "Enter" ? handleToggleCell(m, a) : null)}
-  className={`perm-checkbox ${checked ? "is-checked" : ""}`}
->
-  {checked && <span className="perm-tick">✓</span>}
-                            
+                            tabIndex={0}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleCell(m, a);
+                            }}
+                            onKeyDown={(e) =>
+                              e.key === "Enter" ? handleToggleCell(m, a) : null
+                            }
+                            className={`perm-checkbox ${checked ? "is-checked" : ""}`}
+                          >
+                            {checked && <span className="perm-tick">✓</span>}
                           </div>
                         </td>
                       );
@@ -505,8 +623,15 @@ function RolePermissionsScreen({ role, modules, actions, permissions, onToggle, 
             <div key={m} className="perm-card">
               <div className="perm-card__header">
                 <div className="perm-card__module-left">
-                  <div className={`perm-module-icon ${rowAllChecked ? "is-active" : ""}`} style={{ width: 28, height: 28 }} />
-                  <span style={{ fontWeight: 700, fontSize: 14, color: "#1d2a3a" }}>{m}</span>
+                  <div
+                    className={`perm-module-icon ${rowAllChecked ? "is-active" : ""}`}
+                    style={{ width: 28, height: 28 }}
+                  />
+                  <span
+                    style={{ fontWeight: 700, fontSize: 14, color: "#1d2a3a" }}
+                  >
+                    {m}
+                  </span>
                 </div>
                 <button
                   type="button"
@@ -526,13 +651,26 @@ function RolePermissionsScreen({ role, modules, actions, permissions, onToggle, 
                         role="button"
                         tabIndex={0}
                         onClick={() => handleToggleCell(m, a)}
-                        onKeyDown={(e) => (e.key === "Enter" ? handleToggleCell(m, a) : null)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" ? handleToggleCell(m, a) : null
+                        }
                         className={`perm-checkbox ${checked ? "is-checked" : ""}`}
                         style={{ width: 20, height: 20 }}
                       >
                         {checked && (
-                          <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                            <path d="M2 7l4 4 6-7" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                          >
+                            <path
+                              d="M2 7l4 4 6-7"
+                              stroke="#fff"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
                           </svg>
                         )}
                       </div>
@@ -557,16 +695,24 @@ function ConfirmDeleteModal({ open, onClose, onConfirm }) {
       <div className="priv-modal" onClick={(e) => e.stopPropagation()}>
         <div className="priv-modal__title">Are You sure want to Delete?</div>
         <div className="priv-modal__actions">
-          <button type="button" className="priv-btn-small priv-btn-small--gray" onClick={onClose}>
+          <button
+            type="button"
+            className="priv-btn-small priv-btn-small--gray"
+            onClick={onClose}
+          >
             No
           </button>
-          <button type="button" className="priv-btn-small priv-btn-small--red" onClick={onConfirm}>
+          <button
+            type="button"
+            className="priv-btn-small priv-btn-small--red"
+            onClick={onConfirm}
+          >
             Yes
           </button>
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
 
@@ -580,7 +726,9 @@ function Toast({ type, msg, onClose }) {
 
       <div className="priv-toast__body">
         <div className="priv-toast__left">
-          <span className="priv-toast__status-icon">{isDanger ? "✕" : "✓"}</span>
+          <span className="priv-toast__status-icon">
+            {isDanger ? "✕" : "✓"}
+          </span>
           <span className="priv-toast__msg">{msg}</span>
         </div>
 

@@ -32,7 +32,7 @@ const OrganizationalHierarchy = () => {
   { id: 4, name: "Shahmi", role: "Project Manager", position: "org-project-manager" },
     { id: 5, name: "Praveen", role: "CCOO", position: "org-ccoo" },
   { id: 6, name: "Rijas", role: "UI/UX Team Lead", position: "org-uiux-lead", isTeamLead: true },
-    { id: 7, name: "Praveen", role: "CHROO", position: "org-chroo" },
+    { id: 7, name: "Thilexshana", role: "CHROO", position: "org-chroo" },
     { id: 8, name: "Praveen", role: "CMOO", position: "org-cmoo" },
     { id: 9, name: "Praveen", role: "CFOO", position: "org-cfoo" },
   ];
@@ -41,6 +41,7 @@ const OrganizationalHierarchy = () => {
   const profileImages = {
     Lakshan: lakshan,
     Praveen: nivethiga,
+    Thilexshana: nivethiga,
     Nayanan: nayanan,
   Shahmi: niroshan,
   Rijas: sanjeevan,
