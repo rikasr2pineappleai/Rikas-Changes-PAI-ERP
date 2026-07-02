@@ -79,6 +79,8 @@ const workInfoSchema = Joi.object({
   joined_date: Joi.date().iso().required(),
   designation: Joi.string().min(1).max(100).required(),
 
+  role: Joi.string().valid('admin', 'employee').optional().allow(null, ''),
+
   department_id: Joi.number().integer().positive().optional().allow(null),
 
   management_role: Joi.string().min(1).max(100).optional().allow(null, ""),

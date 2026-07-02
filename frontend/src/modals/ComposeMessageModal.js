@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import apiClient from '../utils/apiClient';
 import attachIcon from '../assets/icons/eva_attach-2-outline.png';
 import './ComposeMessageModal.css';
@@ -28,8 +28,27 @@ export default function ComposeMessageModal({ onClose }) {
   const [files,        setFiles]        = useState([]);
   const [sending,      setSending]      = useState(false);
   const [error,        setError]        = useState('');
+  const [success,      setSuccess]      = useState('');
   const dropRef = useRef(null);
   const fileRef = useRef(null);
+  const hasDraft = Boolean(
+    subject.trim() ||
+    message.trim() ||
+    files.length > 0 ||
+    selectedDeps.length > 0 ||
+    selectedEmps.length > 0
+  );
+
+  const requestClose = useCallback(() => {
+    if (sending) return;
+
+    if (hasDraft && !success) {
+      const shouldDiscard = window.confirm('Discard this message?');
+      if (!shouldDiscard) return;
+    }
+
+    onClose();
+  }, [hasDraft, onClose, sending, success]);
 
   /* ── Fetch recipients ── */
   useEffect(() => {
@@ -84,13 +103,13 @@ export default function ComposeMessageModal({ onClose }) {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
         if (dropOpen) setDropOpen(false);
-        else onClose();
+        else requestClose();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dropOpen, onClose]);
+  }, [dropOpen, requestClose]);
 
   /* ── Filtered lists ── */
   const filteredDeps = departments.filter(d =>
@@ -101,51 +120,58 @@ export default function ComposeMessageModal({ onClose }) {
   );
 
   /* ── Toggle helpers ── */
-  const toggleDep = (id) =>
+  const toggleDep = (id) => {
     setSelectedDeps(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  const toggleEmp = (id) =>
+    setDropOpen(false);
+  };
+  const toggleEmp = (id) => {
     setSelectedEmps(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  const selectAllDeps = () =>
+    setDropOpen(false);
+  };
+  const selectAllDeps = () => {
     setSelectedDeps(selectedDeps.length === departments.length ? [] : departments.map(d => d.id));
-  const selectAllEmps = () =>
+    setDropOpen(false);
+  };
+  const selectAllEmps = () => {
     setSelectedEmps(selectedEmps.length === employees.length ? [] : employees.map(e => e.id));
+    setDropOpen(false);
+  };
 
   /* ── Send ── */
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!subject.trim() || !message.trim()) { setError('Subject and message are required.'); return; }
     if (sendTo === 'departments' && selectedDeps.length === 0) { setError('Select at least one department.'); return; }
     if (sendTo === 'individuals'  && selectedEmps.length === 0) { setError('Select at least one employee.'); return; }
 
-    const recipientEmails = employees
-      .filter(employee =>
-        sendTo === 'departments'
-          ? selectedDeps.includes(employee.departmentId)
-          : selectedEmps.includes(employee.id)
-      )
-      .map(employee => employee.email)
-      .filter(Boolean);
-    const uniqueEmails = [...new Set(recipientEmails)];
-
-    if (uniqueEmails.length === 0) {
-      setError('No email addresses were found for the selected recipients.');
+    const oversizedFile = files.find(file => file.size > 10 * 1024 * 1024);
+    if (oversizedFile) {
+      setError(`${oversizedFile.name} exceeds the 10MB file size limit.`);
       return;
     }
 
     setError('');
+    setSuccess('');
     setSending(true);
 
-    const attachmentNote = files.length > 0
-      ? `\n\nAttachments to add manually in Gmail:\n${files.map(file => `- ${file.name}`).join('\n')}`
-      : '';
-    const gmailUrl =
-      'https://mail.google.com/mail/?view=cm&fs=1' +
-      `&to=${encodeURIComponent(uniqueEmails.join(','))}` +
-      `&su=${encodeURIComponent(subject.trim())}` +
-      `&body=${encodeURIComponent(`${message.trim()}${attachmentNote}`)}`;
+    const formData = new FormData();
+    formData.append('sendTo', sendTo);
+    formData.append('subject', subject.trim());
+    formData.append('message', message.trim());
+    formData.append('departmentIds', JSON.stringify(selectedDeps));
+    formData.append('employeeIds', JSON.stringify(selectedEmps));
+    files.forEach(file => formData.append('attachments', file));
 
-    window.open(gmailUrl, '_blank', 'noopener,noreferrer');
-    setSending(false);
-    onClose();
+    try {
+      const response = await apiClient.post('/messages/send', formData);
+      setSuccess(response.data?.message || 'Message sent successfully.');
+      setFiles([]);
+      if (fileRef.current) fileRef.current.value = '';
+      setTimeout(onClose, 1200);
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || 'Failed to send message.');
+    } finally {
+      setSending(false);
+    }
   };
 
   /* ── Chip remove ── */
@@ -166,7 +192,7 @@ export default function ComposeMessageModal({ onClose }) {
   };
 
   return (
-    <div className="cm-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="cm-overlay" onClick={(e) => { if (e.target === e.currentTarget) requestClose(); }}>
       <div className="cm-modal" role="dialog" aria-modal="true" aria-labelledby="cm-title">
         <h2 className="cm-title" id="cm-title">Compose Message</h2>
 
@@ -343,10 +369,11 @@ export default function ComposeMessageModal({ onClose }) {
         </div>
 
         {error && <p className="cm-error">{error}</p>}
+        {success && <p className="cm-success">{success}</p>}
 
         {/* ── Actions ── */}
         <div className="cm-actions">
-          <button className="cm-cancel-btn" onClick={onClose} disabled={sending}>Cancel</button>
+          <button className="cm-cancel-btn" onClick={requestClose} disabled={sending}>Cancel</button>
           <button className="cm-send-btn" onClick={handleSend} disabled={sending || !hasRecipients}>
             {sending ? 'Sending…' : 'Send Message'}
           </button>

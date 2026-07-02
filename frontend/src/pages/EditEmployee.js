@@ -944,35 +944,39 @@ export default function EditEmployee() {
           alert("Employee information updated, but educational information failed to save: " + (eduError.response?.data?.message || eduError.message));
         }
       }
-//SAVE WORK INFO (backend requires joined_date, report_to, designation, ... )
-if (projectInfo.reportingManagerId || projectInfo.currentProject || projectInfo.startDate) {
+// SAVE WORK INFO
+// Team Lead is displayed from User.report_to in overview/list, so save it even
+// when other work-info fields are blank.
+const hasWorkInfoToSave =
+  projectInfo.reportingManagerId ||
+  employeeData?.report_to ||
+  employeeData?.ReportTo ||
+  formData.joined_date ||
+  formData.end_date ||
+  formData.designation ||
+  formData.department ||
+  formData.management_role ||
+  projectInfo.currentProject ||
+  projectInfo.startDate;
+
+if (hasWorkInfoToSave) {
   const workPayload = {
     joined_date: formData.joined_date || null,
     designation: formData.designation,
     department_id: formData.department || null,
     management_role: formData.management_role,
-    report_to: Number(projectInfo.reportingManagerId),
+    report_to: projectInfo.reportingManagerId ? Number(projectInfo.reportingManagerId) : null,
   };
 
-  const missingWorkFields = [];
-  if (!workPayload.joined_date) missingWorkFields.push('Joined Date (Starts on)');
-  if (!workPayload.designation) missingWorkFields.push('Designation');
-  if (!workPayload.report_to) missingWorkFields.push('Reporting Manager (Team Lead)');
-
-  if (missingWorkFields.length > 0) {
-    // Warn but do NOT return — still allow project allocation to save below
-    console.warn('⚠️ Skipping work-info save, missing fields:', missingWorkFields);
-  } else {
-    try {
-      console.log("Saving work-info payload:", workPayload);
-      await employeeAPI.setEmployeeWorkInfo(id, workPayload);
-    } catch (err) {
-      console.error("Error saving work info:", err);
-      alert(
-        "Employee updated, but Work info failed to save: " +
-          (err.response?.data?.error || err.response?.data?.message || err.message)
-      );
-    }
+  try {
+    console.log("Saving work-info payload:", workPayload);
+    await employeeAPI.setEmployeeWorkInfo(id, workPayload);
+  } catch (err) {
+    console.error("Error saving work info:", err);
+    alert(
+      "Employee updated, but Work info failed to save: " +
+        (err.response?.data?.error || err.response?.data?.message || err.message)
+    );
   }
 }
       
@@ -1203,8 +1207,8 @@ if (hasExistingAllocation || hasAnyProjectData) {
 
   // Role options (for CustomSelect)
   const roleOptions = [
-    { value: "employee", label: "employee" },
-    { value: "admin", label: "admin" },
+    { value: "employee", label: "Employee" },
+    { value: "admin", label: "Admin" },
   ];
 
   // Management Role options (for CustomSelect)
@@ -1497,6 +1501,19 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   placeholder="Select Management Role"
                   menuClassName="custom-select-menu-management-role"
                   className="management-select"
+                />
+              </div>
+
+              <div className="info-field success">
+                <label>Role</label>
+
+                <CustomSelect
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  options={roleOptions}
+                  placeholder="Select Role"
+                  menuClassName="custom-select-menu-role"
                 />
               </div>
 

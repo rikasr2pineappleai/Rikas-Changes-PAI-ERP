@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../../styles/former_emp_list.css";
 import employeeAPI from "../../integration/employeeAPI"; // Import the employee API
-import Pagination from "../../components/Pagination"; // Import Pagination component
 import { getEmployeeImageUrl } from "../../utils/imageUtils";
 
 import filter from "../../assets/icons/filterricon.png";
@@ -11,14 +10,19 @@ import greenicon from "../../assets/icons/editicon.png"; // Overview
 import blueicon from "../../assets/icons/editblueicon.png"; // Edit
 import tempp from "../../assets/icons/img.png";
 
-const FormerEmpList = ({ page = 1, setTotalPages }) => {
+const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [totalPages, setTotalPagesState] = useState(1);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [filterOptions, setFilterOptions] = useState({
+    designations: [],
+    roles: [],
+    management_roles: [],
+  });
 
   // Filter state
   const [showFilter, setShowFilter] = useState(false);
@@ -28,22 +32,31 @@ const FormerEmpList = ({ page = 1, setTotalPages }) => {
   const filterDropdownRef = useRef(null);
   const filterBtnRef = useRef(null);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm.trim());
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [searchTerm]);
+
   // Fetch former employees (inactive and terminated) from the backend
   useEffect(() => {
+    let ignoreResponse = false;
+
     const fetchEmployees = async () => {
       try {
         setLoading(true);
-        // Fetch all employees regardless of status
-        const response = await employeeAPI.getAllEmployees(page, 10); // Get all employees
+        const response = await employeeAPI.getAllEmployees(page, 10, "former", {
+          designation: filterDesignation,
+          role: filterRole,
+          management_role: filterMgmtRole,
+          search: debouncedSearchTerm,
+        });
+        if (ignoreResponse) return;
 
         if (response.success) {
-          // Filter to show only inactive and terminated employees (former employees)
-          const filteredEmployees = response.data.employees.filter(
-            (emp) => emp.status === "inactive" || emp.status === "terminated"
-          );
-
-          // Transform the backend response to match the frontend format
-          const transformedEmployees = filteredEmployees.map((emp) => ({
+          const transformedEmployees = response.data.employees.map((emp) => ({
             id: emp.id, // Use the actual database user ID
             empId: emp.emp_id, // Store emp_id separately
             name: `${emp.first_name} ${emp.last_name || ""}`.trim(),
@@ -54,27 +67,41 @@ const FormerEmpList = ({ page = 1, setTotalPages }) => {
           }));
 
           setEmployees(transformedEmployees);
+          setFilterOptions(response.data.filter_options || {
+            designations: [],
+            roles: [],
+            management_roles: [],
+          });
 
           // Update total pages if provided
           if (setTotalPages && response.data.pagination) {
-            setTotalPages(response.data.pagination.pages);
-            setTotalPagesState(response.data.pagination.pages); // Update local state
-          } else {
-            setTotalPagesState(1); // Default to 1 if no pagination info
+            setTotalPages(Math.max(response.data.pagination.pages, 1));
           }
         } else {
           setError(response.message || "Failed to fetch employees");
         }
       } catch (err) {
+        if (ignoreResponse) return;
         console.error("Error fetching employees:", err);
         setError("An error occurred while fetching employees");
       } finally {
-        setLoading(false);
+        if (!ignoreResponse) setLoading(false);
       }
     };
 
     fetchEmployees();
-  }, [page, setTotalPages, location.state?.refresh]);
+    return () => {
+      ignoreResponse = true;
+    };
+  }, [
+    page,
+    setTotalPages,
+    location.state?.refresh,
+    filterDesignation,
+    filterRole,
+    filterMgmtRole,
+    debouncedSearchTerm,
+  ]);
 
   // Close filter dropdown on outside click
   useEffect(() => {
@@ -89,20 +116,21 @@ const FormerEmpList = ({ page = 1, setTotalPages }) => {
     return () => document.removeEventListener("mousedown", handleOutside);
   }, [showFilter]);
 
-  // Unique filter options from loaded data
-  const designationOptions = useMemo(
-    () => [...new Set(employees.map((e) => e.designation).filter((v) => v && v !== "-"))].sort(),
-    [employees]
-  );
-  const roleOptions = useMemo(
-    () => [...new Set(employees.map((e) => e.role).filter((v) => v && v !== "-"))].sort(),
-    [employees]
-  );
-  const mgmtRoleOptions = useMemo(
-    () => [...new Set(employees.map((e) => e.mgmtRole).filter((v) => v && v !== "-"))].sort(),
-    [employees]
-  );
-  const clearFilters = () => { setFilterDesignation(""); setFilterRole(""); setFilterMgmtRole(""); };
+  const designationOptions = filterOptions.designations;
+  const roleOptions = filterOptions.roles;
+  const mgmtRoleOptions = filterOptions.management_roles;
+
+  const updateFilter = (setter, value) => {
+    if (setPage) setPage(1);
+    setter((current) => (current === value ? "" : value));
+  };
+
+  const clearFilters = () => {
+    if (setPage) setPage(1);
+    setFilterDesignation("");
+    setFilterRole("");
+    setFilterMgmtRole("");
+  };
 
   // 🔥 Navigate to Employee Overview (GREEN button)
   const openOverview = (empId) => {
@@ -182,7 +210,7 @@ const FormerEmpList = ({ page = 1, setTotalPages }) => {
                         key={opt}
                         type="button"
                         className={`femp-filter-row${filterDesignation === opt ? " active" : ""}`}
-                        onClick={() => setFilterDesignation((p) => (p === opt ? "" : opt))}
+                        onClick={() => updateFilter(setFilterDesignation, opt)}
                       >
                         <span className={`femp-filter-check${filterDesignation === opt ? " active" : ""}`} />
                         <span className="femp-filter-text">{opt}</span>
@@ -199,7 +227,7 @@ const FormerEmpList = ({ page = 1, setTotalPages }) => {
                         key={opt}
                         type="button"
                         className={`femp-filter-row${filterRole === opt ? " active" : ""}`}
-                        onClick={() => setFilterRole((p) => (p === opt ? "" : opt))}
+                        onClick={() => updateFilter(setFilterRole, opt)}
                       >
                         <span className={`femp-filter-check${filterRole === opt ? " active" : ""}`} />
                         <span className="femp-filter-text">{opt}</span>
@@ -216,7 +244,7 @@ const FormerEmpList = ({ page = 1, setTotalPages }) => {
                         key={opt}
                         type="button"
                         className={`femp-filter-row${filterMgmtRole === opt ? " active" : ""}`}
-                        onClick={() => setFilterMgmtRole((p) => (p === opt ? "" : opt))}
+                        onClick={() => updateFilter(setFilterMgmtRole, opt)}
                       >
                         <span className={`femp-filter-check${filterMgmtRole === opt ? " active" : ""}`} />
                         <span className="femp-filter-text">{opt}</span>
@@ -239,7 +267,10 @@ const FormerEmpList = ({ page = 1, setTotalPages }) => {
               type="text"
               placeholder="Search"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                if (setPage) setPage(1);
+                setSearchTerm(e.target.value);
+              }}
             />
           </div>
         </div>
@@ -259,23 +290,7 @@ const FormerEmpList = ({ page = 1, setTotalPages }) => {
             </tr>
           </thead>
           <tbody>
-            {employees
-              .filter((emp) => {
-                if (searchTerm) {
-                  const s = searchTerm.toLowerCase();
-                  const match =
-                    emp.name.toLowerCase().includes(s) ||
-                    emp.empId.toLowerCase().includes(s) ||
-                    emp.designation.toLowerCase().includes(s) ||
-                    emp.role.toLowerCase().includes(s);
-                  if (!match) return false;
-                }
-                if (filterDesignation && emp.designation !== filterDesignation) return false;
-                if (filterRole && emp.role !== filterRole) return false;
-                if (filterMgmtRole && emp.mgmtRole !== filterMgmtRole) return false;
-                return true;
-              })
-              .map((emp) => (
+            {employees.map((emp) => (
               <tr key={emp.id}>
                 <td>{emp.empId}</td>
                 <td>
@@ -314,6 +329,13 @@ const FormerEmpList = ({ page = 1, setTotalPages }) => {
                 </td>
               </tr>
             ))}
+            {employees.length === 0 && (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: "24px", color: "#6b7280" }}>
+                  No former employees found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

@@ -104,6 +104,7 @@ const EmployeesPage = () => {
           ) : (
             <FormerEmpList
               page={currentPage}
+              setPage={setCurrentPage}
               setTotalPages={setTotalPages}
               key={`former-${location.state?.refresh ? 'refresh' : 'normal'}`} // Force re-render when refresh is needed
             />

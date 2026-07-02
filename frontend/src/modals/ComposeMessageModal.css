@@ -371,6 +371,14 @@
   padding: 0;
 }
 
+.cm-success {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  color: #1DA462;
+  margin: 0;
+  padding: 0;
+}
+
 /* ─── Actions row ──────────────────────────────────────────────────────── */
 .cm-actions {
   display: flex;

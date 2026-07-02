@@ -14,6 +14,24 @@ import successIcon from "../assets/icons/success.png";
 import closeIcon from "../assets/icons/Close.png";
 import infoIcon from "../assets/icons/inicon.png"; // Added info icon
 
+const DESIGNATION_OPTIONS = [
+  "UI/UX Engineer",
+  "QA Engineer",
+  "Full Stack Engineer",
+  "Back end Developer",
+  "Mobile App Developer",
+  "React Developer",
+];
+
+const MANAGEMENT_ROLE_OPTIONS = [
+  "CMO",
+  "PM",
+  "Senior",
+  "Team Leader",
+  "Associate",
+  "Intern",
+];
+
 export default function AddEmployeeStep3() {
   const navigate = useNavigate();
   const joinDateRef = useRef(null);
@@ -300,6 +318,7 @@ export default function AddEmployeeStep3() {
       const workInfoData = {
         joined_date: formData.joinDate, // This should be properly validated in UI
         designation: formData.designation.trim(), // This should be properly validated in UI
+        role: formData.role,
         department_id: null, // No department field in form, setting to null
         management_role: formData.managementRole
           ? formData.managementRole.trim()
@@ -572,11 +591,11 @@ export default function AddEmployeeStep3() {
                 onChange={handleChange}
               >
                 <option value="">Select Designation</option>
-                <option value="Software Engineer">Software Engineer</option>
-                <option value="QA Engineer">QA Engineer</option>
-                <option value="Project Manager">Project Manager</option>
-                <option value="Designer">Designer</option>
-                <option value="HR Specialist">HR Specialist</option>
+                {DESIGNATION_OPTIONS.map((designation) => (
+                  <option key={designation} value={designation}>
+                    {designation}
+                  </option>
+                ))}
               </select>
               <img
                 src={dropdownIcon}
@@ -597,7 +616,6 @@ export default function AddEmployeeStep3() {
                 <option value="">Select Role</option>
                 <option value="admin">Admin</option>
                 <option value="employee">Employee</option>
-                <option value="manager">Manager</option>
               </select>
               <img
                 src={dropdownIcon}
@@ -618,9 +636,11 @@ export default function AddEmployeeStep3() {
                 onChange={handleChange}
               >
                 <option value="">Select Management Role</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="Team Lead">Team Lead</option>
-                <option value="Department Head">Department Head</option>
+                {MANAGEMENT_ROLE_OPTIONS.map((managementRole) => (
+                  <option key={managementRole} value={managementRole}>
+                    {managementRole}
+                  </option>
+                ))}
               </select>
               <img
                 src={dropdownIcon}
