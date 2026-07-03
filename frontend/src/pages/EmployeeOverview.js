@@ -253,7 +253,7 @@ export default function EmployeeOverview() {
             </div>
 
             <div className="eov-promotions">
-              <h4 className="eov-promotions-title">Promotion Progress</h4>
+              <h4 className="eov-promotions-title">Promotions</h4>
               <PromotionProgress employeeData={employeeData} formatDate={formatDate} />
             </div>
 

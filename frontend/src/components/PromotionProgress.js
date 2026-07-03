@@ -1,107 +1,163 @@
 import React from "react";
 
+const ROLE_ORDER = ["team leader", "senior", "associate", "intern"];
+
+const normalize = (value) =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ");
+
+const normalizeManagementRole = (value) => {
+  const role = normalize(value);
+
+  if (role === "team lead" || role === "teamleader" || role === "tl") {
+    return "team leader";
+  }
+
+  return role;
+};
+
+const getBaseDesignation = (designation) => {
+  const value = String(designation || "").trim();
+  const normalized = normalize(value);
+
+  if (normalized.includes("ui/ux")) return "UI/UX Engineer";
+  if (normalized.includes("full stack") || normalized.includes("fullstack")) {
+    return "Full Stack Engineer";
+  }
+  if (normalized.includes("qa") || normalized.includes("quality assurance")) {
+    return "QA Engineer";
+  }
+  if (
+    normalized.includes("project manager") ||
+    normalized === "pm" ||
+    normalized.includes("ba/pm") ||
+    normalized.includes("business analyst")
+  ) {
+    return "Project Manager";
+  }
+  if (normalized.includes("back end") || normalized.includes("backend")) {
+    return "Back end Developer";
+  }
+  if (normalized.includes("mobile app")) return "Mobile App Developer";
+  if (normalized.includes("react")) return "React Developer";
+  if (normalized.includes("data") || normalized.includes("scientist")) {
+    return "Data Scientist";
+  }
+  if (normalized.includes("software") || normalized.includes("developer")) {
+    return "Software Engineer";
+  }
+
+  return value || "Employee";
+};
+
+const getRoleTitle = (role, baseDesignation) => {
+  switch (role) {
+    case "team leader":
+      return `${baseDesignation} Team Lead`;
+    case "senior":
+      return `Senior ${baseDesignation}`;
+    case "associate":
+      return `Associate ${baseDesignation}`;
+    case "intern":
+      return `${baseDesignation} Intern`;
+    case "pm":
+      return "PM";
+    case "cmo":
+      return "CMO";
+    default:
+      return baseDesignation;
+  }
+};
+
+const getRoleDateMap = (promotionHistories, formatDate) => {
+  if (!Array.isArray(promotionHistories)) return {};
+
+  return promotionHistories
+    .filter((history) => history?.management_role && history?.effective_date)
+    .sort((a, b) => new Date(a.effective_date) - new Date(b.effective_date))
+    .reduce((dates, history) => {
+      const role = normalizeManagementRole(history.management_role);
+      dates[role] = formatDate(history.effective_date);
+      return dates;
+    }, {});
+};
+
+const getLevelDate = ({
+  role,
+  roleDates,
+  joinedDate,
+  fallbackDate,
+}) => {
+  if (roleDates[role]) return roleDates[role];
+
+  if (role === "intern" && joinedDate !== "-") {
+    return joinedDate;
+  }
+
+  return fallbackDate || "-";
+};
+
 const PromotionProgress = ({ employeeData, formatDate }) => {
-  // Determine the department/field to customize the role titles
-  const getRoleTitles = () => {
-    // Extract the department/field from the employee's designation
-    const designation = employeeData.designation ? employeeData.designation.toLowerCase() : '';
-    
-    if (designation.includes('ui/ux')) {
-      return [
-        { name: "UI/UX Engineer Team Lead", date: "-" },
-        { name: "Senior UI/UX Engineer", date: "-" },
-        { name: "Associate UI/UX Engineer", date: "-" },
-        { name: "UI/UX Engineer Intern", date: employeeData.EmployeeDetail?.joined_date ? formatDate(employeeData.EmployeeDetail.joined_date) : 'N/A' }
-      ];
-    } else if (designation.includes('full-stack') || designation.includes('fullstack')) {
-      return [
-        { name: "Full-stack Engineer Team Lead", date: "-" },
-        { name: "Senior Full-stack Engineer", date: "-" },
-        { name: "Associate Full-stack Engineer", date: "-" },
-        { name: "Full-stack Engineer Intern", date: employeeData.EmployeeDetail?.joined_date ? formatDate(employeeData.EmployeeDetail.joined_date) : 'N/A' }
-      ];
-    } else if (designation.includes('qa') || designation.includes('quality assurance')) {
-      return [
-        { name: "QA Engineer Team Lead", date: "-" },
-        { name: "Senior QA Engineer", date: "-" },
-        { name: "Associate QA Engineer", date: "-" },
-        { name: "QA Engineer Intern", date: employeeData.EmployeeDetail?.joined_date ? formatDate(employeeData.EmployeeDetail.joined_date) : 'N/A' }
-      ];
-    } else if (designation.includes('project manager') || designation.includes('pm') || designation.includes('ba/pm') || designation.includes('business analyst')) {
-      return [
-        { name: "Project Manager Team Lead", date: "-" },
-        { name: "Senior Project Manager", date: "-" },
-        { name: "Associate Project Manager", date: "-" },
-        { name: "Project Management Intern", date: employeeData.EmployeeDetail?.joined_date ? formatDate(employeeData.EmployeeDetail.joined_date) : 'N/A' }
-      ];
-    } else if (designation.includes('software') || designation.includes('developer')) {
-      return [
-        { name: "Software Engineer Team Lead", date: "-" },
-        { name: "Senior Software Engineer", date: "-" },
-        { name: "Associate Software Engineer", date: "-" },
-        { name: "Software Engineer Intern", date: employeeData.EmployeeDetail?.joined_date ? formatDate(employeeData.EmployeeDetail.joined_date) : 'N/A' }
-      ];
-    } else if (designation.includes('data') || designation.includes('scientist')) {
-      return [
-        { name: "Data Scientist Team Lead", date: "-" },
-        { name: "Senior Data Scientist", date: "-" },
-        { name: "Associate Data Scientist", date: "-" },
-        { name: "Data Science Intern", date: employeeData.EmployeeDetail?.joined_date ? formatDate(employeeData.EmployeeDetail.joined_date) : 'N/A' }
-      ];
-    }
-    
-    // Default engineering path
-    return [
-      { name: "Team Lead", date: "-" },
-      { name: "Senior Engineer", date: "-" },
-      { name: "Associate Engineer", date: "-" },
-      { name: "Intern Engineer", date: employeeData.EmployeeDetail?.joined_date ? formatDate(employeeData.EmployeeDetail.joined_date) : 'N/A' }
-    ];
-  };
-  
-  const levels = getRoleTitles();
+  const baseDesignation = getBaseDesignation(employeeData?.designation);
+  const currentManagementRole = normalizeManagementRole(employeeData?.management_role);
+  const roleDates = getRoleDateMap(employeeData?.PromotionHistories, formatDate);
+  const joinedDate = employeeData?.EmployeeDetail?.joined_date
+    ? formatDate(employeeData.EmployeeDetail.joined_date)
+    : "-";
 
-  // Determine which levels should be filled based on current designation
-  const getFilledLevels = () => {
-    const currentDesignation = employeeData.designation;
-    
-    // Create a mapping based on the current role titles
-    const levelsNames = levels.map(level => level.name);
-    
-    // Find the index of the current designation in the levels
-    const currentLevelIndex = levelsNames.findIndex(name => name === currentDesignation);
-    
-    if (currentLevelIndex !== -1) {
-      return levels.length - currentLevelIndex; // Calculate how many levels to fill from the current level to the end
-    }
-    
-    // Default to showing just the bottom level if designation not found
-    return 1;
-  };
+  const roleOrder = ["cmo", "pm"].includes(currentManagementRole)
+    ? ["cmo", "pm", ...ROLE_ORDER]
+    : ROLE_ORDER;
+  const orderedKnownDates = roleOrder
+    .map((role) => roleDates[role])
+    .filter(Boolean);
+  const fallbackDate =
+    roleDates[currentManagementRole] ||
+    orderedKnownDates[orderedKnownDates.length - 1] ||
+    joinedDate;
 
-  const filledLevels = getFilledLevels();
+  const levels = roleOrder.map((role) => ({
+    role,
+    name: getRoleTitle(role, baseDesignation),
+    date: getLevelDate({
+      role,
+      roleDates,
+      joinedDate,
+      fallbackDate,
+    }),
+  }));
+
+  const currentLevelIndex = levels.findIndex(
+    (level) => level.role === currentManagementRole
+  );
+  const filledFromIndex =
+    currentLevelIndex === -1 ? levels.length - 1 : currentLevelIndex;
 
   return (
     <div className="eov-promotion-structure">
       {levels.map((level, index) => {
-        const isFilled = index >= levels.length - filledLevels;
-        // For the connecting lines, we don't show a line for the last (top) item
+        const isFilled = index >= filledFromIndex;
+        const isCurrent = index === currentLevelIndex;
         const showLine = index < levels.length - 1;
-        
+        const visibleDate = isFilled ? level.date : "-";
+
         return (
-          <div 
-            key={level.name} 
-            className={`eov-promotion-level ${employeeData.designation === level.name ? 'current-level' : ''}`}
+          <div
+            key={level.role}
+            className={`eov-promotion-level ${isCurrent ? "current-level" : ""}`}
           >
             <div className="eov-progress-circle">
-              <div className={`eov-progress-circle-indicator ${isFilled ? 'filled' : ''}`} />
+              <div className={`eov-progress-circle-indicator ${isFilled ? "filled" : ""}`} />
               {showLine && (
-                <div className={`eov-progress-connector ${isFilled ? 'filled' : ''}`} />
+                <div className={`eov-progress-connector ${isFilled ? "filled" : ""}`} />
               )}
             </div>
             <div className="eov-position-info">
               <div className="eov-position-name">{level.name}</div>
-              <div className="eov-position-date">{level.date}</div>
+              <div className="eov-position-date">{visibleDate}</div>
             </div>
           </div>
         );

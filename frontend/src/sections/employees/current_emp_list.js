@@ -352,6 +352,7 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
         setLoading(true);
         const response = await employeeAPI.getAllEmployees(page, 10, "active", {
           designation: filterDesignation,
+          role: filterRole,
           management_role: filterMgmtRole,
           search: debouncedSearchTerm,
         });
@@ -411,6 +412,7 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
     setTotalPages,
     location.state?.refresh,
     filterDesignation,
+    filterRole,
     filterMgmtRole,
     debouncedSearchTerm,
   ]);

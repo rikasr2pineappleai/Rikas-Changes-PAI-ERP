@@ -5,6 +5,7 @@ const puppeteer = require('puppeteer');
 const { Op } = require('sequelize');
 const { handleControllerError } = require('../utils/errorHandler');
 const { generateOfferLetterHTML } = require('../templates/offerLetterPDF');
+const MailService = require('../services/MailService');
 
 const requiredOfferLetterFields = [
   { name: 'employeeName', label: 'Name' },
@@ -17,6 +18,8 @@ const requiredOfferLetterFields = [
   { name: 'reportingManager', label: 'Reporting Manager' },
   { name: 'reportingManagerEmail', label: 'Reporting Manager Email' }
 ];
+
+const HR_EMAIL = 'global.hr.pineappleai@gmail.com';
 
 const getOfferLetterValidationErrors = (data) => {
   const errors = {};
@@ -35,6 +38,110 @@ const getOfferLetterValidationErrors = (data) => {
   }
 
   return errors;
+};
+
+const getOfferLetterEmailValidationErrors = (data) => {
+  const errors = getOfferLetterValidationErrors(data);
+
+  if (!String(data.employeeEmail || '').trim()) {
+    errors.employeeEmail = 'Employee Email is required';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.employeeEmail)) {
+    errors.employeeEmail = 'Enter a valid Employee Email';
+  }
+
+  return errors;
+};
+
+const getMergedOfferLetterData = async (data) => {
+  const { employee_id, ...manualOverrides } = data;
+
+  let dbEmployeeData = {};
+  if (employee_id) {
+    dbEmployeeData = await fetchEmployeeDetails(employee_id) || {};
+  }
+
+  return {
+    ...dbEmployeeData,
+    ...manualOverrides,
+    generatedBy: manualOverrides.generatedBy || 'HR Department'
+  };
+};
+
+const createOfferLetterPDFBuffer = async (data) => {
+  let browser;
+
+  try {
+    const htmlContent = generateOfferLetterHTML(data);
+
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    const page = await browser.newPage();
+    await page.setViewport({ width: 595, height: 842, deviceScaleFactor: 1 });
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+    return await page.pdf({
+      width: '595px',
+      height: '842px',
+      printBackground: true,
+      margin: { top: '0', right: '0', bottom: '0', left: '0' }
+    });
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+};
+
+const escapeHtml = (value) =>
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const getOfferLetterEmailBody = (employeeName) =>
+  `Hi ${employeeName},\n\nWelcome to Our Team!\nPlease take a moment to review your offer letter carefully. Your prompt response within one week would be greatly appreciated. If we don't receive your reply within one week, you may forfeit the offer. Looking forward to hearing from you.\n\nNote: You have to follow these steps,\n1. Print your offer letter.\n2. Sign your offer letter on the right side, bottom.\n3. Scan the offer letter.\n4. Send the offer letter to HR Email. ${HR_EMAIL}`;
+
+const getOfferLetterEmailHtml = (employeeName) => `
+  <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+    <p>Hi ${escapeHtml(employeeName)},</p>
+    <p><strong>Welcome to Our Team!</strong><br>
+    Please take a moment to review your offer letter carefully. Your prompt response within one week would be greatly appreciated. If we don't receive your reply within one week, you may forfeit the offer. Looking forward to hearing from you.</p>
+    <p><strong>Note: You have to follow these steps,</strong></p>
+    <ol>
+      <li>Print your offer letter.</li>
+      <li>Sign your offer letter on the right side, bottom.</li>
+      <li>Scan the offer letter.</li>
+      <li>Send the offer letter to HR Email. ${HR_EMAIL}</li>
+    </ol>
+  </div>
+`;
+
+const getEmailSendErrorMessage = (error) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const detail = error.message ? ` (${error.message})` : '';
+
+  if (error.code === 'EMAIL_CONFIG_MISSING') {
+    return error.message;
+  }
+
+  if (error.code === 'EAUTH') {
+    return `Email authentication failed. Please check the SMTP username and app password.${isProduction ? '' : detail}`;
+  }
+
+  if (['ECONNECTION', 'ETIMEDOUT', 'ESOCKET', 'ENOTFOUND', 'ECONNREFUSED'].includes(error.code)) {
+    return `Could not connect to the email server. Please check the SMTP host, port, and network access.${isProduction ? '' : detail}`;
+  }
+
+  if (error.code === 'EENVELOPE') {
+    return `Email recipient/sender setup failed. Please check sender and recipient email addresses.${isProduction ? '' : detail}`;
+  }
+
+  return isProduction ? 'Failed to send offer letter email.' : `Failed to send offer letter email.${detail}`;
 };
 
 // Helper function to fetch employee details from database
@@ -80,6 +187,7 @@ const fetchEmployeeDetails = async (userId) => {
       joiningDate: employee.EmployeeDetail?.joined_date ? new Date(employee.EmployeeDetail.joined_date).toLocaleDateString('en-GB') : '',
       reportingManager: reportingManager.first_name ? `${reportingManager.first_name}${reportingManager.last_name && reportingManager.last_name !== 'null' ? ` ${reportingManager.last_name}` : ''}`.trim() : '',
       reportingManagerEmail: reportingManager.email || '',
+      employeeEmail: employee.email || '',
       empId: employee.emp_id,
       userId: employee.id
     };
@@ -146,7 +254,8 @@ const searchEmployeesByName = async (searchName) => {
         department: employee.Department?.dept_name || '',
         joiningDate: employee.EmployeeDetail?.joined_date ? new Date(employee.EmployeeDetail.joined_date).toLocaleDateString('en-GB') : '',
         reportingManager: reportingManager.first_name ? `${reportingManager.first_name}${reportingManager.last_name && reportingManager.last_name !== 'null' ? ` ${reportingManager.last_name}` : ''}`.trim() : '',
-        reportingManagerEmail: reportingManager.email || ''
+        reportingManagerEmail: reportingManager.email || '',
+        employeeEmail: employee.email || ''
       };
     });
   } catch (error) {
@@ -160,22 +269,8 @@ const searchEmployeesByName = async (searchName) => {
 // @route   POST /api/templates/offer-letter/generate
 // @access  Private (Admin)
 exports.generateOfferLetterPDF = async (req, res) => {
-  let browser;
   try {
-    const { employee_id, ...manualOverrides } = req.body;
-
-    // Fetch employee data from database if employee_id is provided
-    let dbEmployeeData = {};
-    if (employee_id) {
-      dbEmployeeData = await fetchEmployeeDetails(employee_id) || {};
-    }
-
-    // Merge database data with manual overrides (manual overrides take precedence)
-    const mergedData = {
-      ...dbEmployeeData,
-      ...manualOverrides,
-      generatedBy: manualOverrides.generatedBy || 'HR Department'
-    };
+    const mergedData = await getMergedOfferLetterData(req.body);
 
     // Validate that we have all required fields after merging
     const validationErrors = getOfferLetterValidationErrors(mergedData);
@@ -187,29 +282,7 @@ exports.generateOfferLetterPDF = async (req, res) => {
       });
     }
 
-    // Generate HTML content
-    const htmlContent = generateOfferLetterHTML(mergedData);
-
-    // Launch puppeteer
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-
-    const page = await browser.newPage();
-    // Set viewport to exact Figma/PDF-point A4 dimensions (595 x 842)
-    await page.setViewport({ width: 595, height: 842, deviceScaleFactor: 1 });
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-    // Generate PDF - exact 595 x 842 px, no margins (layout handled in HTML)
-    const pdfBuffer = await page.pdf({
-      width: '595px',
-      height: '842px',
-      printBackground: true,
-      margin: { top: '0', right: '0', bottom: '0', left: '0' }
-    });
-
-    await browser.close();
+    const pdfBuffer = await createOfferLetterPDFBuffer(mergedData);
 
     // Set headers for PDF download
     res.setHeader('Content-Type', 'application/pdf');
@@ -218,9 +291,6 @@ exports.generateOfferLetterPDF = async (req, res) => {
     res.send(pdfBuffer);
 
   } catch (error) {
-    if (browser) {
-      await browser.close();
-    }
     const errorResponse = handleControllerError(error, "generate offer letter PDF");
     res.status(500).json(errorResponse);
   }
@@ -231,18 +301,7 @@ exports.generateOfferLetterPDF = async (req, res) => {
 // @access  Private (Admin)
 exports.generateOfferLetterPreview = async (req, res) => {
   try {
-    const { employee_id, ...manualOverrides } = req.body;
-
-    let dbEmployeeData = {};
-    if (employee_id) {
-      dbEmployeeData = await fetchEmployeeDetails(employee_id) || {};
-    }
-
-    const mergedData = {
-      ...dbEmployeeData,
-      ...manualOverrides,
-      generatedBy: manualOverrides.generatedBy || 'HR Department'
-    };
+    const mergedData = await getMergedOfferLetterData(req.body);
 
     const validationErrors = getOfferLetterValidationErrors(mergedData);
     if (Object.keys(validationErrors).length > 0) {
@@ -258,6 +317,57 @@ exports.generateOfferLetterPreview = async (req, res) => {
   } catch (error) {
     const errorResponse = handleControllerError(error, "generate offer letter preview");
     res.status(500).json(errorResponse);
+  }
+};
+
+// @desc    Email generated Offer Letter PDF to employee
+// @route   POST /api/templates/offer-letter/email
+// @access  Private (Admin)
+exports.sendOfferLetterEmail = async (req, res) => {
+  try {
+    const mergedData = await getMergedOfferLetterData(req.body);
+    const validationErrors = getOfferLetterEmailValidationErrors(mergedData);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please fill all mandatory offer letter email fields',
+        errors: validationErrors
+      });
+    }
+
+    const pdfBuffer = await createOfferLetterPDFBuffer(mergedData);
+    const employeeName = mergedData.employeeName.trim();
+    const employeeEmail = mergedData.employeeEmail.trim();
+    const safeFileName = employeeName.replace(/\s+/g, '-');
+
+    await MailService.sendMail({
+      from: process.env.FROM_EMAIL || process.env.SMTP_USER,
+      to: employeeEmail,
+      replyTo: process.env.HR_EMAIL || HR_EMAIL,
+      subject: 'Offer letter',
+      text: getOfferLetterEmailBody(employeeName),
+      html: getOfferLetterEmailHtml(employeeName),
+      attachments: [
+        {
+          filename: `offer-letter-${safeFileName}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf'
+        }
+      ]
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Offer letter email sent successfully.'
+    });
+  } catch (error) {
+    console.error('Offer letter email error:', error);
+    return res.status(500).json({
+      success: false,
+      message: getEmailSendErrorMessage(error),
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -364,7 +474,8 @@ exports.getAllEmployeesForDropdown = async (req, res) => {
         department: employee.Department?.dept_name || '',
         joiningDate: employee.EmployeeDetail?.joined_date ? new Date(employee.EmployeeDetail.joined_date).toLocaleDateString('en-GB') : '',
         reportingManager: reportingManager.first_name ? `${reportingManager.first_name}${reportingManager.last_name && reportingManager.last_name !== 'null' ? ` ${reportingManager.last_name}` : ''}`.trim() : '',
-        reportingManagerEmail: reportingManager.email || ''
+        reportingManagerEmail: reportingManager.email || '',
+        employeeEmail: employee.email || ''
       };
     });
 

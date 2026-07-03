@@ -39,6 +39,7 @@ module.exports = (sequelize) => {
     User.hasOne(models.EmployeeDetail, { foreignKey: 'user_id' });
     // EmployeeHistory
     User.hasMany(models.EmployeeHistory, { foreignKey: 'user_id', as: 'EmployeeHistories' });
+    User.hasMany(models.PromotionHistory, { foreignKey: 'user_id', as: 'PromotionHistories' });
     // LeaveBalance
     User.hasMany(models.LeaveBalance, { foreignKey: 'user_id' });
     // LeaveRequest

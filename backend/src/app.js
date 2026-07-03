@@ -172,6 +172,7 @@ const userRoutes = require("./routes/user.routes");
 
 // Notification Routes
 const notificationRoutes = require("./routes/notification.routes");
+const messageRoutes = require("./routes/message.routes");
 
 const app = express();
 app.use(express.json());
@@ -270,6 +271,7 @@ function getMimeType(filePath) {
 
 // Mount routers
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/messages", messageRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/sidebar", sidebarRoutes);

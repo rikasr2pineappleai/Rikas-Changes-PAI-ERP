@@ -120,41 +120,44 @@
 /* promotions */
 .eov-promotions {
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 20px;
   border: 1px solid #dadada;
-  padding: 16px;
+  padding: 18px 16px 18px;
 }
 
 .eov-promotions-title {
-  font-size: 16px;
+  font-size: 24px;
+  line-height: 30px;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin: 0 0 18px;
+  color: #1e293b;
 }
 
 /* promotion structure */
 .eov-promotion-structure {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
   position: relative;
 }
 
 .eov-promotion-level {
   position: relative;
   width: 100%;
-  height: 35px;
+  min-height: 58px;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 14px;
 }
 
 .eov-progress-circle {
-  width: 24px;
-  height: 24px;
+  width: 34px;
+  min-height: 58px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   position: relative;
+  flex-shrink: 0;
   z-index: 2;
 }
 
@@ -162,62 +165,65 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: #e0e0e0;
-  border: 2px solid #e0e0e0;
+  background-color: #ffffff;
+  border: 4px solid #dadada;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
 }
 
 .eov-progress-circle-indicator.filled {
   background-color: #347e45;
-  border: 2px solid #347e45;
+  border-color: #347e45;
 }
 
 .eov-progress-connector {
   position: absolute;
-  left: 10px;
+  left: 50%;
   top: 24px;
-  width: 0px;
-  height: 25px;
-  border: 2px solid #e0e0e0;
+  width: 6px;
+  height: calc(100% - 6px);
+  background: #dadada;
+  border: 0;
+  transform: translateX(-50%);
   z-index: 0;
 }
 
 .eov-progress-connector.filled {
-  border: 4px solid #347e45;
-  width: 0px;
-  height: 25px;
-  left: 10px;
-  z-index: 1;
+  background: #347e45;
 }
 
 .eov-position-info {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
+  padding-top: 0;
 }
 
 .eov-position-name {
   font-family: 'Roboto', sans-serif;
   font-style: normal;
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 18px;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 20px;
   color: #1E293B;
-  margin-bottom: 2px;
+  margin-bottom: 6px;
+  overflow-wrap: anywhere;
 }
 
 .eov-position-date {
   font-family: 'Roboto', sans-serif;
   font-style: normal;
   font-weight: 400;
-  font-size: 13px;
-  line-height: 15px;
-  color: #979494;
+  font-size: 18px;
+  line-height: 22px;
+  color: #9b9b9b;
+  letter-spacing: 0;
 }
 
 .current-level {
-  background-color: #e8f5e9;
-  border-left: 4px solid #347e45;
-  padding-left: 10px;
+  background: transparent;
 }
 
 /* left green buttons */

@@ -275,10 +275,18 @@ class ApiClient {
     }
 
     const url = `${this.baseURL}${endpoint}`;
-    const config = {
-      headers: this.getHeaders(options.includeAuth !== false),
-      ...options,
+    const headers = {
+      ...this.getHeaders(options.includeAuth !== false),
+      ...(options.headers || {}),
     };
+    const config = {
+      ...options,
+      headers,
+    };
+
+    if (typeof FormData !== "undefined" && config.body instanceof FormData) {
+      delete config.headers["Content-Type"];
+    }
 
     console.log(`📡 API Request: ${options.method || 'GET'} ${endpoint}`);
     console.log('Token status:', this.getToken() ? '✓ Present' : '✗ Missing');
@@ -309,8 +317,8 @@ class ApiClient {
 
       if (!response.ok) {
         const error = new Error(
-          data?.error ||
-            data?.message ||
+          data?.message ||
+            data?.error ||
             `Request failed with status ${response.status}`
         );
         error.response = { status: response.status, data };
@@ -339,9 +347,10 @@ class ApiClient {
 
   // POST request
   post(endpoint, body, options = {}) {
+    const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
     return this.request(endpoint, {
       method: "POST",
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
       ...options,
     });
   }

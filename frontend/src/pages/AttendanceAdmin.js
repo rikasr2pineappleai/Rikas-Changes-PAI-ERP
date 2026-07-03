@@ -220,6 +220,20 @@ const matchesDateRange = (recordDate, startDate, endDate) => {
   return true;
 };
 
+const isToday = (recordDate) => {
+  if (!recordDate) return false;
+
+  const date = new Date(recordDate);
+  if (Number.isNaN(date.getTime())) return false;
+
+  const today = new Date();
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  );
+};
+
 function StatIcon({ type }) {
   if (type === "total") {
     return <img src={totalEmployeesIcon} alt="" aria-hidden="true" />;
@@ -330,6 +344,7 @@ export default function AttendanceAdmin() {
   const [allAttendanceData, setAllAttendanceData] = useState([]);
   const [employeeDepartmentsById, setEmployeeDepartmentsById] = useState({});
   const [employeesById, setEmployeesById] = useState({});
+  const [totalEmployeesCount, setTotalEmployeesCount] = useState(0);
   const [selectedAttendanceRecord, setSelectedAttendanceRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -469,6 +484,7 @@ export default function AttendanceAdmin() {
         setAllAttendanceData(records);
         setEmployeeDepartmentsById(departmentLookup);
         setEmployeesById(employeeLookup);
+        setTotalEmployeesCount(employees.length);
       } catch (err) {
         setError(err.message || "Failed to load attendance data");
         console.error("Error fetching attendance data:", err);
@@ -480,8 +496,13 @@ export default function AttendanceAdmin() {
     fetchAttendanceData();
   }, [employeeId]);
 
+  const todaysAttendanceData = useMemo(
+    () => allAttendanceData.filter((record) => isToday(record.date)),
+    [allAttendanceData],
+  );
+
   const filteredAttendanceData = useMemo(() => {
-    return allAttendanceData.filter((record) => {
+    return todaysAttendanceData.filter((record) => {
       const employeeQuery = appliedFilters.employeeName.trim().toLowerCase();
       const employeeName = getEmployeeName(record).toLowerCase();
       const employeeCode = getEmployeeId(record).toLowerCase();
@@ -524,7 +545,7 @@ export default function AttendanceAdmin() {
 
       return true;
     });
-  }, [allAttendanceData, appliedFilters, employeeDepartmentsById]);
+  }, [todaysAttendanceData, appliedFilters, employeeDepartmentsById]);
 
   const totalPages = Math.max(
     1,
@@ -592,23 +613,20 @@ export default function AttendanceAdmin() {
   }
 
   const attendanceStats = useMemo(() => {
-    const total = allAttendanceData.length;
-    const present = allAttendanceData.filter((record) => {
+    const present = todaysAttendanceData.filter((record) => {
       const status = getCanonicalStatus(record.status);
       return status === "on_time" || status === "early_arrival";
     }).length;
-    const late = allAttendanceData.filter(
+    const late = todaysAttendanceData.filter(
       (record) => getCanonicalStatus(record.status) === "late",
     ).length;
-    const absent = allAttendanceData.filter(
-      (record) => getCanonicalStatus(record.status) === "absent",
-    ).length;
+    const absent = Math.max(totalEmployeesCount - (present + late), 0);
 
     const toPercent = (value) =>
-      total > 0 ? Math.round((value / total) * 100) : 0;
+      totalEmployeesCount > 0 ? Math.round((value / totalEmployeesCount) * 100) : 0;
 
     return {
-      total,
+      total: totalEmployeesCount,
       present,
       late,
       absent,
@@ -616,7 +634,7 @@ export default function AttendanceAdmin() {
       latePercent: toPercent(late),
       absentPercent: toPercent(absent),
     };
-  }, [allAttendanceData]);
+  }, [todaysAttendanceData, totalEmployeesCount]);
 
   useEffect(() => {
     if (currentPage > totalPages) {

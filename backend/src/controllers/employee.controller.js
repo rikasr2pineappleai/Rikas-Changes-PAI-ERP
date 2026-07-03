@@ -3,6 +3,7 @@ const {
   User,
   EmployeeDetail,
   EmployeeHistory,
+  PromotionHistory,
   Document,
   Department,
   ProjectAllocation,
@@ -22,6 +23,97 @@ const {
 } = require("../validators/employee.validation");
 const bcrypt = require("bcryptjs");
 const { Op } = require("sequelize");
+
+const normalizeOptionalId = (value) => {
+  if (value === undefined) return undefined;
+  if (value === null || value === "") return null;
+
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : null;
+};
+
+const normalizeManagementRoleValue = (value) =>
+  String(value || "").trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
+
+const getDateOnly = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString().slice(0, 10);
+};
+
+const getTodayDateOnly = () => new Date().toISOString().slice(0, 10);
+
+const recordPromotionHistory = async ({
+  userId,
+  previousManagementRole,
+  managementRole,
+  designation,
+  effectiveDate,
+  joinedDate,
+}) => {
+  try {
+    const nextRole = String(managementRole || "").trim();
+    if (!nextRole || !PromotionHistory) return;
+
+    const previousRole = String(previousManagementRole || "").trim();
+    const normalizedPrevious = normalizeManagementRoleValue(previousRole);
+    const normalizedNext = normalizeManagementRoleValue(nextRole);
+    const roleChanged = normalizedPrevious !== normalizedNext;
+
+    const existingHistoryCount = await PromotionHistory.count({
+      where: { user_id: userId },
+    });
+
+    if (!roleChanged && existingHistoryCount > 0) {
+      const correctedEffectiveDate = getDateOnly(effectiveDate);
+      if (!correctedEffectiveDate) return;
+
+      const existingEntries = await PromotionHistory.findAll({
+        where: { user_id: userId },
+        order: [["effective_date", "DESC"], ["id", "DESC"]],
+      });
+      const currentRoleEntry = existingEntries.find(
+        (entry) => normalizeManagementRoleValue(entry.management_role) === normalizedNext
+      );
+
+      if (currentRoleEntry) {
+        await currentRoleEntry.update({
+          effective_date: correctedEffectiveDate,
+          designation: designation || currentRoleEntry.designation,
+        });
+        return;
+      }
+    }
+
+    const resolvedEffectiveDate =
+      getDateOnly(effectiveDate) ||
+      (!previousRole && existingHistoryCount === 0
+        ? getDateOnly(joinedDate)
+        : null) ||
+      getTodayDateOnly();
+
+    const duplicateEntry = await PromotionHistory.findOne({
+      where: {
+        user_id: userId,
+        management_role: nextRole,
+        effective_date: resolvedEffectiveDate,
+      },
+    });
+
+    if (duplicateEntry) return;
+
+    await PromotionHistory.create({
+      user_id: userId,
+      previous_management_role: previousRole || null,
+      management_role: nextRole,
+      designation: designation || null,
+      effective_date: resolvedEffectiveDate,
+    });
+  } catch (error) {
+    console.warn("Promotion history skipped:", error.message);
+  }
+};
 
 // Utility function to handle errors
 const handleControllerError = (error, operation) => {
@@ -162,6 +254,7 @@ exports.updateEmployeePersonal = async (req, res) => {
       address,
       designation,
       management_role,
+      promotion_effective_date,
     role,
       department_id,
       joined_date,
@@ -251,6 +344,15 @@ exports.updateEmployeePersonal = async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       password_hash = await bcrypt.hash(password, salt);
     }
+
+    await recordPromotionHistory({
+      userId,
+      previousManagementRole: currentUser.management_role,
+      managementRole: management_role,
+      designation,
+      effectiveDate: promotion_effective_date,
+      joinedDate: joined_date,
+    });
 
     // Update user
     console.log(`About to update user ${userId} with status:`, status);
@@ -845,8 +947,10 @@ exports.setEmployeeWorkInfo = async (req, res) => {
 
     const {
       designation,
+      role,
       department_id,
       management_role,
+      promotion_effective_date,
       joined_date,
       end_date,
       report_to
@@ -861,12 +965,31 @@ exports.setEmployeeWorkInfo = async (req, res) => {
       });
     }
 
+    const normalizedReportTo = normalizeOptionalId(report_to);
+
+    if (role && !["admin", "employee"].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role value. Allowed values are 'admin' or 'employee'.",
+      });
+    }
+
+    await recordPromotionHistory({
+      userId,
+      previousManagementRole: user.management_role,
+      managementRole: management_role,
+      designation,
+      effectiveDate: promotion_effective_date,
+      joinedDate: joined_date,
+    });
+
     // update user table
     await user.update({
       designation: designation || null,
+      role: role || user.role,
       department_id: department_id || null,
       management_role: management_role || null,
-      report_to: report_to || null
+      report_to: normalizedReportTo
     });
 
     // update employee details
@@ -921,6 +1044,7 @@ exports.addEmployeeProjectAllocation = async (req, res) => {
       allocation_end,
       allocated_hours
     } = req.body;
+    const normalizedReportTo = normalizeOptionalId(report_to);
 
     console.log("=== PROJECT ALLOCATION DEBUG ===");
     console.log("userId:", userId);
@@ -951,7 +1075,7 @@ exports.addEmployeeProjectAllocation = async (req, res) => {
       project_id: null,
       current_project: current_project || null,
       start_date,
-      report_to: report_to || null,
+      report_to: normalizedReportTo,
       previous_projects: previous_projects || null,
       completed_projects: completed_projects || null,
       project_role: project_role || null,
@@ -972,7 +1096,7 @@ exports.addEmployeeProjectAllocation = async (req, res) => {
         project_id: null,
         current_project: current_project || null,
         start_date,
-        report_to: report_to || null,
+        report_to: normalizedReportTo,
         previous_projects: previous_projects || null,
         completed_projects: completed_projects || null,
         project_role: project_role || null,
@@ -990,7 +1114,7 @@ exports.addEmployeeProjectAllocation = async (req, res) => {
       console.log("⚠️ Allocation already exists for this employee, updating instead. ID:", allocation.id);
       allocation.current_project = current_project !== undefined ? (current_project || null) : allocation.current_project;
       allocation.start_date = start_date !== undefined ? start_date : allocation.start_date;
-      allocation.report_to = report_to !== undefined ? (report_to || null) : allocation.report_to;
+      allocation.report_to = report_to !== undefined ? normalizedReportTo : allocation.report_to;
       allocation.previous_projects = previous_projects !== undefined ? (previous_projects || null) : allocation.previous_projects;
       allocation.completed_projects = completed_projects !== undefined ? (completed_projects || null) : allocation.completed_projects;
       allocation.project_role = project_role !== undefined ? (project_role || null) : allocation.project_role;
@@ -1001,6 +1125,10 @@ exports.addEmployeeProjectAllocation = async (req, res) => {
       allocation.allocation_end = allocation_end !== undefined ? (allocation_end || null) : allocation.allocation_end;
       allocation.allocated_hours = allocated_hours !== undefined ? (allocated_hours || null) : allocation.allocated_hours;
       await allocation.save();
+    }
+
+    if (report_to !== undefined) {
+      await user.update({ report_to: normalizedReportTo });
     }
 
     console.log("✅ Allocation created successfully:", {
@@ -1057,6 +1185,7 @@ exports.updateEmployeeProjectAllocation = async (req, res) => {
       allocation_end,
       allocated_hours
     } = req.body;
+    const normalizedReportTo = normalizeOptionalId(report_to);
 
     console.log("=== UPDATE PROJECT ALLOCATION DEBUG ===");
     console.log("userId:", userId);
@@ -1109,7 +1238,7 @@ exports.updateEmployeeProjectAllocation = async (req, res) => {
     console.log("Updating allocation with data:", {
       current_project,
       start_date,
-      report_to: report_to || null,
+      report_to: normalizedReportTo,
       previous_projects: previous_projects || null,
       completed_projects: completed_projects || null,
       project_role: project_role || null,
@@ -1125,7 +1254,7 @@ exports.updateEmployeeProjectAllocation = async (req, res) => {
     // Convert empty strings to null for consistent database storage
     allocation.current_project = current_project !== undefined ? (current_project === "" ? null : current_project) : allocation.current_project;
     allocation.start_date = start_date !== undefined ? start_date : allocation.start_date;
-    allocation.report_to = report_to !== undefined ? report_to : allocation.report_to;
+    allocation.report_to = report_to !== undefined ? normalizedReportTo : allocation.report_to;
     allocation.previous_projects = previous_projects !== undefined ? (previous_projects === "" ? null : previous_projects) : allocation.previous_projects;
     allocation.completed_projects = completed_projects !== undefined ? (completed_projects === "" ? null : completed_projects) : allocation.completed_projects;
     allocation.project_role = project_role !== undefined ? (project_role === "" ? null : project_role) : allocation.project_role;
@@ -1146,6 +1275,10 @@ exports.updateEmployeeProjectAllocation = async (req, res) => {
     });
 
     await allocation.save();
+
+    if (report_to !== undefined) {
+      await user.update({ report_to: normalizedReportTo });
+    }
     
     console.log("✅ Allocation saved successfully!");
 
@@ -1183,7 +1316,9 @@ exports.getEmployeeOverview = async (req, res) => {
 
     // Get user with associated data
     console.log(`🔍 Fetching employee overview for userId: ${userId}`);
-    const user = await User.findByPk(userId, {
+    let user;
+    try {
+      user = await User.findByPk(userId, {
       include: [
         {
           model: EmployeeDetail,
@@ -1236,6 +1371,27 @@ exports.getEmployeeOverview = async (req, res) => {
     });
     
     console.log("✅ User found:", user ? `Yes - ID: ${user.id}` : "No");
+    } catch (error) {
+      console.warn("Full employee overview query failed:", error.message);
+      try {
+        user = await User.findByPk(userId, {
+          include: [
+            {
+              model: EmployeeDetail,
+              as: "EmployeeDetail",
+            },
+            {
+              model: Department,
+              as: "Department",
+            },
+          ],
+        });
+      } catch (fallbackError) {
+        console.warn("Minimal employee overview query failed:", fallbackError.message);
+        user = await User.findByPk(userId);
+      }
+    }
+
     if (user?.ProjectAllocations?.length > 0) {
       const lastAlloc = user.ProjectAllocations[user.ProjectAllocations.length - 1];
       console.log("📊 Last Allocation Data (for Overview):", {
@@ -1256,12 +1412,27 @@ exports.getEmployeeOverview = async (req, res) => {
     }
 
     // Separate education and professional experience
-    const education = user.EmployeeHistories.filter(
+    const employeeHistories = Array.isArray(user.EmployeeHistories)
+      ? user.EmployeeHistories
+      : [];
+    const education = employeeHistories.filter(
       (history) => history.type === "education"
     );
-    const professional = user.EmployeeHistories.filter(
+    const professional = employeeHistories.filter(
       (history) => history.type === "experience"
     );
+
+    let promotionHistories = [];
+    if (PromotionHistory) {
+      try {
+        promotionHistories = await PromotionHistory.findAll({
+          where: { user_id: userId },
+          order: [["effective_date", "ASC"], ["id", "ASC"]],
+        });
+      } catch (error) {
+        console.warn("Promotion history unavailable:", error.message);
+      }
+    }
 
     res.status(200).json({
       success: true,
@@ -1289,8 +1460,9 @@ exports.getEmployeeOverview = async (req, res) => {
           ReportTo: user.ReportTo,
           education,
           professional,
-          Documents: user.Documents,
-            ProjectAllocations: user.ProjectAllocations,
+          PromotionHistories: promotionHistories,
+          Documents: user.Documents || [],
+            ProjectAllocations: user.ProjectAllocations || [],
         },
       },
     });
@@ -1313,10 +1485,21 @@ exports.getAllEmployees = async (req, res) => {
     const managementRole = req.query.management_role?.trim();
     const search = req.query.search?.trim();
 
-    const baseWhereClause = { role: "employee" };
+    const baseWhereClause = {};
 
     if (status) {
-      baseWhereClause.status = status;
+      if (status === "former") {
+        baseWhereClause.status = { [Op.in]: ["inactive", "terminated"] };
+      } else if (status.includes(",")) {
+        baseWhereClause.status = {
+          [Op.in]: status
+            .split(",")
+            .map((value) => value.trim())
+            .filter(Boolean),
+        };
+      } else {
+        baseWhereClause.status = status;
+      }
     }
 
     const filterOptionRows = await User.findAll({
@@ -1333,6 +1516,10 @@ exports.getAllEmployees = async (req, res) => {
 
     if (managementRole) {
       whereClause.management_role = managementRole;
+    }
+
+    if (req.query.role?.trim()) {
+      whereClause.role = req.query.role.trim();
     }
 
     let searchOrder = [["created_at", "DESC"]];
@@ -1495,7 +1682,7 @@ exports.getAllEmployees = async (req, res) => {
 exports.getEmployeeCount = async (req, res) => {
   try {
     const status = req.query.status?.trim() || "active";
-    const whereClause = { role: "employee" };
+    const whereClause = {};
 
     if (status !== "all") {
       whereClause.status = status;

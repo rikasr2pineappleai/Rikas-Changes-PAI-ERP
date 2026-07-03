@@ -79,6 +79,8 @@ const workInfoSchema = Joi.object({
   joined_date: Joi.date().iso().required(),
   designation: Joi.string().min(1).max(100).required(),
 
+  role: Joi.string().valid('admin', 'employee').optional().allow(null, ''),
+
   department_id: Joi.number().integer().positive().optional().allow(null),
 
   management_role: Joi.string().min(1).max(100).optional().allow(null, ""),
@@ -146,6 +148,7 @@ const updatePersonalInfoSchema = Joi.object({
   address: Joi.string().optional().allow(null, ''),
   designation: Joi.string().max(100).optional().allow(null, ''),
   management_role: Joi.string().max(100).optional().allow(null, ''),
+  promotion_effective_date: Joi.string().optional().allow(null, ''),
   role: Joi.string().valid('admin', 'employee').optional().allow(null, ''),
   department_id: Joi.alternatives().try(Joi.number().integer().positive(), Joi.string().pattern(/^[0-9]+$/)).optional().allow(null, ''),
   status: Joi.string().valid('active', 'inactive', 'terminated', 'Active', 'Inactive', 'Terminated').optional().allow(null, ''),

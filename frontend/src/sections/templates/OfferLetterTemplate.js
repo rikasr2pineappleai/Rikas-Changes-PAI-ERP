@@ -13,6 +13,7 @@ export default function OfferLetterTemplate() {
 
   const [formData, setFormData] = useState({
     employeeName: "",
+    employeeEmail: "",
     address: "",
     letterDate: "",
     position: "",
@@ -47,6 +48,7 @@ export default function OfferLetterTemplate() {
   const clearForm = () => {
     setFormData({
       employeeName: "",
+      employeeEmail: "",
       address: "",
       letterDate: "",
       position: "",
@@ -91,6 +93,13 @@ export default function OfferLetterTemplate() {
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.reportingManagerEmail)
     ) {
       errors.reportingManagerEmail = "Enter a valid Reporting Manager Email";
+    }
+
+    if (
+      formData.employeeEmail &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.employeeEmail)
+    ) {
+      errors.employeeEmail = "Enter a valid Employee Email";
     }
 
     setValidationErrors(errors);
@@ -222,16 +231,58 @@ export default function OfferLetterTemplate() {
     link.click();
   };
 
-  /* Triggered by the Email button INSIDE the success modal.
-     Opens Gmail's web compose window with ceo@pineappleai.cloud pre-filled. */
-  const handleEmailLetter = () => {
-    const to = "ceo@pineappleai.cloud";
-    const subject = encodeURIComponent("Offer Letter");
-    const body = encodeURIComponent(
-      `Hi,\n\nPlease find the offer letter for ${formData.employeeName || "the candidate"} attached.\n\nRegards,\nPineappleAI HR`
-    );
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`;
-    window.open(gmailUrl, "_blank", "noopener,noreferrer");
+  /* Triggered by the Email button INSIDE the success modal. */
+  const handleEmailLetter = async () => {
+    if (!validateForm()) return;
+
+    const employeeEmail = formData.employeeEmail.trim();
+    if (!employeeEmail) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        employeeEmail: "Employee Email is required",
+      }));
+      alert("Employee Email is required.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employeeEmail)) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        employeeEmail: "Enter a valid Employee Email",
+      }));
+      alert("Enter a valid Employee Email.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+
+      await axios.post(
+        "http://localhost:5001/api/templates/offer-letter/email",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      alert("Offer letter email sent successfully.");
+      setShowSuccessModal(false);
+    } catch (error) {
+      console.error("Error sending offer letter email:", error);
+      if (error.response?.data?.errors) {
+        setValidationErrors(error.response.data.errors);
+      }
+      alert(
+        error.response?.data?.message ||
+          "Failed to send offer letter email. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* ── icons ───────────────────────────────────────────────── */
@@ -284,7 +335,7 @@ export default function OfferLetterTemplate() {
           onSubmit={(e) => e.preventDefault()}
         >
           <div className="offer-grid">
-            {/* Row 1: Name | Address | Date */}
+            {/* Row 1: Name | Employee Email | Address */}
             <div className="offer-group">
               <label>Name</label>
               <input
@@ -300,6 +351,25 @@ export default function OfferLetterTemplate() {
               {validationErrors.employeeName && (
                 <span className="offer-input-error">
                   {validationErrors.employeeName}
+                </span>
+              )}
+            </div>
+
+            <div className="offer-group">
+              <label>Employee Email</label>
+              <input
+                type="email"
+                name="employeeEmail"
+                value={formData.employeeEmail}
+                onChange={handleInputChange}
+                placeholder="e.g., employee@example.com"
+                className={`offer-input${
+                  validationErrors.employeeEmail ? " offer-field-error" : ""
+                }`}
+              />
+              {validationErrors.employeeEmail && (
+                <span className="offer-input-error">
+                  {validationErrors.employeeEmail}
                 </span>
               )}
             </div>
@@ -323,6 +393,7 @@ export default function OfferLetterTemplate() {
               )}
             </div>
 
+            {/* Row 2: Date | Role | Date of Joining */}
             <div className="offer-group">
               <label>Date</label>
               <div
@@ -351,7 +422,6 @@ export default function OfferLetterTemplate() {
               )}
             </div>
 
-            {/* Row 2: Role | Date of Joining | Date of Ending */}
             <div className="offer-group">
               <label>Role</label>
               <div className="offer-select-wrapper">
@@ -413,6 +483,7 @@ export default function OfferLetterTemplate() {
               )}
             </div>
 
+            {/* Row 3: Date of Ending | Department | Reporting Manager */}
             <div className="offer-group">
               <label>Date of Ending</label>
               <div
@@ -441,7 +512,6 @@ export default function OfferLetterTemplate() {
               )}
             </div>
 
-            {/* Row 3: Department | Reporting Manager | Reporting Manager Email */}
             <div className="offer-group">
               <label>Department</label>
               <input
@@ -627,8 +697,9 @@ export default function OfferLetterTemplate() {
                   type="button"
                   className="ol-success-btn"
                   onClick={handleEmailLetter}
+                  disabled={loading}
                 >
-                  Email
+                  {loading ? "Sending..." : "Email"}
                 </button>
               </div>
             </div>

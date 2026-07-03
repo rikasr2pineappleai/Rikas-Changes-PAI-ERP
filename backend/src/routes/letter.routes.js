@@ -2,6 +2,7 @@ const express = require('express');
 const {
   generateOfferLetterPDF,
   generateOfferLetterPreview,
+  sendOfferLetterEmail,
   generateServiceLetterPDF,
   generateServiceLetterPreview,
   saveOfferLetterTemplate,
@@ -25,6 +26,9 @@ router.route('/offer-letter/generate')
 
 router.route('/offer-letter/preview')
   .post(protect, authorize('admin'), generateOfferLetterPreview);
+
+router.route('/offer-letter/email')
+  .post(protect, authorize('admin'), sendOfferLetterEmail);
 
 router.route('/offer-letter/template')
   .post(protect, authorize('admin'), saveOfferLetterTemplate);
