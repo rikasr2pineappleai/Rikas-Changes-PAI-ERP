@@ -92,6 +92,12 @@ function ProgressBar({ percent, color }) {
 }
 
 // ─── Task-based project status ─────────────────────────────────────────────
+function getProgressColor(percent) {
+  if (percent >= 100) return '#3B8F4F';
+  if (percent >= 50) return '#2542FF';
+  return '#FF0000';
+}
+
 function getProjectTaskStatus(project) {
   const taskCount = Number(project?.taskCount ?? 0);
   const completedTaskCount = Number(project?.completedTaskCount ?? 0);
@@ -137,7 +143,10 @@ export default function DashboardRightPanel() {
         setProjectStatusCounts(counts);
         setProjects(
           allProjects
-            .filter(project => getProjectTaskStatus(project) === 'active')
+            .filter(project => {
+              const status = getProjectTaskStatus(project);
+              return status === 'active' || status === 'completed';
+            })
             .slice(0, 9)
         );
       })
@@ -155,18 +164,6 @@ export default function DashboardRightPanel() {
     { label: 'Completed Projects', value: completedCount, color: '#4CAF50' },
     { label: 'Ongoing Projects',   value: activeCount,    color: '#2196F3' },
     { label: 'Pending Projects',   value: planningCount,  color: '#FFC107' },
-  ];
-
-  const progressColors = [
-    '#2196F3',
-    '#4CAF50',
-    '#FF9800',
-    '#9C27B0',
-    '#00BCD4',
-    '#F44336',
-    '#3F51B5',
-    '#8BC34A',
-    '#FF5722',
   ];
 
   // Badge class by days remaining
@@ -228,7 +225,7 @@ export default function DashboardRightPanel() {
                     <td colSpan={4} className="pp-empty">No projects found</td>
                   </tr>
                 ) : (
-                  projects.map((p, index) => {
+                  projects.map((p) => {
                     // ✅ Exact field names from mapProjectForDashboard()
                     const done     = Number(p.completedTaskCount ?? 0);
                     const total    = Number(p.taskCount ?? 0);
@@ -244,7 +241,7 @@ export default function DashboardRightPanel() {
                           <div className="pp-prog-wrap">
                             <ProgressBar
                               percent={pct}
-                              color={progressColors[index % progressColors.length]}
+                              color={getProgressColor(pct)}
                             />
                             <span className="pp-pct">{pct}%</span>
                           </div>

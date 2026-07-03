@@ -3,6 +3,7 @@ const {
   User,
   EmployeeDetail,
   EmployeeHistory,
+  PromotionHistory,
   Document,
   Department,
   ProjectAllocation,
@@ -29,6 +30,89 @@ const normalizeOptionalId = (value) => {
 
   const numericValue = Number(value);
   return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : null;
+};
+
+const normalizeManagementRoleValue = (value) =>
+  String(value || "").trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
+
+const getDateOnly = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString().slice(0, 10);
+};
+
+const getTodayDateOnly = () => new Date().toISOString().slice(0, 10);
+
+const recordPromotionHistory = async ({
+  userId,
+  previousManagementRole,
+  managementRole,
+  designation,
+  effectiveDate,
+  joinedDate,
+}) => {
+  try {
+    const nextRole = String(managementRole || "").trim();
+    if (!nextRole || !PromotionHistory) return;
+
+    const previousRole = String(previousManagementRole || "").trim();
+    const normalizedPrevious = normalizeManagementRoleValue(previousRole);
+    const normalizedNext = normalizeManagementRoleValue(nextRole);
+    const roleChanged = normalizedPrevious !== normalizedNext;
+
+    const existingHistoryCount = await PromotionHistory.count({
+      where: { user_id: userId },
+    });
+
+    if (!roleChanged && existingHistoryCount > 0) {
+      const correctedEffectiveDate = getDateOnly(effectiveDate);
+      if (!correctedEffectiveDate) return;
+
+      const existingEntries = await PromotionHistory.findAll({
+        where: { user_id: userId },
+        order: [["effective_date", "DESC"], ["id", "DESC"]],
+      });
+      const currentRoleEntry = existingEntries.find(
+        (entry) => normalizeManagementRoleValue(entry.management_role) === normalizedNext
+      );
+
+      if (currentRoleEntry) {
+        await currentRoleEntry.update({
+          effective_date: correctedEffectiveDate,
+          designation: designation || currentRoleEntry.designation,
+        });
+        return;
+      }
+    }
+
+    const resolvedEffectiveDate =
+      getDateOnly(effectiveDate) ||
+      (!previousRole && existingHistoryCount === 0
+        ? getDateOnly(joinedDate)
+        : null) ||
+      getTodayDateOnly();
+
+    const duplicateEntry = await PromotionHistory.findOne({
+      where: {
+        user_id: userId,
+        management_role: nextRole,
+        effective_date: resolvedEffectiveDate,
+      },
+    });
+
+    if (duplicateEntry) return;
+
+    await PromotionHistory.create({
+      user_id: userId,
+      previous_management_role: previousRole || null,
+      management_role: nextRole,
+      designation: designation || null,
+      effective_date: resolvedEffectiveDate,
+    });
+  } catch (error) {
+    console.warn("Promotion history skipped:", error.message);
+  }
 };
 
 // Utility function to handle errors
@@ -170,6 +254,7 @@ exports.updateEmployeePersonal = async (req, res) => {
       address,
       designation,
       management_role,
+      promotion_effective_date,
     role,
       department_id,
       joined_date,
@@ -259,6 +344,15 @@ exports.updateEmployeePersonal = async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       password_hash = await bcrypt.hash(password, salt);
     }
+
+    await recordPromotionHistory({
+      userId,
+      previousManagementRole: currentUser.management_role,
+      managementRole: management_role,
+      designation,
+      effectiveDate: promotion_effective_date,
+      joinedDate: joined_date,
+    });
 
     // Update user
     console.log(`About to update user ${userId} with status:`, status);
@@ -856,6 +950,7 @@ exports.setEmployeeWorkInfo = async (req, res) => {
       role,
       department_id,
       management_role,
+      promotion_effective_date,
       joined_date,
       end_date,
       report_to
@@ -878,6 +973,15 @@ exports.setEmployeeWorkInfo = async (req, res) => {
         message: "Invalid role value. Allowed values are 'admin' or 'employee'.",
       });
     }
+
+    await recordPromotionHistory({
+      userId,
+      previousManagementRole: user.management_role,
+      managementRole: management_role,
+      designation,
+      effectiveDate: promotion_effective_date,
+      joinedDate: joined_date,
+    });
 
     // update user table
     await user.update({
@@ -1212,7 +1316,9 @@ exports.getEmployeeOverview = async (req, res) => {
 
     // Get user with associated data
     console.log(`🔍 Fetching employee overview for userId: ${userId}`);
-    const user = await User.findByPk(userId, {
+    let user;
+    try {
+      user = await User.findByPk(userId, {
       include: [
         {
           model: EmployeeDetail,
@@ -1265,6 +1371,27 @@ exports.getEmployeeOverview = async (req, res) => {
     });
     
     console.log("✅ User found:", user ? `Yes - ID: ${user.id}` : "No");
+    } catch (error) {
+      console.warn("Full employee overview query failed:", error.message);
+      try {
+        user = await User.findByPk(userId, {
+          include: [
+            {
+              model: EmployeeDetail,
+              as: "EmployeeDetail",
+            },
+            {
+              model: Department,
+              as: "Department",
+            },
+          ],
+        });
+      } catch (fallbackError) {
+        console.warn("Minimal employee overview query failed:", fallbackError.message);
+        user = await User.findByPk(userId);
+      }
+    }
+
     if (user?.ProjectAllocations?.length > 0) {
       const lastAlloc = user.ProjectAllocations[user.ProjectAllocations.length - 1];
       console.log("📊 Last Allocation Data (for Overview):", {
@@ -1285,12 +1412,27 @@ exports.getEmployeeOverview = async (req, res) => {
     }
 
     // Separate education and professional experience
-    const education = user.EmployeeHistories.filter(
+    const employeeHistories = Array.isArray(user.EmployeeHistories)
+      ? user.EmployeeHistories
+      : [];
+    const education = employeeHistories.filter(
       (history) => history.type === "education"
     );
-    const professional = user.EmployeeHistories.filter(
+    const professional = employeeHistories.filter(
       (history) => history.type === "experience"
     );
+
+    let promotionHistories = [];
+    if (PromotionHistory) {
+      try {
+        promotionHistories = await PromotionHistory.findAll({
+          where: { user_id: userId },
+          order: [["effective_date", "ASC"], ["id", "ASC"]],
+        });
+      } catch (error) {
+        console.warn("Promotion history unavailable:", error.message);
+      }
+    }
 
     res.status(200).json({
       success: true,
@@ -1318,8 +1460,9 @@ exports.getEmployeeOverview = async (req, res) => {
           ReportTo: user.ReportTo,
           education,
           professional,
-          Documents: user.Documents,
-            ProjectAllocations: user.ProjectAllocations,
+          PromotionHistories: promotionHistories,
+          Documents: user.Documents || [],
+            ProjectAllocations: user.ProjectAllocations || [],
         },
       },
     });

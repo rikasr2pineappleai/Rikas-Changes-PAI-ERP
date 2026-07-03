@@ -37,6 +37,28 @@ const validateName = (value) => {
   return "";
 };
 
+const normalizeManagementRole = (value) =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ");
+
+const getCurrentPromotionDate = (promotionHistories, managementRole) => {
+  const currentRole = normalizeManagementRole(managementRole);
+  if (!currentRole || !Array.isArray(promotionHistories)) return "";
+
+  const matchingHistory = promotionHistories
+    .filter(
+      (history) =>
+        normalizeManagementRole(history?.management_role) === currentRole &&
+        history?.effective_date
+    )
+    .sort((a, b) => new Date(b.effective_date) - new Date(a.effective_date));
+
+  return matchingHistory[0]?.effective_date || "";
+};
+
 export default function EditEmployee() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -62,6 +84,7 @@ export default function EditEmployee() {
     address: "",
     designation: "",
     management_role: "",
+    promotion_effective_date: "",
     role: "",
     department: "",
     status: "",
@@ -172,6 +195,10 @@ export default function EditEmployee() {
           address: user.EmployeeDetail?.address || "",
           designation: user.designation || "",
           management_role: user.management_role || "",
+          promotion_effective_date: getCurrentPromotionDate(
+            user.PromotionHistories,
+            user.management_role
+          ),
           role: user.role || "",
           department: user.department_id || "",
           status: user.status || "Active",
@@ -510,7 +537,13 @@ export default function EditEmployee() {
       nextValue = nextValue.slice(0, 15);
     }
 
-    setFormData({ ...formData, [name]: nextValue });
+    setFormData((prev) => ({
+      ...prev,
+      [name]: nextValue,
+      ...(name === "management_role" && nextValue !== employeeData?.management_role
+        ? { promotion_effective_date: new Date().toISOString().slice(0, 10) }
+        : {}),
+    }));
 
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -886,6 +919,7 @@ export default function EditEmployee() {
         address: formData.address,
         designation: formData.designation,
         management_role: formData.management_role,
+        promotion_effective_date: formData.promotion_effective_date || null,
         role: formData.role,
         department_id: formData.department,
         status: formData.status || "Active",
@@ -956,6 +990,7 @@ const hasWorkInfoToSave =
   formData.designation ||
   formData.department ||
   formData.management_role ||
+  formData.promotion_effective_date ||
   projectInfo.currentProject ||
   projectInfo.startDate;
 
@@ -965,6 +1000,7 @@ if (hasWorkInfoToSave) {
     designation: formData.designation,
     department_id: formData.department || null,
     management_role: formData.management_role,
+    promotion_effective_date: formData.promotion_effective_date || null,
     report_to: projectInfo.reportingManagerId ? Number(projectInfo.reportingManagerId) : null,
   };
 
@@ -1501,6 +1537,16 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   placeholder="Select Management Role"
                   menuClassName="custom-select-menu-management-role"
                   className="management-select"
+                />
+              </div>
+
+              <div className="info-field success">
+                <label>Promotion Date</label>
+                <input
+                  type="date"
+                  name="promotion_effective_date"
+                  value={formData.promotion_effective_date}
+                  onChange={handleChange}
                 />
               </div>
 

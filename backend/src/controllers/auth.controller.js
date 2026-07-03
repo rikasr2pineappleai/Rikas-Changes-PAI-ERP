@@ -546,27 +546,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 const { Op } = require('sequelize');
-const nodemailer = require('nodemailer');
-
-// Create transporter for Gmail SMTP
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
-});
-
-// Verify transporter configuration
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('SMTP configuration error:', error);
-  } else {
-    console.log('SMTP server is ready to send emails');
-  }
-});
+const MailService = require('../services/MailService');
 
 // Generate JWT Token
 const generateToken = (userId) => {
@@ -630,12 +610,12 @@ If you did not request this, please ignore this email.`,
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await MailService.sendMail(mailOptions);
     console.log(`OTP email sent successfully to ${email}`);
-    return true;
+    return { success: true };
   } catch (error) {
     console.error('Error sending OTP email:', error);
-    return false;
+    return { success: false, error };
   }
 };
 
@@ -764,12 +744,15 @@ exports.forgotPassword = async (req, res) => {
     });
     
     // Send OTP via email
-    const emailSent = await sendOTPEmail(email, otp);
+    const emailResult = await sendOTPEmail(email, otp);
     
-    if (!emailSent) {
+    if (!emailResult.success) {
+      const detail = emailResult.error?.message
+        ? ` (${emailResult.error.message})`
+        : "";
       return res.status(500).json({
         success: false,
-        message: 'Failed to send OTP email. Please try again.'
+        message: `Failed to send OTP email. Please try again.${detail}`
       });
     }
     
