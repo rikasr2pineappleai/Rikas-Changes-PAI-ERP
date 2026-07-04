@@ -37,28 +37,6 @@ const validateName = (value) => {
   return "";
 };
 
-const normalizeManagementRole = (value) =>
-  String(value || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ");
-
-const getCurrentPromotionDate = (promotionHistories, managementRole) => {
-  const currentRole = normalizeManagementRole(managementRole);
-  if (!currentRole || !Array.isArray(promotionHistories)) return "";
-
-  const matchingHistory = promotionHistories
-    .filter(
-      (history) =>
-        normalizeManagementRole(history?.management_role) === currentRole &&
-        history?.effective_date
-    )
-    .sort((a, b) => new Date(b.effective_date) - new Date(a.effective_date));
-
-  return matchingHistory[0]?.effective_date || "";
-};
-
 export default function EditEmployee() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -84,8 +62,6 @@ export default function EditEmployee() {
     address: "",
     designation: "",
     management_role: "",
-    promotion_effective_date: "",
-    role: "",
     department: "",
     status: "",
     joined_date: "",
@@ -195,11 +171,6 @@ export default function EditEmployee() {
           address: user.EmployeeDetail?.address || "",
           designation: user.designation || "",
           management_role: user.management_role || "",
-          promotion_effective_date: getCurrentPromotionDate(
-            user.PromotionHistories,
-            user.management_role
-          ),
-          role: user.role || "",
           department: user.department_id || "",
           status: user.status || "Active",
           joined_date: user.EmployeeDetail?.joined_date || "",
@@ -540,9 +511,6 @@ export default function EditEmployee() {
     setFormData((prev) => ({
       ...prev,
       [name]: nextValue,
-      ...(name === "management_role" && nextValue !== employeeData?.management_role
-        ? { promotion_effective_date: new Date().toISOString().slice(0, 10) }
-        : {}),
     }));
 
     if (errors[name]) {
@@ -919,8 +887,6 @@ export default function EditEmployee() {
         address: formData.address,
         designation: formData.designation,
         management_role: formData.management_role,
-        promotion_effective_date: formData.promotion_effective_date || null,
-        role: formData.role,
         department_id: formData.department,
         status: formData.status || "Active",
         joined_date: formData.joined_date || null,
@@ -990,7 +956,6 @@ const hasWorkInfoToSave =
   formData.designation ||
   formData.department ||
   formData.management_role ||
-  formData.promotion_effective_date ||
   projectInfo.currentProject ||
   projectInfo.startDate;
 
@@ -1000,7 +965,6 @@ if (hasWorkInfoToSave) {
     designation: formData.designation,
     department_id: formData.department || null,
     management_role: formData.management_role,
-    promotion_effective_date: formData.promotion_effective_date || null,
     report_to: projectInfo.reportingManagerId ? Number(projectInfo.reportingManagerId) : null,
   };
 
@@ -1239,12 +1203,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
     { value: "Back end Developer", label: "Back end Developer" },
     { value: "Mobile App Developer", label: "Mobile App Developer" },
     { value: "React Developer", label: "React Developer" },
-  ];
-
-  // Role options (for CustomSelect)
-  const roleOptions = [
-    { value: "employee", label: "Employee" },
-    { value: "admin", label: "Admin" },
   ];
 
   // Management Role options (for CustomSelect)
@@ -1537,29 +1495,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   placeholder="Select Management Role"
                   menuClassName="custom-select-menu-management-role"
                   className="management-select"
-                />
-              </div>
-
-              <div className="info-field success">
-                <label>Promotion Date</label>
-                <input
-                  type="date"
-                  name="promotion_effective_date"
-                  value={formData.promotion_effective_date}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="info-field success">
-                <label>Role</label>
-
-                <CustomSelect
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  options={roleOptions}
-                  placeholder="Select Role"
-                  menuClassName="custom-select-menu-role"
                 />
               </div>
 
@@ -2038,7 +1973,6 @@ if (hasExistingAllocation || hasAnyProjectData) {
                   address: employeeData?.EmployeeDetail?.address || "",
                   designation: employeeData?.designation || "",
                   management_role: employeeData?.management_role || "",
-                  role: employeeData?.role || "",
                   department: employeeData?.department_id || "",
                   joined_date: employeeData?.EmployeeDetail?.joined_date || "",
                   end_date: employeeData?.EmployeeDetail?.end_date || "",
