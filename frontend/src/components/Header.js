@@ -85,9 +85,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import "./Header.css";
-import defaultProfile from "../assets/images/default_profile.png";
 import bellIcon from "../assets/icons/bell.png";
-import { getEmployeeImageUrl } from "../utils/imageUtils";
+import {
+  DEFAULT_EMPLOYEE_PROFILE_IMAGE,
+  getEmployeeImageUrl,
+} from "../utils/imageUtils";
 import TopbarNotifications from "./TopbarNotifications";
 import apiClient from "../utils/apiClient";
 
@@ -255,9 +257,9 @@ const Header = ({ onToggleSidebar }) => {
 
   // Get user's profile image
   const getProfileImage = () => {
-    if (loading) return defaultProfile;
+    if (loading) return DEFAULT_EMPLOYEE_PROFILE_IMAGE;
     // Use centralized image utility for consistent handling
-    return getEmployeeImageUrl(user, defaultProfile);
+    return getEmployeeImageUrl(user);
   };
 
   return (
@@ -345,7 +347,7 @@ const Header = ({ onToggleSidebar }) => {
             className="avatar-img"
             onError={(e) => {
               e.target.onerror = null; // prevents looping
-              e.target.src = defaultProfile; // fallback to default profile
+              e.target.src = DEFAULT_EMPLOYEE_PROFILE_IMAGE; // fallback to default profile
             }}
           />
         </div>

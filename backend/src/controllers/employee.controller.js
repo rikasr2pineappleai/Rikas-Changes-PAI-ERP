@@ -676,7 +676,8 @@ exports.getNextEmployeeId = async (req, res) => {
 
     // Extract the numeric part from each employee ID and find the highest
     let maxNum = 0;
-    const paiRegex = /^PAI(\d{3})$/;
+    const maxEmployeeIdNumber = 1500;
+    const paiRegex = /^PAI(\d{3,4})$/;
 
     users.forEach((user) => {
       const match = user.emp_id.match(paiRegex);
@@ -691,12 +692,12 @@ exports.getNextEmployeeId = async (req, res) => {
     // Calculate the next number
     let nextNum = maxNum + 1;
 
-    // Handle edge case where we've reached the maximum (PAI999)
-    if (nextNum > 999) {
+    // Handle edge case where we've reached the maximum (PAI1500)
+    if (nextNum > maxEmployeeIdNumber) {
       return res.status(400).json({
         success: false,
         message:
-          "Maximum employee ID limit reached (PAI999). Cannot generate new IDs.",
+          "Maximum employee ID limit reached (PAI1500). Cannot generate new IDs.",
       });
     }
 

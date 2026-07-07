@@ -4,7 +4,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/edit_employee.css";
 import employeeAPI from "../integration/employeeAPI";
-import { getEmployeeImageUrl } from "../utils/imageUtils";
+import {
+  DEFAULT_EMPLOYEE_PROFILE_IMAGE,
+  getEmployeeImageUrl,
+} from "../utils/imageUtils";
 
 import backIcon from "../assets/icons/back.png";
 import editIcon from "../assets/icons/edit.png";
@@ -12,7 +15,6 @@ import uploadIcon from "../assets/icons/upload.png";
 import calendarIcon from "../assets/icons/calender_icon.png";
 import dropdownIcon from "../assets/icons/dropdown.png";
 import sDropdownIcon from "../assets/icons/s_dropdown.png";
-import profilePic from "../assets/icons/profile.jpg";
 
 const EDIT_EMPLOYEE_DEPARTMENT_NAMES = new Set([
   "QA Department",
@@ -1244,10 +1246,14 @@ if (hasExistingAllocation || hasAnyProjectData) {
           <div className="profile-card">
             <img
               src={
-                imagePreview || getEmployeeImageUrl(employeeData, profilePic)
+                imagePreview || getEmployeeImageUrl(employeeData)
               }
               alt="Employee"
               className="profile-img"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = DEFAULT_EMPLOYEE_PROFILE_IMAGE;
+              }}
             />
 
             <button

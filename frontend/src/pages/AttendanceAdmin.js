@@ -5,6 +5,7 @@ import {
   fetchEmployeeAttendanceRecords,
 } from "../integration/attendanceAPI";
 import employeeAPI from "../integration/employeeAPI";
+import { getAllLeaveRequests } from "../integration/leavesAPI";
 import { getEmployeeImageUrl } from "../utils/imageUtils";
 import defaultProfile from "../assets/images/default_profile.png";
 import totalEmployeesIcon from "../assets/icons/attendance-total-employees.png";
@@ -65,6 +66,10 @@ const getCanonicalStatus = (status) => {
   }
 
   if (normalizedStatus === "late") return "late";
+  if (normalizedStatus === "absent") return "absent";
+  if (normalizedStatus === "emergency_leave") return "emergency_leave";
+  if (normalizedStatus === "hour_permission") return "hour_permission";
+  if (normalizedStatus === "other") return "other";
 
   if (
     normalizedStatus === "early_arrival" ||
@@ -83,6 +88,9 @@ const getStatusLabel = (status) => {
   if (normalizedStatus === "late") return "Late";
   if (normalizedStatus === "early_arrival") return "On Time";
   if (normalizedStatus === "absent") return "Absent";
+  if (normalizedStatus === "emergency_leave") return "Emergency Leave";
+  if (normalizedStatus === "hour_permission") return "Hour Permission";
+  if (normalizedStatus === "other") return "Other";
   if (normalizedStatus === "leave") return "Leave";
 
   return String(status || "Unknown")
@@ -97,6 +105,9 @@ const getStatusClassName = (status) => {
   if (normalizedStatus === "late") return "late";
   if (normalizedStatus === "early_arrival") return "on-time";
   if (normalizedStatus === "absent") return "absent";
+  if (normalizedStatus === "emergency_leave") return "leave";
+  if (normalizedStatus === "hour_permission") return "permission";
+  if (normalizedStatus === "other") return "leave";
   if (normalizedStatus === "leave") return "absent";
 
   return "default";
@@ -132,6 +143,113 @@ const getEmployeeDepartmentName = (employee) =>
   employee?.department_name ||
   employee?.department ||
   "";
+
+const getTodayDateKey = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const getDateKey = (value) => {
+  if (!value) return "";
+  const text = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const isDateInLeaveRange = (dateKey, leave) => {
+  const startDate = getDateKey(leave?.start_date);
+  const endDate = getDateKey(leave?.end_date) || startDate;
+
+  if (!dateKey || !startDate) return false;
+  return dateKey >= startDate && dateKey <= endDate;
+};
+
+const getLeaveTypeText = (leave) =>
+  [
+    leave?.reason,
+    leave?.LeaveType?.leave_name,
+    leave?.LeaveType?.leave_type,
+    leave?.leave_type_name,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+const getLeaveAttendanceStatus = (leave) => {
+  const leaveMode = normalizeStatus(leave?.leave_mode);
+  const leaveTypeId = Number(leave?.leave_type_id);
+  const leaveText = getLeaveTypeText(leave);
+
+  if (leaveMode === "hours_permission") return "hour_permission";
+  if (
+    leaveTypeId === 25 ||
+    leaveText.includes("emergency") ||
+    leaveText.includes("emergancy")
+  ) {
+    return "emergency_leave";
+  }
+  if (
+    [22, 23, 24].includes(leaveTypeId) ||
+    leaveText.includes("sick") ||
+    leaveText.includes("casual") ||
+    leaveText.includes("other")
+  ) {
+    return "other";
+  }
+
+  return "other";
+};
+
+const buildAttendanceUserFromEmployee = (employee = {}) => ({
+  id: employee.id || employee.user_id || "",
+  emp_id: employee.emp_id || employee.employee_id || "",
+  first_name: employee.first_name || "",
+  last_name: employee.last_name || "",
+  email: employee.email || "",
+  designation: employee.designation || "",
+  profile_image: employee.profile_image || employee.EmployeeDetail?.image_path || null,
+  EmployeeDetail: employee.EmployeeDetail || {
+    image_path: employee.profile_image || null,
+  },
+  Department: employee.Department || employee.department || null,
+});
+
+const buildSyntheticAttendanceRecord = ({
+  id,
+  employee,
+  date,
+  status,
+  source = "synthetic",
+  leave = null,
+}) => ({
+  id,
+  user_id: employee?.id || employee?.user_id || leave?.user_id || "",
+  emp_id: employee?.emp_id || employee?.employee_id || "",
+  employee_id: employee?.emp_id || employee?.employee_id || "",
+  first_name: employee?.first_name || "",
+  last_name: employee?.last_name || "",
+  email: employee?.email || "",
+  department: getEmployeeDepartmentName(employee),
+  date,
+  clock_in: null,
+  clock_out: null,
+  method: "manual",
+  working_hours: 0,
+  status,
+  source,
+  leave,
+  User: buildAttendanceUserFromEmployee(employee),
+});
 
 const getEmployeeId = (record) =>
   String(
@@ -481,7 +599,111 @@ export default function AttendanceAdmin() {
           }
         });
 
-        setAllAttendanceData(records);
+        const todayKey = getTodayDateKey();
+        const employeesForSyntheticRows = employeeId
+          ? employees.filter((employee) =>
+              [employee.id, employee.user_id]
+                .filter((value) => value !== null && value !== undefined)
+                .some((value) => String(value) === String(employeeId)),
+            )
+          : employees;
+        const employeeById = employees.reduce((lookup, employee) => {
+          [employee.id, employee.user_id]
+            .filter((value) => value !== null && value !== undefined && value !== "")
+            .forEach((id) => {
+              lookup[String(id)] = employee;
+            });
+          return lookup;
+        }, {});
+        const employeeByCode = employees.reduce((lookup, employee) => {
+          [employee.emp_id, employee.employee_id].filter(Boolean).forEach((code) => {
+            lookup[String(code)] = employee;
+          });
+          return lookup;
+        }, {});
+
+        const attendanceUserIdsToday = new Set(
+          records
+            .filter((record) => getDateKey(record.date) === todayKey)
+            .map((record) => getRecordUserId(record))
+            .filter(Boolean),
+        );
+        const attendanceEmployeeCodesToday = new Set(
+          records
+            .filter((record) => getDateKey(record.date) === todayKey)
+            .map((record) => getRecordEmployeeCode(record))
+            .filter(Boolean),
+        );
+
+        let leaveRows = [];
+        const leaveUserIdsToday = new Set();
+
+        try {
+          const leaveResponse = await getAllLeaveRequests({
+            status: "approved",
+            limit: 1000,
+          });
+          const approvedLeaves = leaveResponse?.rows || [];
+
+          leaveRows = approvedLeaves
+            .filter((leave) => {
+              if (!isDateInLeaveRange(todayKey, leave)) return false;
+              if (employeeId && String(leave.user_id) !== String(employeeId)) {
+                return false;
+              }
+              return true;
+            })
+            .map((leave) => {
+              const leaveEmployee =
+                employeeById[String(leave.user_id)] ||
+                employeeByCode[String(leave?.User?.emp_id)] ||
+                leave.User ||
+                {};
+
+              if (leave.user_id) {
+                leaveUserIdsToday.add(String(leave.user_id));
+              }
+
+              return buildSyntheticAttendanceRecord({
+                id: `leave-${leave.id}`,
+                employee: leaveEmployee,
+                date: todayKey,
+                status: getLeaveAttendanceStatus(leave),
+                source: "leave",
+                leave,
+              });
+            });
+        } catch (leaveError) {
+          console.warn("Unable to load leave records for attendance filters:", leaveError);
+        }
+
+        const absentRows = employeesForSyntheticRows
+          .filter((employee) => {
+            const ids = [employee.id, employee.user_id]
+              .filter((value) => value !== null && value !== undefined && value !== "")
+              .map(String);
+            const codes = [employee.emp_id, employee.employee_id]
+              .filter(Boolean)
+              .map(String);
+
+            const hasAttendance =
+              ids.some((id) => attendanceUserIdsToday.has(id)) ||
+              codes.some((code) => attendanceEmployeeCodesToday.has(code));
+            const hasApprovedLeave = ids.some((id) => leaveUserIdsToday.has(id));
+
+            return !hasAttendance && !hasApprovedLeave;
+          })
+          .map((employee) =>
+            buildSyntheticAttendanceRecord({
+              id: `absent-${employee.id || employee.user_id || employee.emp_id}`,
+              employee,
+              date: todayKey,
+              status: "absent",
+              source: "absent",
+            }),
+          );
+
+        setAllAttendanceData([...records, ...leaveRows, ...absentRows]);
         setEmployeeDepartmentsById(departmentLookup);
         setEmployeesById(employeeLookup);
         setTotalEmployeesCount(employees.length);

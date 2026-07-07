@@ -304,13 +304,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../../styles/current_emp_list.css";
 import employeeAPI from "../../integration/employeeAPI";
-import { getEmployeeImageUrl } from "../../utils/imageUtils";
+import {
+  DEFAULT_EMPLOYEE_PROFILE_IMAGE,
+  getEmployeeImageUrl,
+} from "../../utils/imageUtils";
 
 import filter from "../../assets/icons/filterricon.png";
 import search from "../../assets/icons/searchicon.png";
 import greenicon from "../../assets/icons/editicon.png";
 import blueicon from "../../assets/icons/editblueicon.png";
-import tempimg from "../../assets/icons/img.png";
 
 const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
   const navigate = useNavigate();
@@ -360,10 +362,10 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
 
         if (response.success) {
           const transformedEmployees = response.data.employees.map((emp) => {
-            const avatar = getEmployeeImageUrl(emp, tempimg);
+            const avatar = getEmployeeImageUrl(emp);
             const managerAvatar = emp.ReportTo
-              ? getEmployeeImageUrl(emp.ReportTo, tempimg)
-              : tempimg;
+              ? getEmployeeImageUrl(emp.ReportTo)
+              : DEFAULT_EMPLOYEE_PROFILE_IMAGE;
 
             return {
               id: emp.id,
@@ -625,7 +627,7 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
                       alt=""
                       aria-hidden="true"
                       className="cemp-avatar"
-                      onError={(e) => { e.target.onerror = null; e.target.src = tempimg; }}
+                      onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_EMPLOYEE_PROFILE_IMAGE; }}
                     />
                     <span className="cemp-name-text">{emp.name}</span>
                   </span>
@@ -642,7 +644,7 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
                       alt=""
                       aria-hidden="true"
                       className="cemp-avatar"
-                      onError={(e) => { e.target.onerror = null; e.target.src = tempimg; }}
+                      onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_EMPLOYEE_PROFILE_IMAGE; }}
                     />
                     <span className="cemp-manager-text">{emp.manager}</span>
                   </span>

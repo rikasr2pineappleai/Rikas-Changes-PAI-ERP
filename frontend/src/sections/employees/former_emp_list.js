@@ -2,13 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../../styles/former_emp_list.css";
 import employeeAPI from "../../integration/employeeAPI"; // Import the employee API
-import { getEmployeeImageUrl } from "../../utils/imageUtils";
+import {
+  DEFAULT_EMPLOYEE_PROFILE_IMAGE,
+  getEmployeeImageUrl,
+} from "../../utils/imageUtils";
 
 import filter from "../../assets/icons/filterricon.png";
 import search from "../../assets/icons/searchicon.png";
 import greenicon from "../../assets/icons/editicon.png"; // Overview
 import blueicon from "../../assets/icons/editblueicon.png"; // Edit
-import tempp from "../../assets/icons/img.png";
 
 const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
   const navigate = useNavigate();
@@ -63,7 +65,7 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
             designation: emp.designation || "-",
             role: emp.role || "-",
             mgmtRole: emp.management_role || "-",
-            avatar: getEmployeeImageUrl(emp, tempp),
+            avatar: getEmployeeImageUrl(emp),
           }));
 
           setEmployees(transformedEmployees);
@@ -302,7 +304,7 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
                       className="femp-avatar"
                       onError={(e) => {
                         e.target.onerror = null; // prevents looping
-                        e.target.src = tempp; // fallback to default profile
+                        e.target.src = DEFAULT_EMPLOYEE_PROFILE_IMAGE; // fallback to default profile
                       }}
                     />
                     <span className="femp-name-text">{emp.name}</span>

@@ -20,6 +20,7 @@ export default function ServiceLetterTemplate() {
 
   const [formData, setFormData] = useState({
     employeeName: "",
+    employeeEmail: "",
     position:     "",
     department:   "",
     letterDate:   "",
@@ -35,13 +36,37 @@ export default function ServiceLetterTemplate() {
   ]);
 
   /* ── helpers ───────────────────────────────────────────── */
+  const normalizeName = (value) =>
+    String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
+
+  const findEmployeeByName = (name) => {
+    const normalizedName = normalizeName(name);
+    if (!normalizedName) return null;
+    return employees.find((emp) => normalizeName(emp.employeeName) === normalizedName) || null;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === "employeeName") {
+      const matchedEmployee = findEmployeeByName(value);
+      setSelectedEmployeeId(matchedEmployee ? String(matchedEmployee.userId) : "");
+      setFormData(prev => ({
+        ...prev,
+        employeeName: value,
+        employeeEmail: matchedEmployee?.email || "",
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
     setPdfUrl(null);
     setPreviewHtml("");
     setValidationErrors(prev => ({ ...prev, [name]: "" }));
   };
+
+  const getSubmitData = () => ({
+    ...formData,
+    employee_id: selectedEmployeeId || undefined,
+  });
 
   const toDateInputValue = (value) => {
     if (!value) return "";
@@ -93,13 +118,14 @@ export default function ServiceLetterTemplate() {
     setPreviewHtml("");
     setValidationErrors(prev => ({ ...prev, employeeName: "" }));
     if (!selectedId) {
-      setFormData(prev => ({ ...prev, employeeName: "", position: "" }));
+      setFormData(prev => ({ ...prev, employeeName: "", employeeEmail: "", position: "" }));
       return;
     }
     const emp = employees.find(e => e.userId === parseInt(selectedId));
     if (emp) {
       setFormData(prev => ({
         employeeName: emp.employeeName || "",
+        employeeEmail: emp.email || "",
         position:     emp.designation  || "",
         department:   emp.department   || prev.department,
         letterDate:   prev.letterDate,
@@ -151,7 +177,7 @@ export default function ServiceLetterTemplate() {
       const token = localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:5001/api/templates/service-letter/generate",
-        formData,
+        getSubmitData(),
         {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           responseType: "blob",
@@ -185,7 +211,7 @@ export default function ServiceLetterTemplate() {
       const token = localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:5001/api/templates/service-letter/preview",
-        formData,
+        getSubmitData(),
         {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           responseType: "text",
@@ -231,16 +257,38 @@ export default function ServiceLetterTemplate() {
     link.click();
   };
 
-  const handleEmailLetter = () => {
-    // Opens Gmail's web compose window with ceo@pineappleai.cloud pre-filled
-    // as the recipient. Attachment flow can be hooked up later via backend.
-    const to = "ceo@pineappleai.cloud";
-    const subject = encodeURIComponent("Service Letter");
-    const body = encodeURIComponent(
-      `Hi,\n\nPlease find the service letter for ${formData.employeeName || "the employee"} attached.\n\nRegards,\nPineappleAI HR`
-    );
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`;
-    window.open(gmailUrl, "_blank", "noopener,noreferrer");
+  const handleEmailLetter = async () => {
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+
+      await axios.post(
+        "http://localhost:5001/api/templates/service-letter/email",
+        getSubmitData(),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      alert("Service letter email sent successfully.");
+      setShowSuccessModal(false);
+    } catch (error) {
+      console.error("Error sending service letter email:", error);
+      if (error.response?.data?.errors) {
+        setValidationErrors(error.response.data.errors);
+      }
+      alert(
+        error.response?.data?.message ||
+          "Failed to send service letter email. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePreview = async () => {
@@ -649,8 +697,9 @@ export default function ServiceLetterTemplate() {
                   type="button"
                   className="sl-success-btn"
                   onClick={handleEmailLetter}
+                  disabled={loading}
                 >
-                  Email
+                  {loading ? "Sending..." : "Email"}
                 </button>
               </div>
             </div>

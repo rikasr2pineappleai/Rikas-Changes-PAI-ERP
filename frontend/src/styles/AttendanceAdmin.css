@@ -636,6 +636,16 @@
   color: #e60000;
 }
 
+.attendance-status-pill.leave {
+  background: #fff2cc;
+  color: #997908;
+}
+
+.attendance-status-pill.permission {
+  background: #dff1ff;
+  color: #0b669d;
+}
+
 .attendance-action-button {
   width: 36px;
   height: 34px;
@@ -891,6 +901,14 @@
 .attendance-detail-status.absent,
 .attendance-detail-status.default {
   color: #e60000;
+}
+
+.attendance-detail-status.leave {
+  color: #997908;
+}
+
+.attendance-detail-status.permission {
+  color: #0b669d;
 }
 
 .attendance-details-close {

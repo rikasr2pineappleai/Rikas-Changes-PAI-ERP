@@ -148,8 +148,7 @@ exports.sendMessage = async (req, res) => {
 
     await MailService.sendMail({
       from: process.env.FROM_EMAIL || process.env.SMTP_USER,
-      to: process.env.FROM_EMAIL || process.env.SMTP_USER,
-      bcc: recipientEmails,
+      to: recipientEmails,
       replyTo: senderEmail,
       subject,
       text: `${message}\n\nSent by: ${senderLabel}`,

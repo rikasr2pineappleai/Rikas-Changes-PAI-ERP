@@ -143,10 +143,7 @@ export default function DashboardRightPanel() {
         setProjectStatusCounts(counts);
         setProjects(
           allProjects
-            .filter(project => {
-              const status = getProjectTaskStatus(project);
-              return status === 'active' || status === 'completed';
-            })
+            .filter(project => getProjectTaskStatus(project) === 'active')
             .slice(0, 9)
         );
       })
