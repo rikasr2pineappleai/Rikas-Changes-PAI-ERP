@@ -1246,7 +1246,7 @@ if (hasExistingAllocation || hasAnyProjectData) {
           <div className="profile-card">
             <img
               src={
-                imagePreview || getEmployeeImageUrl(employeeData)
+                 imagePreview || getEmployeeImageUrl(employeeData, DEFAULT_EMPLOYEE_PROFILE_IMAGE)
               }
               alt="Employee"
               className="profile-img"
