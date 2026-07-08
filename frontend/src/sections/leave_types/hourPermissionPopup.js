@@ -8,6 +8,11 @@ import "../../styles/hour_permission_leave_popup.css";
 import { updateLeaveStatus, getLeaveRequestById, openLeaveDocument } from "../../integration/leavesAPI";
 import { getEmployeeImageUrl } from "../../utils/imageUtils";
 
+const toFiniteNumber = (value, fallback = 0) => {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue : fallback;
+};
+
 export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
   // Fetch actual leave request data from database
   const [leaveRequestData, setLeaveRequestData] = useState(null);
@@ -99,11 +104,8 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
   const employeeUser = displayData?.User || null;
   const avatarSrc = getEmployeeImageUrl(employeeUser, profile);
 
-  const annualRemaining =
-    typeof displayData?.annualRemaining === "number" ? displayData.annualRemaining : 12;
-
-  const annualTotal =
-    typeof displayData?.annualTotal === "number" ? displayData.annualTotal : 26;
+  const annualTotal = toFiniteNumber(displayData?.annualTotal);
+  const annualRemaining = toFiniteNumber(displayData?.annualRemaining, annualTotal);
 
   const pct =
     annualTotal > 0

@@ -1,12 +1,49 @@
 // controllers/leavebalance.controller.js
 const db = require('../models');
-const { Op } = db.sequelize;
+const { Op } = require('sequelize');
 const LeaveBalance = db.LeaveBalance;
 const LeaveRequest = db.LeaveRequest;
 const LeaveServices = require('../services/LeaveService');
 
 const isSequelizeValidationError = (err) =>
   err && (err.name === 'SequelizeValidationError' || err.name === 'SequelizeDatabaseError');
+
+const ANNUAL_LEAVE_TOTAL = 26;
+
+const round1 = (value) => Math.round((Number(value) || 0) * 10) / 10;
+
+const normalizeLeaveType = (leaveType = {}) => {
+  const rawName = `${leaveType.leave_name || ''} ${leaveType.leave_type || ''}`.trim().toLowerCase();
+
+  if (rawName.includes('casual')) return 'casual';
+  if (rawName.includes('sick')) return 'sick';
+  if (rawName.includes('annual') || rawName.includes('yearly')) return 'annual';
+  if (rawName.includes('emergancy') || rawName.includes('emergency')) return 'emergency';
+  if (rawName.includes('compulsory')) return 'compulsory';
+  if (!rawName) return 'other';
+
+  return rawName.replace(/\s+/g, '').toLowerCase();
+};
+
+const addToSummary = (summary, category, item) => {
+  if (category === 'compulsory') return;
+
+  const existing = summary[category] || {
+    total: 0,
+    consumed: 0,
+    available: 0,
+    leave_type_id: item.leave_type_id,
+    leave_name: item.leave_name
+  };
+
+  summary[category] = {
+    total: round1(existing.total + item.total),
+    consumed: round1(existing.consumed + item.consumed),
+    available: round1(existing.available + item.available),
+    leave_type_id: existing.leave_type_id || item.leave_type_id,
+    leave_name: existing.leave_name || item.leave_name
+  };
+};
 
 /**
  * GET /api/leave-balance
@@ -175,14 +212,19 @@ exports.getUserBalanceSummary = async (req, res) => {
       return res.status(400).json({ error: 'Invalid user ID' });
     }
 
-    // Get current year to filter leave balances
+    // Get current year to filter leave balances and approved usage
     const currentYear = new Date().getFullYear();
+    const yearStart = `${currentYear}-01-01`;
+    const yearEnd = `${currentYear}-12-31`;
 
-    // Get all approved leave requests for the user (across all years)
+    // Get approved leave requests for the user in the current year
     const approvedLeaveRequests = await db.LeaveRequest.findAll({
       where: {
         user_id: userId,
-        status: 'approved'
+        status: 'approved',
+        start_date: {
+          [Op.between]: [yearStart, yearEnd]
+        }
       },
       attributes: ['leave_type_id', 'number_of_days']
     });
@@ -215,91 +257,84 @@ exports.getUserBalanceSummary = async (req, res) => {
     const allLeaveTypes = await db.LeaveType.findAll({
       attributes: ['id', 'leave_name', 'leave_type', 'day_count']
     });
+
+    const compulsoryLeaveTypeIds = new Set(
+      allLeaveTypes
+        .filter(leaveType => normalizeLeaveType(leaveType) === 'compulsory')
+        .map(leaveType => leaveType.id)
+    );
+
+    const annualConsumed = round1(
+      approvedLeaveRequests.reduce((total, request) => {
+        if (compulsoryLeaveTypeIds.has(request.leave_type_id)) return total;
+        return total + parseFloat(request.number_of_days || 0);
+      }, 0)
+    );
     
-    // Initialize groupedSummary with all leave types, defaulting to 0 values
     const groupedSummary = {};
     
     // Process existing leave balances
     const leaveSummary = result.map(balance => {
       // Use consumed days from approved requests instead of stored leave_taken
       const consumed = parseFloat(consumedByType[balance.leave_type_id] || 0);
-      // Use day_count from LeaveType for total allocation instead of leave_balance from LeaveBalance
-      const total = parseFloat(balance.LeaveType ? balance.LeaveType.day_count || 0 : 0);
-      const available = total - consumed;
+      // Prefer the employee/year allocation from leave_balance, then fall back to the leave type setup.
+      const storedAllocation = parseFloat(balance.leave_balance || 0);
+      const typeAllocation = parseFloat(balance.LeaveType ? balance.LeaveType.day_count || 0 : 0);
+      const total = storedAllocation > 0 ? storedAllocation : typeAllocation;
+      const available = Math.max(0, total - consumed);
 
       return {
         id: balance.id,
         leave_type_id: balance.leave_type_id,
         leave_type: balance.LeaveType ? balance.LeaveType.leave_type : null,
         leave_name: balance.LeaveType ? balance.LeaveType.leave_name : null,
-        total: Math.round(total * 10) / 10, // Round to 1 decimal
-        consumed: Math.round(consumed * 10) / 10,
-        available: Math.round(available * 10) / 10
+        total: round1(total),
+        consumed: round1(consumed),
+        available: round1(available)
       };
     });
 
-    // Process existing leave balances
     leaveSummary.forEach(item => {
-      // Normalize the leave type name for consistent frontend handling
-      let normalizedType = 'other';
-      
-      if (item.leave_name) {
-        const name = item.leave_name.toLowerCase();
-        if (name.includes('casual')) normalizedType = 'casual';
-        else if (name.includes('sick')) normalizedType = 'sick';
-        else if (name.includes('annual') || name.includes('yearly')) normalizedType = 'annual';
-        else if (name.includes('emergancy') || name.includes('emergency')) normalizedType = 'emergency';
-        else normalizedType = name.replace(/\s+/g, '').toLowerCase(); // Use original name if no match
-      } else if (item.leave_type) {
-        const type = item.leave_type.toLowerCase();
-        if (type.includes('casual')) normalizedType = 'casual';
-        else if (type.includes('sick')) normalizedType = 'sick';
-        else if (type.includes('annual') || type.includes('yearly')) normalizedType = 'annual';
-        else if (type.includes('emergancy') || type.includes('emergency')) normalizedType = 'emergency';
-        else normalizedType = type.replace(/\s+/g, '').toLowerCase(); // Use original type if no match
-      }
-
-      groupedSummary[normalizedType] = {
-        total: item.total,
-        consumed: item.consumed,
-        available: item.available,
-        leave_type_id: item.leave_type_id,
-        leave_name: item.leave_name
-      };
+      addToSummary(groupedSummary, normalizeLeaveType(item), item);
     });
     
-    // Ensure all relevant leave types are represented in the summary
-    allLeaveTypes.forEach(leaveType => {
-      let normalizedType = 'other';
-      
-      if (leaveType.leave_name) {
-        const name = leaveType.leave_name.toLowerCase();
-        if (name.includes('casual')) normalizedType = 'casual';
-        else if (name.includes('sick')) normalizedType = 'sick';
-        else if (name.includes('annual') || name.includes('yearly')) normalizedType = 'annual';
-        else if (name.includes('emergancy') || name.includes('emergency')) normalizedType = 'emergency';
-        else normalizedType = name.replace(/\s+/g, '').toLowerCase();
-      } else if (leaveType.leave_type) {
-        const type = leaveType.leave_type.toLowerCase();
-        if (type.includes('casual')) normalizedType = 'casual';
-        else if (type.includes('sick')) normalizedType = 'sick';
-        else if (type.includes('annual') || type.includes('yearly')) normalizedType = 'annual';
-        else if (type.includes('emergancy') || type.includes('emergency')) normalizedType = 'emergency';
-        else normalizedType = type.replace(/\s+/g, '').toLowerCase();
-      }
-      
-      // Only add to summary if not already present and it's a relevant type
-      if (!groupedSummary[normalizedType] && 
-          (normalizedType === 'casual' || normalizedType === 'sick' || normalizedType === 'emergency' || normalizedType === 'annual')) {
-        groupedSummary[normalizedType] = {
-          total: parseFloat(leaveType.day_count || 0),
-          consumed: 0,
-          available: parseFloat(leaveType.day_count || 0),
-          leave_type_id: leaveType.id,
-          leave_name: leaveType.leave_name
-        };
-      }
-    });
+    // If the employee has no yearly balance rows yet, fall back to global leave type setup.
+    if (result.length === 0) {
+      allLeaveTypes.forEach(leaveType => {
+        const normalizedType = normalizeLeaveType(leaveType);
+        const total = parseFloat(leaveType.day_count || 0);
+        
+        if (!groupedSummary[normalizedType] && 
+            (normalizedType === 'casual' || normalizedType === 'sick' || normalizedType === 'emergency' || normalizedType === 'annual') &&
+            total > 0) {
+          groupedSummary[normalizedType] = {
+            total: round1(total),
+            consumed: 0,
+            available: round1(total),
+            leave_type_id: leaveType.id,
+            leave_name: leaveType.leave_name
+          };
+        }
+      });
+    }
+
+    const yearlyItems = Object.entries(groupedSummary)
+      .filter(([category, item]) => category !== 'annual' && item.total > 0);
+
+    const yearly = yearlyItems.reduce((acc, [, item]) => ({
+      total: round1(acc.total + item.total),
+      consumed: round1(acc.consumed + item.consumed),
+      available: round1(acc.available + item.available)
+    }), { total: 0, consumed: 0, available: 0 });
+
+    groupedSummary.yearly = yearly;
+    groupedSummary.annual = {
+      total: ANNUAL_LEAVE_TOTAL,
+      consumed: annualConsumed,
+      available: Math.max(0, round1(ANNUAL_LEAVE_TOTAL - annualConsumed)),
+      leave_type_id: null,
+      leave_name: 'Annual Leave Balance'
+    };
 
     res.json({ summary: groupedSummary });
   } catch (err) {
