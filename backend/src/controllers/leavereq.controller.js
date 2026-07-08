@@ -562,8 +562,10 @@ exports.updateStatus = async (req, res) => {
 
     // ===== APPROVE =====
     if (lowerCaseNewStatus === "approved") {
-      // When approving, we need to add to LeaveBalance since it wasn't added when created
-      await LeaveServices.addToLeaveBalance(leaveReq, { transaction: t });
+      // Approved requests are counted once in LeaveBalance.
+      if (prevStatus !== "approved") {
+        await LeaveServices.addToLeaveBalance(leaveReq, { transaction: t });
+      }
 
       await leaveReq.update(
         {
@@ -590,23 +592,6 @@ exports.updateStatus = async (req, res) => {
         });
       }
 
-      // restore day_count (we assume creation deducted it)
-      // lock leaveType row to update
-      const leaveType = await LeaveType.findByPk(leaveReq.leave_type_id, {
-        transaction: t,
-        lock: t.LOCK.UPDATE,
-      });
-      if (leaveType) {
-        const deducted = Math.max(
-          0,
-          Math.round(parseFloat(leaveReq.number_of_days || 0)),
-        );
-        await leaveType.update(
-          { day_count: leaveType.day_count + deducted },
-          { transaction: t },
-        );
-      }
-
       await leaveReq.update(
         {
           status: lowerCaseNewStatus,
@@ -627,23 +612,6 @@ exports.updateStatus = async (req, res) => {
         await LeaveServices.removeFromLeaveBalance(leaveReq, {
           transaction: t,
         });
-      }
-
-      // reset approved_by and keep day_count logic similar to cancelled/rejected:
-      const leaveType = await LeaveType.findByPk(leaveReq.leave_type_id, {
-        transaction: t,
-        lock: t.LOCK.UPDATE,
-      });
-      if (leaveType) {
-        // only restore if previously deducted at creation (we assume create deducted)
-        const deducted = Math.max(
-          0,
-          Math.round(parseFloat(leaveReq.number_of_days || 0)),
-        );
-        await leaveType.update(
-          { day_count: leaveType.day_count + deducted },
-          { transaction: t },
-        );
       }
 
       await leaveReq.update(
