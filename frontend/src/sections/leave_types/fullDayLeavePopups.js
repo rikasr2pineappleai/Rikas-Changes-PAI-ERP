@@ -8,6 +8,11 @@ import "../../styles/fullDay_leave_popup.css";
 import { updateLeaveStatus, getLeaveRequestById, openLeaveDocument } from "../../integration/leavesAPI";
 import { getEmployeeImageUrl } from "../../utils/imageUtils";
 
+const toFiniteNumber = (value, fallback = 0) => {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue : fallback;
+};
+
 export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
   // normalizer (safe when data is undefined)
   const normalizeStatus = (status) => {
@@ -84,11 +89,8 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
   // (loading/error states keep fallback behavior unchanged)
   const avatarSrc = getEmployeeImageUrl(employeeUser, profile);
 
-  const annualRemaining =
-    typeof data?.annualRemaining === "number" ? data.annualRemaining : 12;
-
-  const annualTotal =
-    typeof data?.annualTotal === "number" ? data.annualTotal : 26;
+  const annualTotal = toFiniteNumber(data?.annualTotal);
+  const annualRemaining = toFiniteNumber(data?.annualRemaining, annualTotal);
 
   const pct =
     annualTotal > 0

@@ -21,7 +21,7 @@ import Pagination from "../components/Pagination";
 import LeaveSummaryCards from "../sections/leaves/LeaveSummaryCards";
 
 /* API */
-import { getAllLeaveRequests } from "../integration/leavesAPI";
+import { getAllLeaveRequests, getUserLeaveBalanceSummary } from "../integration/leavesAPI";
 
 /* ---------- Helpers for displaying leave from / to in admin table ---------- */
 const MONTHS_SHORT = [
@@ -82,6 +82,71 @@ const buildLeaveFromTo = (leave) => {
   };
 };
 
+const toFiniteNumber = (value, fallback = 0) => {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue : fallback;
+};
+
+const buildAnnualBalanceByUser = async (leaves) => {
+  const userIds = [...new Set(leaves.map((leave) => leave.user_id).filter(Boolean))];
+  const entries = await Promise.all(
+    userIds.map(async (userId) => {
+      try {
+        const response = await getUserLeaveBalanceSummary(userId);
+        const annualBalance = response?.summary?.annual || {};
+        const total = toFiniteNumber(annualBalance.total, 26);
+        const available = toFiniteNumber(annualBalance.available, total);
+
+        return [userId, { annualRemaining: available, annualTotal: total }];
+      } catch (err) {
+        console.error(`Error fetching annual leave balance for user ${userId}:`, err);
+        return [userId, { annualRemaining: 0, annualTotal: 0 }];
+      }
+    })
+  );
+
+  return Object.fromEntries(entries);
+};
+
+const transformLeaveRows = async (rows) => {
+  const annualBalanceByUser = await buildAnnualBalanceByUser(rows);
+
+  return rows.map(leave => {
+    const { from: fromDisplay, to: toDisplay } = buildLeaveFromTo(leave);
+    const annualBalance = annualBalanceByUser[leave.user_id] || {
+      annualRemaining: 0,
+      annualTotal: 0,
+    };
+
+    return {
+      id: leave.id,
+      employee: leave.User ? `${leave.User.first_name || ''} ${leave.User.last_name || ''}`.trim() : 'Unknown Employee',
+      image: leave.User?.profile_image ? `http://localhost:5001/${leave.User.profile_image.startsWith('uploads/') ? leave.User.profile_image : `uploads/${leave.User.profile_image}`}` : (leave.User?.EmployeeDetail?.image_path ? `http://localhost:5001/${leave.User.EmployeeDetail.image_path.startsWith('uploads/') ? leave.User.EmployeeDetail.image_path : `uploads/${leave.User.EmployeeDetail.image_path}`}` : null),
+      type: leave.leave_mode === 'full_day' ? 'Full Day' :
+            leave.leave_mode === 'half_day' ? 'Half Day' :
+            leave.leave_mode === 'hours_permission' ? 'Hours Permission' :
+            leave.leave_mode,
+      reason: leave.reason || 'N/A',
+      from: fromDisplay,
+      to: toDisplay,
+      status: (leave.status ? leave.status.charAt(0).toUpperCase() + leave.status.slice(1).toLowerCase() : 'Pending'),
+      leave_type_id: leave.leave_type_id,
+      leave_type_name: leave.LeaveType ? leave.LeaveType.leave_name : 'Unknown',
+      user_id: leave.user_id,
+      start_date: leave.start_date,
+      end_date: leave.end_date,
+      start_time: leave.start_time,
+      end_time: leave.end_time,
+      leave_session: leave.leave_session,
+      requested_at: leave.requested_at,
+      approved_by: leave.approved_by,
+      upload_document: leave.upload_document || false,
+      annualRemaining: annualBalance.annualRemaining,
+      annualTotal: annualBalance.annualTotal,
+    };
+  });
+};
+
 export default function LeaveManagement() {
   const [activePeriod, setActivePeriod] = useState('all');
   const [searchTerm, setSearchTerm] = useState("");
@@ -123,33 +188,7 @@ export default function LeaveManagement() {
         const response = await getAllLeaveRequests();
         
         // Transform backend data to match frontend structure
-        const transformedLeaves = response.rows.map(leave => {
-          const { from: fromDisplay, to: toDisplay } = buildLeaveFromTo(leave);
-
-          return {
-            id: leave.id,
-            employee: leave.User ? `${leave.User.first_name || ''} ${leave.User.last_name || ''}`.trim() : 'Unknown Employee',
-            type: leave.leave_mode === 'full_day' ? 'Full Day' :
-                  leave.leave_mode === 'half_day' ? 'Half Day' :
-                  leave.leave_mode === 'hours_permission' ? 'Hours Permission' :
-                  leave.leave_mode,
-            reason: leave.reason || 'N/A',
-            from: fromDisplay,
-            to: toDisplay,
-            status: (leave.status ? leave.status.charAt(0).toUpperCase() + leave.status.slice(1).toLowerCase() : 'Pending'),
-            leave_type_id: leave.leave_type_id,
-            leave_type_name: leave.LeaveType ? leave.LeaveType.leave_name : 'Unknown',
-            user_id: leave.user_id,
-            start_date: leave.start_date,
-            end_date: leave.end_date,
-            start_time: leave.start_time,
-            end_time: leave.end_time,
-            leave_session: leave.leave_session,
-            requested_at: leave.requested_at,
-            approved_by: leave.approved_by,
-            upload_document: leave.upload_document || false,
-          };
-        });
+        const transformedLeaves = await transformLeaveRows(response.rows);
         
         setLeaves(transformedLeaves);
         setError(null);
@@ -195,34 +234,7 @@ export default function LeaveManagement() {
       const response = await getAllLeaveRequests();
       
       // Transform backend data to match frontend structure
-      const transformedLeaves = response.rows.map(leave => {
-        const { from: fromDisplay, to: toDisplay } = buildLeaveFromTo(leave);
-
-        return {
-          id: leave.id,
-          employee: leave.User ? `${leave.User.first_name || ''} ${leave.User.last_name || ''}`.trim() : 'Unknown Employee',
-          image: leave.User?.profile_image ? `http://localhost:5001/${leave.User.profile_image.startsWith('uploads/') ? leave.User.profile_image : `uploads/${leave.User.profile_image}`}` : (leave.User?.EmployeeDetail?.image_path ? `http://localhost:5001/${leave.User.EmployeeDetail.image_path.startsWith('uploads/') ? leave.User.EmployeeDetail.image_path : `uploads/${leave.User.EmployeeDetail.image_path}`}` : null), // Get image from profile_image first, construct proper URL, fallback to EmployeeDetail
-          type: leave.leave_mode === 'full_day' ? 'Full Day' : 
-                leave.leave_mode === 'half_day' ? 'Half Day' : 
-                leave.leave_mode === 'hours_permission' ? 'Hours Permission' : 
-                leave.leave_mode,
-          reason: leave.reason || 'N/A',
-          from: fromDisplay,
-          to: toDisplay,
-          status: (leave.status ? leave.status.charAt(0).toUpperCase() + leave.status.slice(1).toLowerCase() : 'Pending'),
-          leave_type_id: leave.leave_type_id,
-          leave_type_name: leave.LeaveType ? leave.LeaveType.leave_name : 'Unknown', // Use LeaveType name if available
-          user_id: leave.user_id,
-          start_date: leave.start_date,
-          end_date: leave.end_date,
-          start_time: leave.start_time,
-          end_time: leave.end_time,
-          leave_session: leave.leave_session,
-          requested_at: leave.requested_at,
-          approved_by: leave.approved_by,
-          upload_document: leave.upload_document || false,
-        };
-      });
+      const transformedLeaves = await transformLeaveRows(response.rows);
       
       setLeaves(transformedLeaves);
       setError(null);
