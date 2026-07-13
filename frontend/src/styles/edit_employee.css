@@ -897,7 +897,7 @@
   border: 0;
 }
 .date-input {
-  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* Ensure the custom green icon is clickable and above native layers */
