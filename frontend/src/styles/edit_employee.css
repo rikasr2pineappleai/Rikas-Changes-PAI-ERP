@@ -273,6 +273,11 @@
   cursor: pointer;
   pointer-events: none;
 }
+
+.small-field .date-input + .icon {
+  pointer-events: auto;
+  z-index: 2;
+}
 .custom-select {
   position: relative;
   width: 100%;
@@ -892,7 +897,7 @@
   border: 0;
 }
 .date-input {
-  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* Ensure the custom green icon is clickable and above native layers */

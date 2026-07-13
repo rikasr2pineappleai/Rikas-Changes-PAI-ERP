@@ -304,13 +304,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../../styles/current_emp_list.css";
 import employeeAPI from "../../integration/employeeAPI";
-import { getEmployeeImageUrl } from "../../utils/imageUtils";
+import {
+  DEFAULT_EMPLOYEE_PROFILE_IMAGE,
+  getEmployeeImageUrl,
+} from "../../utils/imageUtils";
 
 import filter from "../../assets/icons/filterricon.png";
 import search from "../../assets/icons/searchicon.png";
 import greenicon from "../../assets/icons/editicon.png";
 import blueicon from "../../assets/icons/editblueicon.png";
-import tempimg from "../../assets/icons/img.png";
 
 const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
   const navigate = useNavigate();
@@ -349,6 +351,7 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
 
     const fetchEmployees = async () => {
       try {
+        setError(null);
         setLoading(true);
         const response = await employeeAPI.getAllEmployees(page, 10, "active", {
           designation: filterDesignation,
@@ -360,10 +363,10 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
 
         if (response.success) {
           const transformedEmployees = response.data.employees.map((emp) => {
-            const avatar = getEmployeeImageUrl(emp, tempimg);
+            const avatar = getEmployeeImageUrl(emp);
             const managerAvatar = emp.ReportTo
-              ? getEmployeeImageUrl(emp.ReportTo, tempimg)
-              : tempimg;
+              ? getEmployeeImageUrl(emp.ReportTo)
+              : DEFAULT_EMPLOYEE_PROFILE_IMAGE;
 
             return {
               id: emp.id,
@@ -456,7 +459,14 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
     navigate(`/employees/${empId}/edit`);
   };
 
-  if (loading) {
+  const hasActiveSearchOrFilters = Boolean(
+    searchTerm.trim() ||
+    filterDesignation ||
+    filterRole ||
+    filterMgmtRole
+  );
+
+  if (loading && employees.length === 0 && !hasActiveSearchOrFilters) {
     return (
       <div className="cemp-section">
         <div className="cemp-header-box">
@@ -481,7 +491,7 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
     );
   }
 
-  if (error) {
+  if (error && employees.length === 0 && !hasActiveSearchOrFilters) {
     return (
       <div className="cemp-section">
         <div className="cemp-header-box">
@@ -501,7 +511,7 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
       <div className="cemp-header-box">
         <div className="cemp-title-section">
           <h2>Current Employee</h2>
-          <p>{totalEmployees} employees available</p>
+          <p>{loading ? "Updating employees..." : `${totalEmployees} employees available`}</p>
         </div>
 
         <div className="cemp-controls">
@@ -625,7 +635,7 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
                       alt=""
                       aria-hidden="true"
                       className="cemp-avatar"
-                      onError={(e) => { e.target.onerror = null; e.target.src = tempimg; }}
+                      onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_EMPLOYEE_PROFILE_IMAGE; }}
                     />
                     <span className="cemp-name-text">{emp.name}</span>
                   </span>
@@ -642,7 +652,7 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
                       alt=""
                       aria-hidden="true"
                       className="cemp-avatar"
-                      onError={(e) => { e.target.onerror = null; e.target.src = tempimg; }}
+                      onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_EMPLOYEE_PROFILE_IMAGE; }}
                     />
                     <span className="cemp-manager-text">{emp.manager}</span>
                   </span>
@@ -659,7 +669,23 @@ const CurrentEmpList = ({ page = 1, setPage, setTotalPages }) => {
               </tr>
             ))}
 
-            {employees.length === 0 && (
+            {loading && employees.length === 0 && (
+              <tr>
+                <td colSpan={7} style={{ textAlign: "center", padding: "24px", color: "#6b7280" }}>
+                  Searching employees...
+                </td>
+              </tr>
+            )}
+
+            {error && !loading && (
+              <tr>
+                <td colSpan={7} style={{ textAlign: "center", padding: "24px", color: "#b91c1c" }}>
+                  Error: {error}
+                </td>
+              </tr>
+            )}
+
+            {!loading && !error && employees.length === 0 && (
               <tr>
                 <td colSpan={7} style={{ textAlign: "center", padding: "24px", color: "#6b7280" }}>
                   No employees found.

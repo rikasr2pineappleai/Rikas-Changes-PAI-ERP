@@ -27,6 +27,8 @@ const validateName = (value) => {
   return "";
 };
 
+const PAI_EMPLOYEE_ID_PATTERN = /^PAI(?:00[1-9]|0[1-9]\d|[1-9]\d{2}|1[0-4]\d{2}|1500)$/;
+
 const validatePhone = (value) => {
   const phoneValue = value ? value.trim() : "";
   if (!phoneValue) return "Phone number is required.";
@@ -355,7 +357,7 @@ export default function NewEmployee() {
     if (!formData.empId.trim()) newErrors.empId = "Employee ID is required.";
     else if (formData.empId.trim().length < 3) newErrors.empId = "Employee ID must be at least 3 characters long.";
     else if (formData.empId.trim().length > 30) newErrors.empId = "Employee ID cannot exceed 30 characters.";
-    else if (!/^PAI\d{3}$/.test(formData.empId.trim())) newErrors.empId = "Employee ID must follow the format PAI### (e.g., PAI001).";
+    else if (!PAI_EMPLOYEE_ID_PATTERN.test(formData.empId.trim())) newErrors.empId = "Employee ID must be between PAI001 and PAI1500.";
     const passwordError = validatePassword(formData.password);
     if (passwordError) newErrors.password = passwordError;
     if (!formData.userEmail.trim())

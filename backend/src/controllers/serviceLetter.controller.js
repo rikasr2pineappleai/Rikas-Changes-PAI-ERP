@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer');
 const { handleControllerError } = require('../utils/errorHandler');
 const { Op } = require('sequelize');
 const { generateServiceLetterHTML } = require('../templates/serviceLetterPDF');
+const MailService = require('../services/MailService');
 
 const requiredServiceLetterFields = [
   { name: 'employeeName', label: 'Name' },
@@ -26,6 +27,84 @@ const getServiceLetterValidationErrors = (data) => {
   });
 
   return errors;
+};
+
+const getServiceLetterEmailValidationErrors = (data) => {
+  const errors = getServiceLetterValidationErrors(data);
+
+  if (!String(data.employeeEmail || '').trim()) {
+    errors.employeeName = 'Employee email was not found for this Name';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.employeeEmail)) {
+    errors.employeeEmail = 'Enter a valid Employee Email';
+  }
+
+  return errors;
+};
+
+const createServiceLetterPDFBuffer = async (data) => {
+  const htmlContent = generateServiceLetterHTML(data);
+
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
+
+  try {
+    const page = await browser.newPage();
+    await page.setViewport({ width: 595, height: 842, deviceScaleFactor: 1 });
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+    return await page.pdf({
+      width: '595px',
+      height: '842px',
+      printBackground: true,
+      margin: { top: '0', right: '0', bottom: '0', left: '0' },
+    });
+  } finally {
+    await browser.close();
+  }
+};
+
+const escapeHtml = (value) =>
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const getServiceLetterEmailBody = (employeeName) =>
+  `Hi,\n\nPlease find the service letter for ${employeeName} attached.\n\nRegards,\nPineappleAI HR`;
+
+const getServiceLetterEmailHtml = (employeeName) => `
+  <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+    <p>Hi,</p>
+    <p>Please find the service letter for ${escapeHtml(employeeName)} attached.</p>
+    <p>Regards,<br>PineappleAI HR</p>
+  </div>
+`;
+
+const getServiceLetterEmailErrorMessage = (error) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const detail = error.message ? ` (${error.message})` : '';
+
+  if (error.code === 'EMAIL_CONFIG_MISSING') {
+    return error.message;
+  }
+
+  if (error.code === 'EAUTH') {
+    return `Email authentication failed. Please check the SMTP username and app password.${isProduction ? '' : detail}`;
+  }
+
+  if (['ECONNECTION', 'ETIMEDOUT', 'ESOCKET', 'ENOTFOUND', 'ECONNREFUSED'].includes(error.code)) {
+    return `Could not connect to the email server. Please check the SMTP host, port, and network access.${isProduction ? '' : detail}`;
+  }
+
+  if (error.code === 'EENVELOPE') {
+    return `Email recipient/sender setup failed. Please check sender and recipient email addresses.${isProduction ? '' : detail}`;
+  }
+
+  return isProduction ? 'Failed to send service letter email.' : `Failed to send service letter email.${detail}`;
 };
 
 // Helper function to fetch employee details with all associations
@@ -75,12 +154,67 @@ const fetchEmployeeDetailsForServiceLetter = async (userId) => {
       endDate: endDate ? endDate.toISOString().split('T')[0] : '',
       reportingManager,
       reportingManagerEmail,
-      empId: user.emp_id
+      empId: user.emp_id,
+      employeeEmail: user.email || ''
     };
   } catch (error) {
     console.error('Error fetching employee details for service letter:', error);
     return null;
   }
+};
+
+const normalizeEmployeeName = (value) =>
+  String(value || '').trim().replace(/\s+/g, ' ').toLowerCase();
+
+const fetchEmployeeDetailsByNameForServiceLetter = async (employeeName) => {
+  const normalizedName = normalizeEmployeeName(employeeName);
+  if (!normalizedName) return null;
+
+  const searchTerms = normalizedName.split(' ').filter(Boolean);
+  const employees = await User.findAll({
+    where: {
+      [Op.or]: searchTerms.flatMap((term) => [
+        { first_name: { [Op.like]: `%${term}%` } },
+        { last_name: { [Op.like]: `%${term}%` } }
+      ])
+    },
+    attributes: ['id', 'first_name', 'last_name', 'email'],
+    limit: 50
+  });
+
+  const exactMatch = employees.find((employee) => {
+    const firstName = employee.first_name || '';
+    const lastName = employee.last_name && employee.last_name !== 'null' ? ` ${employee.last_name}` : '';
+    return normalizeEmployeeName(`${firstName}${lastName}`) === normalizedName;
+  });
+
+  if (!exactMatch || !exactMatch.email) {
+    return null;
+  }
+
+  return fetchEmployeeDetailsForServiceLetter(exactMatch.id);
+};
+
+const getMergedServiceLetterData = async (data) => {
+  const { employee_id, ...manualOverrides } = data;
+
+  let employeeDetails = {};
+  if (employee_id) {
+    employeeDetails = await fetchEmployeeDetailsForServiceLetter(employee_id) || {};
+  } else if (!manualOverrides.employeeEmail && manualOverrides.employeeName) {
+    employeeDetails = await fetchEmployeeDetailsByNameForServiceLetter(manualOverrides.employeeName) || {};
+  }
+
+  return {
+    ...employeeDetails,
+    ...manualOverrides,
+    employeeName: manualOverrides.employeeName || employeeDetails.employeeName,
+    position: manualOverrides.position || employeeDetails.position,
+    department: manualOverrides.department || employeeDetails.department,
+    joiningDate: manualOverrides.joiningDate || employeeDetails.joiningDate,
+    endDate: manualOverrides.endDate || employeeDetails.endDate,
+    employeeEmail: manualOverrides.employeeEmail || employeeDetails.employeeEmail
+  };
 };
 
 // Helper function to get all employees for dropdown
@@ -117,25 +251,8 @@ const fetchAllEmployeesForServiceLetterDropdown = async () => {
 // @access  Private (Admin)
 exports.generateServiceLetterPDF = async (req, res) => {
   try {
-    let data = req.body;
+    const data = await getMergedServiceLetterData(req.body);
     console.log('Received service letter data:', JSON.stringify(data, null, 2));
-
-    // If employee_id is provided, fetch details from database
-    if (data.employee_id) {
-      const employeeDetails = await fetchEmployeeDetailsForServiceLetter(data.employee_id);
-      if (employeeDetails) {
-        // Merge database data with form data (form data takes precedence)
-        data = {
-          ...employeeDetails,
-          ...data,
-          employeeName: data.employeeName || employeeDetails.employeeName,
-          position: data.position || employeeDetails.position,
-          department: data.department || employeeDetails.department,
-          joiningDate: data.joiningDate || employeeDetails.joiningDate,
-          endDate: data.endDate || employeeDetails.endDate
-        };
-      }
-    }
 
     // Validate required fields
     const validationErrors = getServiceLetterValidationErrors(data);
@@ -147,29 +264,7 @@ exports.generateServiceLetterPDF = async (req, res) => {
       });
     }
 
-    // Generate HTML, then render via puppeteer
-    const htmlContent = generateServiceLetterHTML(data);
-
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-    let pdfBuffer;
-    try {
-      const page = await browser.newPage();
-      // Set viewport to exact Figma/PDF-point A4 dimensions (595 × 842)
-      await page.setViewport({ width: 595, height: 842, deviceScaleFactor: 1 });
-      await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-      // Exact 595 × 842 px, no margins (layout handled in HTML)
-      pdfBuffer = await page.pdf({
-        width: '595px',
-        height: '842px',
-        printBackground: true,
-        margin: { top: '0', right: '0', bottom: '0', left: '0' },
-      });
-    } finally {
-      await browser.close();
-    }
+    const pdfBuffer = await createServiceLetterPDFBuffer(data);
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
@@ -189,22 +284,7 @@ exports.generateServiceLetterPDF = async (req, res) => {
 // @access  Private (Admin)
 exports.generateServiceLetterPreview = async (req, res) => {
   try {
-    let data = req.body;
-
-    if (data.employee_id) {
-      const employeeDetails = await fetchEmployeeDetailsForServiceLetter(data.employee_id);
-      if (employeeDetails) {
-        data = {
-          ...employeeDetails,
-          ...data,
-          employeeName: data.employeeName || employeeDetails.employeeName,
-          position: data.position || employeeDetails.position,
-          department: data.department || employeeDetails.department,
-          joiningDate: data.joiningDate || employeeDetails.joiningDate,
-          endDate: data.endDate || employeeDetails.endDate
-        };
-      }
-    }
+    const data = await getMergedServiceLetterData(req.body);
 
     const validationErrors = getServiceLetterValidationErrors(data);
     if (Object.keys(validationErrors).length > 0) {
@@ -221,6 +301,57 @@ exports.generateServiceLetterPreview = async (req, res) => {
     console.error('Service letter preview error:', error);
     const errorResponse = handleControllerError(error, 'generate service letter preview');
     res.status(500).json(errorResponse);
+  }
+};
+
+// @desc    Email generated Service Letter PDF to employee
+// @route   POST /api/templates/service-letter/email
+// @access  Private (Admin)
+exports.sendServiceLetterEmail = async (req, res) => {
+  try {
+    const data = await getMergedServiceLetterData(req.body);
+    const validationErrors = getServiceLetterEmailValidationErrors(data);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please fill all mandatory service letter email fields',
+        errors: validationErrors
+      });
+    }
+
+    const pdfBuffer = await createServiceLetterPDFBuffer(data);
+    const employeeName = data.employeeName.trim();
+    const recipientEmail = data.employeeEmail.trim();
+    const safeFileName = employeeName.replace(/\s+/g, '-');
+
+    await MailService.sendMail({
+      from: process.env.FROM_EMAIL || process.env.SMTP_USER,
+      to: recipientEmail,
+      replyTo: process.env.HR_EMAIL || process.env.FROM_EMAIL || process.env.SMTP_USER,
+      subject: 'Service letter',
+      text: getServiceLetterEmailBody(employeeName),
+      html: getServiceLetterEmailHtml(employeeName),
+      attachments: [
+        {
+          filename: `service-letter-${safeFileName}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf'
+        }
+      ]
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Service letter email sent successfully.'
+    });
+  } catch (error) {
+    console.error('Service letter email error:', error);
+    return res.status(500).json({
+      success: false,
+      message: getServiceLetterEmailErrorMessage(error),
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 

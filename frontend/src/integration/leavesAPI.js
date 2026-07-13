@@ -242,6 +242,13 @@ export const updateLeaveStatus = async (leaveId, statusData) => {
     return response.data;
   } catch (error) {
     console.error('Error updating leave request status:', error);
+    const serverMessage =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.response?.data?.details;
+    if (serverMessage) {
+      error.message = serverMessage;
+    }
     throw error;
   }
 };
@@ -258,9 +265,19 @@ export const updateLeaveAdminReason = async (leaveId, adminReason) => {
 };
 
 // Get all leave requests (for admin)
-export const getAllLeaveRequests = async () => {
+export const getAllLeaveRequests = async (params = {}) => {
   try {
-    const response = await apiClient.get('/leave-request');
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && String(value).trim()) {
+        query.set(key, String(value).trim());
+      }
+    });
+
+    const endpoint = query.toString()
+      ? `/leave-request?${query.toString()}`
+      : '/leave-request';
+    const response = await apiClient.get(endpoint);
     return response.data;
   } catch (error) {
     console.error('Error fetching all leave requests:', error);

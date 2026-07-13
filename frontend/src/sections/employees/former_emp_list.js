@@ -2,13 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../../styles/former_emp_list.css";
 import employeeAPI from "../../integration/employeeAPI"; // Import the employee API
-import { getEmployeeImageUrl } from "../../utils/imageUtils";
+import {
+  DEFAULT_EMPLOYEE_PROFILE_IMAGE,
+  getEmployeeImageUrl,
+} from "../../utils/imageUtils";
 
 import filter from "../../assets/icons/filterricon.png";
 import search from "../../assets/icons/searchicon.png";
 import greenicon from "../../assets/icons/editicon.png"; // Overview
 import blueicon from "../../assets/icons/editblueicon.png"; // Edit
-import tempp from "../../assets/icons/img.png";
 
 const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
   const navigate = useNavigate();
@@ -46,6 +48,7 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
 
     const fetchEmployees = async () => {
       try {
+        setError(null);
         setLoading(true);
         const response = await employeeAPI.getAllEmployees(page, 10, "former", {
           designation: filterDesignation,
@@ -63,7 +66,7 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
             designation: emp.designation || "-",
             role: emp.role || "-",
             mgmtRole: emp.management_role || "-",
-            avatar: getEmployeeImageUrl(emp, tempp),
+            avatar: getEmployeeImageUrl(emp),
           }));
 
           setEmployees(transformedEmployees);
@@ -142,7 +145,14 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
     navigate(`/employees/${empId}/edit`);
   };
 
-  if (loading) {
+  const hasActiveSearchOrFilters = Boolean(
+    searchTerm.trim() ||
+    filterDesignation ||
+    filterRole ||
+    filterMgmtRole
+  );
+
+  if (loading && employees.length === 0 && !hasActiveSearchOrFilters) {
     return (
       <div className="femp-section">
         <div className="femp-header-box">
@@ -166,7 +176,7 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
     );
   }
 
-  if (error) {
+  if (error && employees.length === 0 && !hasActiveSearchOrFilters) {
     return (
       <div className="femp-section">
         <div className="femp-header-box">
@@ -184,6 +194,7 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
       <div className="femp-header-box">
         <div className="femp-title-section">
           <h2>Former Employee</h2>
+          {loading && <p>Updating employees...</p>}
         </div>
         <div className="femp-controls">
           {/* Filter button + dropdown */}
@@ -302,7 +313,7 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
                       className="femp-avatar"
                       onError={(e) => {
                         e.target.onerror = null; // prevents looping
-                        e.target.src = tempp; // fallback to default profile
+                        e.target.src = DEFAULT_EMPLOYEE_PROFILE_IMAGE; // fallback to default profile
                       }}
                     />
                     <span className="femp-name-text">{emp.name}</span>
@@ -329,7 +340,21 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
                 </td>
               </tr>
             ))}
-            {employees.length === 0 && (
+            {loading && employees.length === 0 && (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: "24px", color: "#6b7280" }}>
+                  Searching employees...
+                </td>
+              </tr>
+            )}
+            {error && !loading && (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: "24px", color: "#b91c1c" }}>
+                  Error: {error}
+                </td>
+              </tr>
+            )}
+            {!loading && !error && employees.length === 0 && (
               <tr>
                 <td colSpan={6} style={{ textAlign: "center", padding: "24px", color: "#6b7280" }}>
                   No former employees found.

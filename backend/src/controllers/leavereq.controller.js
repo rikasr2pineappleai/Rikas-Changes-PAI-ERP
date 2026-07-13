@@ -636,6 +636,8 @@ exports.updateStatus = async (req, res) => {
     console.error("updateStatus error", err);
     if (isSequelizeValidationError(err))
       return res.status(400).json({ error: err.message });
+    if (err && err.status)
+      return res.status(err.status).json({ error: err.message });
     return res
       .status(500)
       .json({ error: "Internal server error", details: err.message });

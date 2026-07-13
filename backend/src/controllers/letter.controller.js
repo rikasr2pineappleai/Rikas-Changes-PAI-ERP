@@ -16,6 +16,7 @@ exports.debugListAllEmployees = offerLetterController.debugListAllEmployees;
 // Re-export Service Letter functions
 exports.generateServiceLetterPDF = serviceLetterController.generateServiceLetterPDF;
 exports.generateServiceLetterPreview = serviceLetterController.generateServiceLetterPreview;
+exports.sendServiceLetterEmail = serviceLetterController.sendServiceLetterEmail;
 exports.saveServiceLetterTemplate = serviceLetterController.saveServiceLetterTemplate;
 exports.getServiceLetterTemplates = serviceLetterController.getServiceLetterTemplates;
 exports.getAllEmployeesForServiceLetterDropdown = serviceLetterController.getAllEmployeesForServiceLetterDropdown;

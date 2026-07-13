@@ -3,6 +3,63 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 import "../../styles/offer_letter_template.css";
 
+const NAME_PATTERN =
+  /^\p{L}[\p{L}\p{M}]*(?: \p{L}[\p{L}\p{M}]*)*$/u;
+const ADDRESS_PATTERN =
+  /^[\p{L}\p{N}][\p{L}\p{N}\p{M}\s,.'/#()-]*$/u;
+const EMAIL_PATTERN = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+const REQUIRED_ON_BLUR_FIELDS = new Set([
+  "employeeName",
+  "address",
+  "reportingManager",
+  "reportingManagerEmail",
+]);
+
+const validateNameField = (value, label) => {
+  const trimmedValue = String(value || "").trim();
+  if (!trimmedValue) return `${label} is required`;
+  if (trimmedValue.length > 50) return `${label} cannot exceed 50 characters`;
+  if (!NAME_PATTERN.test(trimmedValue)) {
+    return `${label} contains invalid characters. Use letters and single spaces only`;
+  }
+  return "";
+};
+
+const validateAddressField = (value) => {
+  const trimmedValue = String(value || "").trim();
+  if (!trimmedValue) return "Address is required";
+  if (trimmedValue.length > 250) return "Address cannot exceed 250 characters";
+  if (!ADDRESS_PATTERN.test(trimmedValue)) {
+    return "Address contains invalid characters";
+  }
+  return "";
+};
+
+const validateOfferField = (name, value, requireValue = false) => {
+  const trimmedValue = String(value || "").trim();
+
+  if (!trimmedValue && !requireValue) return "";
+
+  switch (name) {
+    case "employeeName":
+      return validateNameField(value, "Name");
+    case "address":
+      return validateAddressField(value);
+    case "reportingManager":
+      return validateNameField(value, "Reporting Manager");
+    case "reportingManagerEmail":
+      if (!trimmedValue) return "Reporting Manager Email is required";
+      return EMAIL_PATTERN.test(trimmedValue)
+        ? ""
+        : "Enter a valid Reporting Manager Email";
+    case "employeeEmail":
+      if (!trimmedValue) return requireValue ? "Employee Email is required" : "";
+      return EMAIL_PATTERN.test(trimmedValue) ? "" : "Enter a valid Employee Email";
+    default:
+      return requireValue && !trimmedValue ? "This field is required" : "";
+  }
+};
+
 export default function OfferLetterTemplate() {
   const [showPreview, setShowPreview] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -42,7 +99,18 @@ export default function OfferLetterTemplate() {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setPdfUrl(null);
     setPreviewHtml("");
-    setValidationErrors((prev) => ({ ...prev, [name]: "" }));
+    const fieldError = validateOfferField(name, value);
+    setValidationErrors((prev) => ({ ...prev, [name]: fieldError }));
+  };
+
+  const handleInputBlur = (e) => {
+    const { name, value } = e.target;
+    const fieldError = validateOfferField(
+      name,
+      value,
+      REQUIRED_ON_BLUR_FIELDS.has(name)
+    );
+    setValidationErrors((prev) => ({ ...prev, [name]: fieldError }));
   };
 
   const clearForm = () => {
@@ -88,16 +156,30 @@ export default function OfferLetterTemplate() {
       }
     });
 
+    const employeeNameError = validateNameField(formData.employeeName, "Name");
+    if (employeeNameError) errors.employeeName = employeeNameError;
+
+    const addressError = validateAddressField(formData.address);
+    if (addressError) errors.address = addressError;
+
+    const reportingManagerError = validateNameField(
+      formData.reportingManager,
+      "Reporting Manager"
+    );
+    if (reportingManagerError) {
+      errors.reportingManager = reportingManagerError;
+    }
+
     if (
       formData.reportingManagerEmail &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.reportingManagerEmail)
+      !EMAIL_PATTERN.test(formData.reportingManagerEmail.trim())
     ) {
       errors.reportingManagerEmail = "Enter a valid Reporting Manager Email";
     }
 
     if (
       formData.employeeEmail &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.employeeEmail)
+      !EMAIL_PATTERN.test(formData.employeeEmail.trim())
     ) {
       errors.employeeEmail = "Enter a valid Employee Email";
     }
@@ -245,7 +327,7 @@ export default function OfferLetterTemplate() {
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employeeEmail)) {
+    if (!EMAIL_PATTERN.test(employeeEmail)) {
       setValidationErrors((prev) => ({
         ...prev,
         employeeEmail: "Enter a valid Employee Email",
@@ -343,6 +425,7 @@ export default function OfferLetterTemplate() {
                 name="employeeName"
                 value={formData.employeeName}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="e.g., Sanjeevan"
                 className={`offer-input${
                   validationErrors.employeeName ? " offer-field-error" : ""
@@ -362,6 +445,7 @@ export default function OfferLetterTemplate() {
                 name="employeeEmail"
                 value={formData.employeeEmail}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="e.g., employee@example.com"
                 className={`offer-input${
                   validationErrors.employeeEmail ? " offer-field-error" : ""
@@ -381,6 +465,7 @@ export default function OfferLetterTemplate() {
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="e.g., inuvil, Jaffna"
                 className={`offer-input${
                   validationErrors.address ? " offer-field-error" : ""
@@ -538,6 +623,7 @@ export default function OfferLetterTemplate() {
                 name="reportingManager"
                 value={formData.reportingManager}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="e.g., Sanjeevan"
                 className={`offer-input${
                   validationErrors.reportingManager ? " offer-field-error" : ""
@@ -557,6 +643,7 @@ export default function OfferLetterTemplate() {
                 name="reportingManagerEmail"
                 value={formData.reportingManagerEmail}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="e.g., example@pineappleai.com"
                 className={`offer-input${
                   validationErrors.reportingManagerEmail

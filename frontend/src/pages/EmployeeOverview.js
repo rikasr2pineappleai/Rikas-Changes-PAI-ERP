@@ -4,6 +4,10 @@ import employeeAPI from "../integration/employeeAPI";
 import PromotionProgress from "../components/PromotionProgress";
 import EmployeeDocumentsModal from "../modals/EmployeeDocumentsModal";
 import useAuth from "../hooks/useAuth";
+import {
+  DEFAULT_EMPLOYEE_PROFILE_IMAGE,
+  getEmployeeImageUrl,
+} from "../utils/imageUtils";
 
 import "../styles/employee_overview.css";
 
@@ -12,7 +16,6 @@ import mailIcon from "../assets/icons/mail.png";
 import copyIcon from "../assets/icons/copy.png";
 import uploadIcon from "../assets/icons/epand_red.png";
 import expandIcon from "../assets/icons/expand.png";
-import profilePic from "../assets/icons/profile.jpg";
 import attendanceIcon from "../assets/icons/attendance.png";
 import structureIcon from "../assets/icons/structure.png";
 import ratingIcon from "../assets/icons/rating.png";
@@ -160,15 +163,7 @@ export default function EmployeeOverview() {
     });
   };
 
-  const profileImage = (() => {
-    const BASE_URL = "http://localhost:5001";
-
-    const imagePath =
-      employeeData?.profile_image || employeeData?.EmployeeDetail?.image_path;
-
-    if (!imagePath) return profilePic;
-    return `${BASE_URL}/${imagePath}`;
-  })();
+  const profileImage = getEmployeeImageUrl(employeeData);
 
   // Get the most recent project allocation (by highest ID, matching edit page logic)
   const allocation = (() => {
@@ -239,7 +234,15 @@ export default function EmployeeOverview() {
         <div className="eov-container">
           <div className="eov-left">
             <div className="eov-profile-card">
-              <img src={profileImage} alt="Profile" className="eov-profile-img" />
+              <img
+                src={profileImage}
+                alt="Profile"
+                className="eov-profile-img"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = DEFAULT_EMPLOYEE_PROFILE_IMAGE;
+                }}
+              />
             </div>
 
             <div className="eov-basic">

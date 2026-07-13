@@ -3,6 +3,19 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 import "../../styles/service_letter_template.css";
 
+const SERVICE_NAME_PATTERN =
+  /^\p{L}[\p{L}\p{M}.]*(?: \p{L}[\p{L}\p{M}.]*)*$/u;
+
+const validateServiceNameField = (value) => {
+  const trimmedValue = String(value || "").trim();
+  if (!trimmedValue) return "Name is required";
+  if (trimmedValue.length > 50) return "Name cannot exceed 50 characters";
+  if (!SERVICE_NAME_PATTERN.test(trimmedValue)) {
+    return "Name contains invalid characters. Use letters, periods, and single spaces only";
+  }
+  return "";
+};
+
 export default function ServiceLetterTemplate() {
   const [showPreview, setShowPreview]         = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -20,6 +33,7 @@ export default function ServiceLetterTemplate() {
 
   const [formData, setFormData] = useState({
     employeeName: "",
+    employeeEmail: "",
     position:     "",
     department:   "",
     letterDate:   "",
@@ -35,13 +49,49 @@ export default function ServiceLetterTemplate() {
   ]);
 
   /* ── helpers ───────────────────────────────────────────── */
+  const normalizeName = (value) =>
+    String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
+
+  const findEmployeeByName = (name) => {
+    const normalizedName = normalizeName(name);
+    if (!normalizedName) return null;
+    return employees.find((emp) => normalizeName(emp.employeeName) === normalizedName) || null;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === "employeeName") {
+      const matchedEmployee = findEmployeeByName(value);
+      setSelectedEmployeeId(matchedEmployee ? String(matchedEmployee.userId) : "");
+      setFormData(prev => ({
+        ...prev,
+        employeeName: value,
+        employeeEmail: matchedEmployee?.email || "",
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
     setPdfUrl(null);
     setPreviewHtml("");
-    setValidationErrors(prev => ({ ...prev, [name]: "" }));
+    const fieldError = name === "employeeName" && value.trim()
+      ? validateServiceNameField(value)
+      : "";
+    setValidationErrors(prev => ({ ...prev, [name]: fieldError }));
   };
+
+  const handleInputBlur = (e) => {
+    const { name, value } = e.target;
+    if (name !== "employeeName") return;
+    setValidationErrors(prev => ({
+      ...prev,
+      employeeName: validateServiceNameField(value),
+    }));
+  };
+
+  const getSubmitData = () => ({
+    ...formData,
+    employee_id: selectedEmployeeId || undefined,
+  });
 
   const toDateInputValue = (value) => {
     if (!value) return "";
@@ -93,13 +143,14 @@ export default function ServiceLetterTemplate() {
     setPreviewHtml("");
     setValidationErrors(prev => ({ ...prev, employeeName: "" }));
     if (!selectedId) {
-      setFormData(prev => ({ ...prev, employeeName: "", position: "" }));
+      setFormData(prev => ({ ...prev, employeeName: "", employeeEmail: "", position: "" }));
       return;
     }
     const emp = employees.find(e => e.userId === parseInt(selectedId));
     if (emp) {
       setFormData(prev => ({
         employeeName: emp.employeeName || "",
+        employeeEmail: emp.email || "",
         position:     emp.designation  || "",
         department:   emp.department   || prev.department,
         letterDate:   prev.letterDate,
@@ -139,6 +190,10 @@ export default function ServiceLetterTemplate() {
     ].forEach(({ name, message }) => {
       if (!String(formData[name] || "").trim()) errors[name] = message;
     });
+
+    const employeeNameError = validateServiceNameField(formData.employeeName);
+    if (employeeNameError) errors.employeeName = employeeNameError;
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -151,7 +206,7 @@ export default function ServiceLetterTemplate() {
       const token = localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:5001/api/templates/service-letter/generate",
-        formData,
+        getSubmitData(),
         {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           responseType: "blob",
@@ -185,7 +240,7 @@ export default function ServiceLetterTemplate() {
       const token = localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:5001/api/templates/service-letter/preview",
-        formData,
+        getSubmitData(),
         {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           responseType: "text",
@@ -231,16 +286,38 @@ export default function ServiceLetterTemplate() {
     link.click();
   };
 
-  const handleEmailLetter = () => {
-    // Opens Gmail's web compose window with ceo@pineappleai.cloud pre-filled
-    // as the recipient. Attachment flow can be hooked up later via backend.
-    const to = "ceo@pineappleai.cloud";
-    const subject = encodeURIComponent("Service Letter");
-    const body = encodeURIComponent(
-      `Hi,\n\nPlease find the service letter for ${formData.employeeName || "the employee"} attached.\n\nRegards,\nPineappleAI HR`
-    );
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`;
-    window.open(gmailUrl, "_blank", "noopener,noreferrer");
+  const handleEmailLetter = async () => {
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+
+      await axios.post(
+        "http://localhost:5001/api/templates/service-letter/email",
+        getSubmitData(),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      alert("Service letter email sent successfully.");
+      setShowSuccessModal(false);
+    } catch (error) {
+      console.error("Error sending service letter email:", error);
+      if (error.response?.data?.errors) {
+        setValidationErrors(error.response.data.errors);
+      }
+      alert(
+        error.response?.data?.message ||
+          "Failed to send service letter email. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePreview = async () => {
@@ -449,6 +526,7 @@ export default function ServiceLetterTemplate() {
                 name="employeeName"
                 value={formData.employeeName}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="e.g., S.Praveen"
                 className={`service-input${validationErrors.employeeName ? " service-field-error" : ""}`}
               />
@@ -649,8 +727,9 @@ export default function ServiceLetterTemplate() {
                   type="button"
                   className="sl-success-btn"
                   onClick={handleEmailLetter}
+                  disabled={loading}
                 >
-                  Email
+                  {loading ? "Sending..." : "Email"}
                 </button>
               </div>
             </div>

@@ -1,6 +1,8 @@
 // Utility functions for image handling across different environments
 // All image URL construction should use these functions for consistency
 
+import defaultEmployeeProfileImage from "../assets/icons/img.png";
+
 /**
  * Constructs image URL from image path using environment configuration
  * @param {string} imagePath - The image path (relative or absolute)
@@ -18,6 +20,8 @@ export const getImageUrl = (imagePath, defaultImage = null) => {
     return imagePath;
   }
   
+  const normalizedImagePath = imagePath.replace(/^\/+/, '');
+
   // Get base URL from environment variable
   const apiBaseUrl = 'http://localhost:5001/api';
   
@@ -31,12 +35,12 @@ export const getImageUrl = (imagePath, defaultImage = null) => {
   
   let imageUrl;
   
-  if (imagePath.startsWith('uploads/')) {
+  if (normalizedImagePath.startsWith('uploads/')) {
     // Path already includes uploads directory
-    imageUrl = `${baseUrlWithoutApi}/${imagePath}`;
+    imageUrl = `${baseUrlWithoutApi}/${normalizedImagePath}`;
   } else {
     // Path doesn't include uploads directory, prepend it
-    imageUrl = `${baseUrlWithoutApi}/uploads/${imagePath}`;
+    imageUrl = `${baseUrlWithoutApi}/uploads/${normalizedImagePath}`;
   }
   
   return imageUrl;
@@ -68,9 +72,11 @@ export const getEmployeeImageUrl = (employeeData, defaultImage = null) => {
  * @returns {string} Default profile image URL
  */
 export const getDefaultProfileImage = () => {
-  // Try to get from environment, fallback to relative path
-  return process.env.REACT_APP_DEFAULT_PROFILE_IMAGE || '/default-profile.png';
+  // Try to get from environment, fallback to the app's default employee avatar
+  return process.env.REACT_APP_DEFAULT_PROFILE_IMAGE || defaultEmployeeProfileImage;
 };
+
+export const DEFAULT_EMPLOYEE_PROFILE_IMAGE = defaultEmployeeProfileImage;
 
 /**
  * Validates if an image URL is accessible
@@ -101,10 +107,13 @@ export const preloadImage = (url) => {
   });
 };
 
-export default {
+const imageUtils = {
   getImageUrl,
   getEmployeeImageUrl,
   getDefaultProfileImage,
+  DEFAULT_EMPLOYEE_PROFILE_IMAGE,
   isImageAccessible,
   preloadImage
 };
+
+export default imageUtils;

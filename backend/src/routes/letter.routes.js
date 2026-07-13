@@ -5,6 +5,7 @@ const {
   sendOfferLetterEmail,
   generateServiceLetterPDF,
   generateServiceLetterPreview,
+  sendServiceLetterEmail,
   saveOfferLetterTemplate,
   saveServiceLetterTemplate,
   getOfferLetterTemplates,
@@ -54,6 +55,9 @@ router.route('/service-letter/generate')
 
 router.route('/service-letter/preview')
   .post(protect, authorize('admin'), generateServiceLetterPreview);
+
+router.route('/service-letter/email')
+  .post(protect, authorize('admin'), sendServiceLetterEmail);
 
 router.route('/service-letter/template')
   .post(protect, authorize('admin'), saveServiceLetterTemplate);
