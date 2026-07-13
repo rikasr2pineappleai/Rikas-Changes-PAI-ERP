@@ -3,6 +3,19 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 import "../../styles/service_letter_template.css";
 
+const SERVICE_NAME_PATTERN =
+  /^\p{L}[\p{L}\p{M}.]*(?: \p{L}[\p{L}\p{M}.]*)*$/u;
+
+const validateServiceNameField = (value) => {
+  const trimmedValue = String(value || "").trim();
+  if (!trimmedValue) return "Name is required";
+  if (trimmedValue.length > 50) return "Name cannot exceed 50 characters";
+  if (!SERVICE_NAME_PATTERN.test(trimmedValue)) {
+    return "Name contains invalid characters. Use letters, periods, and single spaces only";
+  }
+  return "";
+};
+
 export default function ServiceLetterTemplate() {
   const [showPreview, setShowPreview]         = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -60,7 +73,19 @@ export default function ServiceLetterTemplate() {
     }
     setPdfUrl(null);
     setPreviewHtml("");
-    setValidationErrors(prev => ({ ...prev, [name]: "" }));
+    const fieldError = name === "employeeName" && value.trim()
+      ? validateServiceNameField(value)
+      : "";
+    setValidationErrors(prev => ({ ...prev, [name]: fieldError }));
+  };
+
+  const handleInputBlur = (e) => {
+    const { name, value } = e.target;
+    if (name !== "employeeName") return;
+    setValidationErrors(prev => ({
+      ...prev,
+      employeeName: validateServiceNameField(value),
+    }));
   };
 
   const getSubmitData = () => ({
@@ -165,6 +190,10 @@ export default function ServiceLetterTemplate() {
     ].forEach(({ name, message }) => {
       if (!String(formData[name] || "").trim()) errors[name] = message;
     });
+
+    const employeeNameError = validateServiceNameField(formData.employeeName);
+    if (employeeNameError) errors.employeeName = employeeNameError;
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -497,6 +526,7 @@ export default function ServiceLetterTemplate() {
                 name="employeeName"
                 value={formData.employeeName}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder="e.g., S.Praveen"
                 className={`service-input${validationErrors.employeeName ? " service-field-error" : ""}`}
               />

@@ -20,6 +20,29 @@ const requiredOfferLetterFields = [
 ];
 
 const HR_EMAIL = 'global.hr.pineappleai@gmail.com';
+const NAME_PATTERN = /^\p{L}[\p{L}\p{M}]*(?: \p{L}[\p{L}\p{M}]*)*$/u;
+const ADDRESS_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N}\p{M}\s,.'/#()-]*$/u;
+const EMAIL_PATTERN = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+const validateNameField = (value, label) => {
+  const trimmedValue = String(value || '').trim();
+  if (!trimmedValue) return `${label} is required`;
+  if (trimmedValue.length > 50) return `${label} cannot exceed 50 characters`;
+  if (!NAME_PATTERN.test(trimmedValue)) {
+    return `${label} can contain letters and single spaces only`;
+  }
+  return '';
+};
+
+const validateAddressField = (value) => {
+  const trimmedValue = String(value || '').trim();
+  if (!trimmedValue) return 'Address is required';
+  if (trimmedValue.length > 250) return 'Address cannot exceed 250 characters';
+  if (!ADDRESS_PATTERN.test(trimmedValue)) {
+    return 'Address contains invalid characters';
+  }
+  return '';
+};
 
 const getOfferLetterValidationErrors = (data) => {
   const errors = {};
@@ -30,9 +53,18 @@ const getOfferLetterValidationErrors = (data) => {
     }
   });
 
+  const employeeNameError = validateNameField(data.employeeName, 'Name');
+  if (employeeNameError) errors.employeeName = employeeNameError;
+
+  const addressError = validateAddressField(data.address);
+  if (addressError) errors.address = addressError;
+
+  const reportingManagerError = validateNameField(data.reportingManager, 'Reporting Manager');
+  if (reportingManagerError) errors.reportingManager = reportingManagerError;
+
   if (
     data.reportingManagerEmail &&
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.reportingManagerEmail)
+    !EMAIL_PATTERN.test(String(data.reportingManagerEmail).trim())
   ) {
     errors.reportingManagerEmail = 'Enter a valid Reporting Manager Email';
   }
@@ -45,7 +77,7 @@ const getOfferLetterEmailValidationErrors = (data) => {
 
   if (!String(data.employeeEmail || '').trim()) {
     errors.employeeEmail = 'Employee Email is required';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.employeeEmail)) {
+  } else if (!EMAIL_PATTERN.test(String(data.employeeEmail).trim())) {
     errors.employeeEmail = 'Enter a valid Employee Email';
   }
 

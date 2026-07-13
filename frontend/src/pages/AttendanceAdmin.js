@@ -28,9 +28,7 @@ const STATUS_OPTIONS = [
   { value: "on_time", label: "On Time" },
   { value: "late", label: "Late" },
   { value: "absent", label: "Absent" },
-  { value: "emergency_leave", label: "Emergency Leave" },
   { value: "hour_permission", label: "Hour Permission" },
-  { value: "other", label: "Other" },
 ];
 
 const DEPARTMENT_OPTIONS = [
@@ -43,7 +41,6 @@ const DEPARTMENT_OPTIONS = [
     label: "Cyber Security & Network Department",
   },
   { value: "BA & PM Department", label: "BA & PM Department" },
-  { value: "Other", label: "Other" },
 ];
 
 const KNOWN_DEPARTMENTS = DEPARTMENT_OPTIONS.filter(
@@ -210,6 +207,33 @@ const getLeaveAttendanceStatus = (leave) => {
   return "other";
 };
 
+const isHourPermissionLeave = (leave) =>
+  normalizeStatus(leave?.leave_mode) === "hours_permission";
+
+const timeToMinutes = (timeValue) => {
+  if (!timeValue) return null;
+
+  const match = String(timeValue).match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  if (!match) return null;
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+
+  return hours * 60 + minutes;
+};
+
+const getHourPermissionDuration = (leave) => {
+  const startMinutes = timeToMinutes(leave?.start_time);
+  const endMinutes = timeToMinutes(leave?.end_time);
+
+  if (startMinutes === null || endMinutes === null || endMinutes <= startMinutes) {
+    return 0;
+  }
+
+  return (endMinutes - startMinutes) / 60;
+};
+
 const buildAttendanceUserFromEmployee = (employee = {}) => ({
   id: employee.id || employee.user_id || "",
   emp_id: employee.emp_id || employee.employee_id || "",
@@ -231,25 +255,31 @@ const buildSyntheticAttendanceRecord = ({
   status,
   source = "synthetic",
   leave = null,
-}) => ({
-  id,
-  user_id: employee?.id || employee?.user_id || leave?.user_id || "",
-  emp_id: employee?.emp_id || employee?.employee_id || "",
-  employee_id: employee?.emp_id || employee?.employee_id || "",
-  first_name: employee?.first_name || "",
-  last_name: employee?.last_name || "",
-  email: employee?.email || "",
-  department: getEmployeeDepartmentName(employee),
-  date,
-  clock_in: null,
-  clock_out: null,
-  method: "manual",
-  working_hours: 0,
-  status,
-  source,
-  leave,
-  User: buildAttendanceUserFromEmployee(employee),
-});
+}) => {
+  const isHourPermission = isHourPermissionLeave(leave);
+
+  return {
+    id,
+    user_id: employee?.id || employee?.user_id || leave?.user_id || "",
+    emp_id: employee?.emp_id || employee?.employee_id || "",
+    employee_id: employee?.emp_id || employee?.employee_id || "",
+    first_name: employee?.first_name || "",
+    last_name: employee?.last_name || "",
+    email: employee?.email || "",
+    department: getEmployeeDepartmentName(employee),
+    date,
+    clock_in: null,
+    clock_out: null,
+    method: isHourPermission ? "hour_permission" : "manual",
+    working_hours: isHourPermission ? getHourPermissionDuration(leave) : 0,
+    permission_start_time: isHourPermission ? leave?.start_time || null : null,
+    permission_end_time: isHourPermission ? leave?.end_time || null : null,
+    status,
+    source,
+    leave,
+    User: buildAttendanceUserFromEmployee(employee),
+  };
+};
 
 const getEmployeeId = (record) =>
   String(
@@ -267,6 +297,46 @@ const getRecordUserId = (record) =>
 
 const getRecordEmployeeCode = (record) =>
   String(record?.User?.emp_id || record?.emp_id || record?.employee_id || "");
+
+const getRecordIdentityKeys = (record) => {
+  const keys = [];
+  const userId = getRecordUserId(record);
+  const employeeCode = getRecordEmployeeCode(record);
+  const employeeName = normalizeLookupValue(getEmployeeName(record));
+
+  if (userId) keys.push(`id:${userId}`);
+  if (employeeCode) keys.push(`emp:${employeeCode}`);
+  if (employeeName) keys.push(`name:${employeeName}`);
+
+  return keys;
+};
+
+const mergeHourPermissionWithAttendance = (attendanceRecord, hourPermissionRecord) => ({
+  ...attendanceRecord,
+  status: "hour_permission",
+  method: "hour_permission",
+  source: attendanceRecord?.source || "attendance",
+  leave: hourPermissionRecord.leave,
+  permission_start_time: hourPermissionRecord.permission_start_time,
+  permission_end_time: hourPermissionRecord.permission_end_time,
+});
+
+const isAttendanceWithinHourPermission = (attendanceRecord, hourPermissionRecord) => {
+  const attendanceMinutes = timeToMinutes(attendanceRecord?.clock_in);
+  const startMinutes = timeToMinutes(hourPermissionRecord?.permission_start_time);
+  const endMinutes = timeToMinutes(hourPermissionRecord?.permission_end_time);
+
+  if (
+    attendanceMinutes === null ||
+    startMinutes === null ||
+    endMinutes === null ||
+    endMinutes <= startMinutes
+  ) {
+    return false;
+  }
+
+  return attendanceMinutes >= startMinutes && attendanceMinutes <= endMinutes;
+};
 
 const getDepartmentName = (
   record,
@@ -294,9 +364,7 @@ const getDepartmentName = (
   );
 };
 
-const getWorkType = (record) => {
-  const method = normalizeStatus(record?.method);
-  if (method === "mobile" || method === "remote") return "Remote";
+const getWorkType = () => {
   return "Office";
 };
 
@@ -316,13 +384,24 @@ const formatDate = (dateString) => {
 const formatTime = (timeString) => {
   if (!timeString) return "N/A";
 
-  return new Date(timeString)
-    .toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    })
-    .replace(" ", " ");
+  const timeText = String(timeString).trim();
+  const timeOnlyMatch = timeText.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+
+  const date = timeOnlyMatch
+    ? new Date(2000, 0, 1, Number(timeOnlyMatch[1]), Number(timeOnlyMatch[2]))
+    : new Date(timeText);
+
+  if (Number.isNaN(date.getTime())) return "N/A";
+
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
+const getTimeDisplay = (record) => {
+  return formatTime(record?.clock_in);
 };
 
 const matchesDateRange = (recordDate, startDate, endDate) => {
@@ -677,6 +756,55 @@ export default function AttendanceAdmin() {
           console.warn("Unable to load leave records for attendance filters:", leaveError);
         }
 
+        const hourPermissionByEmployeeKey = new Map();
+        leaveRows
+          .filter(
+            (record) => getCanonicalStatus(record.status) === "hour_permission",
+          )
+          .forEach((record) => {
+            getRecordIdentityKeys(record).forEach((key) => {
+              if (!hourPermissionByEmployeeKey.has(key)) {
+                hourPermissionByEmployeeKey.set(key, record);
+              }
+            });
+          });
+
+        const mergedHourPermissionKeys = new Set();
+        const attendanceMatchedHourPermissionKeys = new Set();
+        const visibleRecords = records.map((record) => {
+          if (getDateKey(record.date) !== todayKey) return record;
+          if (!hourPermissionByEmployeeKey.size) return record;
+
+          const matchingKey = getRecordIdentityKeys(record).find((key) =>
+            hourPermissionByEmployeeKey.has(key),
+          );
+
+          if (!matchingKey) return record;
+
+          const hourPermissionRecord = hourPermissionByEmployeeKey.get(matchingKey);
+          getRecordIdentityKeys(hourPermissionRecord).forEach((key) => {
+            attendanceMatchedHourPermissionKeys.add(key);
+          });
+
+          if (isAttendanceWithinHourPermission(record, hourPermissionRecord)) {
+            getRecordIdentityKeys(hourPermissionRecord).forEach((key) =>
+              mergedHourPermissionKeys.add(key),
+            );
+            return mergeHourPermissionWithAttendance(record, hourPermissionRecord);
+          }
+
+          return record;
+        });
+
+        const visibleLeaveRows = leaveRows.filter((record) => {
+          if (getCanonicalStatus(record.status) !== "hour_permission") return true;
+
+          return !getRecordIdentityKeys(record).some((key) =>
+            mergedHourPermissionKeys.has(key) ||
+            attendanceMatchedHourPermissionKeys.has(key),
+          );
+        });
+
         const absentRows = employeesForSyntheticRows
           .filter((employee) => {
             const ids = [employee.id, employee.user_id]
@@ -703,7 +831,7 @@ export default function AttendanceAdmin() {
             }),
           );
 
-        setAllAttendanceData([...records, ...leaveRows, ...absentRows]);
+        setAllAttendanceData([...visibleRecords, ...visibleLeaveRows, ...absentRows]);
         setEmployeeDepartmentsById(departmentLookup);
         setEmployeesById(employeeLookup);
         setTotalEmployeesCount(employees.length);
@@ -1502,7 +1630,7 @@ export default function AttendanceAdmin() {
                           </td>
                           <td data-label="Date">{formatDate(record.date)}</td>
                           <td data-label="Check in Time">
-                            {formatTime(record.clock_in)}
+                            {getTimeDisplay(record)}
                           </td>
                           <td data-label="Work Type">{getWorkType(record)}</td>
                           <td data-label="Status">

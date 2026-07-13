@@ -156,7 +156,7 @@ function round1(n) {
  *
  * @param {Object|Model} leaveReq - Sequelize LeaveRequest instance (must include number_of_days, user_id, leave_type_id, start_date)
  * @param {Object} [options] - { transaction }
- * @returns {Promise<LeaveBalance>}
+ * @returns {Promise<LeaveBalance|null>}
  */
 async function addToLeaveBalance(leaveReq, options = {}) {
   if (!leaveReq) throw new Error('leaveReq is required');
@@ -172,7 +172,10 @@ async function addToLeaveBalance(leaveReq, options = {}) {
     if (Number.isNaN(startDate.getTime())) throw new Error('Invalid start_date on leaveReq');
     const year = startDate.getFullYear();
     const delta = round1(parseFloat(leaveReq.number_of_days || 0));
-    if (delta <= 0) throw new Error('number_of_days must be > 0 to add to balance');
+    if (delta <= 0) {
+      if (!externalTx) await t.commit();
+      return null;
+    }
 
     // lock leaveType to get current day_count
     const leaveType = await LeaveType.findByPk(leaveReq.leave_type_id, { transaction: t, lock: t.LOCK.UPDATE });

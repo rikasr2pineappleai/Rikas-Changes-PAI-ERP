@@ -242,6 +242,13 @@ export const updateLeaveStatus = async (leaveId, statusData) => {
     return response.data;
   } catch (error) {
     console.error('Error updating leave request status:', error);
+    const serverMessage =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.response?.data?.details;
+    if (serverMessage) {
+      error.message = serverMessage;
+    }
     throw error;
   }
 };

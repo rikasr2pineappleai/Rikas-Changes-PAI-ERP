@@ -48,6 +48,7 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
 
     const fetchEmployees = async () => {
       try {
+        setError(null);
         setLoading(true);
         const response = await employeeAPI.getAllEmployees(page, 10, "former", {
           designation: filterDesignation,
@@ -144,7 +145,14 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
     navigate(`/employees/${empId}/edit`);
   };
 
-  if (loading) {
+  const hasActiveSearchOrFilters = Boolean(
+    searchTerm.trim() ||
+    filterDesignation ||
+    filterRole ||
+    filterMgmtRole
+  );
+
+  if (loading && employees.length === 0 && !hasActiveSearchOrFilters) {
     return (
       <div className="femp-section">
         <div className="femp-header-box">
@@ -168,7 +176,7 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
     );
   }
 
-  if (error) {
+  if (error && employees.length === 0 && !hasActiveSearchOrFilters) {
     return (
       <div className="femp-section">
         <div className="femp-header-box">
@@ -186,6 +194,7 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
       <div className="femp-header-box">
         <div className="femp-title-section">
           <h2>Former Employee</h2>
+          {loading && <p>Updating employees...</p>}
         </div>
         <div className="femp-controls">
           {/* Filter button + dropdown */}
@@ -331,7 +340,21 @@ const FormerEmpList = ({ page = 1, setPage, setTotalPages }) => {
                 </td>
               </tr>
             ))}
-            {employees.length === 0 && (
+            {loading && employees.length === 0 && (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: "24px", color: "#6b7280" }}>
+                  Searching employees...
+                </td>
+              </tr>
+            )}
+            {error && !loading && (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: "24px", color: "#b91c1c" }}>
+                  Error: {error}
+                </td>
+              </tr>
+            )}
+            {!loading && !error && employees.length === 0 && (
               <tr>
                 <td colSpan={6} style={{ textAlign: "center", padding: "24px", color: "#6b7280" }}>
                   No former employees found.
