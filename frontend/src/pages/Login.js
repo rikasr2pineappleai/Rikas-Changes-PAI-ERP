@@ -10,6 +10,7 @@ import EnterOTPSection from '../sections/Authentication/EnterOTPSection';
 import UpdatePasswordSection from '../sections/Authentication/UpdatePasswordSection';
 
 import { login as authLogin, forgotPassword, resendOtp, verifyOtp, resetPassword } from '../integration/authAPI';
+import { clearRememberedLogin, saveRememberedLogin } from '../utils/rememberedLogin';
 
 import ErrorModal from '../modals/ErrorModal';
 import SuccessModal from '../modals/SuccessModal';
@@ -70,6 +71,12 @@ export default function Login() {
     try {
       const response = await authLogin(email, password, remember);
       if (response.success) {
+        if (remember) {
+          saveRememberedLogin({ email, password });
+        } else {
+          clearRememberedLogin();
+        }
+
         // Redirect based on user role
         if (response.user.role === 'admin') {
           navigate('/dashboard', { replace: true });

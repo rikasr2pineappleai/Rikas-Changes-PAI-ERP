@@ -102,6 +102,7 @@
 .emppage-container .femp-form-table td {
   padding: 14px;
   text-align: left;
+  vertical-align: middle;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -181,11 +182,10 @@
 }
 
 /* Action cell container to align buttons horizontally */
+.emppage-container .femp-form-table th:nth-child(6),
 .emppage-container .femp-form-table tbody td:nth-child(6) {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
+  min-width: 90px;
+  text-align: center;
   white-space: nowrap;
 }
 
