@@ -13,7 +13,50 @@ const toFiniteNumber = (value, fallback = 0) => {
   return Number.isFinite(numberValue) ? numberValue : fallback;
 };
 
-export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
+const formatHalfDayDate = (value, fallback = "N/A") => {
+  if (!value) return fallback;
+
+  const rawDate = value.toString().split("T")[0];
+  const isoParts = rawDate.split("-");
+
+  if (isoParts.length === 3) {
+    const [year, month, day] = isoParts;
+    return `${Number(month)}/${Number(day)}/${year}`;
+  }
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) return fallback;
+
+  return `${parsedDate.getMonth() + 1}/${parsedDate.getDate()}/${parsedDate.getFullYear()}`;
+};
+
+const formatLeaveSession = (value, fallback = "N/A") => {
+  if (!value) return fallback;
+
+  const session = value.toString().trim();
+  const normalized = session.toLowerCase().replace(/[_-]/g, " ");
+
+  if (
+    normalized.includes("2") ||
+    normalized.includes("second") ||
+    normalized.includes("afternoon") ||
+    normalized.includes("evening")
+  ) {
+    return "2nd Half";
+  }
+
+  if (
+    normalized.includes("1") ||
+    normalized.includes("first") ||
+    normalized.includes("morning")
+  ) {
+    return "1st Half";
+  }
+
+  return session;
+};
+
+export default function HalfDayLeavePopup({ data, onClose, onRefresh }) {
   // normalizer (safe when data is undefined)
   const normalizeStatus = (status) => {
     if (!status) return "Pending";
@@ -87,6 +130,8 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
 
   const annualTotal = toFiniteNumber(data?.annualTotal);
   const annualRemaining = toFiniteNumber(data?.annualRemaining, annualTotal);
+  const leaveDate = formatHalfDayDate(data?.start_date, data?.from || "N/A");
+  const leaveSession = formatLeaveSession(data?.leave_session, data?.to || "N/A");
 
   const pct =
     annualTotal > 0
@@ -234,7 +279,7 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
           <div className="hd-row">
             <div>
               <label>Leave Type</label>
-              <p className="hd-value">{data.type || 'Full Day'}</p>
+              <p className="hd-value">{data.type || 'Half Day'}</p>
             </div>
 
             <div className="hd-right-column">
@@ -246,11 +291,11 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
           <div className="hd-row">
             <div>
               <label>Date</label>
-              <p className="hd-value">{data.from}</p>
+              <p className="hd-value">{leaveDate}</p>
             </div>
             <div className="hd-right-column">
               <label>Leave Session</label>
-              <p className="hd-end-date">{data.to}</p>
+              <p className="hd-end-date">{leaveSession}</p>
             </div>
           </div>
 
@@ -317,7 +362,7 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
                 aria-label="Open proof document"
               >
                 <img src={proofIcon} alt="" />
-                View Document
+                Proof Document
               </button>
 
               {documentNotice && (

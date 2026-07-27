@@ -196,12 +196,14 @@ import eyeIcon from '../../assets/icons/eye.png';
 import errorIcon from '../../assets/icons/error.png';
 import checkFieldIcon from '../../assets/icons/check_field.png';
 import crossFieldIcon from '../../assets/icons/cross_field.png';
+import { clearRememberedLogin, getRememberedLogin } from '../../utils/rememberedLogin';
 
 export default function WelcomeSection({ onLogin, onForgot }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const rememberedLoginRef = useRef(getRememberedLogin());
+  const [email, setEmail] = useState(() => rememberedLoginRef.current.email);
+  const [password, setPassword] = useState(() => rememberedLoginRef.current.password);
   const [showPw, setShowPw] = useState(false);
-  const [remember, setRemember] = useState(false);
+  const [remember, setRemember] = useState(() => rememberedLoginRef.current.remember);
 
   // Validation state
   const [errors, setErrors] = useState({ id: '', password: '' });
@@ -221,7 +223,7 @@ export default function WelcomeSection({ onLogin, onForgot }) {
     if (!value) return 'Password is required';
     if (value.length < 8) return 'Password must be at least 8 characters';
     // Check for at least one uppercase, one lowercase, one number, and one special character
-    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])/.test(value)) {
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/.test(value)) {
       return 'Password must contain uppercase, lowercase, number, and special character';
     }
     return '';
@@ -357,7 +359,15 @@ export default function WelcomeSection({ onLogin, onForgot }) {
           <input
             type="checkbox"
             checked={remember}
-            onChange={() => setRemember((v) => !v)}
+            onChange={() => {
+              setRemember((v) => {
+                const nextRemember = !v;
+                if (!nextRemember) {
+                  clearRememberedLogin();
+                }
+                return nextRemember;
+              });
+            }}
             className="welcome-checkbox-input"
           />
           <span className="welcome-checkbox-box" />

@@ -85,7 +85,7 @@ const getStatusLabel = (status) => {
   if (normalizedStatus === "late") return "Late";
   if (normalizedStatus === "early_arrival") return "On Time";
   if (normalizedStatus === "absent") return "Absent";
-  if (normalizedStatus === "emergency_leave") return "Emergency Leave";
+  if (normalizedStatus === "emergency_leave") return "Leave";
   if (normalizedStatus === "hour_permission") return "Hour Permission";
   if (normalizedStatus === "other") return "Other";
   if (normalizedStatus === "leave") return "Leave";
