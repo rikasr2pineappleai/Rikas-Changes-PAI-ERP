@@ -57,9 +57,9 @@ const daysFromToday = (date) => {
 // ✅ Map DB Task -> Frontend Task format (from ViewProject.js expects these keys)
 const mapTaskForFrontend = (t) => ({
   id: t.id,
-// Task title for frontend
+  // Task title for frontend
   task_name: t.title || "Task",
-// End / Due Dates
+  // End / Due Dates
   start_date: t.assigned_at ? toISODateOnly(t.assigned_at) : null,
 
   end_date: t.deadline ? toISODateOnly(t.deadline) : null,
@@ -148,10 +148,10 @@ const mapProjectForDashboard = async (project) => {
   });
   const firstTask = taskCount
     ? await Task.findOne({
-        where: { project_id: project.id },
-        order: [["assigned_at", "ASC"]],
-        attributes: ["assigned_at"],
-      })
+      where: { project_id: project.id },
+      order: [["assigned_at", "ASC"]],
+      attributes: ["assigned_at"],
+    })
     : null;
   const firstTaskAssignedAt = firstTask
     ? toISODateOnly(firstTask.assigned_at)
@@ -346,22 +346,123 @@ exports.getProjectById = async (req, res) => {
 
 // ✅ CREATE PROJECT
 exports.createProject = async (req, res) => {
+  // --- Mandatory field validation  ---
+  const ALLOWED_PROJECT_TYPES = ['internal', 'client'];
+  const ALLOWED_STATUSES = ['planning', 'active', 'on_hold', 'completed', 'cancelled'];
+
+  const body = req.body || {};
+
+  // Helper: check if a string value is present and non-empty
+  const isEmptyString = (val) =>
+    val === undefined || val === null || String(val).trim() === '';
+
+  // 1. Validate name
+  const projectNameError = validateProjectName(body.name);
+  if (projectNameError) {
+    return res.status(400).json({
+      success: false,
+      message: projectNameError,
+      field: "name",
+    });
+  }
+
+  // 2. Validate description
+  if (isEmptyString(body.description)) {
+    return res.status(400).json({
+      success: false,
+      message: "Description is required",
+      field: "description",
+    });
+  }
+
+  // 3. Validate project_type
+  if (isEmptyString(body.project_type)) {
+    return res.status(400).json({
+      success: false,
+      message: "Project type is required",
+      field: "project_type",
+    });
+  }
+  if (!ALLOWED_PROJECT_TYPES.includes(String(body.project_type).trim().toLowerCase())) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid project type. Allowed values: ${ALLOWED_PROJECT_TYPES.join(', ')}`,
+      field: "project_type",
+    });
+  }
+
+  // 4. Validate status
+  if (isEmptyString(body.status)) {
+    return res.status(400).json({
+      success: false,
+      message: "Status is required",
+      field: "status",
+    });
+  }
+  if (!ALLOWED_STATUSES.includes(String(body.status).trim().toLowerCase())) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid status. Allowed values: ${ALLOWED_STATUSES.join(', ')}`,
+      field: "status",
+    });
+  }
+
+  // 5. Validate start_date
+  if (isEmptyString(body.start_date)) {
+    return res.status(400).json({
+      success: false,
+      message: "Start date is required",
+      field: "start_date",
+    });
+  }
+  const parsedStartDate = new Date(body.start_date);
+  if (isNaN(parsedStartDate.getTime())) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid start date format",
+      field: "start_date",
+    });
+  }
+
+  // 6. Validate end_date
+  if (isEmptyString(body.end_date)) {
+    return res.status(400).json({
+      success: false,
+      message: "End date is required",
+      field: "end_date",
+    });
+  }
+  const parsedEndDate = new Date(body.end_date);
+  if (isNaN(parsedEndDate.getTime())) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid end date format",
+      field: "end_date",
+    });
+  }
+
+  // 7. Validate managerId
+  if (body.managerId === undefined || body.managerId === null || String(body.managerId).trim() === '') {
+    return res.status(400).json({
+      success: false,
+      message: "Manager is required",
+      field: "managerId",
+    });
+  }
+  const managerId = Number(body.managerId);
+  if (isNaN(managerId) || managerId <= 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid manager ID",
+      field: "managerId",
+    });
+  }
+
+  // --- All validations passed, proceed with DB operations ---
   const t = await db.sequelize.transaction();
   let committed = false;
 
   try {
-    const body = req.body || {};
-    const projectNameError = validateProjectName(body.name);
-    if (projectNameError) {
-      await t.rollback();
-      return res.status(400).json({
-        success: false,
-        message: projectNameError,
-        field: "name",
-      });
-    }
-
-    const managerId = Number(body.managerId) || null;
     const memberIds = Array.isArray(body.memberIds)
       ? body.memberIds.map((id) => Number(id)).filter((id) => id && !Number.isNaN(id))
       : [];
@@ -372,11 +473,11 @@ exports.createProject = async (req, res) => {
     // Create project record
     const project = await Project.create({
       project_name: String(body.name).trim(),
-      description: body.description || null,
-      project_type: body.project_type || "internal",
-      start_date: body.start_date || null,
-      end_date: body.end_date || null,
-      status: body.status || "planning",
+      description: String(body.description).trim(),
+      project_type: String(body.project_type).trim().toLowerCase(),
+      start_date: body.start_date,
+      end_date: body.end_date,
+      status: String(body.status).trim().toLowerCase(),
       pm_user_id: managerId,
     }, { transaction: t });
 
@@ -418,7 +519,7 @@ exports.createProject = async (req, res) => {
     if (!committed) {
       try {
         await t.rollback();
-      } catch (_) {}
+      } catch (_) { }
     }
 
     console.error("createProject error:", error);
@@ -583,7 +684,7 @@ exports.replaceProjectAllocations = async (req, res) => {
     if (!committed) {
       try {
         await t.rollback();
-      } catch (_) {}
+      } catch (_) { }
     }
 
     console.error("replaceProjectAllocations error:", error);

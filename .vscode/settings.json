@@ -1,3 +1,4 @@
 {
-    "ai-commit.OPENAI_API_KEY": "sk-8fbb368ebd22413b95ece40777c9862e"
+    "ai-commit.OPENAI_API_KEY": "sk-8fbb368ebd22413b95ece40777c9862e",
+    "liveServer.settings.port": 5501
 }

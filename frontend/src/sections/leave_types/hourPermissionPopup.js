@@ -66,6 +66,7 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successModalMessage, setSuccessModalMessage] = useState('');
   const [documentNotice, setDocumentNotice] = useState("");
+  const [rejectedReasonError, setRejectedReasonError] = useState('');
 
   // Fetch leave request data when component mounts
   useEffect(() => {
@@ -116,10 +117,14 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
 
   const handleUpdateStatus = async () => {
     if (selectedStatus === "Rejected" && (!rejectedReason || rejectedReason.trim() === "")) {
-      setErrorModalMessage("Please enter a reason for rejection.");
+      setRejectedReasonError("Rejection reason is required");
+      setErrorModalMessage("Rejection reason is required");
       setErrorModalOpen(true);
+      if (rejectedInputRef.current) rejectedInputRef.current.focus();
       return;
     }
+
+    setRejectedReasonError("");
 
     if (!displayData.id) {
       console.error('Leave request ID is missing');
@@ -153,7 +158,7 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
       }, 900);
     } catch (error) {
       console.error('Error updating leave status:', error);
-      const errorMessage = error?.response?.data?.message || error.message || 'Failed to update leave status. Please try again.';
+      const errorMessage = error?.response?.data?.message || error?.response?.data?.error || error.message || 'Failed to update leave status. Please try again.';
       setErrorModalMessage(errorMessage);
       setErrorModalOpen(true);
     } finally {
@@ -344,21 +349,31 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
             <input
               id="rejected-reason"
               ref={rejectedInputRef}
-              className="hp-reject-input"
+              className={`hp-reject-input ${rejectedReasonError ? "error" : ""}`}
               type="text"
               placeholder="Enter the reason.."
               value={rejectedReason}
-              onChange={(e) => setRejectedReason(e.target.value)}
+              onChange={(e) => {
+                setRejectedReason(e.target.value);
+                if (e.target.value.trim()) {
+                  setRejectedReasonError("");
+                }
+              }}
               aria-label="Rejection reason"
             />
+            {rejectedReasonError && (
+              <p className="hp-reject-error" style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px" }}>
+                {rejectedReasonError}
+              </p>
+            )}
           </div>
 
           {/* Update Button */}
           <button
             className="hp-update-btn"
             onClick={handleUpdateStatus}
-            disabled={updating || (selectedStatus === "Rejected" && !rejectedReason.trim())}
-            aria-disabled={updating || (selectedStatus === "Rejected" && !rejectedReason.trim())}
+            disabled={updating}
+            aria-disabled={updating}
           >
             {updating ? 'Updating...' : 'Update'}
           </button>

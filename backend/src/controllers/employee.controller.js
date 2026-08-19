@@ -128,6 +128,52 @@ const handleControllerError = (error, operation) => {
   };
 };
 
+// Helper function to generate the next unique sequential Employee ID with "PAI" prefix
+const generateNextEmployeeId = async (transaction = null) => {
+  const users = await User.findAll({
+    attributes: ["emp_id"],
+    where: {
+      emp_id: {
+        [Op.like]: "PAI%",
+      },
+    },
+    transaction,
+  });
+
+  let maxNum = 0;
+  const maxEmployeeIdNumber = 1500;
+  const paiRegex = /^PAI(\d{3,4})$/;
+
+  users.forEach((user) => {
+    if (user.emp_id) {
+      const match = user.emp_id.match(paiRegex);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNum) {
+          maxNum = num;
+        }
+      }
+    }
+  });
+
+  let nextNum = maxNum + 1;
+  let candidateId = `PAI${String(nextNum).padStart(3, "0")}`;
+
+  while (nextNum <= maxEmployeeIdNumber) {
+    const existing = await User.findOne({
+      where: { emp_id: candidateId },
+      transaction,
+    });
+    if (!existing) {
+      return candidateId;
+    }
+    nextNum++;
+    candidateId = `PAI${String(nextNum).padStart(3, "0")}`;
+  }
+
+  throw new Error("Maximum employee ID limit reached (PAI1500). Cannot generate new IDs.");
+};
+
 // @desc    Create employee - Step 1: Personal Information & Credentials
 // @route   POST /api/employees/personal
 // @access  Private (Admin)
@@ -155,18 +201,33 @@ exports.createEmployeePersonal = async (req, res) => {
       password,
     } = req.body;
 
-    // Check if employee already exists
-    const existingUser = await User.findOne({
-      where: {
-        [Op.or]: [{ email: email }, { emp_id: emp_id }],
-      },
+    let finalEmpId = emp_id && String(emp_id).trim() ? String(emp_id).trim() : null;
+
+    // Check if email already exists
+    const existingEmail = await User.findOne({
+      where: { email: email.trim() },
     });
 
-    if (existingUser) {
+    if (existingEmail) {
       return res.status(400).json({
         success: false,
         message: "Employee with this email or employee ID already exists",
       });
+    }
+
+    if (finalEmpId) {
+      const existingEmpId = await User.findOne({
+        where: { emp_id: finalEmpId },
+      });
+
+      if (existingEmpId) {
+        return res.status(400).json({
+          success: false,
+          message: "Employee with this email or employee ID already exists",
+        });
+      }
+    } else {
+      finalEmpId = await generateNextEmployeeId();
     }
 
     // Hash password
@@ -175,10 +236,10 @@ exports.createEmployeePersonal = async (req, res) => {
 
     // Create user
     const user = await User.create({
-      first_name,
-      last_name: last_name || null,
-      email,
-      emp_id,
+      first_name: first_name.trim(),
+      last_name: last_name ? last_name.trim() : null,
+      email: email.trim(),
+      emp_id: finalEmpId,
       password_hash,
       role: "employee",
       status: "active",
@@ -204,9 +265,11 @@ exports.createEmployeePersonal = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Employee personal information created successfully",
+      message: "Employee created successfully",
       data: {
         user_id: user.id,
+        employee_id: user.emp_id,
+        emp_id: user.emp_id,
       },
     });
   } catch (error) {
@@ -664,45 +727,7 @@ exports.updateEmployeeProfessional = async (req, res) => {
 // @access  Private (Admin)
 exports.getNextEmployeeId = async (req, res) => {
   try {
-    // Find all employee IDs that start with "PAI" followed by numbers
-    const users = await User.findAll({
-      attributes: ["emp_id"],
-      where: {
-        emp_id: {
-          [Op.like]: "PAI%", // Find all emp_ids starting with "PAI"
-        },
-      },
-    });
-
-    // Extract the numeric part from each employee ID and find the highest
-    let maxNum = 0;
-    const maxEmployeeIdNumber = 1500;
-    const paiRegex = /^PAI(\d{3,4})$/;
-
-    users.forEach((user) => {
-      const match = user.emp_id.match(paiRegex);
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNum) {
-          maxNum = num;
-        }
-      }
-    });
-
-    // Calculate the next number
-    let nextNum = maxNum + 1;
-
-    // Handle edge case where we've reached the maximum (PAI1500)
-    if (nextNum > maxEmployeeIdNumber) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Maximum employee ID limit reached (PAI1500). Cannot generate new IDs.",
-      });
-    }
-
-    // Format the next employee ID with leading zeros (e.g., 1 -> 001, 10 -> 010)
-    const nextEmpId = `PAI${String(nextNum).padStart(3, "0")}`;
+    const nextEmpId = await generateNextEmployeeId();
 
     res.status(200).json({
       success: true,

@@ -29,10 +29,12 @@ const personalInfoSchema = Joi.object({
     .messages(employeeNameMessages),
   email: Joi.string().email().required(),
   emp_id: Joi.string()
+    .empty('')
+    .allow(null)
     .min(3)
     .max(30)
     .pattern(/^[A-Za-z0-9._-]+$/)
-    .required()
+    .optional()
     .messages({
       'string.pattern.base': 'Employee ID can only contain letters, numbers, dots, underscores, and hyphens',
       'string.min': 'Employee ID must be at least 3 characters long',

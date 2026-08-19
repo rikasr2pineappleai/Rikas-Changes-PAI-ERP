@@ -105,7 +105,9 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
   const handleUpdateStatus = async () => {
     // validation for rejection reason
     if (selectedStatus === "Rejected" && (!rejectedReason || rejectedReason.trim() === "")) {
-      setRejectedReasonError("Please enter a reason for rejection.");
+      setRejectedReasonError("Rejection reason is required");
+      setErrorModalMessage("Rejection reason is required");
+      setErrorModalOpen(true);
       if (rejectedInputRef.current) rejectedInputRef.current.focus();
       return;
     }
@@ -146,7 +148,7 @@ export default function FullDayLeavePopup({ data, onClose, onRefresh }) {
       }, 900);
     } catch (error) {
       console.error('Error updating leave status:', error);
-      const errorMessage = error?.response?.data?.message || error.message || 'Failed to update leave status. Please try again.';
+      const errorMessage = error?.response?.data?.message || error?.response?.data?.error || error.message || 'Failed to update leave status. Please try again.';
       setErrorModalMessage(errorMessage);
       setErrorModalOpen(true);
     } finally {

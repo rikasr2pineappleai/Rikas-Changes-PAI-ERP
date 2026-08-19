@@ -79,39 +79,49 @@ export default function NewEmployee() {
 
   const [errors, setErrors] = useState({});
 
+  const isFetchingIdRef = useRef(false);
+
   // Function to get the next employee ID from the backend
   const getNextEmployeeId = async () => {
+    if (isFetchingIdRef.current) return;
+    isFetchingIdRef.current = true;
     try {
       const response = await employeeAPI.getNextEmployeeId();
       if (response.success) {
         setFormData(prev => ({ ...prev, empId: response.data.nextEmpId }));
+        dispatch({
+          type: actionTypes.SET_STEP1_DATA,
+          payload: { empId: response.data.nextEmpId }
+        });
       } else {
         console.error("Failed to get next employee ID:", response.message);
-        // Fallback to PAI001 if API fails
         setFormData(prev => ({ ...prev, empId: "PAI001" }));
+        dispatch({
+          type: actionTypes.SET_STEP1_DATA,
+          payload: { empId: "PAI001" }
+        });
       }
     } catch (error) {
       console.error("Error getting next employee ID:", error);
-      // Fallback to PAI001 if API fails
       setFormData(prev => ({ ...prev, empId: "PAI001" }));
+      dispatch({
+        type: actionTypes.SET_STEP1_DATA,
+        payload: { empId: "PAI001" }
+      });
+    } finally {
+      isFetchingIdRef.current = false;
     }
   };
 
-  // Load the next employee ID when component mounts, but only if empId is empty
+  // Load saved form data from context when component mounts
   useEffect(() => {
-    // Load saved form data from context if available first
     if (step1Data) {
       setFormData(prev => ({
         ...prev,
         ...step1Data
       }));
     }
-    
-    // Only fetch next employee ID if empId is empty after loading context data
-    if (!step1Data?.empId && (!formData.empId || formData.empId.trim() === '')) {
-      getNextEmployeeId();
-    }
-  }, [step1Data, formData.empId]); // Include dependencies to satisfy ESLint
+  }, [step1Data]);
 
   // ✅ Handle Input Change
   const handleChange = (e) => {
@@ -156,6 +166,23 @@ export default function NewEmployee() {
           ? "Name can contain letters and spaces only."
           : validateName(nextValue),
       }));
+
+      // Auto-generate employee ID only when Name is entered
+      if (nextValue.trim().length > 0) {
+        setFormData(prev => {
+          if (!prev.empId || prev.empId.trim() === '') {
+            getNextEmployeeId();
+          }
+          return prev;
+        });
+      } else {
+        // If Name is cleared, clear empId as well
+        setFormData(prev => ({ ...prev, empId: '' }));
+        dispatch({
+          type: actionTypes.SET_STEP1_DATA,
+          payload: { empId: '' }
+        });
+      }
       return;
     }
 
