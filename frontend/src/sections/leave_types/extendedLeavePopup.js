@@ -51,7 +51,7 @@ export default function ExtendedLeavePopup({ data, onClose, onRefresh }) {
     } catch (error) {
       console.error('Error updating leave status:', error);
       // Show error using modal
-      const errorMessage = error?.response?.data?.message || error.message || 'Failed to update leave status. Please try again.';
+      const errorMessage = error?.response?.data?.message || error?.response?.data?.error || error.message || 'Failed to update leave status. Please try again.';
       setErrorModalMessage(errorMessage);
       setErrorModalOpen(true);
     } finally {

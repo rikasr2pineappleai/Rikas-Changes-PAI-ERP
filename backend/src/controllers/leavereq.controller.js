@@ -500,52 +500,103 @@ exports.updateStatus = async (req, res) => {
     console.log("User in request:", req.user ? req.user.id : "No user");
 
     const { id } = req.params;
-    const { status: newStatus, approved_by, reason } = req.body;
+    const { status: newStatus, approved_by } = req.body;
 
     // Convert status to lowercase to handle case-insensitive input
     if (!newStatus) {
       await t.rollback();
-      return res.status(400).json({ error: "Status is required" });
+      return res.status(400).json({
+        success: false,
+        message: "Status is required",
+        error: "Status is required"
+      });
     }
 
-    const lowerCaseNewStatus = newStatus ? newStatus.toLowerCase() : null;
+    const lowerCaseNewStatus = newStatus ? String(newStatus).toLowerCase() : null;
 
     if (!VALID_STATUSES.includes(lowerCaseNewStatus)) {
       await t.rollback();
-      return res.status(400).json({ error: "Invalid status" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status",
+        error: "Invalid status"
+      });
+    }
+
+    // Extract potential reason fields
+    const rawReason =
+      req.body.reason !== undefined
+        ? req.body.reason
+        : req.body.rejectionReason !== undefined
+        ? req.body.rejectionReason
+        : req.body.rejection_reason;
+
+    const rawAdminReason =
+      req.body.adminReason !== undefined
+        ? req.body.adminReason
+        : req.body.admin_reason;
+
+    // Helper to check if a value is a non-empty string after trimming
+    const isNonEmptyReason = (val) =>
+      typeof val === "string" && val.trim().length > 0;
+
+    // REJECTION REASON VALIDATION (Bug API-ERP-003)
+    if (lowerCaseNewStatus === "rejected") {
+      const hasReason = isNonEmptyReason(rawReason);
+      const hasAdminReason = isNonEmptyReason(rawAdminReason);
+
+      if (!hasReason && !hasAdminReason) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "Rejection reason is required",
+          error: "Rejection reason is required"
+        });
+      }
     }
 
     // validate reason if present
     let reasonToSave = undefined;
-    if (reason !== undefined) {
-      if (reason !== null && typeof reason !== "string") {
+    if (rawReason !== undefined) {
+      if (rawReason !== null && typeof rawReason !== "string") {
         await t.rollback();
-        return res.status(400).json({ error: "reason must be a string" });
+        return res.status(400).json({
+          success: false,
+          message: "reason must be a string",
+          error: "reason must be a string"
+        });
       }
-      if (typeof reason === "string" && reason.length > 255) {
+      if (typeof rawReason === "string" && rawReason.length > 255) {
         await t.rollback();
-        return res
-          .status(400)
-          .json({ error: "reason must be at most 255 characters" });
+        return res.status(400).json({
+          success: false,
+          message: "reason must be at most 255 characters",
+          error: "reason must be at most 255 characters"
+        });
       }
-      reasonToSave = reason === null ? "" : reason;
+      reasonToSave = rawReason === null ? "" : rawReason;
     }
 
     // validate adminReason if present
     let adminReasonToSave = undefined;
-    if (req.body.adminReason !== undefined) {
-      const adminReason = req.body.adminReason;
-      if (adminReason !== null && typeof adminReason !== "string") {
+    if (rawAdminReason !== undefined) {
+      if (rawAdminReason !== null && typeof rawAdminReason !== "string") {
         await t.rollback();
-        return res.status(400).json({ error: "adminReason must be a string" });
+        return res.status(400).json({
+          success: false,
+          message: "adminReason must be a string",
+          error: "adminReason must be a string"
+        });
       }
-      if (typeof adminReason === "string" && adminReason.length > 255) {
+      if (typeof rawAdminReason === "string" && rawAdminReason.length > 255) {
         await t.rollback();
-        return res
-          .status(400)
-          .json({ error: "adminReason must be at most 255 characters" });
+        return res.status(400).json({
+          success: false,
+          message: "adminReason must be at most 255 characters",
+          error: "adminReason must be at most 255 characters"
+        });
       }
-      adminReasonToSave = adminReason === null ? null : adminReason;
+      adminReasonToSave = rawAdminReason === null ? null : rawAdminReason;
     }
 
     const leaveReq = await LeaveRequest.findByPk(id, {
@@ -555,7 +606,11 @@ exports.updateStatus = async (req, res) => {
 
     if (!leaveReq) {
       await t.rollback();
-      return res.status(404).json({ error: "Leave request not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Leave request not found",
+        error: "Leave request not found"
+      });
     }
 
     const prevStatus = leaveReq.status;
@@ -628,7 +683,10 @@ exports.updateStatus = async (req, res) => {
     }
 
     await t.commit();
-    return res.json({ message: "Status updated successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Status updated successfully"
+    });
   } catch (err) {
     try {
       await t.rollback();
