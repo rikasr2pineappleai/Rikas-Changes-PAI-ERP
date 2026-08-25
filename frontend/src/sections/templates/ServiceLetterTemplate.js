@@ -49,7 +49,7 @@ const COMPANY_DOCUMENTS_COL2 = [
 
 const COMPANY_DOCUMENTS = [...COMPANY_DOCUMENTS_COL1, ...COMPANY_DOCUMENTS_COL2];
 
-export default function ServiceLetterTemplate() {
+export default function ServiceLetterTemplate({ initialLetter = null, onBack = null }) {
   const [showPreview, setShowPreview] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -263,6 +263,73 @@ export default function ServiceLetterTemplate() {
     };
     fetchEmployees();
   }, []);
+
+  /* ── Auto-load when initialLetter is passed from Letter Management edit ─── */
+  useEffect(() => {
+    if (!initialLetter) return;
+
+    const loadInitialLetterData = async () => {
+      try {
+        const targetUserId = initialLetter.userId || initialLetter.rawId;
+        const targetName = initialLetter.employeeName;
+
+        let empData = null;
+        if (targetUserId) {
+          try {
+            const token = localStorage.getItem("token");
+            const res = await axios.get(
+              `http://localhost:5001/api/templates/service-letter/employee/${targetUserId}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (res.data?.success && res.data?.data?.employee) {
+              empData = res.data.data.employee;
+            }
+          } catch (fetchErr) {
+            try {
+              const dbg = await axios.get(
+                `http://localhost:5001/api/templates/service-letter/debug/employee/${targetUserId}`
+              );
+              if (dbg.data?.success && dbg.data?.data?.employee) {
+                empData = dbg.data.data.employee;
+              }
+            } catch (dbgErr) {
+              console.warn("Could not fetch service letter employee details:", dbgErr);
+            }
+          }
+        }
+
+        if (!empData && employees.length > 0) {
+          empData = employees.find(
+            (e) =>
+              String(e.userId) === String(targetUserId) ||
+              (targetName && e.employeeName?.toLowerCase() === targetName.toLowerCase())
+          );
+        }
+
+        if (empData) {
+          handleEmployeeSelect(empData);
+        } else if (initialLetter) {
+          const today = new Date().toISOString().split("T")[0];
+          setSelectedEmployeeId(targetUserId ? String(targetUserId) : "");
+          setRequestDetails((prev) => ({
+            ...prev,
+            employeeName: initialLetter.employeeName || prev.employeeName,
+            requestedOn: prev.requestedOn || today
+          }));
+          setFormData((prev) => ({
+            ...prev,
+            employeeName: initialLetter.employeeName || prev.employeeName,
+            position: initialLetter.designation || prev.position,
+            letterDate: prev.letterDate || today
+          }));
+        }
+      } catch (err) {
+        console.error("Error auto-fetching service letter details for edit:", err);
+      }
+    };
+
+    loadInitialLetterData();
+  }, [initialLetter, employees.length]);
 
   /* ── sync responsibilities string ──────────────────────── */
   useEffect(() => {
@@ -489,7 +556,7 @@ export default function ServiceLetterTemplate() {
       <div className={`service-template-wrapper ${showPreview ? "blurred" : ""}`}>
         {/* Header */}
         <div className="service-page-header-title">
-          <button className="service-back-circle-btn" onClick={() => window.history.back()}>
+          <button className="service-back-circle-btn" onClick={() => (onBack ? onBack() : window.history.back())}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
@@ -515,9 +582,6 @@ export default function ServiceLetterTemplate() {
                 <div className="service-group" style={{ position: "relative" }}>
                   <label>
                     Employee Name
-                    <span style={{ fontSize: "11px", color: "#6b7280", fontWeight: 400, marginLeft: 8 }}>
-                      (auto-fills details from database)
-                    </span>
                   </label>
                   <input
                     type="text"

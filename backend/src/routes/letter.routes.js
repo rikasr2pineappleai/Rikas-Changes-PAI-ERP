@@ -53,9 +53,17 @@ router.route('/offer-letter/templates')
 router.route('/offer-letter/all-employees')
   .get(protect, authorize('admin'), getAllEmployeesForDropdown);
 
+// DEBUG: Get all employees for dropdown (no auth required)
+router.route('/offer-letter/debug/all-employees')
+  .get(getAllEmployeesForDropdown);
+
 // DEBUG: List all employees (static route before :id parameter)
 router.route('/offer-letter/debug/list-all-employees')
   .get(protect, authorize('admin'), debugListAllEmployees);
+
+// DEBUG: Get employee details by ID (no auth required)
+router.route('/offer-letter/debug/employee/:employee_id')
+  .get(getEmployeeDetailsForOfferLetter);
 
 // Generic route with parameters (must be last)
 router.route('/offer-letter/employee/:employee_id')
@@ -84,6 +92,10 @@ router.route('/service-letter/all-employees')
 // DEBUG: Get all employees for dropdown (no auth required)
 router.route('/service-letter/debug/all-employees')
   .get(debugServiceLetterEmployees);
+
+// DEBUG: Get employee details by ID (no auth required)
+router.route('/service-letter/debug/employee/:employee_id')
+  .get(getEmployeeDetailsForServiceLetter);
 
 // Generic route with parameters (must be last)
 router.route('/service-letter/employee/:employee_id')

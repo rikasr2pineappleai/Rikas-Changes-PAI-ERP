@@ -18,6 +18,7 @@ export default function LetterManagementPage() {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activeView, setActiveView] = useState('list'); // 'list' | 'create_offer' | 'create_service'
+  const [selectedLetter, setSelectedLetter] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -70,8 +71,19 @@ export default function LetterManagementPage() {
   };
 
   const handleOpenGenerator = (type) => {
+    setSelectedLetter(null);
     setIsDropdownOpen(false);
     if (type === 'Offer Letter') {
+      setActiveView('create_offer');
+    } else {
+      setActiveView('create_service');
+    }
+  };
+
+  const handleEditLetter = (row) => {
+    setSelectedLetter(row);
+    setIsDropdownOpen(false);
+    if (row.documentType === 'Offer Letter') {
       setActiveView('create_offer');
     } else {
       setActiveView('create_service');
@@ -109,24 +121,25 @@ export default function LetterManagementPage() {
   if (activeView === 'create_offer' || activeView === 'create_service') {
     return (
       <div className="letter-mgmt-container">
-        <div className="generator-header-bar">
-          <button
-            className="btn-back-to-list"
-            onClick={() => {
+        {activeView === 'create_offer' ? (
+          <OfferLetterTemplate
+            initialLetter={selectedLetter}
+            onBack={() => {
               setActiveView('list');
+              setSelectedLetter(null);
               fetchLetters();
             }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            Back to Letter Management
-          </button>
-          <h3 style={{ margin: 0, color: '#1e293b' }}>
-            {activeView === 'create_offer' ? 'Generate Offer Letter' : 'Generate Service Letter'}
-          </h3>
-        </div>
-        {activeView === 'create_offer' ? <OfferLetterTemplate /> : <ServiceLetterTemplate />}
+          />
+        ) : (
+          <ServiceLetterTemplate
+            initialLetter={selectedLetter}
+            onBack={() => {
+              setActiveView('list');
+              setSelectedLetter(null);
+              fetchLetters();
+            }}
+          />
+        )}
       </div>
     );
   }
@@ -343,7 +356,7 @@ export default function LetterManagementPage() {
                       <button
                         className="action-icon-btn edit"
                         title="Edit Letter"
-                        onClick={() => handleOpenGenerator(row.documentType)}
+                        onClick={() => handleEditLetter(row)}
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -355,7 +368,7 @@ export default function LetterManagementPage() {
                       <button
                         className="action-icon-btn view"
                         title="View Letter"
-                        onClick={() => handleOpenGenerator(row.documentType)}
+                        onClick={() => handleEditLetter(row)}
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
