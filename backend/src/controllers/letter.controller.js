@@ -5,6 +5,8 @@ const { OfferLetterForm, ServiceLetterForm, User } = require('../models');
 const offerLetterController = require('./offerLetter.controller');
 const serviceLetterController = require('./serviceLetter.controller');
 
+const bcrypt = require('bcryptjs');
+
 // Re-export Offer Letter functions
 exports.generateOfferLetterPDF = offerLetterController.generateOfferLetterPDF;
 exports.generateOfferLetterPreview = offerLetterController.generateOfferLetterPreview;
@@ -125,25 +127,76 @@ exports.getAllLetters = async (req, res) => {
 // @desc    Delete a generated letter record
 // @route   DELETE /api/templates/letters/:documentType/:id
 // @access  Private (Admin)
+
+// exports.deleteLetter = async (req, res) => {
+//   try {
+//     const { documentType, id } = req.params;
+//     const cleanId = String(id).replace(/^(offer_|service_)/, '');
+
+//     if (documentType === 'Offer Letter' || documentType === 'offer') {
+//       await OfferLetterForm.destroy({ where: { id: cleanId } });
+//     } else if (documentType === 'Service Letter' || documentType === 'service') {
+//       await ServiceLetterForm.destroy({ where: { id: cleanId } });
+//     } else {
+//       await Promise.all([
+//         OfferLetterForm.destroy({ where: { id: cleanId } }),
+//         ServiceLetterForm.destroy({ where: { id: cleanId } })
+//       ]);
+//     }
+
+//     res.status(200).json({ success: true, message: 'Letter record deleted successfully' });
+//   } catch (error) {
+//     console.error('Error deleting letter:', error);
+//     res.status(500).json({ success: false, message: 'Failed to delete letter', error: error.message });
+//   }
+// };
+
+
+
 exports.deleteLetter = async (req, res) => {
   try {
     const { documentType, id } = req.params;
-    const cleanId = String(id).replace(/^(offer_|service_)/, '');
+    const {credential} = req.body; // Get the credential from the request body
 
-    if (documentType === 'Offer Letter' || documentType === 'offer') {
-      await OfferLetterForm.destroy({ where: { id: cleanId } });
-    } else if (documentType === 'Service Letter' || documentType === 'service') {
-      await ServiceLetterForm.destroy({ where: { id: cleanId } });
-    } else {
-      await Promise.all([
-        OfferLetterForm.destroy({ where: { id: cleanId } }),
-        ServiceLetterForm.destroy({ where: { id: cleanId } })
-      ]);
+    //Required credential PIN
+    if (!credential) {
+      return res.status(400).json({ success: false, message: 'Please enter your credential PIN.' });
     }
 
+    // Fetch the user with their password hash from the database
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized user.' });
+    }
+
+    //Compare the entered PIN with the database hash
+    const isMatch = await bcrypt.compare(credential, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Incorrect credential PIN. Please try again.' });
+    }
+
+
+    //If credentials match, proceed with deletion
+    const cleanId = String(id).replace(/^(offer_|service_)/, '');
+    let deletedCount = 0;
+    if (documentType === 'Offer Letter' || documentType === 'offer') {
+      deletedCount = await OfferLetterForm.destroy({ where: { id: cleanId } });
+    } else if (documentType === 'Service Letter' || documentType === 'service') {
+      deletedCount = await ServiceLetterForm.destroy({ where: { id: cleanId } });
+    } else {
+      const off = await OfferLetterForm.destroy({ where: { id: cleanId } });
+      const srv = await ServiceLetterForm.destroy({ where: { id: cleanId } });
+      deletedCount = off + srv;
+    }
+
+    //Check if document actually existed
+
+    if (deletedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Document not found.' });
+    }
     res.status(200).json({ success: true, message: 'Letter record deleted successfully' });
   } catch (error) {
     console.error('Error deleting letter:', error);
-    res.status(500).json({ success: false, message: 'Failed to delete letter', error: error.message });
+    res.status(500).json({ success: false, message: 'Failed to delete the document. Please try again.', error: error.message });
   }
 };

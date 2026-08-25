@@ -20,6 +20,17 @@ export default function LetterManagementPage() {
   const [activeView, setActiveView] = useState('list'); // 'list' | 'create_offer' | 'create_service'
   const [selectedLetter, setSelectedLetter] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showCredentialModal, setShowCredentialModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [credential, setCredential] = useState('');
+  const [showCredential, setShowCredential] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const [successMessage, setSuccessMessage] = useState('');
   const itemsPerPage = 10;
 
   // Fetch letters from database
@@ -54,21 +65,74 @@ export default function LetterManagementPage() {
     fetchLetters();
   }, [activeView]);
 
-  // Handle row actions
+  //Click Trash Icon ->  Open First Modal
   const handleDeleteRow = async (row) => {
-    if (window.confirm(`Are you sure you want to delete this ${row.documentType} record for ${row.employeeName}?`)) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5001/api/templates/letters/${encodeURIComponent(row.documentType)}/${row.rawId || row.id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setLetters((prev) => prev.filter((item) => item.id !== row.id));
-      } catch (err) {
-        console.error('Failed to delete letter from database:', err);
-        setLetters((prev) => prev.filter((item) => item.id !== row.id));
+    setDeleteTarget(row);
+    setShowDeleteConfirm(true);
+  };
+
+  // Click Delete on First Modal -> Open Second Modal
+  const handleProceedToVerify = () => {
+    setShowDeleteConfirm(false);
+    setShowCredentialModal(true);
+  };
+
+  //Cancel Actions -> Close Modals and Reset State
+  const closeModals = () => {
+    setShowDeleteConfirm(false);
+    setShowCredentialModal(false);
+    setDeleteTarget(null);
+    setCredential('');
+    setDeleteError('');
+    setShowCredential(false);
+    setDeleteLoading(false);
+  };
+
+
+
+  //Click Verify & Delete -> Send to Backend
+  const submitDelete = async () => {
+    if (!credential) {
+      setDeleteError('Please enter your credential PIN.');
+      return;
+    }
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      const token = localStorage.getItem('token');
+      // Using axios.delete with a data payload for the credential
+      await axios.delete(`http://localhost:5001/api/templates/letters/${encodeURIComponent(deleteTarget.documentType)}/${deleteTarget.rawId || deleteTarget.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { credential } 
+      });
+      
+      // Success: Remove from UI and close modal
+      const documentTypeDeleted = deleteTarget.documentType; // Save name before clearing state
+      setLetters((prev) => prev.filter((item) => item.id !== deleteTarget.id));
+      closeModals();
+
+      // Show success message Notification for 3 seconds
+      setSuccessMessage(`${documentTypeDeleted} Deleted successfully.`);
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+
+    } catch (err) {
+      console.error('Failed to delete document:', err);
+      // Display the error returned from the backend (e.g., "Incorrect credential PIN")
+      if (err.response && err.response.data && err.response.data.message) {
+        setDeleteError(err.response.data.message);
+      } else {
+        setDeleteError('Failed to delete the document. Please try again.');
       }
+    } finally {
+      setDeleteLoading(false);
     }
   };
+
+
+
+
 
   const handleOpenGenerator = (type) => {
     setSelectedLetter(null);
@@ -456,6 +520,92 @@ export default function LetterManagementPage() {
           }
         }}
       />
+
+            {/* FIRST MODAL: Delete Document*/}
+      {showDeleteConfirm && deleteTarget && (
+        <div className="delete-modal-overlay">
+          <div className="delete-modal-content">
+            
+            <button className="delete-modal-close-btn" onClick={closeModals}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+
+            <div className="delete-modal-warning-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+            </div>
+
+            <h2 className="delete-modal-title">Delete Document</h2>
+            <p className="delete-modal-subtitle">Are you sure want to delete this document?</p>
+
+            <div className="delete-document-card">
+              <div className="delete-document-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+              </div>
+              <div className="delete-document-info">
+                <span className="delete-document-type">{deleteTarget.documentType}</span>
+                <span className="delete-document-details">{deleteTarget.employeeName} • Generated on {deleteTarget.generatedOnDate}</span>
+              </div>
+            </div>
+
+            <div className="delete-modal-actions">
+              <button className="delete-modal-cancel-btn" onClick={closeModals}>Cancel</button>
+              <button className="delete-modal-confirm-btn" onClick={handleProceedToVerify}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/*SECOND MODAL: Verify to Delete  */}
+      {showCredentialModal && deleteTarget && (
+        <div className="verify-modal-overlay">
+          <div className="verify-modal-content">
+            
+            <button className="verify-modal-close-btn" onClick={closeModals} disabled={deleteLoading}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+
+            <div className="verify-modal-icon-container">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
+            </div>
+
+            <h2 className="verify-modal-title">Verify to Delete</h2>
+            <p className="verify-modal-subtitle">Enter your credential PIN to confirm deletion of this document.</p>
+
+            <div className="verify-modal-input-group">
+              <label className="verify-modal-label">Credential PIN <span className="text-red">*</span></label>
+              <div className="verify-modal-input-wrapper">
+                <input
+                  type={showCredential ? "text" : "password"}
+                  className="verify-modal-input"
+                  placeholder="Enter the Password"
+                  value={credential}
+                  onChange={(e) => setCredential(e.target.value)}
+                  disabled={deleteLoading}
+                />
+                <button type="button" className="verify-modal-eye-btn" onClick={() => setShowCredential(!showCredential)}>
+                  {showCredential ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  )}
+                </button>
+              </div>
+              {deleteError && <p style={{ color: '#e60000', fontSize: '12px', marginTop: '4px' }}>{deleteError}</p>}
+            </div>
+
+            <div className="verify-modal-actions">
+              <button className="verify-modal-cancel-btn" onClick={closeModals} disabled={deleteLoading}>
+                Cancel
+              </button>
+              <button className="verify-modal-submit-btn" onClick={submitDelete} disabled={deleteLoading}>
+                {deleteLoading ? 'Verifying...' : 'Verify & Delete'}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
