@@ -15,8 +15,8 @@ module.exports = (sequelize) => {
   });
 
   ServiceLetterForm.associate = (models) => {
-    ServiceLetterForm.belongsTo(models.User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
-    ServiceLetterForm.belongsTo(models.User, { foreignKey: 'generated_by', onDelete: 'CASCADE' });
+    ServiceLetterForm.belongsTo(models.User, { foreignKey: 'user_id', as: 'Recipient', onDelete: 'CASCADE' });
+    ServiceLetterForm.belongsTo(models.User, { foreignKey: 'generated_by', as: 'GeneratedBy', onDelete: 'CASCADE' });
   };
 
   return ServiceLetterForm;

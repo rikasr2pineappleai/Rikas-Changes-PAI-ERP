@@ -1,4 +1,4 @@
-const { ServiceLetterTemplate, Role, Department, User, EmployeeDetail, sequelize } = require('../models');
+const { ServiceLetterTemplate, ServiceLetterForm, Role, Department, User, EmployeeDetail, sequelize } = require('../models');
 const puppeteer = require('puppeteer');
 const { handleControllerError } = require('../utils/errorHandler');
 const { Op } = require('sequelize');
@@ -41,13 +41,47 @@ const getServiceLetterEmailValidationErrors = (data) => {
   return errors;
 };
 
+const fs = require('fs');
+
+const getPuppeteerLaunchOptions = () => {
+  const options = {
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  };
+
+  const possiblePaths = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+    process.env.LOCALAPPDATA ? `${process.env.LOCALAPPDATA}\\Google\\Chrome\\Application\\chrome.exe` : null
+  ].filter(Boolean);
+
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      options.executablePath = p;
+      break;
+    }
+  }
+
+  return options;
+};
+
 const createServiceLetterPDFBuffer = async (data) => {
   const htmlContent = generateServiceLetterHTML(data);
 
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
+  const launchOptions = getPuppeteerLaunchOptions();
+  let browser;
+  try {
+    browser = await puppeteer.launch(launchOptions);
+  } catch (launchErr) {
+    // If custom path failed, retry default
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+  }
 
   try {
     const page = await browser.newPage();
@@ -61,7 +95,9 @@ const createServiceLetterPDFBuffer = async (data) => {
       margin: { top: '0', right: '0', bottom: '0', left: '0' },
     });
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
   }
 };
 
@@ -149,9 +185,10 @@ const fetchEmployeeDetailsForServiceLetter = async (userId) => {
       employeeName: fullName,
       address: user.EmployeeDetail?.address || '',
       position: user.designation || '',
+      designation: user.designation || '',
       department: user.Department?.dept_name || '',
-      joiningDate: joiningDate ? joiningDate.toISOString().split('T')[0] : '',
-      endDate: endDate ? endDate.toISOString().split('T')[0] : '',
+      joiningDate: joiningDate ? (typeof joiningDate === 'string' ? joiningDate.split('T')[0] : new Date(joiningDate).toISOString().split('T')[0]) : '',
+      endDate: endDate ? (typeof endDate === 'string' ? endDate.split('T')[0] : new Date(endDate).toISOString().split('T')[0]) : '',
       reportingManager,
       reportingManagerEmail,
       empId: user.emp_id,
@@ -208,8 +245,9 @@ const getMergedServiceLetterData = async (data) => {
   return {
     ...employeeDetails,
     ...manualOverrides,
+    userId: employeeDetails.userId || employee_id || undefined,
     employeeName: manualOverrides.employeeName || employeeDetails.employeeName,
-    position: manualOverrides.position || employeeDetails.position,
+    position: manualOverrides.position || employeeDetails.position || employeeDetails.designation,
     department: manualOverrides.department || employeeDetails.department,
     joiningDate: manualOverrides.joiningDate || employeeDetails.joiningDate,
     endDate: manualOverrides.endDate || employeeDetails.endDate,
@@ -217,11 +255,26 @@ const getMergedServiceLetterData = async (data) => {
   };
 };
 
-// Helper function to get all employees for dropdown
+// Helper function to get all employees for dropdown with full details
 const fetchAllEmployeesForServiceLetterDropdown = async () => {
   try {
     const employees = await User.findAll({
-      attributes: ['id', 'first_name', 'last_name', 'designation', 'email'],
+      include: [
+        {
+          model: EmployeeDetail,
+          attributes: ['joined_date', 'end_date', 'address']
+        },
+        {
+          model: Department,
+          attributes: ['id', 'dept_name']
+        },
+        {
+          model: User,
+          as: 'ReportTo',
+          attributes: ['id', 'first_name', 'last_name', 'email']
+        }
+      ],
+      attributes: ['id', 'emp_id', 'first_name', 'last_name', 'email', 'designation', 'department_id', 'report_to'],
       order: [['first_name', 'ASC']],
       limit: 200
     });
@@ -230,14 +283,21 @@ const fetchAllEmployeesForServiceLetterDropdown = async () => {
       const firstName = employee.first_name || '';
       const lastName = employee.last_name && employee.last_name !== 'null' ? ` ${employee.last_name}` : '';
       const fullName = `${firstName}${lastName}`.trim();
-
-      console.log('Mapping employee:', { id: employee.id, firstName, rawLastName: employee.last_name, lastName, fullName });
+      const joiningDate = employee.EmployeeDetail?.joined_date;
+      const endDate = employee.EmployeeDetail?.end_date;
 
       return {
         userId: employee.id,
+        empId: employee.emp_id,
         employeeName: fullName,
         designation: employee.designation || '',
-        email: employee.email || ''
+        position: employee.designation || '',
+        department: employee.Department?.dept_name || '',
+        email: employee.email || '',
+        employeeEmail: employee.email || '',
+        joiningDate: joiningDate ? (typeof joiningDate === 'string' ? joiningDate.split('T')[0] : new Date(joiningDate).toISOString().split('T')[0]) : '',
+        endDate: endDate ? (typeof endDate === 'string' ? endDate.split('T')[0] : new Date(endDate).toISOString().split('T')[0]) : '',
+        address: employee.EmployeeDetail?.address || ''
       };
     });
   } catch (error) {
@@ -265,11 +325,27 @@ exports.generateServiceLetterPDF = async (req, res) => {
     }
 
     const pdfBuffer = await createServiceLetterPDFBuffer(data);
+    const fileName = `service-letter-${(data.employeeName || 'employee').replace(/\s+/g, '-')}.pdf`;
+
+    // Persist to ServiceLetterForm table if user exists
+    if (data.userId && ServiceLetterForm) {
+      try {
+        await ServiceLetterForm.create({
+          user_id: data.userId,
+          letter_date: data.letterDate || new Date().toISOString().split('T')[0],
+          generated_by: req.user?.id || data.userId || 1,
+          file_path: fileName,
+          status: 'draft'
+        });
+      } catch (dbErr) {
+        console.warn('Could not save ServiceLetterForm record:', dbErr.message);
+      }
+    }
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename=service-letter-${(data.employeeName || 'employee').replace(/\s+/g, '-')}.pdf`
+      `attachment; filename=${fileName}`
     );
     res.send(pdfBuffer);
   } catch (error) {
@@ -340,6 +416,20 @@ exports.sendServiceLetterEmail = async (req, res) => {
         }
       ]
     });
+
+    if (data.userId && ServiceLetterForm) {
+      try {
+        await ServiceLetterForm.create({
+          user_id: data.userId,
+          letter_date: data.letterDate || new Date().toISOString().split('T')[0],
+          generated_by: req.user?.id || data.userId || 1,
+          file_path: `service-letter-${safeFileName}.pdf`,
+          status: 'sent'
+        });
+      } catch (dbErr) {
+        console.warn('Could not save ServiceLetterForm record:', dbErr.message);
+      }
+    }
 
     return res.status(200).json({
       success: true,

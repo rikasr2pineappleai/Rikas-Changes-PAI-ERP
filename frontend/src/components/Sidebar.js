@@ -15,6 +15,7 @@ import settingIcon from '../assets/icons/setting.png';
 import logoutIcon from '../assets/icons/logout.png';
 import taskIcon from '../assets/icons/task.png';
 import performanceIcon from '../assets/icons/performance.png';
+import letterManagmentIcon from '../assets/icons/letterManagment.png';
 
 // Map icon names to actual imports
 const iconMap = {
@@ -27,7 +28,9 @@ const iconMap = {
   setting: settingIcon,
   logout: logoutIcon,
   task: taskIcon,
-  performance: performanceIcon
+  performance: performanceIcon,
+  letterManagment: letterManagmentIcon,
+  letterManagement: letterManagmentIcon,
 };
 
 const getCurrentUserRole = () => {
@@ -94,7 +97,8 @@ const Sidebar = ({ isOpen, onNavigate }) => {
           { path: '/employees', label: 'Employees', icon: 'employee' },
           { path: '/leave', label: 'Leaves', icon: 'leave' },
           { path: '/projects', label: 'Projects', icon: 'project' },
-          { path: '/templates', label: 'Templates', icon: 'project' },
+          { path: '/templates', label: 'Template', icon: 'project' },
+          { path: '/letter-management', label: 'Letter Management', icon: 'letterManagment' },
           { path: '/settings', label: 'Settings', icon: 'setting' },
           { path: '/logout', label: 'Logout', icon: 'logout' }
         ] : [

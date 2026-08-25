@@ -29,6 +29,7 @@ import Leaves from './pages/Leaves';
 import Attendence from './pages/Attendence';
 import Login from './pages/Login';
 import TemplatesPage from './pages/TemplatesPage';
+import LetterManagementPage from './pages/LetterManagementPage';
 import Logout from './pages/Logout';
 import Unauthorized from './pages/Unauthorized';
 
@@ -136,6 +137,7 @@ function AppShell() {
             <Route path="/recruitment" element={<RoleProtectedRoute allowedRoles={['admin']}><RecruitmentPage /></RoleProtectedRoute>} />
             <Route path="/reports" element={<RoleProtectedRoute allowedRoles={['admin']}><ReportsPage /></RoleProtectedRoute>} />
             <Route path="/templates" element={<RoleProtectedRoute allowedRoles={['admin']}><TemplatesPage /></RoleProtectedRoute>} />
+            <Route path="/letter-management" element={<RoleProtectedRoute allowedRoles={['admin']}><LetterManagementPage /></RoleProtectedRoute>} />
             <Route path="/projects" element={<RoleProtectedRoute allowedRoles={['admin']}><ProjectsDashboard /></RoleProtectedRoute>} />
             <Route path="/projects/:projectId" element={<RoleProtectedRoute allowedRoles={['admin']}><ViewProject /></RoleProtectedRoute>} />
 

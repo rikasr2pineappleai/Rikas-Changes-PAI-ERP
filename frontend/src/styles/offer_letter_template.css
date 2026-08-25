@@ -1,109 +1,268 @@
 /* ========================================================= */
-/* OFFER LETTER TEMPLATE (ERP Accurate – 3 Column Layout)    */
+/* OFFER LETTER TEMPLATE  –  Figma Exact Design              */
+/* Primary colors: #347E45, #005012, #005E16, #EAF8EC        */
 /* ========================================================= */
 
 .offer-template-wrapper {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 24px 32px;
+  border-radius: 20px;
+  box-shadow: 0px 1px 6.3px rgba(0, 0, 0, 0.15);
+  padding: 32px 40px 40px;
   width: 100%;
-  max-width: none;
-  margin-right: 0;
   box-sizing: border-box;
+  font-family: 'Roboto', 'Inter', sans-serif;
 }
 
-/* ---------- Header ---------- */
-.offer-template-header {
-  border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 24px;
-  padding-bottom: 10px;
+/* ── Page Header Title ─────────────────────────────────────── */
+.offer-page-header-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 
-.offer-template-title {
-  font-size: 16px;
+.offer-back-circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #006214;
+  background: #ffffff;
+  color: #006214;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.offer-back-circle-btn:hover {
+  background: #eaf8ec;
+}
+
+.offer-main-title {
+  font-size: 24px;
   font-weight: 600;
   color: #1e293b;
+  margin: 0;
 }
 
-/* ---------- Form ---------- */
+.offer-main-subtitle {
+  font-size: 14px;
+  color: #a6a6a6;
+  margin: 2px 0 0 0;
+}
+
+/* ── Form Section ───────────────────────────────────────────── */
 .offer-template-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  
-  
+  gap: 32px;
 }
 
-/* ---------- Grid ---------- */
-/* Figma: 3 columns × 3 rows */
-.offer-grid {
+.offer-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Section Header Bar with Dark Green Left Accent Bar */
+.section-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.section-header-bar.flex-space-between {
+  justify-content: space-between;
+}
+
+.header-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.green-accent-line {
+  width: 5px;
+  height: 28px;
+  background: #005012;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.section-header-title {
+  font-size: 22px;
+  font-weight: 500;
+  color: #000000;
+  margin: 0;
+}
+
+/* ── Selectable Cards Grid (Permanent / Contract, Full Time / Part Time) ── */
+.two-cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px 24px;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 }
 
-.offer-group {
+.hire-type-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 28px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #979494;
+  opacity: 0.9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.hire-type-card.selected {
+  background: #eaf8ec;
+  border: 1px solid #005e16;
+}
+
+.card-icon-box {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-text-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-title-text {
+  font-size: 22px;
+  font-weight: 500;
+  color: #005012;
+  margin: 0;
+}
+
+.card-subtitle-text {
+  font-size: 15px;
+  font-weight: 400;
+  color: #005012;
+  margin: 0;
+}
+
+/* ── Two Column Inputs Grid ─────────────────────────────────── */
+.two-column-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.margin-top-20 {
+  margin-top: 12px;
+}
+
+.offer-field-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.offer-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.offer-group input,
-.offer-group select,
-.offer-input,
-.offer-select,
-.offer-date-input {
-  width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 14px;
-  color: #1e293b;
-  background: #ffffff;
-  outline: none;
-  box-sizing: border-box;
-  font-family: inherit;
-  transition: border-color 0.15s ease;
-}
-
-.offer-input::placeholder,
-.offer-date-input::placeholder {
-  color: #c4c9d2;
-  opacity: 1;
+.offer-field-label {
+  font-size: 18px;
   font-weight: 400;
+  color: #000000;
 }
 
-/* Placeholder text in Role select (first disabled option) */
-.offer-select:invalid,
-.offer-select option[value=""] {
-  color: #c4c9d2;
+.sub-field-label {
+  font-size: 15px;
+  font-weight: 400;
+  color: #595959;
 }
 
-/* ---------- Force DD/MM/YYYY uppercase placeholder on empty date inputs ---------- */
-/* Hide native date format text while the field is empty, then overlay our own placeholder */
-.offer-date-input.is-empty::-webkit-datetime-edit-text,
-.offer-date-input.is-empty::-webkit-datetime-edit-month-field,
-.offer-date-input.is-empty::-webkit-datetime-edit-day-field,
-.offer-date-input.is-empty::-webkit-datetime-edit-year-field,
-.offer-date-input.is-empty::-webkit-datetime-edit {
-  color: transparent;
+/* Base Input Styles with Explicit Outline Box Border */
+.offer-field-input,
+.date-input-relative-wrapper input[type="date"],
+.custom-select-relative-wrapper select {
+  width: 100%;
+  height: 56px;
+  padding: 12px 18px;
+  background: #ffffff;
+  border: 1px solid #dadada !important;
+  border-radius: 10px !important;
+  font-size: 18px;
+  color: #1e293b;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.offer-date-wrapper.is-empty::before {
+.offer-field-input::placeholder {
+  color: #979494;
+}
+
+.offer-field-input:focus,
+.date-input-relative-wrapper input[type="date"]:focus,
+.custom-select-relative-wrapper select:focus {
+  border-color: #347e45 !important;
+  box-shadow: 0 0 0 1px #347e45;
+}
+
+.offer-field-input.error {
+  border-color: #dc2626 !important;
+  background: #fef2f2;
+}
+
+.error-msg {
+  color: #dc2626;
+  font-size: 13px;
+}
+
+/* ── Relative wrapper for Date inputs & Custom Selects ──────── */
+.date-input-relative-wrapper,
+.custom-select-relative-wrapper {
+  position: relative;
+  width: 100%;
+  display: block;
+}
+
+.date-input-relative-wrapper input[type="date"] {
+  padding-right: 48px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.date-input-relative-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 48px;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* When Date Input is Empty, Hide Native WebKit Format and Display DD/MM/YYYY Overlay */
+.date-input.is-empty::-webkit-datetime-edit-text,
+.date-input.is-empty::-webkit-datetime-edit-month-field,
+.date-input.is-empty::-webkit-datetime-edit-day-field,
+.date-input.is-empty::-webkit-datetime-edit-year-field,
+.date-input.is-empty::-webkit-datetime-edit {
+  color: transparent !important;
+}
+
+.date-input-relative-wrapper.is-empty::before {
   content: "DD/MM/YYYY";
   position: absolute;
-  left: 13px;
+  left: 18px;
   top: 50%;
   transform: translateY(-50%);
-  color: #c4c9d2;
-  font-size: 14px;
+  color: #979494;
+  font-size: 18px;
   letter-spacing: 0.3px;
   pointer-events: none;
   font-family: inherit;
@@ -111,446 +270,234 @@
   z-index: 1;
 }
 
-/* Hide our DD/MM/YYYY overlay while the user is actively focused/picking */
-.offer-date-wrapper.is-empty:focus-within::before {
+.date-input-relative-wrapper.is-empty:focus-within::before {
   display: none;
 }
 
-.offer-group input:focus,
-.offer-group select:focus,
-.offer-input:focus,
-.offer-select:focus,
-.offer-date-input:focus {
-  border-color: #347E45;
+.input-date-svg-icon,
+.select-arrow-svg-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  z-index: 2;
 }
 
-.offer-group input.offer-field-error,
-.offer-group select.offer-field-error,
-.offer-input.offer-field-error,
-.offer-select.offer-field-error,
-.offer-date-input.offer-field-error {
-  border-color: #dc2626;
-  background: #fef2f2;
-}
-
-.offer-input-error {
-  color: #b91c1c;
-  font-size: 12px;
-}
-
-/* Select wrapper (Role) — custom chevron on the right */
-.offer-select-wrapper {
-  position: relative;
-}
-.offer-select {
+.offer-select-element {
   appearance: none;
   -webkit-appearance: none;
-  padding-right: 36px;
+  padding-right: 48px;
   cursor: pointer;
 }
-.offer-select option:first-child { color: #9ca3af; }
-.offer-select-arrow {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  display: inline-flex;
-}
 
-/* Date wrapper — calendar icon on the right (same as service letter) */
-.offer-date-wrapper {
-  position: relative;
-}
-.offer-date-input {
-  padding-right: 38px;
-  font-family: inherit;
-}
-.offer-date-input::-webkit-calendar-picker-indicator {
-  opacity: 0;          /* hide native icon, use ours */
-  cursor: pointer;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 38px;
-  height: 100%;
-}
-.offer-date-icon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  display: inline-flex;
-}
-
-/* ---------- Top Buttons (Cancel / Preview) ---------- */
-.offer-buttons {
+/* ── Payment Option Custom Toggle Switch ─────────────────────── */
+.payment-toggle-container {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 16px;
+  align-items: center;
+  gap: 14px;
 }
 
-.offer-clear-btn,
-.offer-preview-btn {
-  font-size: 14px;
+.toggle-label-text {
+  font-size: 20px;
   font-weight: 500;
-  padding: 10px 32px;
-  border-radius: 6px;
+  color: #595959;
+}
+
+.custom-toggle-switch {
+  width: 68px;
+  height: 34px;
+  background: #d9d9d9;
+  border-radius: 25px;
+  padding: 3px;
   cursor: pointer;
-  border: none;
-  transition: all 0.3s ease;
-  width: 120px;
-  height: 42px;
-  min-width: 120px;
-  display: inline-flex !important;
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+}
+
+.custom-toggle-switch.active {
+  background: #347e45;
+}
+
+.toggle-switch-circle {
+  width: 28px;
+  height: 28px;
+  background: #ffffff;
+  border: 1.5px solid #b9b9b9;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.custom-toggle-switch.active .toggle-switch-circle {
+  transform: translateX(34px);
+  border-color: #ffffff;
+}
+
+/* ── Working Days Pills Row ─────────────────────────────────── */
+.working-days-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+}
+
+.day-pill-button {
+  flex: 1;
+  height: 56px;
+  background: #ffffff;
+  border: 1px solid #979494;
+  border-radius: 10px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  box-sizing: border-box;
-  white-space: nowrap;
+  font-size: 18px;
+  font-weight: 500;
+  color: #000000;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
 }
 
-/* Clear — white with gray border to match Figma */
-.offer-clear-btn {
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  color: #1e293b;
-}
-
-.offer-clear-btn:hover {
-  background: #f9fafb;
-}
-
-/* Preview — Figma color */
-.offer-preview-btn {
-  background: #347E45;
+.day-pill-button.active {
+  background: #347e45;
+  border-color: #347e45;
   color: #ffffff;
 }
 
-.offer-preview-btn:hover {
-  background: #2a6437;
+/* ── Daily Working Hours Container ──────────────────────────── */
+.daily-working-hours-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* ========================================================= */
-/* Bottom Right Action Buttons (Download | Email | Save)     */
-/* ========================================================= */
-
-.offer-actions {
+/* ── Footer Action Buttons ──────────────────────────────────── */
+.offer-footer-action-buttons {
   display: flex;
   justify-content: flex-end;
-  align-items: center;
-  gap: 12px;
+  gap: 16px;
   margin-top: 24px;
 }
 
-/* Shared base */
-.offer-actions button {
-  font-size: 14px;
+.btn-action-preview,
+.btn-action-save {
+  width: 150px;
+  height: 48px;
+  border-radius: 10px;
+  font-size: 16px;
   font-weight: 500;
-  padding: 10px 22px;
-  border-radius: 6px;
   cursor: pointer;
-  border: none;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-/* Download */
-.download-btn {
-  background: #347E45;
-  color: #eef0f3;
-  border: 1px solid #d1d5db;
-}
-
-.download-btn:hover {
-  background: #e5e7eb;
-}
-
-/* Email */
-.email-btn {
-  background:#347E45;
-  color: #ffffff;
-}
-
-.email-btn:hover {
-  background: #347E45;
-}
-
-/* Save (Primary) — scoped to .offer-actions so it doesn't leak into other pages */
-.offer-actions .save-btn {
-  background: #347E45;
-  color: #ffffff;
-  padding: 10px 32px;
-  width: 120px;
-  height: 42px;
-  min-width: 120px;
-  box-sizing: border-box;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
-.offer-actions .save-btn:hover {
-  background: #347E45;
+.btn-action-preview {
+  background: #ffffff;
+  border: 1.5px solid #347e45;
+  color: #347e45;
 }
 
-/* ========================================================= */
-/* Responsive                                                */
-/* ========================================================= */
-
-@media (max-width: 992px) {
-  .offer-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.btn-action-preview:hover {
+  background: #eaf8ec;
 }
 
-@media (max-width: 600px) {
-  .offer-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .offer-buttons {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  
-  .offer-buttons button {
-    width: 100%;
-    min-height: 52px;        
-    padding: 14px 20px;
-    border-radius: 10px;
-    font-size: 15px;
-  }
-
-  .offer-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .offer-actions button {
-    width: 100%;
-    text-align: center;
-  }
+.btn-action-save {
+  background: #347e45;
+  border: none;
+  color: #ffffff;
 }
 
+.btn-action-save:hover {
+  background: #2b6a3a;
+}
 
-/* ========================================================= */
-/* PDF Preview Modal (Same as Service Letter)                */
-/* ========================================================= */
+.btn-action-preview:disabled,
+.btn-action-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-.pdf-modal-backdrop {
+/* ── Modals (PDF Preview & Success) ────────────────────────── */
+.offer-preview-backdrop,
+.ol-success-backdrop {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
-  /* backdrop-filter: blur(8px); */
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 9999;
-
+  background: rgba(15, 23, 42, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* Modal container */
-.pdf-modal {
-  position: relative;
-  width: 90%;
-  max-width: 900px;
-  max-height: 90vh;
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Close button */
-.pdf-close-btn {
-  position: absolute;
-  top: -40px;
-  right: 0;
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  color: #ffffff;
-  cursor: pointer;
-}
-
-/* Content */
-.pdf-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: auto;
-}
-
-.pdf-content img {
-  max-width: 100%;
-  max-height: 85vh;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-/* Footer */
-.pdf-modal-footer {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-start;
-}
-
-.pdf-download-btn {
-  background: #347e45;
-  color: #ffffff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.pdf-download-btn:hover {
-  background: #2f6f3d;
-}
-
-/* =========================================================================
-   Offer Letter: clean preview modal (no browser PDF chrome)
-   - Centered document
-   - White ✕ at top-right of the page (outside the document)
-   - Green download-icon button at bottom-left (under the document)
-   ========================================================================= */
-
-.offer-preview-backdrop {
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background: rgba(229, 232, 236, 0.72) !important;
-  z-index: 99999 !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: center !important;
-  padding: 110px 24px 28px;
-  backdrop-filter: blur(4px);
-  overflow: auto;
+  z-index: 100100;
+  padding: 16px;
 }
 
 .offer-preview-stack {
   position: relative;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 14px;
-  width: 595px;
-  max-width: calc(100vw - 96px);
-  height: auto;
-  min-height: 0;
 }
 
 .offer-preview-close {
   position: absolute;
-  top: 28px;
-  right: -30px;
-  width: 26px;
-  height: 26px;
+  top: -45px;
+  right: -10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: #eef0f2;
-  color: #a4a8ae;
-  border: 1px solid #cdd2d7;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: bold;
   cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10001;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
-}
-
-.offer-preview-close:hover {
-  background: #ffffff;
-  color: #4b5563;
+  z-index: 100002;
 }
 
 .offer-preview-doc {
-  background: #ffffff;
-  border: 1px solid #4b5563;
-  border-radius: 0;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
-  overflow: hidden;
-  position: relative;
-  width: 595px;
-  max-width: 100%;
-  height: 842px;
-  opacity: 1;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 12px;
 }
 
 .offer-preview-iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
+  height: 85vh;
   border: none;
-  background: #ffffff !important;
-  display: block;
-  overflow: hidden;
 }
 
 .offer-preview-loading {
-  color: #6b7280;
-  font-size: 14px;
+  padding: 40px;
   text-align: center;
+  font-size: 18px;
 }
 
 .offer-preview-action-row {
   display: flex;
-  justify-content: flex-start;
-  width: 100%;
-  flex: 0 0 auto;
+  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 .offer-download-icon-btn {
-  background: #347e45;
+  background-color: #347e45;
+  color: white;
   border: none;
-  border-radius: 6px;
-  width: 44px;
-  height: 30px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  width: 56px;
+  height: 44px;
+  border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(52, 126, 69, 0.28);
-  transition: background 0.2s ease, transform 0.1s ease;
-}
-
-.offer-download-icon-btn svg {
-  width: 18px;
-  height: 18px;
-}
-
-.offer-download-icon-btn:hover {
-  background: #2f6f3d;
-}
-
-.offer-download-icon-btn:active {
-  transform: translateY(1px);
-}
-
-.offer-download-icon-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* =========================================================================
-   Offer Letter: "Offer letter has been generated successfully" modal
-   ========================================================================= */
-
-.ol-success-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -559,79 +506,171 @@
 .ol-success-modal {
   position: relative;
   background: #ffffff;
-  border-radius: 14px;
-  padding: 36px 44px 32px 44px;
-  width: min(540px, 92vw);
+  border-radius: 12px;
+  padding: 36px 36px 28px;
+  width: 100%;
+  max-width: 440px;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
-  text-align: left;
+  text-align: center;
+  font-family: "Roboto", sans-serif;
 }
 
 .ol-success-close {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: #f3f4f6;
-  color: #4b5563;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #6b7280;
   font-size: 14px;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ol-success-close:hover {
-  background: #e5e7eb;
-  color: #1f2937;
 }
 
 .ol-success-title {
-  margin: 0 0 8px 0;
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
-  line-height: 1.35;
+  color: #111827;
+  margin: 4px 0 8px;
 }
 
 .ol-success-subtitle {
   font-size: 14px;
-  font-weight: 400;
   color: #4b5563;
-  margin: 0 0 28px 0;
-  line-height: 1.45;
-  text-align: center;
+  margin: 0 0 22px;
 }
 
 .ol-success-actions {
   display: flex;
-  gap: 18px;
   justify-content: center;
-  align-items: center;
-  margin-top: 8px;
+  gap: 16px;
 }
 
 .ol-success-btn {
-  flex: 1;
-  max-width: 200px;
-  background: #347e45;
+  background-color: #347e45;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  padding: 14px 24px;
+  padding: 10px 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+/* ===========================================================
+   Figma Design: Offer Letter Preview Modal
+   =========================================================== */
+.figma-ol-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 41, 59, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.figma-ol-preview-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: auto;
+  max-width: 95vw;
+}
+
+.figma-ol-close-btn {
+  position: absolute;
+  top: 10px;
+  right: -38px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  z-index: 100002;
 }
 
-.ol-success-btn:hover {
-  background: #2f6f3d;
+.figma-ol-close-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+  transform: scale(1.05);
 }
 
-.ol-success-btn:disabled {
-  opacity: 0.65;
+.figma-ol-doc-paper {
+  background: #ffffff;
+  border: 1px solid #000000;
+  width: 595px;
+  height: 842px;
+  max-width: calc(100vw - 80px);
+  max-height: calc(100vh - 120px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.figma-ol-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #ffffff !important;
+  display: block;
+}
+
+.figma-ol-action-buttons-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  margin-top: 18px;
+}
+
+.figma-ol-icon-btn {
+  background: #347e45;
+  border: none;
+  border-radius: 10px;
+  width: 76px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(52, 126, 69, 0.25);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.figma-ol-icon-btn:hover:not(:disabled) {
+  background: #2a6437;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(52, 126, 69, 0.35);
+}
+
+.figma-ol-icon-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.figma-ol-icon-btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: none;
 }
+

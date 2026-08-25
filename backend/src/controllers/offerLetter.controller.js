@@ -89,14 +89,62 @@ const getMergedOfferLetterData = async (data) => {
 
   let dbEmployeeData = {};
   if (employee_id) {
-    dbEmployeeData = await fetchEmployeeDetails(employee_id) || {};
+    dbEmployeeData = (await fetchEmployeeDetails(employee_id)) || {};
   }
+
+  const name = manualOverrides.employeeName || manualOverrides.fullName || dbEmployeeData.employeeName || '';
+  const email = manualOverrides.employeeEmail || dbEmployeeData.employeeEmail || '';
+  const pos = manualOverrides.position || manualOverrides.jobTitle || dbEmployeeData.position || 'Full Stack Engineer';
+  const addr = manualOverrides.address || dbEmployeeData.address || 'PineappleAI Head Office';
+  const dept = manualOverrides.department || dbEmployeeData.department || 'Engineering';
+  const mgr = manualOverrides.reportingManager || dbEmployeeData.reportingManager || 'Thileksana Suntharamouleegan';
+  const mgrMail = manualOverrides.reportingManagerEmail || dbEmployeeData.reportingManagerEmail || 'ceo@pineappleai.cloud';
+  const today = new Date().toISOString().split('T')[0];
 
   return {
     ...dbEmployeeData,
     ...manualOverrides,
+    employeeName: name,
+    fullName: name,
+    employeeEmail: email,
+    position: pos,
+    jobTitle: pos,
+    address: addr,
+    department: dept,
+    reportingManager: mgr,
+    reportingManagerEmail: mgrMail,
+    letterDate: manualOverrides.letterDate || dbEmployeeData.letterDate || today,
+    joiningDate: manualOverrides.joiningDate || manualOverrides.startDate || dbEmployeeData.joiningDate || today,
+    endDate: manualOverrides.endDate || dbEmployeeData.endDate || '',
     generatedBy: manualOverrides.generatedBy || 'HR Department'
   };
+};
+
+const fs = require('fs');
+
+const getPuppeteerLaunchOptions = () => {
+  const options = {
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  };
+
+  const possiblePaths = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+    process.env.LOCALAPPDATA ? `${process.env.LOCALAPPDATA}\\Google\\Chrome\\Application\\chrome.exe` : null
+  ].filter(Boolean);
+
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      options.executablePath = p;
+      break;
+    }
+  }
+
+  return options;
 };
 
 const createOfferLetterPDFBuffer = async (data) => {
@@ -105,10 +153,15 @@ const createOfferLetterPDFBuffer = async (data) => {
   try {
     const htmlContent = generateOfferLetterHTML(data);
 
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
+    const launchOptions = getPuppeteerLaunchOptions();
+    try {
+      browser = await puppeteer.launch(launchOptions);
+    } catch (launchErr) {
+      browser = await puppeteer.launch({
+        headless: 'new',
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+    }
 
     const page = await browser.newPage();
     await page.setViewport({ width: 595, height: 842, deviceScaleFactor: 1 });
@@ -315,10 +368,27 @@ exports.generateOfferLetterPDF = async (req, res) => {
     }
 
     const pdfBuffer = await createOfferLetterPDFBuffer(mergedData);
+    const fileName = `offer-letter-${mergedData.employeeName.replace(/\s+/g, '-')}.pdf`;
+
+    // Persist in OfferLetterForm table if user exists
+    const targetUserId = mergedData.userId || req.body.employee_id;
+    if (targetUserId && OfferLetterForm) {
+      try {
+        await OfferLetterForm.create({
+          user_id: targetUserId,
+          letter_date: mergedData.letterDate || new Date().toISOString().split('T')[0],
+          generated_by: req.user?.id || targetUserId || 1,
+          file_path: fileName,
+          status: 'draft'
+        });
+      } catch (dbErr) {
+        console.warn('Could not save OfferLetterForm record:', dbErr.message);
+      }
+    }
 
     // Set headers for PDF download
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=offer-letter-${mergedData.employeeName.replace(/\s+/g, '-')}.pdf`);
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
     
     res.send(pdfBuffer);
 
@@ -372,6 +442,7 @@ exports.sendOfferLetterEmail = async (req, res) => {
     const employeeName = mergedData.employeeName.trim();
     const employeeEmail = mergedData.employeeEmail.trim();
     const safeFileName = employeeName.replace(/\s+/g, '-');
+    const fileName = `offer-letter-${safeFileName}.pdf`;
 
     await MailService.sendMail({
       from: process.env.FROM_EMAIL || process.env.SMTP_USER,
@@ -382,12 +453,27 @@ exports.sendOfferLetterEmail = async (req, res) => {
       html: getOfferLetterEmailHtml(employeeName),
       attachments: [
         {
-          filename: `offer-letter-${safeFileName}.pdf`,
+          filename: fileName,
           content: pdfBuffer,
           contentType: 'application/pdf'
         }
       ]
     });
+
+    const targetUserId = mergedData.userId || req.body.employee_id;
+    if (targetUserId && OfferLetterForm) {
+      try {
+        await OfferLetterForm.create({
+          user_id: targetUserId,
+          letter_date: mergedData.letterDate || new Date().toISOString().split('T')[0],
+          generated_by: req.user?.id || targetUserId || 1,
+          file_path: fileName,
+          status: 'sent'
+        });
+      } catch (dbErr) {
+        console.warn('Could not save OfferLetterForm record:', dbErr.message);
+      }
+    }
 
     return res.status(200).json({
       success: true,
@@ -503,8 +589,9 @@ exports.getAllEmployeesForDropdown = async (req, res) => {
         employeeName: fullName,
         address: employee.EmployeeDetail?.address || '',
         position: employee.designation || '',
+        designation: employee.designation || '',
         department: employee.Department?.dept_name || '',
-        joiningDate: employee.EmployeeDetail?.joined_date ? new Date(employee.EmployeeDetail.joined_date).toLocaleDateString('en-GB') : '',
+        joiningDate: employee.EmployeeDetail?.joined_date ? (typeof employee.EmployeeDetail.joined_date === 'string' ? employee.EmployeeDetail.joined_date.split('T')[0] : new Date(employee.EmployeeDetail.joined_date).toISOString().split('T')[0]) : '',
         reportingManager: reportingManager.first_name ? `${reportingManager.first_name}${reportingManager.last_name && reportingManager.last_name !== 'null' ? ` ${reportingManager.last_name}` : ''}`.trim() : '',
         reportingManagerEmail: reportingManager.email || '',
         employeeEmail: employee.email || ''

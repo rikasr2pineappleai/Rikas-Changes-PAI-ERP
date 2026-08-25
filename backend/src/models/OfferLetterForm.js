@@ -15,8 +15,8 @@ module.exports = (sequelize) => {
   });
 
   OfferLetterForm.associate = (models) => {
-    OfferLetterForm.belongsTo(models.User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
-    OfferLetterForm.belongsTo(models.User, { foreignKey: 'generated_by', onDelete: 'CASCADE' });
+    OfferLetterForm.belongsTo(models.User, { foreignKey: 'user_id', as: 'Recipient', onDelete: 'CASCADE' });
+    OfferLetterForm.belongsTo(models.User, { foreignKey: 'generated_by', as: 'GeneratedBy', onDelete: 'CASCADE' });
   };
 
   return OfferLetterForm;

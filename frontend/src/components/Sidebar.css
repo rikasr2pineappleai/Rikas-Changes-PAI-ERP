@@ -120,17 +120,18 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--nav-gap);
-  padding: var(--nav-padding-y) var(--nav-padding-x);
-  width: var(--nav-width);
+  gap: 14px;
+  padding: 10px 16px;
+  width: 252px;
   height: var(--nav-height);
-  margin-left: calc((var(--sidebar-width) - var(--nav-width)) / 2);
+  margin-left: 14px;
   border-radius: var(--radius);
   color: var(--text-default);
   text-decoration: none;
   transition: background 0.2s ease, color 0.2s ease;
   font-family: 'Roboto', ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
   font-weight: 400;
+  box-sizing: border-box;
 }
 
 .nav-item:hover {
@@ -142,9 +143,10 @@
 }
 
 .nav-item .nav-label {
-  font-size: 20px; /* 20px per figma */
-  line-height: 23px; /* visual alignment */
+  font-size: 18px;
+  line-height: 23px;
   color: inherit;
+  white-space: nowrap; /* Enforces single line, prevents splitting */
 }
 
 /* Active state typography color */

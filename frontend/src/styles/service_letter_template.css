@@ -49,6 +49,208 @@ body.modal-open > *:not(.pdf-modal-backdrop):not(.pdf-modal-backdrop *) {
   box-sizing: border-box;
 }
 
+/* ── Page Header Title ─────────────────────────────────────── */
+.service-page-header-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.service-back-circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #347e45;
+  background: #ffffff;
+  color: #347e45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.service-back-circle-btn:hover {
+  background: #f0faf2;
+}
+
+.service-main-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.service-main-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 2px 0 0 0;
+}
+
+/* ── Form Section Cards ─────────────────────────────────────── */
+.form-section-card {
+  border: 1px solid #dadada;
+  border-radius: 12px;
+  padding: 24px;
+  background: #ffffff;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.required-star {
+  color: #dc2626;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: -10px 0 18px 0;
+}
+
+/* ── Two Column Grid for Section 1 ─────────────────────────── */
+.two-column-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.column-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.position-relative {
+  position: relative;
+}
+
+/* ── Custom Dropdown Box ───────────────────────────────────── */
+.custom-dropdown-box {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-sizing: border-box;
+  font-size: 14px;
+  transition: border-color 0.15s;
+}
+
+.custom-dropdown-box:hover {
+  border-color: #347e45;
+}
+
+.placeholder-value {
+  color: #9ca3af;
+}
+
+.selected-value {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+/* ── Reason Dropdown Menu with #BBF7D0 selection highlight ──── */
+.reason-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.reason-dropdown-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #1e293b;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.reason-dropdown-item:hover {
+  background: #bbf7d0;
+}
+
+.reason-dropdown-item.selected-item {
+  background: #bbf7d0;
+  font-weight: 600;
+  color: #064e3b;
+}
+
+/* ── Section 2 Documents Checkbox Grid ─────────────────────── */
+.docs-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 20px;
+  margin-top: 12px;
+}
+
+.custom-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+  transition: opacity 0.15s ease;
+}
+
+.custom-checkbox-item:hover .checkbox-box-square {
+  border-color: #347e45;
+}
+
+.checkbox-box-square {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  background: #ffffff;
+  border: 1.5px solid #d9d9d9;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.custom-checkbox-item.is-checked .checkbox-box-square {
+  background: #347e45;
+  border-color: #347e45;
+}
+
+.checkbox-item-text {
+  font-family: 'Roboto', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+.custom-checkbox-item.is-checked .checkbox-item-text {
+  color: #000000;
+}
+
 /* ── Card Header  (title + search) ────────────────────── */
 .service-card-header {
   display: flex;
@@ -997,3 +1199,288 @@ z-index:5;
   cursor: not-allowed;
   box-shadow: none;
 }
+
+/* ===========================================================
+   Figma Design: Service Letter Preview 2-Column Modal
+   =========================================================== */
+.figma-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 41, 59, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.figma-preview-modal-card {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1380px;
+  max-height: 94vh;
+  overflow-y: auto;
+  padding: 28px 32px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+}
+
+.figma-preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.08fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Left Column */
+.figma-preview-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.figma-summary-card,
+.figma-docs-card {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 20px 22px;
+  box-sizing: border-box;
+}
+
+.figma-card-title {
+  font-family: 'Roboto', 'Inter', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+}
+
+/* Summary Rows */
+.figma-summary-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.figma-summary-row {
+  display: grid;
+  grid-template-columns: 170px 16px 1fr;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 0.5px solid #eaeaea;
+  font-family: 'Roboto', 'Inter', sans-serif;
+  font-size: 15px;
+}
+
+.figma-summary-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.figma-row-label {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.figma-row-colon {
+  color: #64748b;
+  font-weight: 400;
+  text-align: center;
+}
+
+.figma-row-value {
+  color: #475569;
+  font-weight: 400;
+}
+
+/* Documents 2 Column Checkbox Grid */
+.figma-docs-two-col-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 12px 18px;
+}
+
+.figma-docs-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.figma-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  padding: 3px 0;
+}
+
+.figma-checkbox-box {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  border: 1px solid #d9d9d9;
+  border-radius: 5px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.figma-checkbox-row.is-checked .figma-checkbox-box {
+  background: #347e45;
+  border-color: #347e45;
+}
+
+.figma-checkbox-label {
+  font-family: 'Roboto', 'Inter', sans-serif;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.25;
+}
+
+/* Blue Notice Box */
+.figma-notice-box {
+  background: #f4f8ff;
+  border: 1px solid #3b82f6;
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.figma-notice-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.figma-notice-text {
+  font-family: 'Roboto', 'Inter', sans-serif;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #3b82f6;
+  line-height: 1.4;
+}
+
+/* Right Column */
+.figma-preview-right-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.figma-right-header {
+  margin-bottom: 12px;
+}
+
+.figma-preview-heading {
+  font-family: 'Poppins', 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.figma-paper-container {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+  width: 100%;
+  height: 700px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.figma-preview-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #ffffff !important;
+  display: block;
+}
+
+/* Paper Action Buttons (Download & Mail) */
+.figma-paper-action-buttons {
+  display: flex;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.figma-action-icon-btn {
+  background: #347e45;
+  border: none;
+  border-radius: 10px;
+  width: 70px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(52, 126, 69, 0.2);
+}
+
+.figma-action-icon-btn:hover:not(:disabled) {
+  background: #2a6437;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(52, 126, 69, 0.3);
+}
+
+.figma-action-icon-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.figma-action-icon-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Modal Bottom Footer */
+.figma-preview-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.figma-close-modal-btn {
+  background: #ffffff;
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  padding: 10px 32px;
+  font-family: 'Roboto', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.figma-close-modal-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+

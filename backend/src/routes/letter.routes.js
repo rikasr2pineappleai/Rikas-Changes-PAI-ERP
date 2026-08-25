@@ -15,11 +15,23 @@ const {
   debugListAllEmployees,
   getAllEmployeesForServiceLetterDropdown,
   getEmployeeDetailsForServiceLetter,
-  debugServiceLetterEmployees
+  debugServiceLetterEmployees,
+  getAllLetters,
+  deleteLetter
 } = require('../controllers/letter.controller');
 const { protect, authorize } = require('../middleware/auth.middleware');
 
 const router = express.Router();
+
+// All Letters Records (Offer + Service Letters)
+router.route('/letters')
+  .get(protect, authorize('admin'), getAllLetters);
+
+router.route('/debug/letters')
+  .get(getAllLetters);
+
+router.route('/letters/:documentType/:id')
+  .delete(protect, authorize('admin'), deleteLetter);
 
 // Offer Letter Routes - Specific routes first
 router.route('/offer-letter/generate')
