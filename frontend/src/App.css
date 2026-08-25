@@ -106,3 +106,256 @@
   width: 100%;
   background-color: #FFFFFF;
 }
+
+
+.page-container {
+  width: 100%;
+  background-color: #FFFFFF;
+}
+
+
+
+.delete-modal-overlay,
+.verify-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.delete-modal-content,
+.verify-modal-content {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 32px 32px 24px 32px;
+  width: 440px;
+  max-width: 90%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+}
+
+.delete-modal-close-btn,
+.verify-modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.delete-modal-close-btn:hover,
+.verify-modal-close-btn:hover {
+  color: #4b5563;
+}
+
+.delete-modal-warning-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.delete-modal-title,
+.verify-modal-title {
+  margin: 0 0 8px 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.delete-modal-subtitle,
+.verify-modal-subtitle {
+  margin: 0 0 24px 0;
+  color: #6b7280;
+  font-size: 15px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.delete-document-card {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  box-sizing: border-box;
+}
+
+.delete-document-icon {
+  color: #9ca3af;
+  display: flex;
+}
+
+.delete-document-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+
+.delete-document-type {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.delete-document-details {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.verify-modal-icon-container {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background-color: #bbf7d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.verify-modal-input-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.verify-modal-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: left;
+}
+
+.text-red {
+  color: #ef4444;
+}
+
+.verify-modal-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.verify-modal-input {
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.verify-modal-input:focus {
+  border-color: #347E45;
+}
+
+.verify-modal-eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.delete-modal-actions,
+.verify-modal-actions {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.delete-modal-cancel-btn,
+.verify-modal-cancel-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-modal-cancel-btn:hover,
+.verify-modal-cancel-btn:hover {
+  background-color: #f9fafb;
+}
+
+.delete-modal-confirm-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 8px;
+  border: none;
+  background-color: #e60000;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-modal-confirm-btn:hover {
+  background-color: #cc0000;
+}
+
+.verify-modal-submit-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 8px;
+  border: none;
+  background-color: #347E45;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.verify-modal-submit-btn:hover {
+  background-color: #2b6838;
+}
+
+.verify-modal-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+
+
