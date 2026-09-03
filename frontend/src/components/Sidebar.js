@@ -97,7 +97,7 @@ const Sidebar = ({ isOpen, onNavigate }) => {
           { path: '/employees', label: 'Employees', icon: 'employee' },
           { path: '/leave', label: 'Leaves', icon: 'leave' },
           { path: '/projects', label: 'Projects', icon: 'project' },
-          { path: '/templates', label: 'Template', icon: 'project' },
+          { path: '/templates', label: 'Template', icon: 'project', hidden: true },
           { path: '/letter-management', label: 'Letter Management', icon: 'letterManagment' },
           { path: '/settings', label: 'Settings', icon: 'setting' },
           { path: '/logout', label: 'Logout', icon: 'logout' }
@@ -128,7 +128,7 @@ const Sidebar = ({ isOpen, onNavigate }) => {
         </div>
       </div>
       <nav className="sidebar-nav">
-        {menuItems.map((item) => (
+        {menuItems.filter((item) => !item.hidden).map((item) => (
           (item.path === '/logout' ? (
             <NavLink
               key={item.path}

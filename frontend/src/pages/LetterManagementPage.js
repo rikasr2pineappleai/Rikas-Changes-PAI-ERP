@@ -31,20 +31,30 @@ export default function LetterManagementPage() {
         const res = await axios.get('http://localhost:5001/api/templates/letters', {
           headers: { Authorization: `Bearer ${token}` }
         });
+        console.log('Letters API response:', res.data);
         if (res.data.success && Array.isArray(res.data.data)) {
           setLetters(res.data.data);
           return;
         }
       } catch (authErr) {
-        // Fallback to debug route
-        const dbg = await axios.get('http://localhost:5001/api/templates/debug/letters');
-        if (dbg.data.success && Array.isArray(dbg.data.data)) {
-          setLetters(dbg.data.data);
-          return;
+        console.warn('Auth route failed, trying debug route:', authErr.message);
+        try {
+          // Fallback to debug route
+          const dbg = await axios.get('http://localhost:5001/api/templates/debug/letters');
+          console.log('Debug Letters API response:', dbg.data);
+          if (dbg.data.success && Array.isArray(dbg.data.data)) {
+            setLetters(dbg.data.data);
+            return;
+          }
+        } catch (dbgErr) {
+          console.error('Debug route also failed:', dbgErr.message);
         }
       }
+      // If we reach here, no data was loaded
+      setLetters([]);
     } catch (err) {
       console.error('Failed to load letters from database:', err);
+      setLetters([]);
     } finally {
       setLoading(false);
     }

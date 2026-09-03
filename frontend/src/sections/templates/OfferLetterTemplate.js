@@ -230,7 +230,48 @@ export default function OfferLetterTemplate({ initialLetter = null, onBack = nul
       try {
         const targetUserId = initialLetter.userId || initialLetter.rawId;
         const targetName = initialLetter.employeeName;
+        const savedData = initialLetter.formData;
 
+        // If saved form_data exists on the letter record, restore all fields exactly as they were!
+        if (savedData) {
+          const empIdToSet = savedData.employee_id ? String(savedData.employee_id) : (savedData.userId ? String(savedData.userId) : (targetUserId ? String(targetUserId) : ""));
+          setSelectedEmployeeId(empIdToSet);
+          setEmployeeSearchText(savedData.fullName || savedData.employeeName || initialLetter.employeeName || "");
+          setDbAddress(savedData.address || "");
+          setDbDepartment(savedData.department || "");
+
+          if (savedData.hireType) {
+            setHireType(savedData.hireType);
+          }
+          if (savedData.workSchedule) {
+            setWorkSchedule(savedData.workSchedule);
+          }
+          if (savedData.workingDays && typeof savedData.workingDays === "object") {
+            setWorkingDays(savedData.workingDays);
+          }
+
+          const fd = savedData.formData || savedData;
+          setFormData({
+            fullName: fd.fullName || savedData.employeeName || initialLetter.employeeName || "",
+            employeeEmail: fd.employeeEmail || savedData.employeeEmail || initialLetter.email || "",
+            jobTitle: fd.jobTitle || savedData.position || initialLetter.designation || "",
+            startDate: fd.startDate ? toDateInputValue(fd.startDate) : (savedData.joiningDate ? toDateInputValue(savedData.joiningDate) : ""),
+            paymentOption: fd.paymentOption !== undefined ? fd.paymentOption : true,
+            baseSalary: fd.baseSalary || savedData.salary || "",
+            incentives: fd.incentives || "",
+            reportingManager: fd.reportingManager || savedData.reportingManager || "",
+            reportingManagerEmail: fd.reportingManagerEmail || savedData.reportingManagerEmail || "",
+            signingDeadline: fd.signingDeadline ? toDateInputValue(fd.signingDeadline) : (savedData.endDate ? toDateInputValue(savedData.endDate) : ""),
+            workingHours: fd.workingHours || "40 hrs/week",
+            dailyFrom: fd.dailyFrom || "10:00 AM",
+            dailyTo: fd.dailyTo || "02:00 PM",
+            endDate: fd.endDate ? toDateInputValue(fd.endDate) : (savedData.endDate ? toDateInputValue(savedData.endDate) : ""),
+            contractDurationSelect: fd.contractDurationSelect || ""
+          });
+          return;
+        }
+
+        // Fallback for older records without saved form_data: fetch from user DB
         let empData = null;
         if (targetUserId) {
           try {
@@ -239,16 +280,18 @@ export default function OfferLetterTemplate({ initialLetter = null, onBack = nul
               `http://localhost:5001/api/templates/offer-letter/employee/${targetUserId}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
-            if (res.data?.success && res.data?.data) {
-              empData = res.data.data;
+            if (res.data?.success) {
+              // Handle both response shapes
+              empData = res.data.data?.employee || res.data.data || null;
             }
           } catch (fetchErr) {
             try {
               const dbg = await axios.get(
                 `http://localhost:5001/api/templates/offer-letter/debug/employee/${targetUserId}`
               );
-              if (dbg.data?.success && dbg.data?.data) {
-                empData = dbg.data.data;
+              if (dbg.data?.success) {
+                // Handle both response shapes
+                empData = dbg.data.data?.employee || dbg.data.data || null;
               }
             } catch (dbgErr) {
               console.warn("Could not fetch offer letter employee details:", dbgErr);
@@ -302,21 +345,29 @@ export default function OfferLetterTemplate({ initialLetter = null, onBack = nul
     const activeDaysList = Object.keys(workingDays).filter((d) => workingDays[d]);
     const today = new Date().toISOString().split("T")[0];
     return {
+      rawId: initialLetter?.rawId,
+      id: initialLetter?.rawId,
+      letterId: initialLetter?.rawId,
+
       // employee_id lets backend merge any remaining fields automatically
       employee_id: selectedEmployeeId || undefined,
 
       // Backend expected field names — use real form/DB values
       employeeName: formData.fullName,
+      fullName: formData.fullName,
       employeeEmail: formData.employeeEmail,
       address: dbAddress || "",
       letterDate: today,
       position: formData.jobTitle,
+      jobTitle: formData.jobTitle,
       joiningDate: formData.startDate || today,
+      startDate: formData.startDate || today,
       endDate: formData.endDate || formData.signingDeadline || "",
       department: dbDepartment || "",
       reportingManager: formData.reportingManager,
       reportingManagerEmail: formData.reportingManagerEmail,
       salary: formData.baseSalary || "",
+      baseSalary: formData.baseSalary || "",
 
       // Additional UI fields
       hireType,
@@ -325,9 +376,11 @@ export default function OfferLetterTemplate({ initialLetter = null, onBack = nul
       incentives: formData.incentives,
       workingHours: formData.workingHours,
       workingDaysList: activeDaysList.join(", "),
+      workingDays,
       dailyFrom: formData.dailyFrom,
       dailyTo: formData.dailyTo,
-      contractDurationSelect: formData.contractDurationSelect
+      contractDurationSelect: formData.contractDurationSelect,
+      formData
     };
   };
 

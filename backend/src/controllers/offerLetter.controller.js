@@ -371,16 +371,46 @@ exports.generateOfferLetterPDF = async (req, res) => {
     const fileName = `offer-letter-${mergedData.employeeName.replace(/\s+/g, '-')}.pdf`;
 
     // Persist in OfferLetterForm table if user exists
-    const targetUserId = mergedData.userId || req.body.employee_id;
+    const targetUserId = mergedData.userId || req.body.employee_id || req.body.userId;
     if (targetUserId && OfferLetterForm) {
       try {
-        await OfferLetterForm.create({
-          user_id: targetUserId,
-          letter_date: mergedData.letterDate || new Date().toISOString().split('T')[0],
-          generated_by: req.user?.id || targetUserId || 1,
-          file_path: fileName,
-          status: 'draft'
-        });
+        const formDataToSave = {
+          ...req.body,
+          ...mergedData,
+          userId: targetUserId
+        };
+        const existingId = req.body.rawId || req.body.letterId || req.body.id;
+        if (existingId) {
+          const cleanId = String(existingId).replace(/^offer_/, '');
+          const existing = await OfferLetterForm.findByPk(cleanId);
+          if (existing) {
+            await existing.update({
+              user_id: targetUserId,
+              letter_date: mergedData.letterDate || new Date().toISOString().split('T')[0],
+              file_path: fileName,
+              status: 'draft',
+              form_data: JSON.stringify(formDataToSave)
+            });
+          } else {
+            await OfferLetterForm.create({
+              user_id: targetUserId,
+              letter_date: mergedData.letterDate || new Date().toISOString().split('T')[0],
+              generated_by: req.user?.id || targetUserId || 1,
+              file_path: fileName,
+              status: 'draft',
+              form_data: JSON.stringify(formDataToSave)
+            });
+          }
+        } else {
+          await OfferLetterForm.create({
+            user_id: targetUserId,
+            letter_date: mergedData.letterDate || new Date().toISOString().split('T')[0],
+            generated_by: req.user?.id || targetUserId || 1,
+            file_path: fileName,
+            status: 'draft',
+            form_data: JSON.stringify(formDataToSave)
+          });
+        }
       } catch (dbErr) {
         console.warn('Could not save OfferLetterForm record:', dbErr.message);
       }
@@ -460,16 +490,46 @@ exports.sendOfferLetterEmail = async (req, res) => {
       ]
     });
 
-    const targetUserId = mergedData.userId || req.body.employee_id;
+    const targetUserId = mergedData.userId || req.body.employee_id || req.body.userId;
     if (targetUserId && OfferLetterForm) {
       try {
-        await OfferLetterForm.create({
-          user_id: targetUserId,
-          letter_date: mergedData.letterDate || new Date().toISOString().split('T')[0],
-          generated_by: req.user?.id || targetUserId || 1,
-          file_path: fileName,
-          status: 'sent'
-        });
+        const formDataToSave = {
+          ...req.body,
+          ...mergedData,
+          userId: targetUserId
+        };
+        const existingId = req.body.rawId || req.body.letterId || req.body.id;
+        if (existingId) {
+          const cleanId = String(existingId).replace(/^offer_/, '');
+          const existing = await OfferLetterForm.findByPk(cleanId);
+          if (existing) {
+            await existing.update({
+              user_id: targetUserId,
+              letter_date: mergedData.letterDate || new Date().toISOString().split('T')[0],
+              file_path: fileName,
+              status: 'sent',
+              form_data: JSON.stringify(formDataToSave)
+            });
+          } else {
+            await OfferLetterForm.create({
+              user_id: targetUserId,
+              letter_date: mergedData.letterDate || new Date().toISOString().split('T')[0],
+              generated_by: req.user?.id || targetUserId || 1,
+              file_path: fileName,
+              status: 'sent',
+              form_data: JSON.stringify(formDataToSave)
+            });
+          }
+        } else {
+          await OfferLetterForm.create({
+            user_id: targetUserId,
+            letter_date: mergedData.letterDate || new Date().toISOString().split('T')[0],
+            generated_by: req.user?.id || targetUserId || 1,
+            file_path: fileName,
+            status: 'sent',
+            form_data: JSON.stringify(formDataToSave)
+          });
+        }
       } catch (dbErr) {
         console.warn('Could not save OfferLetterForm record:', dbErr.message);
       }

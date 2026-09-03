@@ -8,7 +8,8 @@ module.exports = (sequelize) => {
     generated_by: { type: DataTypes.INTEGER, allowNull: false },
     generated_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
     file_path: { type: DataTypes.STRING(255), allowNull: false },
-    status: { type: DataTypes.ENUM('draft', 'sent', 'cancelled'), defaultValue: 'draft' }
+    status: { type: DataTypes.ENUM('draft', 'sent', 'cancelled'), defaultValue: 'draft' },
+    form_data: { type: DataTypes.TEXT('long'), allowNull: true }
   }, {
     tableName: 'service_letter_form',
     timestamps: false

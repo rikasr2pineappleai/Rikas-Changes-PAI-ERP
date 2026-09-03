@@ -226,12 +226,18 @@ export default function ServiceLetterTemplate({ initialLetter = null, onBack = n
     const finalName = formData.employeeName || requestDetails.employeeName || "";
     return {
       ...formData,
+      rawId: initialLetter?.rawId,
+      id: initialLetter?.rawId,
+      letterId: initialLetter?.rawId,
       employeeName: finalName,
       requestDetails: {
         ...requestDetails,
         employeeName: finalName
       },
+      reason: requestDetails.reason || "",
+      additionalDetails: requestDetails.additionalDetails || "",
       returnedDocs,
+      keyContributions,
       employee_id: selectedEmployeeId || undefined
     };
   };
@@ -247,14 +253,18 @@ export default function ServiceLetterTemplate({ initialLetter = null, onBack = n
             { headers: { Authorization: `Bearer ${token}` } }
           );
           if (res.data.success) {
-            setEmployees(res.data.data.employees);
+            // Handle both response shapes: { data: { employees: [...] } } and { data: [...] }
+            const empList = res.data.data?.employees || (Array.isArray(res.data.data) ? res.data.data : []);
+            setEmployees(empList);
           }
         } catch {
           const dbg = await axios.get(
             "http://localhost:5001/api/templates/service-letter/debug/all-employees"
           );
           if (dbg.data.success) {
-            setEmployees(dbg.data.data.employees);
+            // Handle both response shapes
+            const empList = dbg.data.data?.employees || (Array.isArray(dbg.data.data) ? dbg.data.data : []);
+            setEmployees(empList);
           }
         }
       } catch (error) {
@@ -272,7 +282,50 @@ export default function ServiceLetterTemplate({ initialLetter = null, onBack = n
       try {
         const targetUserId = initialLetter.userId || initialLetter.rawId;
         const targetName = initialLetter.employeeName;
+        const savedData = initialLetter.formData;
 
+        // If saved form_data exists on the letter record, restore all fields exactly as they were!
+        if (savedData) {
+          const reqDet = savedData.requestDetails || {};
+          const empIdToSet = savedData.employee_id ? String(savedData.employee_id) : (savedData.userId ? String(savedData.userId) : (targetUserId ? String(targetUserId) : ""));
+          setSelectedEmployeeId(empIdToSet);
+
+          setRequestDetails({
+            employeeName: savedData.employeeName || reqDet.employeeName || initialLetter.employeeName || "",
+            employeeId: reqDet.employeeId || (empIdToSet ? `EMP-${String(empIdToSet).padStart(3, "0")}` : ""),
+            requestedOn: reqDet.requestedOn || initialLetter.generatedOnDate || new Date().toISOString().split("T")[0],
+            reason: reqDet.reason || savedData.reason || "",
+            additionalDetails: reqDet.additionalDetails || savedData.additionalDetails || ""
+          });
+
+          if (savedData.returnedDocs && typeof savedData.returnedDocs === "object") {
+            setReturnedDocs((prev) => ({
+              ...prev,
+              ...savedData.returnedDocs
+            }));
+          }
+
+          if (Array.isArray(savedData.keyContributions) && savedData.keyContributions.length > 0) {
+            setKeyContributions(savedData.keyContributions);
+          } else if (savedData.responsibilities) {
+            const lines = savedData.responsibilities.split("\n").filter((l) => l.trim());
+            if (lines.length > 0) setKeyContributions(lines);
+          }
+
+          setFormData({
+            employeeName: savedData.employeeName || initialLetter.employeeName || "",
+            employeeEmail: savedData.employeeEmail || initialLetter.email || "",
+            position: savedData.position || initialLetter.designation || "",
+            department: savedData.department || "",
+            letterDate: savedData.letterDate || initialLetter.generatedOnDate || new Date().toISOString().split("T")[0],
+            joiningDate: savedData.joiningDate ? toDateInputValue(savedData.joiningDate) : "",
+            endDate: savedData.endDate ? toDateInputValue(savedData.endDate) : "",
+            responsibilities: savedData.responsibilities || ""
+          });
+          return;
+        }
+
+        // Fallback for older records without saved form_data: fetch from user DB
         let empData = null;
         if (targetUserId) {
           try {
@@ -281,16 +334,18 @@ export default function ServiceLetterTemplate({ initialLetter = null, onBack = n
               `http://localhost:5001/api/templates/service-letter/employee/${targetUserId}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
-            if (res.data?.success && res.data?.data?.employee) {
-              empData = res.data.data.employee;
+            if (res.data?.success) {
+              // Handle both response shapes: { data: { employee: {...} } } and { data: {...} }
+              empData = res.data.data?.employee || res.data.data || null;
             }
           } catch (fetchErr) {
             try {
               const dbg = await axios.get(
                 `http://localhost:5001/api/templates/service-letter/debug/employee/${targetUserId}`
               );
-              if (dbg.data?.success && dbg.data?.data?.employee) {
-                empData = dbg.data.data.employee;
+              if (dbg.data?.success) {
+                // Handle both response shapes
+                empData = dbg.data.data?.employee || dbg.data.data || null;
               }
             } catch (dbgErr) {
               console.warn("Could not fetch service letter employee details:", dbgErr);

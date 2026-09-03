@@ -16,7 +16,7 @@ router.route('/menu').get(protect, (req, res) => {
       { path: '/employees', label: 'Employees', icon: 'employee' },
       { path: '/leave', label: 'Leaves', icon: 'leave' },
       { path: '/projects', label: 'Projects', icon: 'project' },
-      { path: '/templates', label: 'Template', icon: 'project' },
+      { path: '/templates', label: 'Template', icon: 'project', hidden: true },
       { path: '/letter-management', label: 'Letter Management', icon: 'letterManagment' },
       { path: '/settings', label: 'Settings', icon: 'setting' },
       { path: '/logout', label: 'Logout', icon: 'logout' }

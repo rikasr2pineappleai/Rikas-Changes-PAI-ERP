@@ -328,15 +328,46 @@ exports.generateServiceLetterPDF = async (req, res) => {
     const fileName = `service-letter-${(data.employeeName || 'employee').replace(/\s+/g, '-')}.pdf`;
 
     // Persist to ServiceLetterForm table if user exists
-    if (data.userId && ServiceLetterForm) {
+    const targetUserId = data.userId || req.body.employee_id || req.body.userId;
+    if (targetUserId && ServiceLetterForm) {
       try {
-        await ServiceLetterForm.create({
-          user_id: data.userId,
-          letter_date: data.letterDate || new Date().toISOString().split('T')[0],
-          generated_by: req.user?.id || data.userId || 1,
-          file_path: fileName,
-          status: 'draft'
-        });
+        const formDataToSave = {
+          ...req.body,
+          ...data,
+          userId: targetUserId
+        };
+        const existingId = req.body.rawId || req.body.letterId || req.body.id;
+        if (existingId) {
+          const cleanId = String(existingId).replace(/^service_/, '');
+          const existing = await ServiceLetterForm.findByPk(cleanId);
+          if (existing) {
+            await existing.update({
+              user_id: targetUserId,
+              letter_date: data.letterDate || new Date().toISOString().split('T')[0],
+              file_path: fileName,
+              status: 'draft',
+              form_data: JSON.stringify(formDataToSave)
+            });
+          } else {
+            await ServiceLetterForm.create({
+              user_id: targetUserId,
+              letter_date: data.letterDate || new Date().toISOString().split('T')[0],
+              generated_by: req.user?.id || targetUserId || 1,
+              file_path: fileName,
+              status: 'draft',
+              form_data: JSON.stringify(formDataToSave)
+            });
+          }
+        } else {
+          await ServiceLetterForm.create({
+            user_id: targetUserId,
+            letter_date: data.letterDate || new Date().toISOString().split('T')[0],
+            generated_by: req.user?.id || targetUserId || 1,
+            file_path: fileName,
+            status: 'draft',
+            form_data: JSON.stringify(formDataToSave)
+          });
+        }
       } catch (dbErr) {
         console.warn('Could not save ServiceLetterForm record:', dbErr.message);
       }
@@ -417,15 +448,46 @@ exports.sendServiceLetterEmail = async (req, res) => {
       ]
     });
 
-    if (data.userId && ServiceLetterForm) {
+    const targetUserId = data.userId || req.body.employee_id || req.body.userId;
+    if (targetUserId && ServiceLetterForm) {
       try {
-        await ServiceLetterForm.create({
-          user_id: data.userId,
-          letter_date: data.letterDate || new Date().toISOString().split('T')[0],
-          generated_by: req.user?.id || data.userId || 1,
-          file_path: `service-letter-${safeFileName}.pdf`,
-          status: 'sent'
-        });
+        const formDataToSave = {
+          ...req.body,
+          ...data,
+          userId: targetUserId
+        };
+        const existingId = req.body.rawId || req.body.letterId || req.body.id;
+        if (existingId) {
+          const cleanId = String(existingId).replace(/^service_/, '');
+          const existing = await ServiceLetterForm.findByPk(cleanId);
+          if (existing) {
+            await existing.update({
+              user_id: targetUserId,
+              letter_date: data.letterDate || new Date().toISOString().split('T')[0],
+              file_path: `service-letter-${safeFileName}.pdf`,
+              status: 'sent',
+              form_data: JSON.stringify(formDataToSave)
+            });
+          } else {
+            await ServiceLetterForm.create({
+              user_id: targetUserId,
+              letter_date: data.letterDate || new Date().toISOString().split('T')[0],
+              generated_by: req.user?.id || targetUserId || 1,
+              file_path: `service-letter-${safeFileName}.pdf`,
+              status: 'sent',
+              form_data: JSON.stringify(formDataToSave)
+            });
+          }
+        } else {
+          await ServiceLetterForm.create({
+            user_id: targetUserId,
+            letter_date: data.letterDate || new Date().toISOString().split('T')[0],
+            generated_by: req.user?.id || targetUserId || 1,
+            file_path: `service-letter-${safeFileName}.pdf`,
+            status: 'sent',
+            form_data: JSON.stringify(formDataToSave)
+          });
+        }
       } catch (dbErr) {
         console.warn('Could not save ServiceLetterForm record:', dbErr.message);
       }
