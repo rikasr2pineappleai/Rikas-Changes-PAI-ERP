@@ -26,6 +26,14 @@ const getServiceLetterValidationErrors = (data) => {
     }
   });
 
+  if (data.joiningDate && data.endDate) {
+    const joining = new Date(data.joiningDate);
+    const ending = new Date(data.endDate);
+    if (!isNaN(joining.getTime()) && !isNaN(ending.getTime()) && ending < joining) {
+      errors.endDate = 'Date of Ending cannot be earlier than Date of Joining';
+    }
+  }
+
   return errors;
 };
 

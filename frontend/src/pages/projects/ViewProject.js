@@ -870,6 +870,7 @@ export default function ViewProject() {
   // Load all page data when projectId changes
   useEffect(() => {
     loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   // Normalize tasks for frontend display
@@ -1071,7 +1072,11 @@ export default function ViewProject() {
     if (!taskForm.priority) next.priority = "Priority is required.";
     // if (!taskForm.status) next.status = "Status is required.";
     if (!taskForm.startDate) next.startDate = "Start date is required.";
-    if (!taskForm.dueDate) next.dueDate = "Due date is required.";
+    if (!taskForm.dueDate) {
+      next.dueDate = "Due date is required.";
+    } else if (taskForm.startDate && new Date(taskForm.dueDate) < new Date(taskForm.startDate)) {
+      next.dueDate = "Due date cannot be earlier than Start date.";
+    }
     if (!taskForm.description.trim())
       next.description = "Description is required.";
 
@@ -1147,9 +1152,6 @@ export default function ViewProject() {
   // Get selected label values for UI display
   const priorityLabel =
     priorityOptions.find((o) => o.value === taskForm.priority)?.label || "";
-
-  const statusLabel =
-    statusOptions.find((o) => o.value === taskForm.status)?.label || "";
 
   // Create new task
   const submitNewTask = async (e) => {

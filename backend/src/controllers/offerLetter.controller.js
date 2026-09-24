@@ -69,6 +69,16 @@ const getOfferLetterValidationErrors = (data) => {
     errors.reportingManagerEmail = 'Enter a valid Reporting Manager Email';
   }
 
+  const joiningStr = data.joiningDate || data.startDate;
+  const endingStr = data.endDate;
+  if (joiningStr && endingStr) {
+    const joining = new Date(joiningStr);
+    const ending = new Date(endingStr);
+    if (!isNaN(joining.getTime()) && !isNaN(ending.getTime()) && ending < joining) {
+      errors.endDate = 'Date of Ending cannot be earlier than Date of Joining';
+    }
+  }
+
   return errors;
 };
 

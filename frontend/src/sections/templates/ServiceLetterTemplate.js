@@ -329,6 +329,7 @@ export default function ServiceLetterTemplate({ initialLetter = null, onBack = n
     };
 
     loadInitialLetterData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialLetter, employees.length]);
 
   /* ── sync responsibilities string ──────────────────────── */
@@ -359,6 +360,14 @@ export default function ServiceLetterTemplate({ initialLetter = null, onBack = n
 
     const employeeNameError = validateServiceNameField(finalName);
     if (employeeNameError) errors.employeeName = employeeNameError;
+
+    if (formData.joiningDate && formData.endDate) {
+      const joining = new Date(formData.joiningDate);
+      const ending = new Date(formData.endDate);
+      if (!isNaN(joining.getTime()) && !isNaN(ending.getTime()) && ending < joining) {
+        errors.endDate = "Date of Ending cannot be earlier than Date of Joining";
+      }
+    }
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;

@@ -242,7 +242,7 @@ exports.createEmployeePersonal = async (req, res) => {
       emp_id: finalEmpId,
       password_hash,
       role: "employee",
-      status: "active",
+      status: "onboarding",
     });
 
     // Create employee detail
@@ -1015,7 +1015,8 @@ exports.setEmployeeWorkInfo = async (req, res) => {
       role: role || user.role,
       department_id: department_id || null,
       management_role: management_role || null,
-      report_to: normalizedReportTo
+      report_to: normalizedReportTo,
+      status: user.status === "onboarding" ? "active" : user.status,
     });
 
     // update employee details
@@ -1526,6 +1527,8 @@ exports.getAllEmployees = async (req, res) => {
       } else {
         baseWhereClause.status = status;
       }
+    } else {
+      baseWhereClause.status = { [Op.ne]: "onboarding" };
     }
 
     const filterOptionRows = await User.findAll({
@@ -1712,6 +1715,8 @@ exports.getEmployeeCount = async (req, res) => {
 
     if (status !== "all") {
       whereClause.status = status;
+    } else {
+      whereClause.status = { [Op.ne]: "onboarding" };
     }
 
     const count = await User.count({

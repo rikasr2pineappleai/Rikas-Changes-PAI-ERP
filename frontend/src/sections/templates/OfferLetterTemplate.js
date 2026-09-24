@@ -15,21 +15,22 @@ const CalendarIcon = () => (
   </svg>
 );
 
+// Helper: format date value for HTML date input (YYYY-MM-DD)
+const toDateInputValue = (val) => {
+  if (!val) return "";
+  if (val.includes("-")) return val;
+  const parts = val.split("/");
+  if (parts.length === 3) {
+    const [day, month, year] = parts;
+    return `${year}-${month}-${day}`;
+  }
+  return val;
+};
+
 // Interactive Date Picker Field Component (triggers native date picker on wrapper or icon click with border & placeholder)
-const DatePickerField = ({ name, value, onChange, placeholder = "DD/MM/YYYY" }) => {
+const DatePickerField = ({ name, value, onChange, placeholder = "DD/MM/YYYY", hasError = false }) => {
   const inputRef = useRef(null);
   const isEmpty = !value;
-
-  const toDateInputValue = (val) => {
-    if (!val) return "";
-    if (val.includes("-")) return val;
-    const parts = val.split("/");
-    if (parts.length === 3) {
-      const [day, month, year] = parts;
-      return `${year}-${month}-${day}`;
-    }
-    return val;
-  };
 
   const handleOpenCalendar = () => {
     if (inputRef.current) {
@@ -47,7 +48,7 @@ const DatePickerField = ({ name, value, onChange, placeholder = "DD/MM/YYYY" }) 
 
   return (
     <div
-      className={`date-input-relative-wrapper ${isEmpty ? "is-empty" : ""}`}
+      className={`date-input-relative-wrapper ${isEmpty ? "is-empty" : ""} ${hasError ? "has-error" : ""}`}
       onClick={handleOpenCalendar}
     >
       <input
@@ -56,7 +57,7 @@ const DatePickerField = ({ name, value, onChange, placeholder = "DD/MM/YYYY" }) 
         name={name}
         value={toDateInputValue(value)}
         onChange={onChange}
-        className={`offer-field-input date-input ${isEmpty ? "is-empty" : ""}`}
+        className={`offer-field-input date-input ${isEmpty ? "is-empty" : ""} ${hasError ? "error" : ""}`}
       />
       <span className="input-date-svg-icon" onClick={handleOpenCalendar}>
         <CalendarIcon />
@@ -282,6 +283,7 @@ export default function OfferLetterTemplate({ initialLetter = null, onBack = nul
     };
 
     loadInitialLetterData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialLetter, employees.length]);
 
   /* ── filtered employee dropdown ─────────────────────────── */
@@ -343,6 +345,20 @@ export default function OfferLetterTemplate({ initialLetter = null, onBack = nul
       !EMAIL_PATTERN.test(formData.reportingManagerEmail.trim())
     ) {
       errors.reportingManagerEmail = "Enter a valid Email";
+    }
+    if (formData.startDate && formData.endDate) {
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end < start) {
+        errors.endDate = "Date of Ending cannot be earlier than Date of Joining";
+      }
+    }
+    if (formData.startDate && formData.signingDeadline) {
+      const start = new Date(formData.startDate);
+      const deadline = new Date(formData.signingDeadline);
+      if (!isNaN(start.getTime()) && !isNaN(deadline.getTime()) && deadline < start) {
+        errors.signingDeadline = "Signing Deadline cannot be earlier than Start Date";
+      }
     }
 
     setValidationErrors(errors);
@@ -768,7 +784,11 @@ export default function OfferLetterTemplate({ initialLetter = null, onBack = nul
                   name="signingDeadline"
                   value={formData.signingDeadline}
                   onChange={handleInputChange}
+                  hasError={Boolean(validationErrors.signingDeadline)}
                 />
+                {validationErrors.signingDeadline && (
+                  <span className="error-msg">{validationErrors.signingDeadline}</span>
+                )}
               </div>
             </div>
           </div>
@@ -892,7 +912,11 @@ export default function OfferLetterTemplate({ initialLetter = null, onBack = nul
                     name="endDate"
                     value={formData.endDate}
                     onChange={handleInputChange}
+                    hasError={Boolean(validationErrors.endDate)}
                   />
+                  {validationErrors.endDate && (
+                    <span className="error-msg">{validationErrors.endDate}</span>
+                  )}
                 </div>
 
                 {/* Contract Duration */}

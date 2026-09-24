@@ -374,6 +374,17 @@ export default function Userpermission({ activeTab }) {
                 >
                   Change
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditId("");
+                    setEditRole("");
+                    setRoleError("");
+                  }}
+                  className="priv-btn-cancel"
+                >
+                  Cancel
+                </button>
               </div>
               {roleError && <div className="priv-field-error">{roleError}</div>}
             </>

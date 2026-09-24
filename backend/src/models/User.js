@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
     password_hash: { type: DataTypes.STRING(255), allowNull: false },
     role: { type: DataTypes.ENUM('admin', 'employee'), defaultValue: 'employee' },
     management_role: { type: DataTypes.STRING(100), allowNull: true },
-    status: { type: DataTypes.ENUM('active', 'inactive', 'terminated'), defaultValue: 'active' },
+    status: { type: DataTypes.ENUM('active', 'inactive', 'terminated', 'onboarding'), defaultValue: 'active' },
     report_to: { type: DataTypes.INTEGER, allowNull: true },
     department_id: { type: DataTypes.INTEGER, allowNull: true },
     designation: { type: DataTypes.STRING(100), allowNull: true },

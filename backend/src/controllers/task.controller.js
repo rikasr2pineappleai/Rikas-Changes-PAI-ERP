@@ -264,6 +264,16 @@ exports.createTask = async (req, res) => {
         .json({ success: false, message: "assigned_by is required" });
     }
 
+    if (body.assigned_at && body.deadline) {
+      const start = new Date(body.assigned_at);
+      const end = new Date(body.deadline);
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end < start) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Due date cannot be earlier than Start date" });
+      }
+    }
+
     const task = await Task.create({
       project_id: toInt(body.project_id),
       title: String(body.title).trim(),
@@ -315,6 +325,20 @@ exports.updateTask = async (req, res) => {
         success: false,
         message: "Task not found",
       });
+    }
+
+    const effectiveAssignedAt =
+      body.assigned_at !== undefined ? body.assigned_at : task.assigned_at;
+    const effectiveDeadline =
+      body.deadline !== undefined ? body.deadline : task.deadline;
+    if (effectiveAssignedAt && effectiveDeadline) {
+      const start = new Date(effectiveAssignedAt);
+      const end = new Date(effectiveDeadline);
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end < start) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Due date cannot be earlier than Start date" });
+      }
     }
 
     await task.update({

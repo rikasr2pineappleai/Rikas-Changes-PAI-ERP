@@ -158,6 +158,24 @@
   background: #1b5e20;
 }
 
+.priv-btn-cancel {
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #d0d5dd;
+  padding: 0 14px;
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.18s;
+  white-space: nowrap;
+}
+
+.priv-btn-cancel:hover {
+  background: #e5e7eb;
+}
+
 /* ── Tables ──────────────────────────────────────────────────────────────── */
 .priv-table-wrap {
   border: 1px solid #eee;
